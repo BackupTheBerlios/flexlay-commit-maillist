@@ -1,0 +1,428 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r606 - in trunk: ruby windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r606%20-%20in%20trunk%3A%20ruby%20windstille&In-Reply-To=%3C200509191736.j8JHamck011941%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000102.html">
+   <LINK REL="Next"  HREF="000104.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r606 - in trunk: ruby windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r606%20-%20in%20trunk%3A%20ruby%20windstille&In-Reply-To=%3C200509191736.j8JHamck011941%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r606 - in trunk: ruby windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Mon Sep 19 19:36:48 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000102.html">[Flexlay-commit] r605 - trunk/supertux
+</A></li>
+        <LI>Next message: <A HREF="000104.html">[Flexlay-commit] r607 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#103">[ date ]</a>
+              <a href="thread.html#103">[ thread ]</a>
+              <a href="subject.html#103">[ subject ]</a>
+              <a href="author.html#103">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-09-19 19:36:38 +0200 (Mon, 19 Sep 2005)
+New Revision: 606
+
+Added:
+   trunk/ruby/sexpr_config_file.rb
+Modified:
+   trunk/ruby/flexlay.rb
+   trunk/windstille/gameobjects.rb
+   trunk/windstille/gui.rb
+   trunk/windstille/gui_specs.rb
+   trunk/windstille/sector.rb
+   trunk/windstille/windstille.rb
+Log:
+- added class for config file parsing and stair support
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-09-17 10:32:39 UTC (rev 605)
++++ trunk/ruby/flexlay.rb	2005-09-19 17:36:38 UTC (rev 606)
+@@ -1,5 +1,3 @@
+-puts &quot;This line must only apear once!&quot;
+-
+ class TilemapLayer
+   alias orig_get_metadata get_metadata
+   alias orig_set_metadata set_metadata
+
+Added: trunk/ruby/sexpr_config_file.rb
+===================================================================
+--- trunk/ruby/sexpr_config_file.rb	2005-09-17 10:32:39 UTC (rev 605)
++++ trunk/ruby/sexpr_config_file.rb	2005-09-19 17:36:38 UTC (rev 606)
+@@ -0,0 +1,128 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++require &quot;sexpr.rb&quot;
++
++# Options is a class to manage configuration options and save/load of
++# them
++class SExprConfigFile
++  # The name is used to derive the location of the config file in the
++  # file system, name must not contain / or \
++  def initialize(name, &amp;block)
++    @name    = name
++    @defaults = {}
++    @options = {}
++
++    home = ENV['HOME']
++    if home then
++      dir = home + &quot;/.#{name}&quot;
++      if not (File.exists?(dir) and File.directory?(dir)) then
++        Dir::mkdir(dir)
++      end
++      @filename = home + &quot;/.#{@name}/config.scm&quot;
++    else
++      # assuming windows
++      @filename = &quot;#{name}-config.scm&quot;
++    end
++    
++    if block then
++      instance_eval(&amp;block);
++      read()
++    end
++  end
++
++  # Register default values
++  def register(name, value)
++    @defaults[name] = value
++  end
++
++  def get(name)
++    if @options.has_key?(name) then
++      return @options[name]
++    elsif @defaults.has_key?(name) then
++      return @defaults[name]
++    else
++      raise &quot;Error: Options:get: don't have a #{name} option&quot;
++    end
++  end
++
++  def set(name, value)
++    if @options.has_key?(name) then
++      return @options[name]
++    else
++      raise &quot;Error: Options:set: don't have a #{name} option&quot;
++    end
++  end
++
++  def read()
++    sexpr = SExpression.new_from_file(@filename)
++    sexpr = sexpr.cdr()
++    sexpr.each_pair() {|key, value|
++      if @defaults.has_key?(key.to_s) then
++        if @defaults[key.to_s].is_a?(Array) then
++          @options[key.to_s] = value.value()
++        else
++          @options[key.to_s] = value.value()[0]
++        end
++      else
++        puts &quot;Warning: Ignoring unknown config key: #{key}&quot;
++      end
++    }
++  end
++
++  def value2sexpr(value)
++    if value.is_a?(Fixnum) or value.is_a?(Float) then
++      return value.to_s
++    elsif value.is_a?(String)
++      return value.inspect
++    elsif value.is_a?(TrueClass) or value.is_a?(FalseClass)
++      if value then 
++        return &quot;#t&quot;
++      else
++        return &quot;#f&quot;
++      end
++    elsif value.is_a?(Array)
++      str = &quot;&quot;
++      value.each() {|v| 
++        str += val2sexpr(v)
++        str += &quot; &quot;
++      }
++      return str
++    else
++      raise &quot;Error: Unknown option type: #{value.class}&quot;
++    end
++  end
++
++  def write()
++    # FIXME: Move this over to a SExpression writer
++    f = File.new(@filename, &quot;w&quot;)
++    f.puts(&quot;(#{@name}-config&quot;)
++    @defaults.each_pair {|key, value|
++      if @options.has_key?(key) then
++        f.puts(&quot;    (%-20s %s)&quot; % [key, value2sexpr(@options[key])])
++      else
++        f.puts(&quot;;;  (%-20s %s)&quot; % [key, value2sexpr(value)])
++      end
++    }
++    f.puts(&quot;)\n\n;; EOF ;;&quot;)
++    f.close()
++  end
++end
++
++# EOF #
+
+Modified: trunk/windstille/gameobjects.rb
+===================================================================
+--- trunk/windstille/gameobjects.rb	2005-09-17 10:32:39 UTC (rev 605)
++++ trunk/windstille/gameobjects.rb	2005-09-19 17:36:38 UTC (rev 606)
+@@ -34,7 +34,13 @@
+   end
+ 
+   def save(f)
+-    write_sexpr(f, [@name, *@sexpr])
++    f.write(&quot;    (#{@name}\n&quot;)
++    @sexpr.each{|i|
++      f.write(&quot;      &quot;)
++      write_sexpr(f, i)
++      f.write(&quot;\n&quot;)
++    }
++    f.write(&quot;    )&quot;)
+     f.puts
+   end
+ end
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-09-17 10:32:39 UTC (rev 605)
++++ trunk/windstille/gui.rb	2005-09-19 17:36:38 UTC (rev 606)
+@@ -103,6 +103,7 @@
+   end
+ 
+   def on_map_change()
++    puts &quot;Mapchange&quot; 
+     if (@workspace.get_map().undo_stack_size() &gt; 0)
+       @button_panel.items[&quot;undo&quot;].enable()
+     else
+@@ -131,6 +132,13 @@
+       @button_panel.items[&quot;interactive&quot;].set_up();
+     end
+ 
++    if layer == :interactivebackground then
++      @button_panel.items[&quot;interactivebackground&quot;].set_down();
++      TilemapLayer.set_current(@workspace.get_map().get_metadata().interactivebackground)
++    else
++      @button_panel.items[&quot;interactivebackground&quot;].set_up();
++    end
++
+     if layer == :foreground then
+       @button_panel.items[&quot;foreground&quot;].set_down();
+       TilemapLayer.set_current(@workspace.get_map().get_metadata().foreground)
+
+Modified: trunk/windstille/gui_specs.rb
+===================================================================
+--- trunk/windstille/gui_specs.rb	2005-09-17 10:32:39 UTC (rev 605)
++++ trunk/windstille/gui_specs.rb	2005-09-19 17:36:38 UTC (rev 606)
+@@ -59,6 +59,7 @@
+   [:seperator],
+   [:icon,       &quot;background&quot;,  &quot;../data/images/icons24/background.png&quot;,    proc{ $gui.show_layer(:background) }],
+   [:icon,       &quot;interactive&quot;, &quot;../data/images/icons24/interactive.png&quot;,   proc{ $gui.show_layer(:interactive) }],
++  [:icon,       &quot;interactivebackground&quot;, &quot;../data/images/icons24/interactive.png&quot;,   proc{ $gui.show_layer(:interactivebackground) }],
+   [:icon,       &quot;foreground&quot;,  &quot;../data/images/icons24/foreground.png&quot;,    proc{ $gui.show_layer(:foreground) }],
+   [:icon,       &quot;properties&quot;,  &quot;../data/images/icons24/stock_properties.png&quot;, proc{ $gui.layer_properties() }],
+   [:icon,       &quot;viewprops&quot;,   &quot;../data/images/icons24/eye.png&quot;,           proc{ $gui.layer_menu.run() }],
+@@ -83,8 +84,8 @@
+   [&quot;1&quot;,  proc{ |x, y| $gui.show_layer(:background)}],
+ ]
+ 
+-$guilayout_spec = [
+-  :vbox, 
++$guilayout_spec = \
++[:vbox, 
+   [:homogenus, false],
+   [:components,
+     
+
+Modified: trunk/windstille/sector.rb
+===================================================================
+--- trunk/windstille/sector.rb	2005-09-17 10:32:39 UTC (rev 605)
++++ trunk/windstille/sector.rb	2005-09-19 17:36:38 UTC (rev 606)
+@@ -31,7 +31,7 @@
+ class Sector
+   ## Sector Properties
+   attr_reader :layers, :editormap
+-  attr_reader :background, :interactive, :foreground, :objects
++  attr_reader :background, :interactive, :interactivebackground,:foreground, :objects
+ 
+   attr_accessor :name
+ 
+@@ -49,14 +49,17 @@
+     
+     @background  = TilemapLayer.new($tileset, width, height)
+     @interactive = TilemapLayer.new($tileset, width, height)
++    @interactivebackground = TilemapLayer.new($tileset, width, height)
+     @foreground  = TilemapLayer.new($tileset, width, height)
+     
+     @background.set_metadata(TilemapMetadata.new(:name =&gt;  'background'))
+     @foreground.set_metadata(TilemapMetadata.new(:name =&gt;  'foreground'))
+     @interactive.set_metadata(TilemapMetadata.new(:name =&gt; 'interactive'))
++    @interactive.set_metadata(TilemapMetadata.new(:name =&gt; 'interactivebackground'))
+ 
+     @layers = []
+     @layers += [@background]
++    @layers += [@interactivebackground]
+     @layers += [@interactive]
+     @layers += [@foreground]
+     @layers += [@objects = ObjectLayer.new()]
+@@ -108,6 +111,8 @@
+           @background = tilemap
+         when &quot;interactive&quot;
+           @interactive = tilemap
++        when &quot;interactivebackground&quot;
++          @interactivebackground = tilemap
+         when &quot;background&quot;
+           @background = tilemap
+         else
+@@ -124,7 +129,7 @@
+       end
+     }
+     
+-    @layers += [@background, @interactive, @foreground, @objects]
++    @layers += [@background, @interactivebackground, @interactive, @foreground, @objects]
+ 
+     @editormap = EditorMap.new()
+     @layers.each {|layer| 
+@@ -147,8 +152,11 @@
+ 
+     TilemapLayer.set_current(@layers[@current_layer])
+     ObjectLayer.set_current(@objects)
+-
+-    connect(@editormap.sig_change(), proc{$gui.on_map_change()})
++    
++    connect(@editormap.sig_change(), proc{
++              puts &quot;blabl&quot;
++              $gui.on_map_change()
++            })
+   end
+ 
+   def save(filename)
+@@ -168,8 +176,8 @@
+       if tilemap then
+         width  = tilemap.get_width()
+         height = tilemap.get_height()
+-        f.write(&quot;  (tilemap (name \&quot;%s\&quot;) (width %d) (height %d) (z-pos 0)\n&quot; % \
+-                [name, width, height]) # FIXME: add escaping to strings
++        f.write(&quot;  (tilemap (name \&quot;%s\&quot;) (width %d) (height %d) (z-pos %d)\n&quot; % \
++                [name, width, height, tilemap.get_metadata().z_pos]) # FIXME: add escaping to strings
+         f.write(&quot;    (data&quot;)
+         tilemap.get_data().each_with_index {|item, i|
+           if (i % width == 0) then
+@@ -182,6 +190,7 @@
+     }
+ 
+     save_tilemap.call(&quot;background&quot;,  @background)
++    save_tilemap.call(&quot;interactivebackground&quot;, @interactivebackground)
+     save_tilemap.call(&quot;interactive&quot;, @interactive)
+     save_tilemap.call(&quot;foreground&quot;,  @foreground)
+ 
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-09-17 10:32:39 UTC (rev 605)
++++ trunk/windstille/windstille.rb	2005-09-19 17:36:38 UTC (rev 606)
+@@ -23,12 +23,6 @@
+ $datadir = &quot;/home/ingo/projects/windstille/trunk/data/&quot;
+ 
+ ## First we try to read a config file to set some variables
+-$config_file = File.expand_path(&quot;~/.flexlay/windstille.rb&quot;)
+-
+-if File.exist?($config_file) then
+-  require $config_file
+-end
+-
+ ## Load Flexlay library
+ require &quot;flexlay_wrap&quot;
+ include Flexlay_wrap
+@@ -37,13 +31,22 @@
+ 
+ require &quot;controller.rb&quot;
+ require &quot;sexpr.rb&quot;
++require &quot;sexpr_config_file.rb&quot;
+ require &quot;gui.rb&quot;
+ require &quot;sector.rb&quot;
+ require &quot;tileset.rb&quot;
+ 
+-$screen_width  = 640
+-$screen_height = 480
+ 
++$config = SExprConfigFile.new(&quot;windstille-editor&quot;) {
++  register(&quot;screen-width&quot;,  800)
++  register(&quot;screen-height&quot;, 600)
++  register(&quot;fullscreen&quot;,    false)
++  register(&quot;recent-files&quot;,  [])
++}
++
++$screen_width  = $config.get(&quot;screen-width&quot;)
++$screen_height = $config.get(&quot;screen-height&quot;)
++
+ ## Init Flexlay itself
+ $flexlay = Flexlay.new()
+ $flexlay.init($screen_width, $screen_height, false, true)
+@@ -67,6 +70,8 @@
+ 
+ $gui.run()
+ 
++$config.write()
++
+ # $flexlay.deinit()
+ 
+ # EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000102.html">[Flexlay-commit] r605 - trunk/supertux
+</A></li>
+	<LI>Next message: <A HREF="000104.html">[Flexlay-commit] r607 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#103">[ date ]</a>
+              <a href="thread.html#103">[ thread ]</a>
+              <a href="subject.html#103">[ subject ]</a>
+              <a href="author.html#103">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r739 - trunk/netbrush
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r739%20-%20trunk/netbrush&In-Reply-To=%3C201005121711.o4CHBS66012058%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000233.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r739 - trunk/netbrush</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r739%20-%20trunk/netbrush&In-Reply-To=%3C201005121711.o4CHBS66012058%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r739 - trunk/netbrush">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Wed May 12 19:11:28 CEST 2010</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000233.html">[Flexlay-commit] r740 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#232">[ date ]</a>
+              <a href="thread.html#232">[ thread ]</a>
+              <a href="subject.html#232">[ subject ]</a>
+              <a href="author.html#232">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2010-05-12 19:11:28 +0200 (Wed, 12 May 2010)
+New Revision: 739
+
+Modified:
+   trunk/netbrush/Makefile
+Log:
+Added install target to Makefile
+
+Modified: trunk/netbrush/Makefile
+===================================================================
+--- trunk/netbrush/Makefile	2009-11-23 15:29:58 UTC (rev 738)
++++ trunk/netbrush/Makefile	2010-05-12 17:11:28 UTC (rev 739)
+@@ -1,4 +1,45 @@
+-all:
+-	scons -D
++##            _   ___              _   
++##   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++##  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++##  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++##  netBrush - Copyright (C) 2010 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software: you can redistribute it and/or modify
++##  it under the terms of the GNU General Public License as published by
++##  the Free Software Foundation, either version 3 of the License, or
++##  (at your option) any later version.
++##  
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++##  
++##  You should have received a copy of the GNU General Public License
++##  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++DESTDIR = 
++PREFIX  = &quot;/usr/local&quot;
++DATADIR = &quot;${PREFIX}/share/netbrush&quot;
++BINDIR  = &quot;${PREFIX}/bin&quot;
++
++build:
++	scons DATADIR=&quot;${DATADIR}&quot;
++
++install: install-exec install-data
++
++install-data:
++	cd data/; \
++	find -type f \( \
++	-name &quot;*.png&quot; \) \
++	-exec install -D {} ${DESTDIR}${DATADIR}/{} \;
++
++install-exec: build
++	install -D netbrush-client &quot;${DESTDIR}${BINDIR}/netbrush-client&quot;
++	install -D netbrush-server &quot;${DESTDIR}${BINDIR}/netbrush-server&quot;
++
++clean:
++	scons -c
++
++.PHONY : clean install install-exec install-data build
++
+ # EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000233.html">[Flexlay-commit] r740 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#232">[ date ]</a>
+              <a href="thread.html#232">[ thread ]</a>
+              <a href="subject.html#232">[ subject ]</a>
+              <a href="author.html#232">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,516 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r502 - in trunk: lib paint
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r502%20-%20in%20trunk%3A%20lib%20paint&In-Reply-To=%3C200503251657.j2PGv5ZG003959%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000011.html">
+   <LINK REL="Next"  HREF="000013.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r502 - in trunk: lib paint</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r502%20-%20in%20trunk%3A%20lib%20paint&In-Reply-To=%3C200503251657.j2PGv5ZG003959%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r502 - in trunk: lib paint">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Fri Mar 25 17:57:05 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000011.html">[Flexlay-commit] r501 - in trunk: lib paint
+</A></li>
+        <LI>Next message: <A HREF="000013.html">[Flexlay-commit] r503 - in trunk: lib paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-25 17:57:04 +0100 (Fri, 25 Mar 2005)
+New Revision: 502
+
+Modified:
+   trunk/lib/sprite_stroke_drawer.cxx
+   trunk/paint/gui.rb
+   trunk/paint/image.rb
+Log:
+- some refactoring
+- some little fixes to the smudge tool
+
+Modified: trunk/lib/sprite_stroke_drawer.cxx
+===================================================================
+--- trunk/lib/sprite_stroke_drawer.cxx	2005-03-25 16:01:28 UTC (rev 501)
++++ trunk/lib/sprite_stroke_drawer.cxx	2005-03-25 16:57:04 UTC (rev 502)
+@@ -41,7 +41,6 @@
+   SpriteStrokeDrawerImpl() {}
+ 
+   void draw(const Stroke&amp; stroke, CL_GraphicContext* gc);
+-  void draw_dab(const Dab&amp; dab, CL_GraphicContext* gc);
+ 
+   StrokeDrawerImpl* clone() const;
+ };
+@@ -60,215 +59,205 @@
+ }
+ 
+ void
+-SpriteStrokeDrawerImpl::draw_dab(const Dab&amp; dab, CL_GraphicContext* gc)
++SpriteStrokeDrawerImpl::draw(const Stroke&amp; stroke, CL_GraphicContext* gc)
+ {
+-  CL_Sprite sprite = DrawerProperties::current()-&gt;get_brush().get_sprite();
++  if (DrawerProperties::current()-&gt;get_brush().is_null() || stroke.get_dab_count() == 0)
++    return;
++  
++  Stroke::Dabs dabs = stroke.get_interpolated_dabs(DrawerProperties::current()-&gt;get_spacing()
++                                                   * DrawerProperties::current()-&gt;get_size(),
++                                                   DrawerProperties::current()-&gt;get_spacing()
++                                                   * DrawerProperties::current()-&gt;get_size());
+ 
+-  CL_Color color = DrawerProperties::current()-&gt;get_color();
+-  sprite.set_color(color);
+-  sprite.set_alpha((color.get_alpha()/255.0f) * dab.pressure);
+-  sprite.set_scale(DrawerProperties::current()-&gt;get_size() * dab.pressure,
+-                   DrawerProperties::current()-&gt;get_size() * dab.pressure);
+-
+-  if (gc != 0)
++  for(Stroke::Dabs::iterator i = dabs.begin(); i != dabs.end(); ++i)
+     {
+-      /* Correct function:
+-         1: dest
+-         2: src
++      Dab&amp; dab = *i;
++
++      CL_Sprite sprite = DrawerProperties::current()-&gt;get_brush().get_sprite();
++
++      CL_Color color = DrawerProperties::current()-&gt;get_color();
++      sprite.set_color(color);
++      sprite.set_alpha((color.get_alpha()/255.0f) * dab.pressure);
++      sprite.set_scale(DrawerProperties::current()-&gt;get_size() * dab.pressure,
++                       DrawerProperties::current()-&gt;get_size() * dab.pressure);
++
++      if (gc != 0)
++        {
++          /* Correct function:
++             1: dest
++             2: src
+              
+-         R = R1 A1 (1 - A2) + R2 A2
+-         G = G1 A1 (1 - A2) + G2 A2
+-         B = B1 A1 (1 - A2) + B2 A2
+-         A = A1 (1 - A2) + A2
++             R = R1 A1 (1 - A2) + R2 A2
++             G = G1 A1 (1 - A2) + G2 A2
++             B = B1 A1 (1 - A2) + B2 A2
++             A = A1 (1 - A2) + A2
+ 
+-         // This is currently used, leads to premultiplied alpha
+-         Aout  = Afgd + (1 - Afgd) * Abkg 
+-         Cout' = Cfgd' + (1 - Afgd) * Cbkg' 
+-         where
+-         Cfgd' = Cfgd * Afgd
+-         Cbkg' = Cbkg * Abkg
+-         Cout' = Cout * Aout
++             // This is currently used, leads to premultiplied alpha
++             Aout  = Afgd + (1 - Afgd) * Abkg 
++             Cout' = Cfgd' + (1 - Afgd) * Cbkg' 
++             where
++             Cfgd' = Cfgd * Afgd
++             Cbkg' = Cbkg * Abkg
++             Cout' = Cout * Aout
+ 
+-         Aout = (1 - (1 - Afgd) * (1 - Abkg)) 
+-         Cout = (Cfgd * Afgd) + (1 - Afgd * Cbkg * Abkg) / Aout 
+-         where
+-         Cfgd = red, green, blue of foreground
+-         Cbkg = red, green, blue of background
+-         Afgd = alpha of foreground
+-         Abkg = alpha of background
+-      */
++             Aout = (1 - (1 - Afgd) * (1 - Abkg)) 
++             Cout = (Cfgd * Afgd) + (1 - Afgd * Cbkg * Abkg) / Aout 
++             where
++             Cfgd = red, green, blue of foreground
++             Cbkg = red, green, blue of background
++             Afgd = alpha of foreground
++             Abkg = alpha of background
++          */
+ 
+-      // DO Multipass:
+-      // 1: GL_ZERO, GL_DST_ALPHA
+-      // 2: GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
+-      /*brush.set_blend_func_separate(blend_zero, blend_dst_alpha,
+-        blend_zero, blend_one);
+-        brush.draw(dab.pos.x, dab.pos.y, gc);*/
++          // DO Multipass:
++          // 1: GL_ZERO, GL_DST_ALPHA
++          // 2: GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
++          /*brush.set_blend_func_separate(blend_zero, blend_dst_alpha,
++            blend_zero, blend_one);
++            brush.draw(dab.pos.x, dab.pos.y, gc);*/
+           
+-      switch (mode)
+-        {
+-        case SpriteStrokeDrawer::DM_NORMAL:
+-          sprite.set_blend_func_separate(blend_src_alpha, blend_one_minus_src_alpha,
+-                                         blend_one, blend_one_minus_src_alpha);
+-          sprite.draw(dab.pos.x, dab.pos.y, gc);
+-          break;
++          switch (mode)
++            {
++            case SpriteStrokeDrawer::DM_NORMAL:
++              sprite.set_blend_func_separate(blend_src_alpha, blend_one_minus_src_alpha,
++                                             blend_one, blend_one_minus_src_alpha);
++              sprite.draw(dab.pos.x, dab.pos.y, gc);
++              break;
+ 
+-        case SpriteStrokeDrawer::DM_ADDITION:
+-          sprite.set_blend_func_separate(blend_src_alpha, blend_one,
+-                                         blend_zero, blend_one);
+-          //blend_one, blend_one_minus_src_alpha);
+-          sprite.draw(dab.pos.x, dab.pos.y, gc);
+-          break;
++            case SpriteStrokeDrawer::DM_ADDITION:
++              sprite.set_blend_func_separate(blend_src_alpha, blend_one,
++                                             blend_zero, blend_one);
++              //blend_one, blend_one_minus_src_alpha);
++              sprite.draw(dab.pos.x, dab.pos.y, gc);
++              break;
+               
+-        case SpriteStrokeDrawer::DM_ERASE:
+-          sprite.set_blend_func(blend_zero, blend_one_minus_src_alpha);
+-          sprite.draw(dab.pos.x, dab.pos.y, gc);
+-          break;
++            case SpriteStrokeDrawer::DM_ERASE:
++              sprite.set_blend_func(blend_zero, blend_one_minus_src_alpha);
++              sprite.draw(dab.pos.x, dab.pos.y, gc);
++              break;
+           
+-        case SpriteStrokeDrawer::DM_SMUDGE:
+-          {
+-            // FIXME: These need to get reset on a new stroke
+-            static int last_pos_x = 0;
+-            static int last_pos_y = 0;
+-
+-            if (last_pos_y != 0 || last_pos_x != 0)
++            case SpriteStrokeDrawer::DM_SMUDGE:
+               {
+-                CL_Canvas* canvas = BitmapLayer::current()-&gt;get_canvas();
+-                CL_PixelBuffer buffer = canvas-&gt;get_pixeldata(CL_Rect(CL_Point(last_pos_x - sprite.get_width()/2,
+-                                                                               last_pos_y - sprite.get_height()/2),
+-                                                                      CL_Size(sprite.get_width(), sprite.get_height())));
+-                CL_Surface surface(buffer);
+-                //surface.set_blend_func_separate(blend_src_alpha, blend_one_minus_src_alpha,
+-                //                                blend_one, blend_zero);
+-                //surface.set_blend_func(blend_one, blend_one_minus_src_alpha);
+-                surface.set_alignment(origin_center);
+-                surface.set_alpha(0.8);
+-                surface.draw(dab.pos.x, dab.pos.y, gc);
++                if (i != dabs.begin())
++                  {
++                    CL_Canvas* canvas = BitmapLayer::current()-&gt;get_canvas();
++                    CL_PixelBuffer buffer = canvas-&gt;get_pixeldata(CL_Rect(CL_Point(static_cast&lt;int&gt;((i-1)-&gt;pos.x) - sprite.get_width()/2,
++                                                                                   static_cast&lt;int&gt;((i-1)-&gt;pos.y) - sprite.get_height()/2),
++                                                                          CL_Size(sprite.get_width(), sprite.get_height())));
++                    CL_Surface surface(buffer);
++                    //surface.set_blend_func_separate(blend_src_alpha, blend_one_minus_src_alpha,
++                    //                                blend_one, blend_zero);
++                    surface.set_alignment(origin_center);
++                    surface.set_alpha(0.8);
++                    //surface.set_scale(DrawerProperties::current()-&gt;get_size(),
++                    //                 DrawerProperties::current()-&gt;get_size());
++                    surface.draw(dab.pos.x, dab.pos.y, gc);
++                  }
+               }
++              break;
+ 
+-            last_pos_x = static_cast&lt;int&gt;(dab.pos.x);
+-            last_pos_y = static_cast&lt;int&gt;(dab.pos.y);
+-          }
+-          break;
+-
+-        case SpriteStrokeDrawer::DM_SHADER:
+-          {
++            case SpriteStrokeDrawer::DM_SHADER:
++              {
+ #if 0 
+-            CL_OpenGLState state(gc);
+-            state.set_active();
+-            state.setup_2d();
++                CL_OpenGLState state(gc);
++                state.set_active();
++                state.setup_2d();
+ 
+-            if (program == 0)
+-              {
+-                program = new CL_ProgramObject();
++                if (program == 0)
++                  {
++                    program = new CL_ProgramObject();
+                 
+-                CL_ShaderObject shader(&quot;shader&quot;, &amp;(Flexlay::current()-&gt;resources));
+-                std::cout &lt;&lt; &quot;Shader status: &quot; &lt;&lt; (shader.get_compile_status() ? &quot;true&quot; : &quot;false&quot;) &lt;&lt; std::endl;
+-                std::cout &lt;&lt; &quot;Shader log: &quot; &lt;&lt; shader.get_info_log() &lt;&lt; std::endl;
+-                std::cout &lt;&lt; &quot;Shader handle: &quot; &lt;&lt; shader.get_handle() &lt;&lt; std::endl;
++                    CL_ShaderObject shader(&quot;shader&quot;, &amp;(Flexlay::current()-&gt;resources));
++                    std::cout &lt;&lt; &quot;Shader status: &quot; &lt;&lt; (shader.get_compile_status() ? &quot;true&quot; : &quot;false&quot;) &lt;&lt; std::endl;
++                    std::cout &lt;&lt; &quot;Shader log: &quot; &lt;&lt; shader.get_info_log() &lt;&lt; std::endl;
++                    std::cout &lt;&lt; &quot;Shader handle: &quot; &lt;&lt; shader.get_handle() &lt;&lt; std::endl;
+ 
+-                program-&gt;attach(shader);
+-                program-&gt;link();
+-                std::cout &lt;&lt; &quot;Program status: &quot; &lt;&lt; (program-&gt;get_link_status() ? &quot;true&quot; : &quot;false&quot;) &lt;&lt; std::endl;
+-                std::cout &lt;&lt; &quot;Program log: &quot; &lt;&lt; program-&gt;get_info_log() &lt;&lt; std::endl;
+-                std::cout &lt;&lt; &quot;Program handle: &quot; &lt;&lt; program-&gt;get_handle() &lt;&lt; std::endl;
++                    program-&gt;attach(shader);
++                    program-&gt;link();
++                    std::cout &lt;&lt; &quot;Program status: &quot; &lt;&lt; (program-&gt;get_link_status() ? &quot;true&quot; : &quot;false&quot;) &lt;&lt; std::endl;
++                    std::cout &lt;&lt; &quot;Program log: &quot; &lt;&lt; program-&gt;get_info_log() &lt;&lt; std::endl;
++                    std::cout &lt;&lt; &quot;Program handle: &quot; &lt;&lt; program-&gt;get_handle() &lt;&lt; std::endl;
+ 
+-                clUseProgram(program-&gt;get_handle());
+-              }
+-            else
+-              {
+-                clUseProgram(program-&gt;get_handle());
+-              }
++                    clUseProgram(program-&gt;get_handle());
++                  }
++                else
++                  {
++                    clUseProgram(program-&gt;get_handle());
++                  }
+             
+-            CL_OpenGLSurface glsurface(sprite.get_frame_surface(0));
+-            glActiveTexture(GL_TEXTURE0);
+-            glsurface.bind();
+-            glEnable(GL_TEXTURE_2D);
++                CL_OpenGLSurface glsurface(sprite.get_frame_surface(0));
++                glActiveTexture(GL_TEXTURE0);
++                glsurface.bind();
++                glEnable(GL_TEXTURE_2D);
+ 
+-            /*CL_OpenGLSurface glsurface2(SketchLayer::current()-&gt;get_background_surface());
+-              glActiveTexture(GL_TEXTURE1);
+-              glsurface2.bind();
+-              glEnable(GL_TEXTURE_2D);*/
++                /*CL_OpenGLSurface glsurface2(SketchLayer::current()-&gt;get_background_surface());
++                  glActiveTexture(GL_TEXTURE1);
++                  glsurface2.bind();
++                  glEnable(GL_TEXTURE_2D);*/
+             
+-            clUniform1i(program-&gt;get_attribute_location(&quot;mytex&quot;), 0);
+-            //clUniform1i(program-&gt;get_attribute_location(&quot;background&quot;), 1);
+-            //program-&gt;validate();
+-            //std::cout &lt;&lt; &quot;Program validate status: &quot; &lt;&lt; (program-&gt;get_validate_status() ? &quot;true&quot; : &quot;false&quot;) &lt;&lt; std::endl;
+-            //std::cout &lt;&lt; &quot;Program log: &quot; &lt;&lt; program-&gt;get_info_log() &lt;&lt; std::endl;
++                clUniform1i(program-&gt;get_attribute_location(&quot;mytex&quot;), 0);
++                //clUniform1i(program-&gt;get_attribute_location(&quot;background&quot;), 1);
++                //program-&gt;validate();
++                //std::cout &lt;&lt; &quot;Program validate status: &quot; &lt;&lt; (program-&gt;get_validate_status() ? &quot;true&quot; : &quot;false&quot;) &lt;&lt; std::endl;
++                //std::cout &lt;&lt; &quot;Program log: &quot; &lt;&lt; program-&gt;get_info_log() &lt;&lt; std::endl;
+ 
+-            clBegin(CL_QUADS);
+-            clColor4b(color.get_red(), color.get_green(), color.get_blue(), color.get_alpha());
+-            float size = base_size * dab.pressure;
+-            clVertex2f((dab.pos.x - sprite.get_width()/2) * size, (dab.pos.y - sprite.get_height()/2) * size);
+-            clTexCoord2d(0.0, 0.0);
+-            clVertex2f((dab.pos.x + sprite.get_width()/2) * size, (dab.pos.y - sprite.get_height()/2) * size);
+-            clTexCoord2d(1.0, 0.0);
+-            clVertex2f((dab.pos.x + sprite.get_width()/2) * size, (dab.pos.y + sprite.get_height()/2) * size);
+-            clTexCoord2d(1.0, 1.0);
+-            clVertex2f((dab.pos.x - sprite.get_width()/2) * size, (dab.pos.y + sprite.get_height()/2) * size);
+-            clTexCoord2d(0.0, 1.0);
+-            clEnd();
++                clBegin(CL_QUADS);
++                clColor4b(color.get_red(), color.get_green(), color.get_blue(), color.get_alpha());
++                float size = base_size * dab.pressure;
++                clVertex2f((dab.pos.x - sprite.get_width()/2) * size, (dab.pos.y - sprite.get_height()/2) * size);
++                clTexCoord2d(0.0, 0.0);
++                clVertex2f((dab.pos.x + sprite.get_width()/2) * size, (dab.pos.y - sprite.get_height()/2) * size);
++                clTexCoord2d(1.0, 0.0);
++                clVertex2f((dab.pos.x + sprite.get_width()/2) * size, (dab.pos.y + sprite.get_height()/2) * size);
++                clTexCoord2d(1.0, 1.0);
++                clVertex2f((dab.pos.x - sprite.get_width()/2) * size, (dab.pos.y + sprite.get_height()/2) * size);
++                clTexCoord2d(0.0, 1.0);
++                clEnd();
+             
+-            state.set_active();
+-            clUseProgram(0);
++                state.set_active();
++                clUseProgram(0);
+ #endif
+-          }
+-          break;
++              }
++              break;
+               
+-        default:
+-          std::cout &lt;&lt; &quot;Error: SpriteStrokeDrawer: Unknown draw mode: &quot; &lt;&lt; mode &lt;&lt; std::endl;
+-          break;
++            default:
++              std::cout &lt;&lt; &quot;Error: SpriteStrokeDrawer: Unknown draw mode: &quot; &lt;&lt; mode &lt;&lt; std::endl;
++              break;
++            }
+         }
+-    }
+-  else
+-    {
+-      switch (mode)
++      else
+         {
+-        case SpriteStrokeDrawer::DM_NORMAL:  
+-          sprite.set_blend_func(blend_src_alpha, blend_one_minus_src_alpha);
+-          sprite.draw(dab.pos.x, dab.pos.y, gc);
+-          break;
++          switch (mode)
++            {
++            case SpriteStrokeDrawer::DM_NORMAL:  
++              sprite.set_blend_func(blend_src_alpha, blend_one_minus_src_alpha);
++              sprite.draw(dab.pos.x, dab.pos.y, gc);
++              break;
+               
+-        case SpriteStrokeDrawer::DM_ADDITION:
+-          sprite.set_blend_func(blend_src_alpha, blend_one);
+-          sprite.draw(dab.pos.x, dab.pos.y, gc); 
+-          break;
++            case SpriteStrokeDrawer::DM_ADDITION:
++              sprite.set_blend_func(blend_src_alpha, blend_one);
++              sprite.draw(dab.pos.x, dab.pos.y, gc); 
++              break;
+             
+-        case SpriteStrokeDrawer::DM_ERASE:
+-          sprite.set_blend_func(blend_zero, blend_one_minus_src_alpha);
+-          sprite.draw(dab.pos.x, dab.pos.y, gc);
+-          break; 
++            case SpriteStrokeDrawer::DM_ERASE:
++              sprite.set_blend_func(blend_zero, blend_one_minus_src_alpha);
++              sprite.draw(dab.pos.x, dab.pos.y, gc);
++              break; 
+           
+-        case SpriteStrokeDrawer::DM_SMUDGE:
+-          sprite.set_blend_func(blend_src_alpha, blend_one_minus_src_alpha);
+-          sprite.draw(dab.pos.x, dab.pos.y, gc);          
+-          break;
++            case SpriteStrokeDrawer::DM_SMUDGE:
++              sprite.set_blend_func(blend_src_alpha, blend_one_minus_src_alpha);
++              sprite.draw(dab.pos.x, dab.pos.y, gc);          
++              break;
+ 
+-        default:
+-          std::cout &lt;&lt; &quot;Error: SpriteStrokeDrawer: Unknown draw mode: &quot; &lt;&lt; mode &lt;&lt; std::endl;
+-          break;
++            default:
++              std::cout &lt;&lt; &quot;Error: SpriteStrokeDrawer: Unknown draw mode: &quot; &lt;&lt; mode &lt;&lt; std::endl;
++              break;
++            }
+         }
+     }
+ }
+ 
+ void
+-SpriteStrokeDrawerImpl::draw(const Stroke&amp; stroke, CL_GraphicContext* gc)
+-{
+-  if (DrawerProperties::current()-&gt;get_brush().is_null() || stroke.get_dab_count() == 0)
+-    return;
+-  
+-  Stroke::Dabs dabs = stroke.get_interpolated_dabs(DrawerProperties::current()-&gt;get_spacing()
+-                                                   * DrawerProperties::current()-&gt;get_size(),
+-                                                   DrawerProperties::current()-&gt;get_spacing()
+-                                                   * DrawerProperties::current()-&gt;get_size());
+-
+-  for(Stroke::Dabs::iterator i = dabs.begin(); i != dabs.end(); ++i)
+-    {
+-      draw_dab(*i, gc);
+-    }
+-}
+-
+-void
+ SpriteStrokeDrawer::set_mode(DrawMode mode)
+ {
+   impl-&gt;mode = mode;
+
+Modified: trunk/paint/gui.rb
+===================================================================
+--- trunk/paint/gui.rb	2005-03-25 16:01:28 UTC (rev 501)
++++ trunk/paint/gui.rb	2005-03-25 16:57:04 UTC (rev 502)
+@@ -71,6 +71,14 @@
+                        GeneratedBrush.new(DrawerProperties.current().get_brush()).set_angle(value)
+                      })
+ 
++    @spacing_slider = Slider.new(CL_Rect.new(CL_Point.new(3, 600), CL_Size.new(128, 16)),
++                                 @selector_window)
++    @spacing_slider.set_range(1, 250)
++    @spacing_slider.set_value(20)
++    connect_v1_float(@spacing_slider.sig_on_change, proc{|value|
++                       DrawerProperties.current().set_spacing(value)
++                     })
++
+     @brush_shape_circle  = CL_Button.new(CL_Rect.new(CL_Point.new(5, 250), CL_Size.new(40, 25)), &quot;Circ&quot;, @selector_window)
+     @brush_shape_rect    = CL_Button.new(CL_Rect.new(CL_Point.new(45, 250), CL_Size.new(40, 25)), &quot;Squa&quot;, @selector_window)
+     @brush_shape_diamond = CL_Button.new(CL_Rect.new(CL_Point.new(85, 250), CL_Size.new(40, 25)), &quot;Diam&quot;, @selector_window)
+@@ -79,7 +87,6 @@
+               GeneratedBrush.new(DrawerProperties.current().get_brush()).set_shape(BRUSH_SHAPE_CIRCLE)
+             })
+     connect(@brush_shape_rect.sig_clicked(), proc{ 
+-              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+               GeneratedBrush.new(DrawerProperties.current().get_brush()).set_shape(BRUSH_SHAPE_SQUARE)
+             })
+     connect(@brush_shape_diamond.sig_clicked(), proc{ 
+
+Modified: trunk/paint/image.rb
+===================================================================
+--- trunk/paint/image.rb	2005-03-25 16:01:28 UTC (rev 501)
++++ trunk/paint/image.rb	2005-03-25 16:57:04 UTC (rev 502)
+@@ -88,12 +88,12 @@
+ 
+     sprite_drawer = SpriteStrokeDrawer.new()
+     # FIXME: insert loader for brush here
+-    sprite_drawer.set_brush(GeneratedBrush.new(BRUSH_SHAPE_CIRCLE, 
+-                                               32,  # radius
+-                                               2,   # spikes
+-                                               0.75, # hardness
+-                                               1.0, # aspect
+-                                               0).to_brush()) # angle
++    DrawerProperties.current().set_brush(GeneratedBrush.new(BRUSH_SHAPE_CIRCLE, 
++                                                            32,  # radius
++                                                            2,   # spikes
++                                                            0.75, # hardness
++                                                            1.0, # aspect
++                                                            0).to_brush()) # angle
+     
+     sprite_drawer.set_color(CL_Color.new(0, 0, 0, 155))
+     sprite_drawer.set_size(1.0)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000011.html">[Flexlay-commit] r501 - in trunk: lib paint
+</A></li>
+	<LI>Next message: <A HREF="000013.html">[Flexlay-commit] r503 - in trunk: lib paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#12">[ date ]</a>
+              <a href="thread.html#12">[ thread ]</a>
+              <a href="subject.html#12">[ subject ]</a>
+              <a href="author.html#12">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

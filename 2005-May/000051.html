@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r556 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r556%20-%20trunk/supertux&In-Reply-To=%3C200505181014.j4IAE2G9015653%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000050.html">
+   <LINK REL="Next"  HREF="000052.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r556 - trunk/supertux</H1>
+    <B>Marek Moeckel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r556%20-%20trunk/supertux&In-Reply-To=%3C200505181014.j4IAE2G9015653%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r556 - trunk/supertux">wansti at sheep.berlios.de
+       </A><BR>
+    <I>Wed May 18 12:14:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000050.html">[Flexlay-commit] r555 - trunk/supertux
+</A></li>
+        <LI>Next message: <A HREF="000052.html">[Flexlay-commit] r557 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wansti
+Date: 2005-05-18 12:14:00 +0200 (Wed, 18 May 2005)
+New Revision: 556
+
+Modified:
+   trunk/supertux/gameobj.rb
+Log:
+renamed &quot;type&quot; to &quot;sprite&quot; in poweup object
+
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-05-17 21:41:08 UTC (rev 555)
++++ trunk/supertux/gameobj.rb	2005-05-18 10:14:00 UTC (rev 556)
+@@ -244,11 +244,11 @@
+ end 
+ 
+ class Powerup&lt;GameObj
+-  attr_accessor :type
++  attr_accessor :sprite
+ 
+   def initialize(data, sexpr = [])
+    @data = data
+-   @type = get_value_from_tree([&quot;type&quot;, &quot;_&quot;], sexpr, &quot;egg&quot;)
++   @sprite = get_value_from_tree([&quot;sprite&quot;, &quot;_&quot;], sexpr, &quot;egg&quot;)
+    connect_v1_ObjMapObject(@data.to_object.sig_move(), method(:on_move))
+    on_move(data)
+   end
+@@ -263,16 +263,16 @@
+   def save(f, obj)
+    pos = obj.get_pos()
+    f.write(&quot;      (powerup (x %d) (y %d)\n&quot; % [pos.x, pos.y]);
+-   f.write(&quot;        (type (_ \&quot;%s\&quot;))\n&quot; % [@type]);
++   f.write(&quot;        (sprite (_ \&quot;%s\&quot;))\n&quot; % [@sprite]);
+    f.write(&quot;      )\n&quot;);
+   end
+ 
+   def property_dialog()
+-    dialog = GenericDialog.new(&quot;Powerup Property Dialog&quot; % [@type],
++    dialog = GenericDialog.new(&quot;Powerup Property Dialog&quot; % [@sprite],
+          $gui.get_component())
+-    dialog.add_string(&quot;Type: &quot;, @type)
+-    dialog.set_callback(proc{|type| 
+-                          @type = type
++    dialog.add_string(&quot;Sprite: &quot;, @sprite)
++    dialog.set_callback(proc{|sprite| 
++                          @sprite = sprite
+                         })
+   end
+ end 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000050.html">[Flexlay-commit] r555 - trunk/supertux
+</A></li>
+	<LI>Next message: <A HREF="000052.html">[Flexlay-commit] r557 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

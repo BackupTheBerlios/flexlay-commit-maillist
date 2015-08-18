@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r603 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r603%20-%20trunk/supertux&In-Reply-To=%3C200509132317.j8DNHfJb022564%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000101.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r603 - trunk/supertux</H1>
+    <B>Matthias Braun at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r603%20-%20trunk/supertux&In-Reply-To=%3C200509132317.j8DNHfJb022564%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r603 - trunk/supertux">matzebraun at berlios.de
+       </A><BR>
+    <I>Wed Sep 14 01:17:41 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000101.html">[Flexlay-commit] r604 - trunk/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#100">[ date ]</a>
+              <a href="thread.html#100">[ thread ]</a>
+              <a href="subject.html#100">[ subject ]</a>
+              <a href="author.html#100">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: matzebraun
+Date: 2005-09-14 01:15:52 +0200 (Wed, 14 Sep 2005)
+New Revision: 603
+
+Modified:
+   trunk/supertux/WorldMap.rb
+   trunk/supertux/WorldMapObject.rb
+Log:
+fix supertux worldmap support
+
+Modified: trunk/supertux/WorldMap.rb
+===================================================================
+--- trunk/supertux/WorldMap.rb	2005-08-17 12:04:04 UTC (rev 602)
++++ trunk/supertux/WorldMap.rb	2005-09-13 23:15:52 UTC (rev 603)
+@@ -42,13 +42,13 @@
+     for i in data
+       (name, data) = i[0], i[1..-1]
+ 
+-      if name == &quot;properties&quot;
++      if name == :properties
+         @name = get_value_from_tree([&quot;name&quot;, &quot;_&quot;], data, &quot;No Name&quot;)
+         @music = get_value_from_tree([&quot;music&quot;, &quot;_&quot;], data, &quot;salcon.ogg&quot;)
+         @intro_filename = get_value_from_tree([&quot;intro-filename&quot;, &quot;_&quot;], data, &quot;&quot;)
+         @start_pos_x = get_value_from_tree([&quot;start_pos_x&quot;, &quot;_&quot;], data, 0)
+         @start_pos_y = get_value_from_tree([&quot;start_pos_y&quot;, &quot;_&quot;], data, 0)
+-      elsif name == &quot;tilemap&quot;
++      elsif name == :tilemap
+         @tilemap = TileMap.new()
+         @tilemap.parse(data)
+       else
+
+Modified: trunk/supertux/WorldMapObject.rb
+===================================================================
+--- trunk/supertux/WorldMapObject.rb	2005-08-17 12:04:04 UTC (rev 602)
++++ trunk/supertux/WorldMapObject.rb	2005-09-13 23:15:52 UTC (rev 603)
+@@ -36,7 +36,7 @@
+     writer.write_int(&quot;x&quot;, pos.x / 32)
+     writer.write_int(&quot;y&quot;, pos.y / 32)
+     writer.write_string(&quot;name&quot;, @name)
+-    writer.end_list(&quot;level&quot;)
++    writer.end_list(&quot;spawnpoint&quot;)
+   end
+ 
+   def property_dialog()
+@@ -186,9 +186,9 @@
+ end
+ 
+ $worldmap_objects = [
+-  [&quot;level&quot;, &quot;images/worldmap/common/leveldot_green.png&quot;, WorldmapLevel],
+-  [&quot;special-tile&quot;, &quot;images/worldmap/common/teleporterdot.png&quot;, SpecialTile],
+-  [&quot;spawnpoint&quot;, &quot;images/worldmap/common/tux.png&quot;, WMSpawnPoint],
++  [:level, &quot;images/worldmap/common/leveldot_green.png&quot;, WorldmapLevel],
++  [:&quot;special-tile&quot;, &quot;images/worldmap/common/teleporterdot.png&quot;, SpecialTile],
++  [:spawnpoint, &quot;images/worldmap/common/tux.png&quot;, WMSpawnPoint],
+ ]
+ 
+ def create_worldmapobject_at_pos(objmap, name, pos)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000101.html">[Flexlay-commit] r604 - trunk/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#100">[ date ]</a>
+              <a href="thread.html#100">[ thread ]</a>
+              <a href="subject.html#100">[ subject ]</a>
+              <a href="author.html#100">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

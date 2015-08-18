@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r625 - in trunk: lib windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r625%20-%20in%20trunk%3A%20lib%20windstille&In-Reply-To=%3C200602121755.k1CHtT87003537%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000121.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r625 - in trunk: lib windstille</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r625%20-%20in%20trunk%3A%20lib%20windstille&In-Reply-To=%3C200602121755.k1CHtT87003537%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r625 - in trunk: lib windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Sun Feb 12 18:55:29 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000121.html">[Flexlay-commit] r624 - trunk/supertux-portable
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#122">[ date ]</a>
+              <a href="thread.html#122">[ thread ]</a>
+              <a href="subject.html#122">[ subject ]</a>
+              <a href="author.html#122">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-02-12 18:55:26 +0100 (Sun, 12 Feb 2006)
+New Revision: 625
+
+Modified:
+   trunk/lib/tile_selector.cxx
+   trunk/lib/tilemap_layer.cxx
+   trunk/windstille/windstille.rb
+Log:
+- misc stuff
+
+Modified: trunk/lib/tile_selector.cxx
+===================================================================
+--- trunk/lib/tile_selector.cxx	2006-02-12 17:53:31 UTC (rev 624)
++++ trunk/lib/tile_selector.cxx	2006-02-12 17:55:26 UTC (rev 625)
+@@ -199,7 +199,8 @@
+           sprite.draw(static_cast&lt;int&gt;(x * tileset.get_tile_size()*scale), 
+                       static_cast&lt;int&gt;(y * tileset.get_tile_size()*scale));
+ 
+-          CL_Display::draw_rect(rect, CL_Color(0,0,0,128));
++          // Use grid in the tileselector
++          //CL_Display::draw_rect(rect, CL_Color(0,0,0,128));
+         }
+ 
+       if (brush.get_width() == 1 &amp;&amp; brush.get_height() == 1
+@@ -234,7 +235,7 @@
+ TileSelector::set_scale(float s)
+ {
+   scale = s;
+-  width  = static_cast&lt;int&gt;(get_width()/tileset.get_tile_size() * (1.0f/scale));
++  width  = static_cast&lt;int&gt;(get_width()/(tileset.get_tile_size() * scale));
+ }
+ 
+ TileSelector::Tiles
+@@ -248,7 +249,7 @@
+ {
+   tileset = t;
+   // Recalc the number of tiles in a row
+-  width  = static_cast&lt;int&gt;(get_width()/tileset.get_tile_size() * (1.0f/scale));
++  width  = static_cast&lt;int&gt;(get_width()/(tileset.get_tile_size() * scale));
+ }
+ 
+ void
+
+Modified: trunk/lib/tilemap_layer.cxx
+===================================================================
+--- trunk/lib/tilemap_layer.cxx	2006-02-12 17:53:31 UTC (rev 624)
++++ trunk/lib/tilemap_layer.cxx	2006-02-12 17:55:26 UTC (rev 625)
+@@ -105,7 +105,6 @@
+       sprite.set_alignment (origin_top_left, 0, 0);
+ 
+       sprite.set_color(impl-&gt;foreground_color);
+-
+       sprite.draw(x, y, gc);
+       
+       if (attribute)
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2006-02-12 17:53:31 UTC (rev 624)
++++ trunk/windstille/windstille.rb	2006-02-12 17:55:26 UTC (rev 625)
+@@ -37,7 +37,6 @@
+ require &quot;tileset.rb&quot;
+ 
+ class WindstilleEditor
+-  private
+   def initialize(args)
+     @levelfile = nil
+ 
+@@ -89,7 +88,7 @@
+     $gui.post_initalize()
+     
+     if not @levelfile then
+-      Sector.new(100, 30).activate($workspace)
++      Sector.new(100, 30).activate($gui.workspace)
+     else
+       $controller.load_level(@levelfile)
+     end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000121.html">[Flexlay-commit] r624 - trunk/supertux-portable
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#122">[ date ]</a>
+              <a href="thread.html#122">[ thread ]</a>
+              <a href="subject.html#122">[ subject ]</a>
+              <a href="author.html#122">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

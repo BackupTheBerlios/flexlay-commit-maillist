@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r545 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r545%20-%20trunk/supertux&In-Reply-To=%3C200504062123.j36LNFGI002085%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000039.html">
+   <LINK REL="Next"  HREF="000041.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r545 - trunk/supertux</H1>
+    <B>Matthias Braun at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r545%20-%20trunk/supertux&In-Reply-To=%3C200504062123.j36LNFGI002085%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r545 - trunk/supertux">matzebraun at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr  6 23:23:15 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000039.html">[Flexlay-commit] r530 - in trunk: lib ruby supertux
+</A></li>
+        <LI>Next message: <A HREF="000041.html">[Flexlay-commit] r546 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#40">[ date ]</a>
+              <a href="thread.html#40">[ thread ]</a>
+              <a href="subject.html#40">[ subject ]</a>
+              <a href="author.html#40">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: matzebraun
+Date: 2005-04-06 23:23:09 +0200 (Wed, 06 Apr 2005)
+New Revision: 545
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+applied mareks patch for poisonivy, dispenser and mrtree
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-04-03 21:01:15 UTC (rev 544)
++++ trunk/supertux/data.rb	2005-04-06 21:23:09 UTC (rev 545)
+@@ -19,6 +19,14 @@
+     proc{|data, sexpr| BadGuy.new(&quot;bouncingsnowball&quot;)}],
+   [&quot;spiky&quot;, &quot;images/shared/spiky-left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;spiky&quot;)}],
++  [&quot;mrtree&quot;, &quot;images/shared/mrtree-walk-left-0.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| BadGuy.new(&quot;mrtree&quot;)}],
++  [&quot;poisonivy&quot;, &quot;images/shared/poisonivy-left-0.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| BadGuy.new(&quot;poisonivy&quot;)}],
++  [&quot;dispenser&quot;, &quot;images/shared/dispenser-working.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| Dispenser.new(data, sexpr)}],
++  [&quot;yeti&quot;, &quot;images/shared/yeti/yeti.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| BadGuy.new(&quot;yeti&quot;)}],
+   [&quot;spawnpoint&quot;, &quot;images/editor/spawnpoint.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| SpawnPoint.new(data)}],
+   [&quot;door&quot;, &quot;images/shared/door-1.png&quot;, &quot;sprite&quot;,
+@@ -47,6 +55,7 @@
+     proc{|data, sexpr| ParticleSystem.new(&quot;clouds&quot;, sexpr)}],
+   [&quot;particles-rain&quot;, &quot;images/editor/rain.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| ParticleSystem.new(&quot;rain&quot;, sexpr)}],
++	
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-04-03 21:01:15 UTC (rev 544)
++++ trunk/supertux/gameobj.rb	2005-04-06 21:23:09 UTC (rev 545)
+@@ -87,6 +87,29 @@
+   end  
+ end
+ 
++class Dispenser&lt;GameObj
++  def initialize(data, sexpr = [])
++    @data = data
++    @badguy = get_value_from_tree([&quot;badguy&quot;, &quot;_&quot;], sexpr, &quot;snowball&quot;)
++    @cycle = get_value_from_tree([&quot;cycle&quot;, &quot;_&quot;], sexpr, 2)
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write(&quot;       (dispenser (x %d) (y %d) (badguy \&quot;%s\&quot;) (cycle %d))\n&quot; % [pos.x, pos.y, @badguy, @cycle])
++  end
++  
++  def property_dialog()
++    dialog = GenericDialog.new(&quot;Dispenser Property Dialog&quot;, $gui.get_component())
++    dialog.add_string(&quot;Badguy Type: &quot;, @badguy)
++    dialog.add_int(&quot;Cycle Type: &quot;, @cycle)
++    dialog.set_callback(proc{|badguy, cycle| 
++                          @badguy = badguy
++                          @cycle = cycle
++                        })
++  end  
++end
++
+ class SpawnPoint&lt;GameObj
+   attr_accessor :name
+   attr_reader   :data
+@@ -187,16 +210,16 @@
+ 
+ class ParticleSystem&lt;GameObj
+   def initialize(type, sexpr = [])
+-	@type = type
+-	@layer = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], sexpr, -1)
++    @type = type
++    @layer = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], sexpr, -1)
+   end
+ 
+   def save(f, obj)
+-	f.write(&quot;       (particles-%s\n&quot; % [@type])
+-	if(@layer != -1)
++    f.write(&quot;       (particles-%s\n&quot; % [@type])
++    if(@layer != -1)
+       f.write(&quot;         (layer %d)\n&quot; % [@layer])
+-	end
+-	f.write(&quot;       )\n&quot;)
++    end
++    f.write(&quot;       )\n&quot;)
+   end
+ 
+   def property_dialog()
+@@ -327,7 +350,7 @@
+     f.write(&quot;         (x %d) (y %d)&quot; % [pos.x, pos.y])
+     f.write(&quot;         (sector \&quot;%s\&quot;)\n&quot; % @sector)
+     f.write(&quot;         (spawnpoint \&quot;%s\&quot;)\n&quot; % @spawnpoint)
+-    f.write(&quot;         )\n&quot;)
++    f.write(&quot;       )\n&quot;)
+   end  
+ 
+   def property_dialog()
+@@ -352,5 +375,4 @@
+   end
+ end
+ 
+-
+ # EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000039.html">[Flexlay-commit] r530 - in trunk: lib ruby supertux
+</A></li>
+	<LI>Next message: <A HREF="000041.html">[Flexlay-commit] r546 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#40">[ date ]</a>
+              <a href="thread.html#40">[ thread ]</a>
+              <a href="subject.html#40">[ subject ]</a>
+              <a href="author.html#40">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

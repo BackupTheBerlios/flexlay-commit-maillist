@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r687 - trunk/netbrush/experimental
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r687%20-%20trunk/netbrush/experimental&In-Reply-To=%3C200611040321.kA43L2eP000534%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000179.html">
+   <LINK REL="Next"  HREF="000181.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r687 - trunk/netbrush/experimental</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r687%20-%20trunk/netbrush/experimental&In-Reply-To=%3C200611040321.kA43L2eP000534%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r687 - trunk/netbrush/experimental">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Nov  4 04:21:02 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000179.html">[Flexlay-commit] r686 - in trunk/netbrush: . experimental
+</A></li>
+        <LI>Next message: <A HREF="000181.html">[Flexlay-commit] r688 - trunk/netbrush/experimental
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#180">[ date ]</a>
+              <a href="thread.html#180">[ thread ]</a>
+              <a href="subject.html#180">[ subject ]</a>
+              <a href="author.html#180">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-04 04:21:02 +0100 (Sat, 04 Nov 2006)
+New Revision: 687
+
+Modified:
+   trunk/netbrush/experimental/input_device_xinput.cpp
+   trunk/netbrush/experimental/input_device_xinput.hpp
+   trunk/netbrush/experimental/wacom.cpp
+Log:
+- some experimental wacom support
+
+Modified: trunk/netbrush/experimental/input_device_xinput.cpp
+===================================================================
+--- trunk/netbrush/experimental/input_device_xinput.cpp	2006-11-04 03:03:03 UTC (rev 686)
++++ trunk/netbrush/experimental/input_device_xinput.cpp	2006-11-04 03:21:02 UTC (rev 687)
+@@ -256,10 +256,10 @@
+ 	{
+ 		XDeviceMotionEvent *motion = (XDeviceMotionEvent *) &event;
+ 
+-		//printf(&quot;motion &quot;);
++		printf(&quot;motion &quot;);
+ 	    
+ 		for(int loop=0; loop&lt;motion-&gt;axes_count; loop++) {
+-			//printf(&quot;a[%d]=%d &quot;, motion-&gt;first_axis + loop, motion-&gt;axis_data[loop]);
++			printf(&quot;a[%d]=%d &quot;, motion-&gt;first_axis + loop, motion-&gt;axis_data[loop]);
+ 			axis[loop + motion-&gt;first_axis].pos = motion-&gt;axis_data[loop];
+ 		}
+ 		//printf(&quot;\n&quot;);
+@@ -270,29 +270,29 @@
+ 		int	loop;
+ 		XDeviceButtonEvent *button = (XDeviceButtonEvent *) &event;
+ 	    
+-		//printf(&quot;button %s %d &quot;, (event.type == button_release_type) ? &quot;release&quot; : &quot;press  &quot;, button-&gt;button);
++		printf(&quot;button %s %d &quot;, (event.type == button_release_type) ? &quot;release&quot; : &quot;press  &quot;, button-&gt;button);
+ 
+ 		buttons[button-&gt;button] = (event.type == button_press_type);
+ 	    
+ 		for(loop=0; loop&lt;button-&gt;axes_count; loop++) {
+-			//printf(&quot;a[%d]=%d &quot;, button-&gt;first_axis + loop, button-&gt;axis_data[loop]);
++			printf(&quot;a[%d]=%d &quot;, button-&gt;first_axis + loop, button-&gt;axis_data[loop]);
+ 			axis[loop + button-&gt;first_axis].pos = button-&gt;axis_data[loop];
+ 		}
+-		//printf(&quot;\n&quot;);
++		printf(&quot;\n&quot;);
+ 	} 
+ 	else if ((event.type == key_press_type) ||
+ 				(event.type == key_release_type)) 
+ 	{
+ 		int	loop;
+ 		XDeviceKeyEvent *key = (XDeviceKeyEvent *) &event;
++	   
++		printf(&quot;key %s %d &quot;, (event.type == key_release_type) ? &quot;release&quot; : &quot;press  &quot;, key-&gt;keycode);
+ 	    
+-		//printf(&quot;key %s %d &quot;, (event.type == key_release_type) ? &quot;release&quot; : &quot;press  &quot;, key-&gt;keycode);
+-	    
+ 		for(loop=0; loop&lt;key-&gt;axes_count; loop++) {
+-			//printf(&quot;a[%d]=%d &quot;, key-&gt;first_axis + loop, key-&gt;axis_data[loop]);
++			printf(&quot;a[%d]=%d &quot;, key-&gt;first_axis + loop, key-&gt;axis_data[loop]);
+ 			axis[loop + key-&gt;first_axis].pos = key-&gt;axis_data[loop];
+ 		}
+-		//printf(&quot;\n&quot;);
++		printf(&quot;\n&quot;);
+ 	}
+ 	else if ((event.type == proximity_out_type) ||
+ 				(event.type == proximity_in_type))
+@@ -300,17 +300,17 @@
+ 		int	loop;
+ 		XProximityNotifyEvent *prox = (XProximityNotifyEvent *) &event;
+ 	    
+-		//printf(&quot;proximity %s &quot;, (event.type == proximity_in_type) ? &quot;in &quot; : &quot;out&quot;);
++		printf(&quot;proximity %s &quot;, (event.type == proximity_in_type) ? &quot;in &quot; : &quot;out&quot;);
+ 	    
+ 		for(loop=0; loop&lt;prox-&gt;axes_count; loop++) {
+-			//printf(&quot;a[%d]=%d &quot;, prox-&gt;first_axis + loop, prox-&gt;axis_data[loop]);
++			printf(&quot;a[%d]=%d &quot;, prox-&gt;first_axis + loop, prox-&gt;axis_data[loop]);
+ 			axis[loop + prox-&gt;first_axis].pos = prox-&gt;axis_data[loop];
+ 		}
+-		//printf(&quot;\n&quot;);
++		printf(&quot;\n&quot;);
+ 	}
+ 	else 
+ 	{
+-		//printf(&quot;CL_InputDevice_XInput: what's that %d\n&quot;, event.type);
++		printf(&quot;CL_InputDevice_XInput: what's that %d\n&quot;, event.type);
+ 	}
+ 
+ 
+
+Modified: trunk/netbrush/experimental/input_device_xinput.hpp
+===================================================================
+--- trunk/netbrush/experimental/input_device_xinput.hpp	2006-11-04 03:03:03 UTC (rev 686)
++++ trunk/netbrush/experimental/input_device_xinput.hpp	2006-11-04 03:21:02 UTC (rev 687)
+@@ -91,9 +91,9 @@
+ 											Bool		only_extended);
+ 
+ 	void get_info(XDeviceInfo	*info);
+-
++public:
+ 	void on_xevent(XEvent &amp;event);
+-	
++private:
+ 	void received_mouse_input(XEvent &amp;event);
+ 	void received_mouse_move(XEvent &amp;event);
+ 	
+
+Modified: trunk/netbrush/experimental/wacom.cpp
+===================================================================
+--- trunk/netbrush/experimental/wacom.cpp	2006-11-04 03:03:03 UTC (rev 686)
++++ trunk/netbrush/experimental/wacom.cpp	2006-11-04 03:21:02 UTC (rev 687)
+@@ -40,10 +40,12 @@
+   CL_InputDevice_XInput xinput;
+   syswm.info.x11.unlock_func();
+ 
++  SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
++
+   while(true)
+     {
+       SDL_Event event;
+-  
++      
+       while(SDL_PollEvent(&amp;event))
+         {
+           switch(event.type)
+@@ -65,6 +67,11 @@
+             case SDL_MOUSEMOTION:
+               //std::cout &lt;&lt; &quot;Mouse motion: &quot; &lt;&lt; event.motion.x &lt;&lt; &quot; &quot; &lt;&lt; event.motion.y &lt;&lt; std::endl;
+               break;
++
++            case SDL_SYSWMEVENT:
++              std::cout &lt;&lt; &quot;Sysevent&quot; &lt;&lt; std::endl;
++              xinput.on_xevent(event.syswm.msg-&gt;event.xevent);
++              break;
+             }
+         }
+     }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000179.html">[Flexlay-commit] r686 - in trunk/netbrush: . experimental
+</A></li>
+	<LI>Next message: <A HREF="000181.html">[Flexlay-commit] r688 - trunk/netbrush/experimental
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#180">[ date ]</a>
+              <a href="thread.html#180">[ thread ]</a>
+              <a href="subject.html#180">[ subject ]</a>
+              <a href="author.html#180">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

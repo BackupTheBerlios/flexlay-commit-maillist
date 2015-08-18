@@ -1,0 +1,364 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r504 - in trunk: lib netpanzer ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r504%20-%20in%20trunk%3A%20lib%20netpanzer%20ruby&In-Reply-To=%3C200503291554.j2TFsC54003540%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000013.html">
+   <LINK REL="Next"  HREF="000015.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r504 - in trunk: lib netpanzer ruby</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r504%20-%20in%20trunk%3A%20lib%20netpanzer%20ruby&In-Reply-To=%3C200503291554.j2TFsC54003540%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r504 - in trunk: lib netpanzer ruby">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 29 17:54:12 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000013.html">[Flexlay-commit] r503 - in trunk: lib paint
+</A></li>
+        <LI>Next message: <A HREF="000015.html">[Flexlay-commit] r505 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#14">[ date ]</a>
+              <a href="thread.html#14">[ thread ]</a>
+              <a href="subject.html#14">[ subject ]</a>
+              <a href="author.html#14">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-29 17:54:11 +0200 (Tue, 29 Mar 2005)
+New Revision: 504
+
+Added:
+   trunk/lib/drawer_properties.cxx
+   trunk/lib/drawer_properties.hxx
+Modified:
+   trunk/lib/flexlay_wrap.i
+   trunk/netpanzer/SConstruct
+   trunk/netpanzer/netpanzer.i
+   trunk/ruby/SConstruct
+Log:
+- some changes
+
+Added: trunk/lib/drawer_properties.cxx
+===================================================================
+--- trunk/lib/drawer_properties.cxx	2005-03-27 00:58:57 UTC (rev 503)
++++ trunk/lib/drawer_properties.cxx	2005-03-29 15:54:11 UTC (rev 504)
+@@ -0,0 +1,100 @@
++//  $Id$
++//
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++//
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &quot;drawer_properties.hxx&quot;
++
++DrawerProperties* DrawerProperties::current_ = 0;
++
++class DrawerPropertiesImpl
++{
++public:
++  CL_Color  color;
++  float     base_size;
++  float     spacing;
++  Brush     brush;
++};
++
++DrawerProperties*
++DrawerProperties::current()
++{
++  if (!current_)
++    return (current_ = new DrawerProperties());
++  else
++    return current_;
++}
++
++DrawerProperties::DrawerProperties()
++  : impl(new DrawerPropertiesImpl())
++{
++  impl-&gt;color     = CL_Color(255, 255, 255, 255);
++  impl-&gt;base_size = 1.0f;
++    
++  impl-&gt;base_size = 1.0f;
++  impl-&gt;spacing   = 15.0f;
++}
++
++void
++DrawerProperties::set_spacing(float spacing_)
++{
++  impl-&gt;spacing = spacing_;
++}
++
++float
++DrawerProperties::get_spacing() const
++{
++  return impl-&gt;spacing;
++}
++
++void
++DrawerProperties::set_size(float s)
++{
++  impl-&gt;base_size = s;
++}
++
++float
++DrawerProperties::get_size() const
++{
++  return impl-&gt;base_size;
++}
++
++void
++DrawerProperties::set_color(const CL_Color&amp; color_)
++{
++  impl-&gt;color = color_;
++}
++
++CL_Color
++DrawerProperties::get_color() const
++{
++  return impl-&gt;color;
++}
++
++void
++DrawerProperties::set_brush(const Brush&amp; brush)
++{
++  impl-&gt;brush = brush;
++}
++
++Brush
++DrawerProperties::get_brush() const
++{
++  return impl-&gt;brush;
++}
++
++/* EOF */
+
+Added: trunk/lib/drawer_properties.hxx
+===================================================================
+--- trunk/lib/drawer_properties.hxx	2005-03-27 00:58:57 UTC (rev 503)
++++ trunk/lib/drawer_properties.hxx	2005-03-29 15:54:11 UTC (rev 504)
+@@ -0,0 +1,66 @@
++//  $Id$
++// 
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_DRAWER_PROPERTIES_HXX
++#define HEADER_DRAWER_PROPERTIES_HXX
++
++#include &lt;ClanLib/Display/color.h&gt;
++#include &quot;brush.hxx&quot;
++
++class DrawerPropertiesImpl;
++
++/** */
++class DrawerProperties
++{
++private:
++  static DrawerProperties* current_;
++public:
++  static DrawerProperties* current();
++
++  DrawerProperties();
++  ~DrawerProperties();
++
++  /** Set the spacing that will be between the sprites that are drawn
++      along the dabs */
++  void  set_spacing(float spacing);
++  float get_spacing() const;
++
++  /** Set the base size of the Sprite, the real size itself can be
++      affected by pressure and is than calculated by combining
++      basesize and pressure or tilting */
++  void  set_size(float s);
++  float get_size() const;
++
++  /** Set the base color, the real color itself is calculated from
++      combining the base color with the current pressure or tilting */
++  void     set_color(const CL_Color&amp; color);
++  CL_Color get_color() const;
++
++  /** Set the brush to be used, its color and size settings are
++      ignored */
++  void  set_brush(const Brush&amp; brush);
++  Brush get_brush() const;
++
++private:
++  SharedPtr&lt;DrawerPropertiesImpl&gt; impl;
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-03-27 00:58:57 UTC (rev 503)
++++ trunk/lib/flexlay_wrap.i	2005-03-29 15:54:11 UTC (rev 504)
+@@ -86,12 +86,6 @@
+ // #include &quot;netpanzer.hxx&quot; 
+ #include &quot;helper.hxx&quot;
+ 
+-#ifdef SWIGPYTHON
+-#include &quot;sexpr_parser.hxx&quot;
+-#include &quot;python_meta_data.hxx&quot;
+-#include &quot;python_functor.hxx&quot;
+-#endif
+-
+ #ifdef SWIGRUBY
+ #include &quot;ruby_sexpr_parser.hxx&quot;
+ #include &quot;ruby_meta_data.hxx&quot;
+@@ -127,7 +121,6 @@
+  CL_Point* resultptr = new CL_Point(arg);
+  return SWIG_NewPointerObj((void *) resultptr, SWIGTYPE_p_CL_Point, 1);
+ }
+-
+ #endif
+ %}
+ 
+@@ -207,15 +200,9 @@
+ // %include &quot;netpanzer.hxx&quot; 
+ %include &quot;helper.hxx&quot;
+ 
+-#ifdef SWIGPYTHON
+-%include &quot;python_meta_data.hxx&quot;
+-%include &quot;sexpr_parser.hxx&quot;
+-#endif
+-
+ #ifdef SWIGRUBY
+ %include &quot;../ruby/ruby_meta_data.hxx&quot;
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+-
+ #endif
+ 
+ 
+
+Modified: trunk/netpanzer/SConstruct
+===================================================================
+--- trunk/netpanzer/SConstruct	2005-03-27 00:58:57 UTC (rev 503)
++++ trunk/netpanzer/SConstruct	2005-03-29 15:54:11 UTC (rev 504)
+@@ -38,7 +38,7 @@
+ 
+ Depends('netpanzer.i', ['netpanzer.hxx'])
+ env.Command('netpanzer_wrap.cxx', 'netpanzer.i',
+-            &quot;swig -noruntime -ruby   -o netpanzer_wrap.cxx -c++ $SOURCE&quot;)
++            &quot;swig -c++ -ruby -o netpanzer_wrap.cxx  $SOURCE&quot;)
+ 
+ clanLib_env = Environment()
+ clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7&quot;)
+
+Modified: trunk/netpanzer/netpanzer.i
+===================================================================
+--- trunk/netpanzer/netpanzer.i	2005-03-27 00:58:57 UTC (rev 503)
++++ trunk/netpanzer/netpanzer.i	2005-03-29 15:54:11 UTC (rev 504)
+@@ -2,9 +2,12 @@
+ %include &quot;std_string.i&quot;
+ 
+ %{
++#include &lt;iostream&gt;
++#include &lt;ClanLib/Core/System/error.h&gt;
+ #include &quot;netpanzer.hxx&quot;
+ %}
+ 
++%import  &quot;../lib/flexlay_wrap.i&quot;
+ %include &quot;netpanzer.hxx&quot;
+ 
+ // EOF //
+
+Modified: trunk/ruby/SConstruct
+===================================================================
+--- trunk/ruby/SConstruct	2005-03-27 00:58:57 UTC (rev 503)
++++ trunk/ruby/SConstruct	2005-03-29 15:54:11 UTC (rev 504)
+@@ -37,12 +37,6 @@
+                   options=opts)
+ Help(opts.GenerateHelpText(env))
+ 
+-env.Command('swigrun_wrap.cxx', 'swigrun.i',
+-            &quot;swig -runtime -ruby -o $TARGET -c++ $SOURCE&quot;)
+-
+-env.SharedLibrary(target='libswigrun.so', source='swigrun_wrap.cxx',
+-              CPPPATH=['$USER_CPPPATH','$RUBYDIR'])
+-
+ def gen_i_depends(path, filename):
+     print os.getcwd()
+     lst = []
+@@ -57,7 +51,7 @@
+ 
+ Depends('../lib/flexlay_wrap.i', gen_i_depends(Dir(&quot;../lib&quot;).abspath, File(&quot;../lib/flexlay_wrap.i&quot;).abspath))
+ env.Command('flexlay_ruby_wrap.cxx', '../lib/flexlay_wrap.i',
+-            &quot;swig -noruntime -ruby -o $TARGET -c++ $SOURCE&quot;)
++            &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+ 
+ clanLib_env = Environment()
+ clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7&quot;)
+@@ -76,7 +70,7 @@
+     CPPPATH=['$USER_CPPPATH','$RUBYDIR','../lib/'] + clanLib_env['CPPPATH'],
+     LINKFLAGS = clanLib_env['LINKFLAGS'],
+     LIBPATH=['../lib', '.'] + clanLib_env['LIBPATH'],
+-    LIBS=['swigrun', 'flexlay'] + clanLib_env['LIBS'])
++    LIBS=['flexlay'] + clanLib_env['LIBS'])
+ 
+ # install_ruby = env.Alias('install_headers', Install(env['DESTDIR'] + env['PREFIX'] + '/include/flexlay', flexlay_headers))
+ # env.Alias('install', [install_ruby])
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000013.html">[Flexlay-commit] r503 - in trunk: lib paint
+</A></li>
+	<LI>Next message: <A HREF="000015.html">[Flexlay-commit] r505 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#14">[ date ]</a>
+              <a href="thread.html#14">[ thread ]</a>
+              <a href="subject.html#14">[ subject ]</a>
+              <a href="author.html#14">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

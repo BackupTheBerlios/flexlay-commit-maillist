@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r640 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r640%20-%20trunk/supertux&In-Reply-To=%3C200607111609.k6BG9DHq014207%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000136.html">
+   <LINK REL="Next"  HREF="000138.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r640 - trunk/supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r640%20-%20trunk/supertux&In-Reply-To=%3C200607111609.k6BG9DHq014207%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r640 - trunk/supertux">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 18:09:13 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000136.html">[Flexlay-commit] r639 - in trunk: lib lib/tools supertux
+</A></li>
+        <LI>Next message: <A HREF="000138.html">[Flexlay-commit] r641 - trunk/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#137">[ date ]</a>
+              <a href="thread.html#137">[ thread ]</a>
+              <a href="subject.html#137">[ subject ]</a>
+              <a href="author.html#137">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-11 18:09:13 +0200 (Tue, 11 Jul 2006)
+New Revision: 640
+
+Modified:
+   trunk/supertux/gui.rb
+   trunk/supertux/tileset.rb
+Log:
+- added support for 'tiles' tag
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-07-11 15:12:25 UTC (rev 639)
++++ trunk/supertux/gui.rb	2006-07-11 16:09:13 UTC (rev 640)
+@@ -590,7 +590,8 @@
+     if selection.length() &gt; 1 then
+       print &quot;Warning: Selection to large&quot;
+     elsif selection.length() == 1 then
+-      obj = get_ruby_object(selection[0].get_data())
++      obj = selection[0].get_data()
++      puts obj
+       obj.property_dialog()
+     else
+       print &quot;Warning: Selection is empty\n&quot;
+
+Modified: trunk/supertux/tileset.rb
+===================================================================
+--- trunk/supertux/tileset.rb	2006-07-11 15:12:25 UTC (rev 639)
++++ trunk/supertux/tileset.rb	2006-07-11 16:09:13 UTC (rev 640)
+@@ -28,15 +28,34 @@
+     
+     tree.each do |i|
+       case i[0]
++      when :tiles
++        data   = i[1..-1]
++        width  = get_value_from_tree(['width', '_'], data, 1)
++        height = get_value_from_tree(['height', '_'], data, 1)
++        ids    = get_value_from_tree(['ids'], data, [])
++        # attributes = get_value_from_tree(['attributes'], data, [])
++        image  = get_value_from_tree(['image', '_'], data, 1)
++
++        x = 0
++        y = 0
++        ids.each{|id|
++          pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image,
++                                                x * 32, y * 32, 32, 32)
++          add_tile(id, Tile.new(pixelbuffer))
++          x += 1
++          if (x == width) then
++            x = 0
++            y += 1
++          end
++        }
++        
+       when :tile
+         data   = i[1..-1]
+         id     = get_value_from_tree(['id', '_'], data, -1)
+         image  = get_value_from_tree(['editor-images', '_'], data, false)
+         hidden = get_value_from_tree(['hidden', '_'], data, false)
+ 
+-        # puts &quot;Loading tile: #{id} =&gt; #{image}&quot;
+-
+-        if not(image)
++        if not(image) then
+           image = get_value_from_tree(['images', '_'], data, &quot;tiles/auxiliary/notile.png&quot;)
+         end
+         
+@@ -66,6 +85,7 @@
+           @tilegroups = []
+         end
+         @tilegroups.push(TileGroup.new(name, tiles))
++    
+       end
+ 
+       counter += 1
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000136.html">[Flexlay-commit] r639 - in trunk: lib lib/tools supertux
+</A></li>
+	<LI>Next message: <A HREF="000138.html">[Flexlay-commit] r641 - trunk/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#137">[ date ]</a>
+              <a href="thread.html#137">[ thread ]</a>
+              <a href="subject.html#137">[ subject ]</a>
+              <a href="author.html#137">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r500 - in trunk: lib paint
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r500%20-%20in%20trunk%3A%20lib%20paint&In-Reply-To=%3C200503200210.j2K2A1ET018312%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000009.html">
+   <LINK REL="Next"  HREF="000011.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r500 - in trunk: lib paint</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r500%20-%20in%20trunk%3A%20lib%20paint&In-Reply-To=%3C200503200210.j2K2A1ET018312%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r500 - in trunk: lib paint">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 20 03:10:01 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000009.html">[Flexlay-commit] r499 - in trunk: lib paint
+</A></li>
+        <LI>Next message: <A HREF="000011.html">[Flexlay-commit] r501 - in trunk: lib paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#10">[ date ]</a>
+              <a href="thread.html#10">[ thread ]</a>
+              <a href="subject.html#10">[ subject ]</a>
+              <a href="author.html#10">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-20 03:09:45 +0100 (Sun, 20 Mar 2005)
+New Revision: 500
+
+Modified:
+   trunk/lib/layer.hxx
+   trunk/lib/onion_skin_layer.cxx
+   trunk/lib/onion_skin_layer.hxx
+   trunk/paint/animation.rb
+Log:
+- some additions to the onionskin
+
+Modified: trunk/lib/layer.hxx
+===================================================================
+--- trunk/lib/layer.hxx	2005-03-20 01:41:52 UTC (rev 499)
++++ trunk/lib/layer.hxx	2005-03-20 02:09:45 UTC (rev 500)
+@@ -59,7 +59,7 @@
+   /** Returns the current position of the layer */
+   CL_Pointf get_pos() const;
+   bool is_null() const;
+-private:
++public:
+   SharedPtr&lt;LayerImpl&gt; impl;
+ };
+ 
+
+Modified: trunk/lib/onion_skin_layer.cxx
+===================================================================
+--- trunk/lib/onion_skin_layer.cxx	2005-03-20 01:41:52 UTC (rev 499)
++++ trunk/lib/onion_skin_layer.cxx	2005-03-20 02:09:45 UTC (rev 500)
+@@ -18,6 +18,7 @@
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+ #include &lt;iostream&gt;
++#include &lt;vector&gt;
+ #include &lt;ClanLib/Core/System/error.h&gt;
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &lt;ClanLib/Display/pixel_format.h&gt;
+@@ -36,6 +37,9 @@
+   CL_Surface  surface2;
+   CL_Canvas*  canvas2;
+ 
++  std::vector&lt;EditorMap&gt; editormaps;
++  std::vector&lt;float&gt; transparency;
++
+   void draw(EditorMapComponent* parent, CL_GraphicContext* gc) 
+   {
+     // FIXME: We need to stop onion layer to draw onto itself
+@@ -49,6 +53,11 @@
+   }
+ };
+ 
++OnionSkinLayer::OnionSkinLayer(Layer layer)
++  : impl(dynamic_cast&lt;OnionSkinLayerImpl*&gt;(layer.impl.get())) // FIXME: WONT WORK WITH REAL SMARTPTR!!!
++{
++}
++
+ OnionSkinLayer::OnionSkinLayer(int width, int height)
+   : impl(new OnionSkinLayerImpl())
+ {
+@@ -84,6 +93,8 @@
+ void
+ OnionSkinLayer::add_map(EditorMap editor_map, float transparency)
+ {
++  impl-&gt;editormaps.push_back(editor_map);
++
+   // FIXME: EditorMap does draw stuff that isn't usefull for onionskin (bounding rects, etc)
+ 
+   // FIXME: Parameter are a bit unclear here
+@@ -95,6 +106,21 @@
+   impl-&gt;canvas-&gt;sync_surface();
+ }
+ 
++void
++OnionSkinLayer::update()
++{
++  impl-&gt;canvas-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
++  for (std::vector&lt;EditorMap&gt;::iterator i = impl-&gt;editormaps.begin(); i != impl-&gt;editormaps.end(); ++i)
++    {
++      impl-&gt;canvas2-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
++      i-&gt;draw(EditorMapComponent::current(), impl-&gt;canvas2-&gt;get_gc());
++      impl-&gt;canvas2-&gt;sync_surface();
++      impl-&gt;surface2.set_alpha(0.5f);
++      impl-&gt;surface2.draw(0, 0, impl-&gt;canvas-&gt;get_gc());
++      impl-&gt;canvas-&gt;sync_surface();
++    }
++}
++
+ Layer
+ OnionSkinLayer::to_layer()
+ {
+
+Modified: trunk/lib/onion_skin_layer.hxx
+===================================================================
+--- trunk/lib/onion_skin_layer.hxx	2005-03-20 01:41:52 UTC (rev 499)
++++ trunk/lib/onion_skin_layer.hxx	2005-03-20 02:09:45 UTC (rev 500)
+@@ -36,12 +36,16 @@
+   /** FIXME: Should probally be CL_Rect instead of just
+       width/height */
+   OnionSkinLayer(int width, int height);
++  OnionSkinLayer(Layer layer);
+   
+   /** Adds an EditorMap to the OnionSkin */
+   void add_map(EditorMap editor_map, float transparency);
+ 
+   void clear();
+ 
++  /** Refreshes the content of the OnionSkin */
++  void update();
++  
+   bool is_null() const { return !impl.get(); }
+   Layer to_layer();
+ private:
+
+Modified: trunk/paint/animation.rb
+===================================================================
+--- trunk/paint/animation.rb	2005-03-20 01:41:52 UTC (rev 499)
++++ trunk/paint/animation.rb	2005-03-20 02:09:45 UTC (rev 500)
+@@ -7,11 +7,13 @@
+   def next_frame()
+     @current_frame = (@current_frame + 1) % @frames.length
+     get_current_image().activate($gui.workspace)
++    # OnionSkinLayer.new(get_current_image().editormap.get_layer(0)).update()
+   end
+ 
+   def previous_frame()
+     @current_frame = (@current_frame - 1) % @frames.length
+     get_current_image().activate($gui.workspace)
++    # OnionSkinLayer.new(get_current_image().editormap.get_layer(0)).update()
+   end
+ 
+   def get_current_image()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000009.html">[Flexlay-commit] r499 - in trunk: lib paint
+</A></li>
+	<LI>Next message: <A HREF="000011.html">[Flexlay-commit] r501 - in trunk: lib paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#10">[ date ]</a>
+              <a href="thread.html#10">[ thread ]</a>
+              <a href="subject.html#10">[ subject ]</a>
+              <a href="author.html#10">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r567 - in trunk: paint supertux windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r567%20-%20in%20trunk%3A%20paint%20supertux%20windstille&In-Reply-To=%3C200506301422.j5UEMfWp020199%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000064.html">
+   <LINK REL="Next"  HREF="000059.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r567 - in trunk: paint supertux windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r567%20-%20in%20trunk%3A%20paint%20supertux%20windstille&In-Reply-To=%3C200506301422.j5UEMfWp020199%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r567 - in trunk: paint supertux windstille">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 16:22:41 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000064.html">[Flexlay-commit] r566 - trunk/windstille
+</A></li>
+        <LI>Next message: <A HREF="000059.html">[Flexlay-commit] r568 - in branches: . flexlay-0.0.2 flexlay-0.0.2/m4 flexlay-0.0.2/src flexlay-0.0.2/src/scripting
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#60">[ date ]</a>
+              <a href="thread.html#60">[ thread ]</a>
+              <a href="subject.html#60">[ subject ]</a>
+              <a href="author.html#60">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-06-30 16:22:40 +0200 (Thu, 30 Jun 2005)
+New Revision: 567
+
+Modified:
+   trunk/paint/paint.rb
+   trunk/supertux/sector.rb
+   trunk/windstille/level.rb
+   trunk/windstille/windstille.rb
+Log:
+- misc little stuff
+
+Modified: trunk/paint/paint.rb
+===================================================================
+--- trunk/paint/paint.rb	2005-06-30 12:36:34 UTC (rev 566)
++++ trunk/paint/paint.rb	2005-06-30 14:22:40 UTC (rev 567)
+@@ -53,7 +53,7 @@
+ 
+ # drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+ 
+-if true then
++if false then
+   DrawerProperties.current().set_brush(GeneratedBrush.new(BRUSH_SHAPE_CIRCLE, 
+                                                           32,  # radius
+                                                           2,   # spikes
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2005-06-30 12:36:34 UTC (rev 566)
++++ trunk/supertux/sector.rb	2005-06-30 14:22:40 UTC (rev 567)
+@@ -38,7 +38,7 @@
+   end
+ 
+   def new_from_size(name, width, height)
+-    @name = name
++    @name  = name
+     @music = &quot;&quot;
+     @gravity = 10.0
+     
+
+Modified: trunk/windstille/level.rb
+===================================================================
+--- trunk/windstille/level.rb	2005-06-30 12:36:34 UTC (rev 566)
++++ trunk/windstille/level.rb	2005-06-30 14:22:40 UTC (rev 567)
+@@ -122,6 +122,7 @@
+     f.write(&quot;  (name   \&quot;%s\&quot;)\n&quot; % @name)
+     f.write(&quot;  (music  \&quot;%s\&quot;)\n&quot; % @music)
+ 
++    f.write(&quot;  (objects\n&quot;)
+     save_tilemap = proc {|name, tilemap|
+       width  = tilemap.get_width()
+       height = tilemap.get_height()
+@@ -140,7 +141,8 @@
+     save_tilemap.call(&quot;background&quot;,  @background)
+     save_tilemap.call(&quot;interactive&quot;, @interactive)
+     save_tilemap.call(&quot;foreground&quot;,  @foreground)
+-    
++    f.write(&quot;   )\n&quot;)
++
+     f.write(&quot; )\n\n&quot;)
+     f.write(&quot;;; EOF ;;\n&quot;)
+     f.close()
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-06-30 12:36:34 UTC (rev 566)
++++ trunk/windstille/windstille.rb	2005-06-30 14:22:40 UTC (rev 567)
+@@ -95,13 +95,13 @@
+ $tileset = Tileset.new(32)
+ (0...6).each {|y|
+   (0...6).each {|x|
+-    $tileset.add_tile(y*8+x+1, Tile.new(make_region_pixelbuffer(&quot;virtualreality.png&quot;, 32*x, 32*y, 32, 32)))
++    $tileset.add_tile(y*6+x+1, Tile.new(make_region_pixelbuffer(&quot;virtualreality.png&quot;, 32*x, 32*y, 32, 32)))
+   }
+ }
+ 
+ (0...6).each {|y|
+   (0...6).each {|x|
+-    $tileset.add_tile(y*8+x+1+8*8, Tile.new(make_region_pixelbuffer(&quot;virtualreality-background.png&quot;, 32*x, 32*y, 32, 32)))
++    $tileset.add_tile(y*6+x+1+6*6, Tile.new(make_region_pixelbuffer(&quot;virtualreality-background.png&quot;, 32*x, 32*y, 32, 32)))
+   }
+ }
+ 
+@@ -110,7 +110,7 @@
+ 
+ $gui.workspace.set_tool($controller.tilemap_paint_tool.to_tool());
+ 
+-$startlevel = Level.new(100, 50)
++$startlevel = Level.new(100, 30)
+ $startlevel.activate($workspace)
+ 
+ $gui.run()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000064.html">[Flexlay-commit] r566 - trunk/windstille
+</A></li>
+	<LI>Next message: <A HREF="000059.html">[Flexlay-commit] r568 - in branches: . flexlay-0.0.2 flexlay-0.0.2/m4 flexlay-0.0.2/src flexlay-0.0.2/src/scripting
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#60">[ date ]</a>
+              <a href="thread.html#60">[ thread ]</a>
+              <a href="subject.html#60">[ subject ]</a>
+              <a href="author.html#60">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,451 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r731 - in trunk/flexlay/lib: . tools
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r731%20-%20in%20trunk/flexlay/lib%3A%20.%20tools&In-Reply-To=%3C200911221506.nAMF6UnO012401%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000223.html">
+   <LINK REL="Next"  HREF="000225.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r731 - in trunk/flexlay/lib: . tools</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r731%20-%20in%20trunk/flexlay/lib%3A%20.%20tools&In-Reply-To=%3C200911221506.nAMF6UnO012401%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r731 - in trunk/flexlay/lib: . tools">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 16:06:30 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000223.html">[Flexlay-commit] r730 - in trunk/flexlay/lib: . gui
+</A></li>
+        <LI>Next message: <A HREF="000225.html">[Flexlay-commit] r732 - in trunk/flexlay/lib: . gui tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#224">[ date ]</a>
+              <a href="thread.html#224">[ thread ]</a>
+              <a href="subject.html#224">[ subject ]</a>
+              <a href="author.html#224">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 16:06:30 +0100 (Sun, 22 Nov 2009)
+New Revision: 731
+
+Modified:
+   trunk/flexlay/lib/object_add_command.cpp
+   trunk/flexlay/lib/tools/layer_move_tool.cpp
+   trunk/flexlay/lib/tools/layer_move_tool.hpp
+   trunk/flexlay/lib/tools/objmap_select_tool.hpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_paint_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+   trunk/flexlay/lib/tools/tool.hpp
+   trunk/flexlay/lib/tools/tool_impl.hpp
+   trunk/flexlay/lib/tools/workspace_move_tool.hpp
+   trunk/flexlay/lib/tools/zoom2_tool.hpp
+   trunk/flexlay/lib/tools/zoom_tool.hpp
+Log:
+Copyright header updates
+
+
+Modified: trunk/flexlay/lib/object_add_command.cpp
+===================================================================
+--- trunk/flexlay/lib/object_add_command.cpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/object_add_command.cpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -14,9 +14,10 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &quot;object_layer.hpp&quot;
+ #include &quot;object_add_command.hpp&quot;
+ 
++#include &quot;object_layer.hpp&quot;
++
+ class ObjectAddCommandImpl : public CommandImpl
+ {
+ public:
+
+Modified: trunk/flexlay/lib/tools/layer_move_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/layer_move_tool.cpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/layer_move_tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;layer_move_tool.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tools/layer_move_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/layer_move_tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/layer_move_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_LAYER_MOVE_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_LAYER_MOVE_TOOL_HPP
+
+Modified: trunk/flexlay/lib/tools/objmap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/objmap_select_tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/objmap_select_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_OBJMAP_SELECT_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_OBJMAP_SELECT_TOOL_HPP
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_SKETCH_STROKE_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_SKETCH_STROKE_TOOL_HPP
+
+Modified: trunk/flexlay/lib/tools/tilemap_paint_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_paint_tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/tilemap_paint_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_TILEMAP_PAINT_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_TILEMAP_PAINT_TOOL_HPP
+
+Modified: trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_TILEMAP_SELECT_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_TILEMAP_SELECT_TOOL_HPP
+
+Modified: trunk/flexlay/lib/tools/tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_TOOL_HPP
+
+Modified: trunk/flexlay/lib/tools/tool_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool_impl.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/tool_impl.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_TOOL_IMPL_HPP
+ #define HEADER_FLEXLAY_TOOLS_TOOL_IMPL_HPP
+
+Modified: trunk/flexlay/lib/tools/workspace_move_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/workspace_move_tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/workspace_move_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_WORKSPACE_MOVE_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_WORKSPACE_MOVE_TOOL_HPP
+
+Modified: trunk/flexlay/lib/tools/zoom2_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom2_tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/zoom2_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_ZOOM2_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_ZOOM2_TOOL_HPP
+
+Modified: trunk/flexlay/lib/tools/zoom_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom_tool.hpp	2009-11-22 14:45:43 UTC (rev 730)
++++ trunk/flexlay/lib/tools/zoom_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_TOOLS_ZOOM_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_ZOOM_TOOL_HPP
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000223.html">[Flexlay-commit] r730 - in trunk/flexlay/lib: . gui
+</A></li>
+	<LI>Next message: <A HREF="000225.html">[Flexlay-commit] r732 - in trunk/flexlay/lib: . gui tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#224">[ date ]</a>
+              <a href="thread.html#224">[ thread ]</a>
+              <a href="subject.html#224">[ subject ]</a>
+              <a href="author.html#224">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

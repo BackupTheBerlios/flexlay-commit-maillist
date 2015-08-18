@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r698 - trunk/netbrush/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r698%20-%20trunk/netbrush/src&In-Reply-To=%3C200611061812.kA6ICmpP003406%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000190.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r698 - trunk/netbrush/src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r698%20-%20trunk/netbrush/src&In-Reply-To=%3C200611061812.kA6ICmpP003406%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r698 - trunk/netbrush/src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov  6 19:12:48 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000190.html">[Flexlay-commit] r697 - in trunk/netbrush: . src src/widget
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-06 19:12:36 +0100 (Mon, 06 Nov 2006)
+New Revision: 698
+
+Modified:
+   trunk/netbrush/src/grayscale_buffer.cpp
+   trunk/netbrush/src/grayscale_buffer.hpp
+   trunk/netbrush/src/screen_buffer.cpp
+Log:
+- some bug fixing
+
+Modified: trunk/netbrush/src/grayscale_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/grayscale_buffer.cpp	2006-11-06 17:44:35 UTC (rev 697)
++++ trunk/netbrush/src/grayscale_buffer.cpp	2006-11-06 18:12:36 UTC (rev 698)
+@@ -164,6 +164,12 @@
+     }
+ }
+ 
++Uint8
++GrayscaleBuffer::interpolated_at(float x, float y) const
++{
++  return 0; //at(x, y)
++}
++
+ #ifdef __TEST__
+ #include &lt;stdio.h&gt;
+ 
+
+Modified: trunk/netbrush/src/grayscale_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/grayscale_buffer.hpp	2006-11-06 17:44:35 UTC (rev 697)
++++ trunk/netbrush/src/grayscale_buffer.hpp	2006-11-06 18:12:36 UTC (rev 698)
+@@ -45,6 +45,8 @@
+   void blit(GrayscaleBuffer* source, SDL_Rect* srcrect, int of_x, int of_y);
+   void blit(GrayscaleBuffer* source, int of_x, int of_y, Uint8 alpha, BlendMode mode);
+ 
++  Uint8 interpolated_at(float x, float y) const;
++
+   inline Uint8&amp; at(int x, int y) 
+   { 
+     assert(x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height);
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-11-06 17:44:35 UTC (rev 697)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-11-06 18:12:36 UTC (rev 698)
+@@ -224,7 +224,12 @@
+ void
+ ScreenBuffer::on_pen_motion(const PenEvent&amp; pen)
+ {
+-  tools.front()-&gt;on_pen_motion(pen);
++  PenEvent new_pen = pen;
++  
++  new_pen.x -= scroll_offset_x;
++  new_pen.y -= scroll_offset_y;
++
++  tools.front()-&gt;on_pen_motion(new_pen);
+ }
+ 
+ void
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000190.html">[Flexlay-commit] r697 - in trunk/netbrush: . src src/widget
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

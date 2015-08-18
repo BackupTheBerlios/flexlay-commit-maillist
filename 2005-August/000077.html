@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r582 - trunk/windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r582%20-%20trunk/windstille&In-Reply-To=%3C200508031449.j73EnDxu009016%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000076.html">
+   <LINK REL="Next"  HREF="000078.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r582 - trunk/windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r582%20-%20trunk/windstille&In-Reply-To=%3C200508031449.j73EnDxu009016%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r582 - trunk/windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Wed Aug  3 16:49:13 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000076.html">[Flexlay-commit] r581 - trunk/windstille
+</A></li>
+        <LI>Next message: <A HREF="000078.html">[Flexlay-commit] r583 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-03 16:49:10 +0200 (Wed, 03 Aug 2005)
+New Revision: 582
+
+Modified:
+   trunk/windstille/gui.rb
+   trunk/windstille/tileset.rb
+Log:
+- little bug fix
+- added tilegroup menu
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-01 14:41:22 UTC (rev 581)
++++ trunk/windstille/gui.rb	2005-08-03 14:49:10 UTC (rev 582)
+@@ -71,6 +71,8 @@
+     @foreground_icon = @button_panel.add_icon(&quot;../data/images/icons24/foreground.png&quot;)
+     @eye_icon = @button_panel.add_icon(&quot;../data/images/icons24/eye.png&quot;)
+ 
++    @button_panel.add_icon(&quot;../data/images/icons24/eye.png&quot;, proc{ @tilegroup_menu.run() })
++
+     @layer_menu = Menu.new(CL_Point.new(32*15+2, 54), @gui.get_component())
+     
+     @toolbar = ButtonPanel.new(0, 23+33, 33, 32*4+2, false, @gui.get_component)
+@@ -110,6 +112,13 @@
+     @save_dialog = SimpleFileDialog.new(&quot;Save SuperTux Level as...&quot;, &quot;Save&quot;, &quot;Cancel&quot;, @gui.get_component())
+     @save_dialog.set_filename($datadir + &quot;levels/&quot;)
+ 
++    # FIXME: Having position in the Menus here is EXTREMLY ugly
++    @tilegroup_menu = Menu.new(CL_Point.new(35*15+2, 54), @gui.get_component())
++    @tilegroup_menu.add_item($mysprite, &quot;All Tiles&quot;, proc{@tileselector.set_tiles($tileset.get_tiles())})
++    $tileset.tilegroups.each { |tilegroup|
++      @tilegroup_menu.add_item($mysprite, tilegroup.name, proc{@tileselector.set_tiles(tilegroup.tiles)})
++    }
++
+     toggle_minimap()
+ 
+     # Init the GUI, so that button state is in sync with internal state
+@@ -125,8 +134,8 @@
+                                      @selector_window)
+     @tileselector.set_tileset($tileset)
+     @tileselector.set_scale(0.375)
+-    @tileselector.set_tiles($tileset.tilegroups[0].tiles)
+-    # @tileselector.set_tiles($tileset.get_tiles())
++    # @tileselector.set_tiles($tileset.tilegroups[0].tiles)
++    @tileselector.set_tiles($tileset.get_tiles())
+     @tileselector.show(true)
+     
+     @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, $screen_height - 600 + 552), 42, 42, @selector_window)
+
+Modified: trunk/windstille/tileset.rb
+===================================================================
+--- trunk/windstille/tileset.rb	2005-08-01 14:41:22 UTC (rev 581)
++++ trunk/windstille/tileset.rb	2005-08-03 14:49:10 UTC (rev 582)
+@@ -90,15 +90,19 @@
+         width  = get_value_from_tree(['width', '_'], data, 0)
+         height = get_value_from_tree(['height', '_'], data, 0)
+ 
+-        puts $datadir + image
++        puts &quot;Loading: #{width}x#{height} #{$datadir + image}&quot;
+ 
+         pixelbuffer = make_pixelbuffer($datadir + image);
+ 
+-        (0..width-1).each {|y|
+-          (0..height-1).each {|x|
+-            $tileset.add_tile(ids[y*width + x],
+-                              Tile.new(make_region_pixelbuffer(pixelbuffer,
+-                                                               64*x, 64*y, 64, 64)))
++        (0..height-1).each {|y|
++          (0..width-1).each {|x|
++            if (y*width + x &lt; ids.length) then
++              $tileset.add_tile(ids[y*width + x],
++                                Tile.new(make_region_pixelbuffer(pixelbuffer,
++                                                                 64*x, 64*y, 64, 64)))
++            else
++              puts &quot;Id out of range: #{y*width + x} &gt;= #{ids.length} for image #{$datadir + image}&quot;
++            end
+           }
+         }
+       end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000076.html">[Flexlay-commit] r581 - trunk/windstille
+</A></li>
+	<LI>Next message: <A HREF="000078.html">[Flexlay-commit] r583 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

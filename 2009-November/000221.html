@@ -1,0 +1,4336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r728 - in trunk/flexlay/lib: . gui tools
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r728%20-%20in%20trunk/flexlay/lib%3A%20.%20gui%20tools&In-Reply-To=%3C200911221440.nAMEeL3h008979%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000219.html">
+   <LINK REL="Next"  HREF="000222.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r728 - in trunk/flexlay/lib: . gui tools</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r728%20-%20in%20trunk/flexlay/lib%3A%20.%20gui%20tools&In-Reply-To=%3C200911221440.nAMEeL3h008979%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r728 - in trunk/flexlay/lib: . gui tools">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 15:40:21 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000219.html">[Flexlay-commit] r727 - trunk/flexlay/lib
+</A></li>
+        <LI>Next message: <A HREF="000222.html">[Flexlay-commit] r729 - trunk/flexlay/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#221">[ date ]</a>
+              <a href="thread.html#221">[ thread ]</a>
+              <a href="subject.html#221">[ subject ]</a>
+              <a href="author.html#221">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 15:40:18 +0100 (Sun, 22 Nov 2009)
+New Revision: 728
+
+Added:
+   trunk/flexlay/lib/gui/
+   trunk/flexlay/lib/gui/colorpicker.cpp
+   trunk/flexlay/lib/gui/colorpicker.hpp
+   trunk/flexlay/lib/gui/console.cpp
+   trunk/flexlay/lib/gui/console.hpp
+   trunk/flexlay/lib/gui/directory_view.cpp
+   trunk/flexlay/lib/gui/directory_view.hpp
+   trunk/flexlay/lib/gui/editor_map_component.cpp
+   trunk/flexlay/lib/gui/editor_map_component.hpp
+   trunk/flexlay/lib/gui/icon.cpp
+   trunk/flexlay/lib/gui/icon.hpp
+   trunk/flexlay/lib/gui/menubar.cpp
+   trunk/flexlay/lib/gui/menubar.hpp
+   trunk/flexlay/lib/gui/minimap.cpp
+   trunk/flexlay/lib/gui/minimap.hpp
+   trunk/flexlay/lib/gui/object_selector.cpp
+   trunk/flexlay/lib/gui/object_selector.hpp
+   trunk/flexlay/lib/gui/panel.cpp
+   trunk/flexlay/lib/gui/panel.hpp
+   trunk/flexlay/lib/gui/scrollbar.cpp
+   trunk/flexlay/lib/gui/scrollbar.hpp
+   trunk/flexlay/lib/gui/slider.cpp
+   trunk/flexlay/lib/gui/slider.hpp
+   trunk/flexlay/lib/gui/tile_editor.cpp
+   trunk/flexlay/lib/gui/tile_editor.hpp
+   trunk/flexlay/lib/gui/tile_selection.cpp
+   trunk/flexlay/lib/gui/tile_selection.hpp
+   trunk/flexlay/lib/gui/titlebar.cpp
+   trunk/flexlay/lib/gui/titlebar.hpp
+   trunk/flexlay/lib/gui/viewport.cpp
+   trunk/flexlay/lib/gui/viewport.hpp
+   trunk/flexlay/lib/gui/window.cpp
+   trunk/flexlay/lib/gui/window.hpp
+Removed:
+   trunk/flexlay/lib/colorpicker.cpp
+   trunk/flexlay/lib/colorpicker.hpp
+   trunk/flexlay/lib/console.cpp
+   trunk/flexlay/lib/console.hpp
+   trunk/flexlay/lib/directory_view.cpp
+   trunk/flexlay/lib/directory_view.hpp
+   trunk/flexlay/lib/editor_map_component.cpp
+   trunk/flexlay/lib/editor_map_component.hpp
+   trunk/flexlay/lib/icon.cpp
+   trunk/flexlay/lib/icon.hpp
+   trunk/flexlay/lib/menubar.cpp
+   trunk/flexlay/lib/menubar.hpp
+   trunk/flexlay/lib/minimap.cpp
+   trunk/flexlay/lib/minimap.hpp
+   trunk/flexlay/lib/object_selector.cpp
+   trunk/flexlay/lib/object_selector.hpp
+   trunk/flexlay/lib/panel.cpp
+   trunk/flexlay/lib/panel.hpp
+   trunk/flexlay/lib/scrollbar.cpp
+   trunk/flexlay/lib/scrollbar.hpp
+   trunk/flexlay/lib/slider.cpp
+   trunk/flexlay/lib/slider.hpp
+   trunk/flexlay/lib/tile_editor.cpp
+   trunk/flexlay/lib/tile_editor.hpp
+   trunk/flexlay/lib/tile_selection.cpp
+   trunk/flexlay/lib/tile_selection.hpp
+   trunk/flexlay/lib/titlebar.cpp
+   trunk/flexlay/lib/titlebar.hpp
+   trunk/flexlay/lib/viewport.cpp
+   trunk/flexlay/lib/viewport.hpp
+   trunk/flexlay/lib/window.cpp
+   trunk/flexlay/lib/window.hpp
+Modified:
+   trunk/flexlay/lib/bitmap_layer.cpp
+   trunk/flexlay/lib/flexlay_wrap.i
+   trunk/flexlay/lib/layer.hpp
+   trunk/flexlay/lib/object_layer.cpp
+   trunk/flexlay/lib/onion_skin_layer.cpp
+   trunk/flexlay/lib/sketch_layer.cpp
+   trunk/flexlay/lib/sketch_layer.hpp
+   trunk/flexlay/lib/tilemap_layer.cpp
+   trunk/flexlay/lib/tools/layer_move_tool.cpp
+   trunk/flexlay/lib/tools/objmap_select_tool.cpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.cpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_paint_tool.cpp
+   trunk/flexlay/lib/tools/tilemap_select_tool.cpp
+   trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+   trunk/flexlay/lib/tools/workspace_move_tool.cpp
+   trunk/flexlay/lib/tools/zoom2_tool.cpp
+   trunk/flexlay/lib/tools/zoom_tool.cpp
+   trunk/flexlay/lib/workspace.cpp
+Log:
+Moved CL_Component classes to gui/
+
+Modified: trunk/flexlay/lib/bitmap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/bitmap_layer.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -26,8 +26,8 @@
+ #include &lt;ClanLib/Display/blend_func.h&gt;
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+ #include &lt;ClanLib/Display/display_window.h&gt;
++
+ #include &quot;flexlay.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
+ #include &quot;layer_impl.hpp&quot;
+ #include &quot;bitmap_layer.hpp&quot;
+ #include &quot;objmap_object_impl.hpp&quot;
+
+Deleted: trunk/flexlay/lib/colorpicker.cpp
+===================================================================
+--- trunk/flexlay/lib/colorpicker.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/colorpicker.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,401 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;iostream&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;colorpicker.hpp&quot;
+-#include &quot;math.hpp&quot;
+-
+-class ColorPickerHue : public CL_Component
+-{
+-public:
+-  std::vector&lt;CL_Slot&gt; slots;
+-  typedef std::vector&lt;CL_Color&gt; Colors;
+-  Colors  colors;
+-  bool pressed;
+-  CL_Signal_v1&lt;CL_Color&gt; on_color_change;
+-  
+-  ColorPickerHue(const CL_Rect&amp; rect, CL_Component* parent) 
+-    : CL_Component(rect, parent),
+-      pressed(false)
+-  {
+-    colors.push_back(CL_Color(255,   0,   0));
+-    colors.push_back(CL_Color(255,   0, 255));
+-    colors.push_back(CL_Color(  0,   0, 255));
+-    colors.push_back(CL_Color(  0, 255, 255));
+-    colors.push_back(CL_Color(  0, 255,   0));
+-    colors.push_back(CL_Color(255, 255,   0));
+-    colors.push_back(CL_Color(255,   0,   0));
+-
+-    slots.push_back(sig_paint().connect(this, &amp;ColorPickerHue::draw));
+-
+-    slots.push_back(sig_mouse_down().connect(this, &amp;ColorPickerHue::on_mouse_down));
+-    slots.push_back(sig_mouse_up().connect(this, &amp;ColorPickerHue::on_mouse_up));
+-    slots.push_back(sig_mouse_move().connect(this, &amp;ColorPickerHue::on_mouse_move));
+-  }
+-
+-  void update_pointer(const CL_InputEvent&amp; event)
+-  {
+-    CL_Color new_color; 
+-
+-    if (event.mouse_pos.y &gt;= get_height() || event.mouse_pos.y &lt; 0)
+-    {
+-      new_color = colors[0];
+-    }
+-    else
+-    {
+-      float factor  = (float(event.mouse_pos.y) / get_height()) * (colors.size()-1);
+-      int   prevcol = int(factor);
+-      int   nextcol = prevcol+1;
+-
+-      float val  = factor - prevcol;
+-      float ival = 1.0f - val;
+-
+-
+-      if (val &gt;= 0 &amp;&amp; val &lt; 1.0f)
+-      {
+-        new_color = CL_Color(int(val * colors[nextcol].get_red()   + ival * colors[prevcol].get_red()),
+-                             int(val * colors[nextcol].get_green() + ival * colors[prevcol].get_green()),
+-                             int(val * colors[nextcol].get_blue()  + ival * colors[prevcol].get_blue()),
+-                             int(val * colors[nextcol].get_alpha() + ival * colors[prevcol].get_alpha()));
+-      }
+-      else
+-      {
+-        std::cout &lt;&lt; &quot;Out of range&quot; &lt;&lt; std::endl;
+-        new_color = colors[0];
+-      }
+-    }
+-    on_color_change(new_color);
+-
+-    /*
+-      std::cout &lt;&lt; new_color.get_red() &lt;&lt; &quot;, &quot;
+-      &lt;&lt; new_color.get_green() &lt;&lt; &quot;, &quot;
+-      &lt;&lt; new_color.get_blue() &lt;&lt; &quot;, &quot;
+-      &lt;&lt; new_color.get_alpha()
+-      &lt;&lt; std::endl;*/
+-  }
+-  
+-  void on_mouse_up(const CL_InputEvent&amp; event)
+-  {
+-    if (event.id == CL_MOUSE_LEFT)
+-    {
+-      pressed = false;
+-      release_mouse();
+-      update_pointer(event);
+-    }
+-  }
+-
+-  void on_mouse_down(const CL_InputEvent&amp; event)
+-  {
+-    if (event.id == CL_MOUSE_LEFT)
+-    {
+-      pressed = true;
+-      capture_mouse();
+-      update_pointer(event);
+-    }  
+-  }
+-  
+-  void on_mouse_move(const CL_InputEvent&amp; event)
+-  {
+-    if (pressed)
+-    {
+-      update_pointer(event);
+-    }
+-  }
+-
+-  void draw()
+-  {
+-    CL_Display::push_modelview();
+-    CL_Display::add_translate(get_screen_x(), get_screen_y());
+-    
+-    int psize = get_height()/6;
+-    
+-    for(Colors::size_type i = 0; i &lt; colors.size()-1; ++i)
+-    {
+-      CL_Display::fill_rect(CL_Rect(CL_Point(0, i*psize),
+-                                    CL_Size(get_width(), psize)),
+-                            CL_Gradient(colors[i],
+-                                        colors[i],
+-                                        colors[i+1],
+-                                        colors[i+1]));
+-    }
+-
+-    CL_Display::pop_modelview();    
+-  }
+-};
+-
+-class ColorPickerAlpha : public CL_Component
+-{
+-public:
+-  std::vector&lt;CL_Slot&gt; slots;
+-  bool pressed;
+-  CL_Signal_v1&lt;float&gt; on_color_change;
+-  float alpha;
+-
+-  ColorPickerAlpha(const CL_Rect&amp; rect, CL_Component* parent) 
+-    : CL_Component(rect, parent),
+-      pressed(false),
+-      alpha(0.5f)
+-  {
+-    slots.push_back(sig_paint().connect(this, &amp;ColorPickerAlpha::draw));
+-
+-    slots.push_back(sig_mouse_down().connect(this, &amp;ColorPickerAlpha::on_mouse_down));
+-    slots.push_back(sig_mouse_up().connect(this, &amp;ColorPickerAlpha::on_mouse_up));
+-    slots.push_back(sig_mouse_move().connect(this, &amp;ColorPickerAlpha::on_mouse_move));
+-  }
+-
+-  void set_alpha(float alpha_)
+-  {
+-    alpha = alpha_;
+-    on_color_change(alpha);
+-  }  
+-
+-  void draw()
+-  {
+-    CL_Display::push_modelview();
+-    CL_Display::add_translate(get_screen_x(), get_screen_y());    
+-   
+-    CL_Display::fill_rect(CL_Rect(CL_Point(0, 0),
+-                                  CL_Size(get_width(), get_height())),
+-                          CL_Gradient(CL_Color(0, 0, 0),
+-                                      CL_Color(255, 255, 255),
+-                                      CL_Color(0, 0, 0),
+-                                      CL_Color(255, 255, 255)));
+-
+-    CL_Display::pop_modelview();
+-  }
+-
+-  void update_pointer(const CL_InputEvent&amp; event)
+-  {
+-    alpha = 1.0f - (Math::mid(0.0f, float(event.mouse_pos.x) / get_width(), 1.0f));
+-    on_color_change(alpha);
+-  }
+-
+-  void on_mouse_up(const CL_InputEvent&amp; event)
+-  {
+-    if (event.id == CL_MOUSE_LEFT)
+-    {
+-      pressed = false;
+-      release_mouse();
+-      update_pointer(event);
+-    }
+-  }
+-
+-  void on_mouse_down(const CL_InputEvent&amp; event)
+-  {
+-    if (event.id == CL_MOUSE_LEFT)
+-    {
+-      pressed = true;
+-      capture_mouse();
+-      update_pointer(event);
+-    }
+-  }
+-
+-  void on_mouse_move(const CL_InputEvent&amp; event)
+-  {
+-    if (pressed)
+-    {
+-      update_pointer(event);    
+-    }
+-  }
+-};
+-
+-class ColorPickerBrightness : public CL_Component
+-{
+-public:
+-  std::vector&lt;CL_Slot&gt; slots;
+-  CL_Color color;
+-  bool pressed;
+-  CL_Signal_v1&lt;CL_Color&gt; on_color_change;
+-  float factor_x;
+-  float factor_y;
+-  ColorPickerBrightness(const CL_Rect&amp; rect, CL_Component* parent) 
+-    : CL_Component(rect, parent),
+-      pressed(false),
+-      factor_x(1.0f),
+-      factor_y(1.0f)
+-  {
+-    color = CL_Color(255, 0, 0);
+-    slots.push_back(sig_paint().connect(this, &amp;ColorPickerBrightness::draw));
+-
+-    slots.push_back(sig_mouse_down().connect(this, &amp;ColorPickerBrightness::on_mouse_down));
+-    slots.push_back(sig_mouse_up().connect(this, &amp;ColorPickerBrightness::on_mouse_up));
+-    slots.push_back(sig_mouse_move().connect(this, &amp;ColorPickerBrightness::on_mouse_move));
+-  }
+-
+-  void draw()
+-  {
+-    CL_Display::push_modelview();
+-    CL_Display::add_translate(get_screen_x(), get_screen_y());
+-
+-    CL_Display::fill_rect(CL_Rect(CL_Point(0, 0),
+-                                  CL_Size(get_width(), get_height())),
+-                          CL_Gradient(CL_Color(0, 0, 0),
+-                                      color,
+-                                      CL_Color(0, 0, 0),
+-                                      CL_Color(255, 255, 255)));
+-
+-    CL_Display::draw_line(factor_x * get_width(),
+-                          0,
+-                          factor_x * get_width(),
+-                          get_height(),
+-                          CL_Color(255, 255, 255));
+-
+-    CL_Display::draw_line(0,
+-                          factor_y * get_height(),
+-                          get_width(),
+-                          factor_y * get_height(),
+-                          CL_Color(255, 255, 255));
+-
+-    CL_Display::pop_modelview();
+-  }
+-
+-  void set_color(CL_Color color_) {
+-    color = color_;
+-    update_color();
+-  }
+-
+-  void update_color()
+-  {
+-    CL_Color new_color(Math::mid(0, int(factor_x * color.get_red()   * (1.0f - factor_y) + factor_x * 255 * (factor_y)), 255),
+-                       Math::mid(0, int(factor_x * color.get_green() * (1.0f - factor_y) + factor_x * 255 * (factor_y)), 255),   
+-                       Math::mid(0, int(factor_x * color.get_blue()  * (1.0f - factor_y) + factor_x * 255 * (factor_y)), 255),
+-                       color.get_alpha());
+-    on_color_change(new_color);
+-    /*
+-      std::cout &lt;&lt; new_color.get_red() &lt;&lt; &quot;, &quot;
+-      &lt;&lt; new_color.get_green() &lt;&lt; &quot;, &quot;
+-      &lt;&lt; new_color.get_blue() &lt;&lt; &quot;, &quot;
+-      &lt;&lt; new_color.get_alpha()
+-      &lt;&lt; std::endl;
+-    */
+-  }
+-
+-  void update_pointer(const CL_InputEvent&amp; event)
+-  {
+-    factor_x = Math::mid(0.0f, float(event.mouse_pos.x)/get_width(), 1.0f);
+-    factor_y = Math::mid(0.0f, float(event.mouse_pos.y)/get_height(), 1.0f);
+-
+-    update_color();
+-  }
+-
+-  void on_mouse_up(const CL_InputEvent&amp; event)
+-  {
+-    if (event.id == CL_MOUSE_LEFT)
+-    {
+-      pressed = false;
+-      release_mouse();
+-      update_pointer(event);
+-    }    
+-  }
+-
+-  void on_mouse_down(const CL_InputEvent&amp; event)
+-  {
+-    if (event.id == CL_MOUSE_LEFT)
+-    {
+-      pressed = true;
+-      capture_mouse();
+-      update_pointer(event);
+-    }
+-  }
+-
+-  void on_mouse_move(const CL_InputEvent&amp; event)
+-  {
+-    if (pressed)
+-    {
+-      update_pointer(event);
+-    }
+-  }
+-};
+-
+-ColorPicker::ColorPicker(const CL_Rect&amp; rect, CL_Component* parent)
+-  : CL_Component(rect, parent)
+-{
+-  float pwidth  = rect.get_width()/11.0;
+-  float pheight = rect.get_height()/11.0;
+-
+-  brightness = new ColorPickerBrightness(CL_Rect(CL_Point(0, 0),
+-                                                 CL_Size(int(pwidth*10), int(pheight*10))), 
+-                                         this);
+-  
+-  hue        = new ColorPickerHue(CL_Rect(CL_Point(int(pwidth*10), 0),
+-                                          CL_Size(int(pwidth*1), int(pheight*10))),
+-                                  this);
+-
+-  alpha      = new ColorPickerAlpha(CL_Rect(CL_Point(0, int(pheight*10)),
+-                                            CL_Size(int(pwidth*10), int(pheight*1))),
+-                                    this);
+-
+-  slots.push_back(hue-&gt;on_color_change.connect(brightness, &amp;ColorPickerBrightness::set_color));
+-  slots.push_back(brightness-&gt;on_color_change.connect(this, &amp;ColorPicker::update_brightness_color));
+-  slots.push_back(alpha-&gt;on_color_change.connect(this, &amp;ColorPicker::update_alpha_color));
+-  slots.push_back(sig_paint().connect(this, &amp;ColorPicker::draw));
+-
+-  brightness-&gt;set_color(CL_Color(255, 0, 0));
+-  alpha-&gt;set_alpha(0.5f);
+-}
+-
+-void
+-ColorPicker::update_alpha_color(float alpha)
+-{
+-  color.set_alpha(int(255 * alpha));
+-  on_color_change(color);  
+-}
+-
+-void
+-ColorPicker::update_brightness_color(CL_Color color_)
+-{
+-  color.set_red(color_.get_red());
+-  color.set_green(color_.get_green());
+-  color.set_blue(color_.get_blue());
+-  on_color_change(color);
+-}
+-
+-void
+-ColorPicker::draw()
+-{
+-  CL_Display::push_modelview();
+-  CL_Display::add_translate(get_screen_x(), get_screen_y());
+-  
+-  float pwidth  = get_width()/11.0;
+-  float pheight = get_height()/11.0;
+-  CL_Display::fill_rect(CL_Rect(CL_Point(int(pwidth*10), int(pheight*10)),
+-                                CL_Size(int(pwidth), int(pheight))),
+-                        color);
+-
+-  CL_Display::pop_modelview();
+-}
+-
+-CL_Signal_v1&lt;CL_Color&gt;&amp;
+-ColorPicker::sig_color_change()
+-{
+-  return on_color_change;
+-}
+-
+-CL_Color
+-ColorPicker::get_color()
+-{
+-  return color;
+-}
+-
+-void
+-ColorPicker::set_color(const CL_Color&amp; color_)
+-{
+-  color = color_;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/colorpicker.hpp
+===================================================================
+--- trunk/flexlay/lib/colorpicker.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/colorpicker.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,55 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_COLORPICKER_HPP
+-#define HEADER_FLEXLAY_COLORPICKER_HPP
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-
+-class ColorPickerHue;
+-class ColorPickerAlpha;
+-class ColorPickerBrightness;
+-
+-/** */
+-class ColorPicker : public CL_Component
+-{
+-protected:
+-  ~ColorPicker() {}
+-private:
+-  CL_Signal_v1&lt;CL_Color&gt; on_color_change;
+-  std::vector&lt;CL_Slot&gt; slots;
+-  CL_Color color;
+-
+-  ColorPickerHue*     hue;
+-  ColorPickerBrightness* brightness;
+-  ColorPickerAlpha*      alpha;
+-
+-  void update_brightness_color(CL_Color color);
+-  void update_alpha_color(float alpha);
+-public:
+-  ColorPicker(const CL_Rect&amp; rect, CL_Component* parent);
+-  
+-  void draw();
+-
+-  CL_Signal_v1&lt;CL_Color&gt;&amp; sig_color_change();
+-
+-  CL_Color get_color();
+-  void set_color(const CL_Color&amp; color);
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/console.cpp
+===================================================================
+--- trunk/flexlay/lib/console.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/console.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,124 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;iostream&gt;
+-#include &quot;fonts.hpp&quot;
+-#include &quot;field.hpp&quot;
+-#include &quot;console.hpp&quot;
+-
+-class ConsoleImpl
+-{
+-public:
+-  std::vector&lt;CL_Slot&gt; slots;
+-
+-  CL_Size size;
+-
+-  /** Complete log of everything that got written to the console */
+-  std::string full_buffer;
+-
+-  /** Buffer of the stuff currently visible on the screen */
+-  Field&lt;char&gt; screen;
+-
+-  CL_Point cursor_pos;
+-
+-  CL_Font font;
+-
+-  ConsoleImpl(int w, int h);
+-  void putchar(char c);
+-  void draw();
+-};
+-
+-ConsoleImpl::ConsoleImpl(int w, int h)
+-  : size(w, h),
+-    screen(w, h),
+-    cursor_pos(0, 0)
+-{
+-}
+-
+-void
+-ConsoleImpl::draw()
+-{
+-  //std::cout &lt;&lt; &quot;ConsoleImpl::draw()&quot; &lt;&lt; std::endl;
+-
+-  int font_w = font.get_width(&quot;W&quot;);
+-  int font_h = font.get_height();
+-
+-  for(int y = 0; y &lt; size.height; ++y)
+-    for(int x = 0; x &lt; size.width; ++x)
+-    {
+-      font.draw_character(x * font_w, y * font_h, screen.at(x, y));
+-    }
+-}
+-
+-Console::Console(/*const CL_Font&amp; font,*/ const CL_Rect&amp; rect, CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    impl(new ConsoleImpl(40, 24))
+-{
+-  impl-&gt;font = Fonts::verdana11_yellow;
+-  impl-&gt;slots.push_back(sig_paint().connect(impl.get(), &amp;ConsoleImpl::draw));
+-}
+-
+-Console::~Console()
+-{
+-  
+-}
+-
+-void
+-Console::clearscr()
+-{
+-  for(int y = 0; y &lt; impl-&gt;size.height; ++y)
+-    for(int x = 0; x &lt; impl-&gt;size.width; ++x)
+-      impl-&gt;screen.at(x, y) = 0;
+-}
+-
+-void
+-ConsoleImpl::putchar(char c)
+-{
+-  full_buffer += c; 
+-
+-  if (c == '\n')
+-  {
+-    cursor_pos.x = 0;
+-    cursor_pos.y += 1;
+-  }
+-  else
+-  {
+-    screen.at(cursor_pos.x, cursor_pos.y) = c;
+-
+-    cursor_pos.x += 1;
+-
+-    if (cursor_pos.x &gt;= size.width)
+-      cursor_pos.x = 0;
+-  }
+-
+-  // Move all content one line up
+-  if (cursor_pos.y &gt;= size.height)
+-    screen.resize(size.width, size.height, 0, -1);
+-}
+-
+-void
+-Console::write(const std::string&amp; str)
+-{
+-  std::cout &lt;&lt; str &lt;&lt; std::flush;
+-
+-  for(std::string::const_iterator i = str.begin(); i != str.end(); ++i)
+-  {
+-    if (*i != 0)
+-      impl-&gt;putchar(*i);
+-  }
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/console.hpp
+===================================================================
+--- trunk/flexlay/lib/console.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/console.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,44 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_CONSOLE_HPP
+-#define HEADER_FLEXLAY_CONSOLE_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class CL_Font;
+-class CL_Size;
+-class ConsoleImpl;
+-
+-/** */
+-class Console : public CL_Component
+-{
+-protected:
+-  virtual ~Console();
+-public:
+-  Console(/*const CL_Font&amp; font, */const CL_Rect&amp; rect, CL_Component* parent);
+-
+-  /** Write something to the console */
+-  void write(const std::string&amp; );
+-  void clearscr();
+-private:
+-  boost::shared_ptr&lt;ConsoleImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/directory_view.cpp
+===================================================================
+--- trunk/flexlay/lib/directory_view.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/directory_view.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,204 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;ClanLib/Core/IOData/directory_scanner.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;fonts.hpp&quot;
+-#include &quot;directory_view.hpp&quot;
+-
+-class DirectoryViewEntry
+-{
+-public:
+-  std::string name;
+-  bool directory;
+-  bool hidden;
+-};
+-
+-struct DirectoryViewSorter
+-{
+-  bool operator()(const DirectoryViewEntry&amp; lhs, const DirectoryViewEntry&amp; rhs)
+-  {
+-    if (lhs.directory &gt; rhs.directory)
+-      return true;
+-    else if (lhs.directory &lt; rhs.directory)
+-      return false;
+-    else
+-      return lhs.name &lt; rhs.name;
+-  }
+-};
+-
+-class DirectoryViewImpl
+-{
+-public:
+-  DirectoryView* parent;
+-
+-  std::vector&lt;CL_Slot&gt; slots;
+-
+-  std::string path;
+-  CL_Signal_v1&lt;std::string&gt; sig_on_click;
+-  typedef std::vector&lt;DirectoryViewEntry&gt; Items;
+-  Items items;
+-  int current_item;
+-  int column_width;
+-  int num_columns;
+-
+-  void update_items();
+-  void draw();
+-  int get_item(const CL_Point&amp; pos);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-};
+-
+-DirectoryView::DirectoryView(const CL_Rect&amp; rect, CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    impl(new DirectoryViewImpl())
+-{ 
+-  impl-&gt;parent = this;
+-
+-  //  impl-&gt;slots.push_back(sig_mouse_down().connect(impl.get(), &amp;DirectoryViewImpl::draw));
+-  impl-&gt;slots.push_back(sig_paint().connect(impl.get(), &amp;DirectoryViewImpl::draw));
+-  impl-&gt;slots.push_back(sig_mouse_move().connect(impl.get(), &amp;DirectoryViewImpl::on_mouse_move));
+-  impl-&gt;slots.push_back(sig_mouse_down().connect(impl.get(), &amp;DirectoryViewImpl::on_mouse_down));
+-
+-  impl-&gt;current_item = -1;
+-}
+-
+-DirectoryView::~DirectoryView()
+-{
+-}
+-
+-void
+-DirectoryView::set_directory(const std::string&amp; path_)
+-{
+-  impl-&gt;path = path_;
+-  impl-&gt;update_items();
+-}
+-
+-CL_Signal_v1&lt;std::string&gt;&amp;
+-DirectoryView::sig_on_click()
+-{
+-  return impl-&gt;sig_on_click;
+-}
+-
+-void 
+-DirectoryViewImpl::draw()
+-{
+-  CL_Font font = Fonts::verdana11; 
+-
+-  int horizontal_spacing = 10;
+-  int vertical_spacing   = 5;
+-  int x_pos = 0;
+-  int y_pos = 0;
+-
+-  CL_Display::clear(CL_Color(255, 255, 0));
+-
+-  int j = 0;
+-  for(Items::iterator i = items.begin(); i != items.begin()+50 &amp;&amp; i != items.end(); ++i)
+-  {
+-    if (current_item &amp;&amp; current_item &lt; int(items.size()) &amp;&amp; j == current_item)
+-    {
+-      CL_Rect rect = font.bounding_rect(x_pos * (column_width + horizontal_spacing) + 1, 
+-                                        y_pos * (font.get_height() + vertical_spacing) + 1,
+-                                        i-&gt;name);
+-      CL_Display::fill_rect(CL_Rect(rect.left-5, rect.top-3,
+-                                    rect.left+5+column_width, rect.bottom+3),
+-                            CL_Color(250, 200, 0));
+-    }
+-
+-    // draw item
+-    if (!i-&gt;directory)
+-    {
+-      font.draw(x_pos * (column_width + horizontal_spacing), 
+-                y_pos * (font.get_height() + vertical_spacing),
+-                i-&gt;name);
+-    }
+-    else
+-    {
+-      font.draw(x_pos * (column_width + horizontal_spacing), 
+-                y_pos * (font.get_height() + vertical_spacing),
+-                &quot;[&quot; + i-&gt;name + &quot;]&quot;);
+-    }
+-
+-    x_pos += 1;
+-    if (x_pos &gt;= num_columns)
+-    {
+-      x_pos = 0;
+-      y_pos += 1;
+-    }
+-    ++j;
+-  }
+-}
+-
+-int
+-DirectoryViewImpl::get_item(const CL_Point&amp; pos)
+-{
+-  CL_Font font = Fonts::verdana11; 
+-
+-  int horizontal_spacing = 10;
+-  int vertical_spacing   = 5;
+-
+-  return (pos.x / (column_width + horizontal_spacing))
+-    + num_columns * (pos.y / (font.get_height() + vertical_spacing));    
+-}
+-
+-void 
+-DirectoryViewImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  current_item = get_item(event.mouse_pos);
+-  if (current_item &gt;= 0 &amp;&amp; current_item &lt; int(items.size()))
+-  {
+-    if (items[current_item].directory)
+-      parent-&gt;set_directory(path + &quot;/&quot; + items[current_item].name);
+-  }
+-}
+-
+-void 
+-DirectoryViewImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  current_item = get_item(event.mouse_pos);
+-}
+-
+-void
+-DirectoryViewImpl::update_items()
+-{
+-  items.clear();
+-  CL_DirectoryScanner scanner;
+-
+-  scanner.scan(path);
+-  while(scanner.next())
+-  {
+-    DirectoryViewEntry entry;
+-    entry.name = scanner.get_name();
+-    entry.hidden = (scanner.get_name()[0] == '.');
+-    entry.directory = scanner.is_directory();
+-    items.push_back(entry);
+-  }
+-
+-  std::sort(items.begin(), items.end(), DirectoryViewSorter());
+-
+-  CL_Font font = Fonts::verdana11; 
+-
+-  column_width = 60; // min_colum_width
+-  for(Items::iterator i = items.begin(); i != items.end(); ++i)
+-  {
+-    CL_Rect rect = font.bounding_rect(0, 0, i-&gt;name + &quot;[]&quot;);
+-    column_width = std::max(column_width, rect.get_width());
+-  }
+-
+-  num_columns = parent-&gt;get_width()/column_width;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/directory_view.hpp
+===================================================================
+--- trunk/flexlay/lib/directory_view.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/directory_view.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,46 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_DIRECTORY_VIEW_HPP
+-#define HEADER_FLEXLAY_DIRECTORY_VIEW_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class DirectoryViewImpl;
+-
+-/** */
+-class DirectoryView : public CL_Component
+-{
+-private:
+-protected:
+-  virtual ~DirectoryView();
+-public:
+-  DirectoryView(const CL_Rect&amp; rect, CL_Component* parent);
+-
+-  /** Set the directory which should be shown */
+-  void set_directory(const std::string&amp; path_);
+-
+-  /** Call the callback on click on a directory item */
+-  CL_Signal_v1&lt;std::string&gt;&amp; sig_on_click();
+-
+-private:
+-  boost::shared_ptr&lt;DirectoryViewImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/editor_map_component.cpp
+===================================================================
+--- trunk/flexlay/lib/editor_map_component.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/editor_map_component.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,267 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;iostream&gt;
+-#include &lt;ClanLib/Display/keyboard.h&gt;
+-#include &lt;ClanLib/Display/mouse.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;editor_map.hpp&quot;
+-#include &quot;scrollbar.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
+-
+-EditorMapComponent* EditorMapComponent::current_ = 0; 
+-
+-class EditorMapComponentImpl
+-{
+-public:
+-  EditorMapComponent* parent;
+-  GraphicContextState gc_state;
+-  Scrollbar* scrollbar_h;
+-  Scrollbar* scrollbar_v;
+-  CL_SlotContainer slots;
+-  Workspace workspace;
+-  CL_Signal_v2&lt;int, int&gt; key_bindings[256];
+-
+-  EditorMapComponentImpl()
+-    :workspace(true) 
+-  {}
+-
+-  void draw();
+-  void mouse_up  (const CL_InputEvent&amp; event);
+-  void mouse_down(const CL_InputEvent&amp; event);
+-  void mouse_move(const CL_InputEvent&amp; event);
+-  void on_key_up(const CL_InputEvent&amp; event);
+-  void on_key_down(const CL_InputEvent&amp; event);
+-  void on_resize(int old_w, int old_h);
+-};
+-
+-EditorMapComponent::EditorMapComponent(const CL_Rect&amp; rect, CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    impl(new EditorMapComponentImpl())
+-{
+-  impl-&gt;parent = this;
+-  impl-&gt;gc_state  = GraphicContextState(rect.get_width(), rect.get_height());
+-
+-  current_ = this;
+-
+-  impl-&gt;scrollbar_v = new Scrollbar(CL_Rect(CL_Point(rect.get_width() - 14, 2) + CL_Point(rect.left, rect.top), 
+-                                            CL_Size(12, rect.get_height() - 4 - 14)),
+-                                    Scrollbar::VERTICAL,
+-                                    parent);
+-
+-  impl-&gt;scrollbar_h = new Scrollbar(CL_Rect(CL_Point(2, rect.get_height() - 14) + CL_Point(rect.left, rect.top), 
+-                                            CL_Size(rect.get_width() - 4 - 14, 12)),
+-                                    Scrollbar::HORIZONTAL,
+-                                    parent);
+-
+-  impl-&gt;slots.connect(impl-&gt;scrollbar_h-&gt;sig_scrollbar_move(), this, &amp;EditorMapComponent::move_to_x);
+-  impl-&gt;slots.connect(impl-&gt;scrollbar_v-&gt;sig_scrollbar_move(), this, &amp;EditorMapComponent::move_to_y);
+-
+-  impl-&gt;slots.connect(sig_paint(),      impl.get(), &amp;EditorMapComponentImpl::draw);
+-  impl-&gt;slots.connect(sig_mouse_up(),   impl.get(), &amp;EditorMapComponentImpl::mouse_up);
+-  impl-&gt;slots.connect(sig_mouse_down(), impl.get(), &amp;EditorMapComponentImpl::mouse_down);
+-  impl-&gt;slots.connect(sig_mouse_move(), impl.get(), &amp;EditorMapComponentImpl::mouse_move);
+-  impl-&gt;slots.connect(sig_key_down(),   impl.get(), &amp;EditorMapComponentImpl::on_key_down);
+-  impl-&gt;slots.connect(sig_key_up(),     impl.get(), &amp;EditorMapComponentImpl::on_key_up);
+-  impl-&gt;slots.connect(sig_resize(),     impl.get(), &amp;EditorMapComponentImpl::on_resize);
+-}
+-
+-EditorMapComponent::~EditorMapComponent()
+-{
+-  std::cout &lt;&lt; &quot;~EditorMapComponent()&quot; &lt;&lt; std::endl;
+-}
+-
+-Workspace
+-EditorMapComponent::get_workspace() const
+-{
+-  return impl-&gt;workspace;
+-}
+-
+-void
+-EditorMapComponent::set_workspace(Workspace m)
+-{
+-  impl-&gt;workspace = m;
+-}
+-
+-void
+-EditorMapComponentImpl::on_key_down(const CL_InputEvent&amp; event)
+-{
+-  if (event.id &gt;= 0 &amp;&amp; event.id &lt; 256)
+-  { 
+-    CL_Rect rect = parent-&gt;get_position();
+-    key_bindings[event.id](CL_Mouse::get_x() - rect.left,
+-                           CL_Mouse::get_y() - rect.top);
+-  }
+-
+-  if (event.repeat_count == 0)
+-  {
+-    CL_Rect rect = parent-&gt;get_position();
+-    CL_InputEvent ev2 = event;
+-    ev2.mouse_pos = CL_Point(CL_Mouse::get_x() - rect.left,
+-                             CL_Mouse::get_y() - rect.top);
+-    workspace.key_down(ev2);
+-  }
+-}
+-
+-void
+-EditorMapComponentImpl::on_key_up(const CL_InputEvent&amp; event)
+-{
+-  CL_Rect rect = parent-&gt;get_position();
+-  CL_InputEvent ev2 = event;
+-  ev2.mouse_pos = CL_Point(CL_Mouse::get_x() - rect.left,
+-                           CL_Mouse::get_y() - rect.top);
+-  workspace.key_up(ev2);
+-}
+-
+-void
+-EditorMapComponentImpl::mouse_up(const CL_InputEvent&amp; event)
+-{
+-  workspace.mouse_up(event);
+-}
+-
+-void
+-EditorMapComponentImpl::mouse_move(const CL_InputEvent&amp; event)
+-{
+-  workspace.mouse_move(event);
+-}
+-
+-void
+-EditorMapComponentImpl::mouse_down(const CL_InputEvent&amp; event)
+-{
+-  workspace.mouse_down(event);
+-}
+-  
+-void
+-EditorMapComponentImpl::draw ()
+-{
+-  if (workspace.get_map().is_null()) return;
+-
+-  CL_Display::push_cliprect(parent-&gt;get_screen_rect());
+-
+-  CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+-
+-  // Update scrollbars (FIXME: move me to function)
+-  scrollbar_v-&gt;set_range(0, workspace.get_map().get_bounding_rect().get_height());
+-  scrollbar_v-&gt;set_pagesize(parent-&gt;get_height()/gc_state.get_zoom());
+-  scrollbar_v-&gt;set_pos(gc_state.get_pos().y);
+-
+-  scrollbar_h-&gt;set_range(0, workspace.get_map().get_bounding_rect().get_width());
+-  scrollbar_h-&gt;set_pagesize(parent-&gt;get_width()/gc_state.get_zoom());
+-  scrollbar_h-&gt;set_pos(gc_state.get_pos().x);
+-
+-  gc_state.push();
+-  workspace.draw();
+-  gc_state.pop();
+-
+-  CL_Display::pop_modelview();
+-  CL_Display::pop_cliprect();
+-}
+-
+-CL_Pointf
+-EditorMapComponent::screen2world(const CL_Point&amp; pos)
+-{
+-  return impl-&gt;gc_state.screen2world(pos);
+-}
+-
+-void
+-EditorMapComponent::set_zoom(float z)
+-{
+-  impl-&gt;gc_state.set_zoom(z);
+-}
+-
+-void
+-EditorMapComponent::zoom_out(CL_Point pos)
+-{
+-  impl-&gt;gc_state.set_zoom(CL_Pointf(pos.x, pos.y),
+-                          impl-&gt;gc_state.get_zoom()/1.25f);
+-}
+-
+-void
+-EditorMapComponent::zoom_in(CL_Point pos)
+-{
+-  impl-&gt;gc_state.set_zoom(CL_Pointf(pos.x, pos.y), 
+-                          impl-&gt;gc_state.get_zoom()*1.25f);
+-}
+-
+-void
+-EditorMapComponent::zoom_to(CL_Rectf rect)
+-{
+-  impl-&gt;gc_state.zoom_to(rect);
+-}
+-
+-CL_Rectf
+-EditorMapComponent::get_clip_rect()
+-{
+-  return impl-&gt;gc_state.get_clip_rect();
+-}
+-
+-void
+-EditorMapComponent::move_to(int x, int y)
+-{
+-  impl-&gt;gc_state.set_pos(CL_Pointf(x, y));
+-}
+-
+-void
+-EditorMapComponent::move_to_x(float x)
+-{
+-  impl-&gt;gc_state.set_pos(CL_Pointf(x, impl-&gt;gc_state.get_pos().y));
+-}
+-
+-void
+-EditorMapComponent::move_to_y(float y)
+-{
+-  impl-&gt;gc_state.set_pos(CL_Pointf(impl-&gt;gc_state.get_pos().x, y));
+-}
+-
+-void
+-EditorMapComponentImpl::on_resize(int old_w, int old_h)
+-{
+-  CL_Rect rect = parent-&gt;get_screen_rect();
+-
+-  scrollbar_v-&gt;set_position(rect.get_width() - 14 + rect.left,  2 + rect.top);
+-  scrollbar_v-&gt;set_size(12, rect.get_height() - 4 - 14);
+-  
+-  scrollbar_h-&gt;set_position(2 + rect.left, rect.get_height() - 14 + rect.top);
+-  scrollbar_h-&gt;set_size(rect.get_width() - 4 - 14, 12);
+-
+-  gc_state.set_size(rect.get_width(), rect.get_height());
+-}
+-
+-CL_Signal_v2&lt;int, int&gt;&amp;
+-EditorMapComponent::sig_on_key(const std::string&amp; str)
+-{
+-  int id = CL_Keyboard::get_device().string_to_keyid(str);
+-
+-  //std::cout &lt;&lt; str &lt;&lt; &quot; =&gt; &quot; &lt;&lt; id &lt;&lt; std::endl;
+-
+-  if (id &gt; 0 &amp;&amp; id &lt; 256)
+-  {
+-    return impl-&gt;key_bindings[id];
+-  }
+-  else
+-  {
+-    std::cout &lt;&lt; &quot;EditorMapComponent::sig_on_key: invalid key id: &quot; &lt;&lt; id &lt;&lt; std::endl;
+-    return impl-&gt;key_bindings[0];
+-  }
+-}
+-
+-GraphicContextState&amp;
+-EditorMapComponent::get_gc_state()
+-{
+-  return impl-&gt;gc_state;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/editor_map_component.hpp
+===================================================================
+--- trunk/flexlay/lib/editor_map_component.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/editor_map_component.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,65 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_EDITOR_MAP_COMPONENT_HPP
+-#define HEADER_FLEXLAY_EDITOR_MAP_COMPONENT_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;workspace.hpp&quot;
+-
+-class Scrollbar;
+-class EditorMapComponentImpl;
+-
+-/** Object which represents a level, quirled together with the GUI
+-    stuff */
+-class EditorMapComponent : public CL_Component
+-{
+-private:
+-  static EditorMapComponent* current_; 
+-protected:
+-  virtual ~EditorMapComponent();
+-public:
+-  static EditorMapComponent* current() { return current_; } 
+-
+-  EditorMapComponent(const CL_Rect&amp; rect, CL_Component* parent);
+- 
+-  Workspace get_workspace() const;
+-  void      set_workspace(Workspace m);
+-
+-  void  set_zoom(float z);
+-  void  zoom_to(CL_Rectf rect);
+-  void  zoom_out(CL_Point pos);
+-  void  zoom_in (CL_Point pos);
+-
+-  void move_to(int x, int y);
+-  void move_to_x(float x);
+-  void move_to_y(float y);
+-
+-  CL_Signal_v2&lt;int, int&gt;&amp; sig_on_key(const std::string&amp; str);
+-
+-  CL_Pointf screen2world(const CL_Point&amp; pos);
+-
+-  CL_Rectf get_clip_rect();
+-
+-  GraphicContextState&amp; get_gc_state();
+-
+-private:
+-  boost::shared_ptr&lt;EditorMapComponentImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/flexlay_wrap.i
+===================================================================
+--- trunk/flexlay/lib/flexlay_wrap.i	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/flexlay_wrap.i	2009-11-22 14:40:18 UTC (rev 728)
+@@ -30,7 +30,7 @@
+ #include &quot;tile.hpp&quot;
+ #include &quot;tile_brush.hpp&quot;
+ #include &quot;meta_data.hpp&quot;
+-#include &quot;console.hpp&quot;
++#include &quot;gui/console.hpp&quot;
+ #include &quot;blitter.hpp&quot;
+ 
+ #include &quot;layer.hpp&quot;
+@@ -38,24 +38,24 @@
+ #include &quot;object_layer.hpp&quot;
+ #include &quot;onion_skin_layer.hpp&quot;
+ 
+-#include &quot;minimap.hpp&quot;
++#include &quot;gui/minimap.hpp&quot;
+ #include &quot;editor_map.hpp&quot;
+ #include &quot;workspace.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;flexlay.hpp&quot;
+ #include &quot;globals.hpp&quot;
+ #include &quot;gui_manager.hpp&quot;
+ #include &quot;tile_selector.hpp&quot;
+ #include &quot;object_brush.hpp&quot;
+-#include &quot;object_selector.hpp&quot;
+-#include &quot;icon.hpp&quot;
+-#include &quot;window.hpp&quot;
+-#include &quot;panel.hpp&quot;
+-#include &quot;directory_view.hpp&quot;
++#include &quot;gui/object_selector.hpp&quot;
++#include &quot;gui/icon.hpp&quot;
++#include &quot;gui/window.hpp&quot;
++#include &quot;gui/panel.hpp&quot;
++#include &quot;gui/directory_view.hpp&quot;
+ #include &quot;menu.hpp&quot;
+-#include &quot;menubar.hpp&quot;
+-#include &quot;scrollbar.hpp&quot;
++#include &quot;gui/menubar.hpp&quot;
++#include &quot;gui/scrollbar.hpp&quot;
+ #include &quot;graphic_context_state.hpp&quot;
+  
+ #include &quot;tools/workspace_move_tool.hpp&quot;
+@@ -73,8 +73,8 @@
+ #include &quot;generated_brush.hpp&quot;
+ #include &quot;sprite_brush.hpp&quot;
+ 
+-#include &quot;colorpicker.hpp&quot;
+-#include &quot;slider.hpp&quot;
++#include &quot;gui/colorpicker.hpp&quot;
++#include &quot;gui/slider.hpp&quot;
+ #include &quot;tools/tilemap_paint_tool.hpp&quot;
+ #include &quot;tools/tilemap_select_tool.hpp&quot;
+ #include &quot;tools/objmap_select_tool.hpp&quot;
+@@ -145,7 +145,7 @@
+ %include &quot;tile.hpp&quot;
+ %include &quot;tile_brush.hpp&quot;
+ %include &quot;meta_data.hpp&quot;
+-%include &quot;console.hpp&quot;
++%include &quot;gui/console.hpp&quot;
+ %include &quot;blitter.hpp&quot;
+  
+ %include &quot;layer.hpp&quot;
+@@ -156,21 +156,21 @@
+ %include &quot;editor_map.hpp&quot;
+ %include &quot;workspace.hpp&quot;
+ %include &quot;tileset.hpp&quot;
+-%include &quot;editor_map_component.hpp&quot;
++%include &quot;gui/editor_map_component.hpp&quot;
+ %include &quot;flexlay.hpp&quot;
+ %include &quot;globals.hpp&quot;
+ %include &quot;gui_manager.hpp&quot;
+ %include &quot;tile_selector.hpp&quot;
+ %include &quot;object_brush.hpp&quot;
+-%include &quot;object_selector.hpp&quot;
+-%include &quot;icon.hpp&quot;
+-%include &quot;window.hpp&quot;
+-%include &quot;panel.hpp&quot;
+-%include &quot;minimap.hpp&quot;
+-%include &quot;directory_view.hpp&quot;
++%include &quot;gui/object_selector.hpp&quot;
++%include &quot;gui/icon.hpp&quot;
++%include &quot;gui/window.hpp&quot;
++%include &quot;gui/panel.hpp&quot;
++%include &quot;gui/minimap.hpp&quot;
++%include &quot;gui/directory_view.hpp&quot;
+ %include &quot;menu.hpp&quot;
+-%include &quot;menubar.hpp&quot;
+-%include &quot;scrollbar.hpp&quot;
++%include &quot;gui/menubar.hpp&quot;
++%include &quot;gui/scrollbar.hpp&quot;
+ 
+ %include &quot;tools/workspace_move_tool.hpp&quot;
+ %include &quot;tools/layer_move_tool.hpp&quot;
+@@ -187,8 +187,8 @@
+ %include &quot;generated_brush.hpp&quot;
+ %include &quot;sprite_brush.hpp&quot;
+ 
+-%include &quot;colorpicker.hpp&quot;
+-%include &quot;slider.hpp&quot;
++%include &quot;gui/colorpicker.hpp&quot;
++%include &quot;gui/slider.hpp&quot;
+ %include &quot;tools/tilemap_paint_tool.hpp&quot;
+ %include &quot;tools/tilemap_select_tool.hpp&quot;
+ %include &quot;tools/objmap_select_tool.hpp&quot;
+
+Copied: trunk/flexlay/lib/gui/colorpicker.cpp (from rev 723, trunk/flexlay/lib/colorpicker.cpp)
+
+Copied: trunk/flexlay/lib/gui/colorpicker.hpp (from rev 723, trunk/flexlay/lib/colorpicker.hpp)
+
+Copied: trunk/flexlay/lib/gui/console.cpp (from rev 723, trunk/flexlay/lib/console.cpp)
+
+Copied: trunk/flexlay/lib/gui/console.hpp (from rev 724, trunk/flexlay/lib/console.hpp)
+
+Copied: trunk/flexlay/lib/gui/directory_view.cpp (from rev 723, trunk/flexlay/lib/directory_view.cpp)
+
+Copied: trunk/flexlay/lib/gui/directory_view.hpp (from rev 724, trunk/flexlay/lib/directory_view.hpp)
+
+Copied: trunk/flexlay/lib/gui/editor_map_component.cpp (from rev 723, trunk/flexlay/lib/editor_map_component.cpp)
+
+Copied: trunk/flexlay/lib/gui/editor_map_component.hpp (from rev 724, trunk/flexlay/lib/editor_map_component.hpp)
+
+Copied: trunk/flexlay/lib/gui/icon.cpp (from rev 723, trunk/flexlay/lib/icon.cpp)
+
+Copied: trunk/flexlay/lib/gui/icon.hpp (from rev 724, trunk/flexlay/lib/icon.hpp)
+
+Copied: trunk/flexlay/lib/gui/menubar.cpp (from rev 723, trunk/flexlay/lib/menubar.cpp)
+
+Copied: trunk/flexlay/lib/gui/menubar.hpp (from rev 724, trunk/flexlay/lib/menubar.hpp)
+
+Copied: trunk/flexlay/lib/gui/minimap.cpp (from rev 723, trunk/flexlay/lib/minimap.cpp)
+
+Copied: trunk/flexlay/lib/gui/minimap.hpp (from rev 724, trunk/flexlay/lib/minimap.hpp)
+
+Copied: trunk/flexlay/lib/gui/object_selector.cpp (from rev 722, trunk/flexlay/lib/object_selector.cpp)
+
+Copied: trunk/flexlay/lib/gui/object_selector.hpp (from rev 722, trunk/flexlay/lib/object_selector.hpp)
+
+Copied: trunk/flexlay/lib/gui/panel.cpp (from rev 723, trunk/flexlay/lib/panel.cpp)
+
+Copied: trunk/flexlay/lib/gui/panel.hpp (from rev 724, trunk/flexlay/lib/panel.hpp)
+
+Copied: trunk/flexlay/lib/gui/scrollbar.cpp (from rev 722, trunk/flexlay/lib/scrollbar.cpp)
+
+Copied: trunk/flexlay/lib/gui/scrollbar.hpp (from rev 724, trunk/flexlay/lib/scrollbar.hpp)
+
+Copied: trunk/flexlay/lib/gui/slider.cpp (from rev 722, trunk/flexlay/lib/slider.cpp)
+
+Copied: trunk/flexlay/lib/gui/slider.hpp (from rev 723, trunk/flexlay/lib/slider.hpp)
+
+Copied: trunk/flexlay/lib/gui/tile_editor.cpp (from rev 723, trunk/flexlay/lib/tile_editor.cpp)
+
+Copied: trunk/flexlay/lib/gui/tile_editor.hpp (from rev 723, trunk/flexlay/lib/tile_editor.hpp)
+
+Copied: trunk/flexlay/lib/gui/tile_selection.cpp (from rev 723, trunk/flexlay/lib/tile_selection.cpp)
+
+Copied: trunk/flexlay/lib/gui/tile_selection.hpp (from rev 724, trunk/flexlay/lib/tile_selection.hpp)
+===================================================================
+--- trunk/flexlay/lib/tile_selection.hpp	2009-11-22 04:59:25 UTC (rev 724)
++++ trunk/flexlay/lib/gui/tile_selection.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -0,0 +1,54 @@
++//  Flexlay - A Generic 2D Game Editor
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++//  
++//  You should have received a copy of the GNU General Public License
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
++
++#ifndef HEADER_FLEXLAY_TILE_SELECTION_HPP
++#define HEADER_FLEXLAY_TILE_SELECTION_HPP
++
++#include &lt;ClanLib/Display/color.h&gt;
++
++#include &quot;tile_brush.hpp&quot;
++#include &quot;tilemap_layer.hpp&quot;
++
++class TileSelectionImpl;
++
++/** The TileSelection is a little helper class to manage rectangular
++    selections of tiles and provides a way to convert this selection
++    to a Brush which then can be used for either serialisation or be
++    used for painting on the map itself */
++class TileSelection
++{
++public:
++  TileSelection();
++  ~TileSelection();
++
++  void start (TilemapLayer tilemap, const CL_Point&amp; pos);
++  void update(const CL_Point&amp; pos);
++
++  void clear();
++  bool is_active();
++
++  CL_Rect get_rect() const;
++
++  void draw(const CL_Color&amp; color = CL_Color(255, 255, 255, 100));
++
++  TileBrush get_brush(const Field&lt;int&gt;&amp; field) const;
++private:
++  boost::shared_ptr&lt;TileSelectionImpl&gt; impl;
++};
++
++#endif
++
++/* EOF */
+
+Copied: trunk/flexlay/lib/gui/titlebar.cpp (from rev 723, trunk/flexlay/lib/titlebar.cpp)
+
+Copied: trunk/flexlay/lib/gui/titlebar.hpp (from rev 724, trunk/flexlay/lib/titlebar.hpp)
+
+Copied: trunk/flexlay/lib/gui/viewport.cpp (from rev 722, trunk/flexlay/lib/viewport.cpp)
+
+Copied: trunk/flexlay/lib/gui/viewport.hpp (from rev 724, trunk/flexlay/lib/viewport.hpp)
+
+Copied: trunk/flexlay/lib/gui/window.cpp (from rev 723, trunk/flexlay/lib/window.cpp)
+
+Copied: trunk/flexlay/lib/gui/window.hpp (from rev 724, trunk/flexlay/lib/window.hpp)
+
+Deleted: trunk/flexlay/lib/icon.cpp
+===================================================================
+--- trunk/flexlay/lib/icon.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/icon.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,163 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;box.hpp&quot;
+-#include &quot;icon.hpp&quot;
+-
+-class IconImpl
+-{
+-public:
+-  IconImpl(Icon* p) : parent(p) {}
+-
+-  Icon* parent;
+-
+-  std::vector&lt;CL_Slot&gt; slots;
+-  CL_Sprite sprite;
+-  std::string tooltip;
+-  bool draw_tooltip;
+-  bool down;
+-
+-  /** Parameter to keep the button down all the time, aka togglebutton
+-      like */
+-  bool is_down;
+-
+-  bool is_enabled;
+-  CL_Signal_v0 sig_on_click;
+-
+-  void draw();
+-
+-  void mouse_up  (const CL_InputEvent&amp; event);
+-  void mouse_down(const CL_InputEvent&amp; event);
+-  void mouse_move(const CL_InputEvent&amp; event);
+-};
+-
+-Icon::Icon(const CL_Rect&amp; rect, const CL_Sprite&amp; sprite, const std::string&amp; tooltip, 
+-           CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    impl(new IconImpl(this))
+-{
+-  impl-&gt;sprite       = sprite;
+-  impl-&gt;tooltip      = tooltip;
+-  impl-&gt;draw_tooltip = true;
+-  impl-&gt;down         = false;
+-  impl-&gt;is_down      = false;
+-  impl-&gt;is_enabled   = true;
+-
+-  impl-&gt;slots.push_back(sig_paint().connect(impl.get(), &amp;IconImpl::draw));
+-  impl-&gt;slots.push_back(sig_mouse_down().connect(impl.get(), &amp;IconImpl::mouse_down));
+-  impl-&gt;slots.push_back(sig_mouse_up().connect(impl.get(),   &amp;IconImpl::mouse_up));
+-}
+-
+-CL_Signal_v0&amp;
+-Icon::sig_clicked()
+-{
+-  return impl-&gt;sig_on_click;
+-}
+-  
+-void
+-IconImpl::draw()
+-{
+-  CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+-  CL_Rect rect(CL_Point(0, 0), CL_Size(parent-&gt;get_width()-4, parent-&gt;get_height()-4));
+-
+-  sprite.set_alignment(origin_center);
+-
+-  if (is_enabled)
+-  {
+-    if (is_down)
+-    {
+-      Box::draw_button_down(rect);
+-    }
+-    else
+-    {
+-      if (parent-&gt;has_mouse_over())
+-      {
+-        if (down)
+-          Box::draw_button_down(rect);
+-        else
+-          Box::draw_button_up(rect);
+-      }
+-      else
+-        Box::draw_button_neutral(rect);
+-    }
+-    sprite.set_alpha(1.0f);
+-  }
+-  else
+-  {
+-    Box::draw_button_neutral(rect);
+-    sprite.set_alpha(0.3f);
+-  }
+-  sprite.draw((rect.get_width()+1)/2, (rect.get_height()+1)/2);
+-  CL_Display::pop_modelview();
+-}
+-
+-void
+-IconImpl::mouse_up  (const CL_InputEvent&amp; event)
+-{
+-  if (is_enabled)
+-  {
+-    down         = false;
+-    parent-&gt;release_mouse();  
+-
+-    if (parent-&gt;has_mouse_over())
+-    {
+-      sig_on_click();
+-    }
+-  }
+-}
+-
+-void
+-IconImpl::mouse_down(const CL_InputEvent&amp; event)
+-{
+-  if (is_enabled)
+-  {
+-    down         = true;
+-    parent-&gt;capture_mouse();
+-  }
+-}
+-
+-void 
+-IconImpl::mouse_move(const CL_InputEvent&amp; event)
+-{
+-  //std::cout &lt;&lt; &quot;icon: mouse_move: &quot; &lt;&lt; event &lt;&lt; std::endl;
+-}
+-
+-void
+-Icon::disable()
+-{
+-  impl-&gt;is_enabled = false;
+-}
+-
+-void
+-Icon::enable()
+-{
+-  impl-&gt;is_enabled = true;
+-}
+-
+-void
+-Icon::set_up()
+-{
+-  impl-&gt;is_down = false;
+-}
+-
+-void
+-Icon::set_down()
+-{
+-  impl-&gt;is_down = true;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/icon.hpp
+===================================================================
+--- trunk/flexlay/lib/icon.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/icon.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,51 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_ICON_HPP
+-#define HEADER_FLEXLAY_ICON_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;ClanLib/Display/sprite.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class IconImpl;
+-
+-/** */
+-class Icon : public CL_Component
+-{
+-protected:
+-  virtual ~Icon() {}
+-public:
+-  Icon(const CL_Rect&amp; rect, const CL_Sprite&amp; sprite, const std::string&amp; tooltip, CL_Component* parent);
+-
+-  void disable();
+-  void enable();
+-
+-  void set_up();
+-  void set_down();
+-  
+-  CL_Signal_v0&amp; sig_clicked();
+-
+-private:
+-  Icon (const Icon&amp;);
+-  Icon&amp; operator= (const Icon&amp;);
+-
+-  boost::shared_ptr&lt;IconImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/layer.hpp
+===================================================================
+--- trunk/flexlay/lib/layer.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/layer.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -21,6 +21,7 @@
+ 
+ #include &quot;meta_data.hpp&quot;
+ 
++class CL_Rect;
+ class EditorMapComponent;
+ class LayerImpl;
+ class CL_GraphicContext;
+
+Deleted: trunk/flexlay/lib/menubar.cpp
+===================================================================
+--- trunk/flexlay/lib/menubar.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/menubar.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,49 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &quot;menubar.hpp&quot;
+-
+-class MenubarItem
+-{
+-public:
+-  MenubarItem(const std::string&amp; name_, Menu* menu_)
+-    : name(name_), menu(menu_){}
+-
+-  std::string name;
+-  Menu* menu;
+-};
+-
+-class MenubarImpl
+-{
+-public:
+-  typedef std::vector&lt;MenubarItem&gt; Items;
+-  Items items;
+-};
+-
+-Menubar::Menubar(const CL_Point&amp; pos, CL_Component* parent)
+-  : CL_Component(CL_Rect(pos, CL_Size(1, 1)), parent),
+-    impl(new MenubarImpl())
+-{
+-  
+-}
+-
+-void
+-Menubar::add_submenu(const std::string&amp; name, Menu* menu)
+-{
+-  impl-&gt;items.push_back(MenubarItem(name, menu));
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/menubar.hpp
+===================================================================
+--- trunk/flexlay/lib/menubar.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/menubar.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,41 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_MENUBAR_HPP
+-#define HEADER_FLEXLAY_MENUBAR_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class Menu;
+-class MenubarImpl;
+-
+-/** */
+-class Menubar : public CL_Component
+-{
+-protected:
+-  virtual ~Menubar() {}
+-public:
+-  Menubar(const CL_Point&amp; pos, CL_Component* parent);
+-
+-  void add_submenu(const std::string&amp; name, Menu* menu);
+-private:
+-  boost::shared_ptr&lt;MenubarImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/minimap.cpp
+===================================================================
+--- trunk/flexlay/lib/minimap.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/minimap.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,236 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &quot;minimap.hpp&quot;
+-
+-#include &lt;iostream&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/surface.h&gt;
+-#include &lt;ClanLib/Display/pixel_format.h&gt;
+-#include &lt;ClanLib/Display/pixel_buffer.h&gt;
+-
+-#include &quot;tile.hpp&quot;
+-#include &quot;tileset.hpp&quot;
+-#include &quot;editor_map.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
+-#include &quot;tilemap_layer.hpp&quot;
+-#include &quot;workspace.hpp&quot;
+-
+-class MinimapImpl
+-{
+-public:
+-  std::vector&lt;CL_Slot&gt; slots;
+-  bool drag_active;
+-  
+-  int last_serial;
+-  EditorMap editor_map;
+-
+-  EditorMapComponent* parent;
+-  CL_Surface minimap_surface;
+-
+-  MinimapImpl() 
+-    : editor_map(false)
+-  {}
+-  void update_minimap_surface();
+-};
+-
+-Minimap::Minimap(EditorMapComponent* p, const CL_Rect&amp; rect,
+-                 CL_Component* parent)
+-  : CL_Component(rect, parent), 
+-    impl(new MinimapImpl())
+-{
+-  impl-&gt;slots.push_back(sig_paint().connect(this, &amp;Minimap::draw));
+-  impl-&gt;slots.push_back(sig_mouse_move().connect(this, &amp;Minimap::mouse_move));
+-  impl-&gt;slots.push_back(sig_mouse_down().connect(this, &amp;Minimap::mouse_down));
+-  impl-&gt;slots.push_back(sig_mouse_up().connect(this, &amp;Minimap::mouse_up));
+-
+-  impl-&gt;parent = p ? p : EditorMapComponent::current();
+-  impl-&gt;drag_active = false;
+-  impl-&gt;last_serial = -1;
+-}
+-
+-void
+-Minimap::draw()
+-{
+-  if (impl-&gt;parent-&gt;get_workspace().get_map().is_null()) return;
+-
+-  if (!impl-&gt;parent || impl-&gt;parent-&gt;get_workspace().is_null())
+-    return;
+-
+-  CL_Display::push_cliprect(get_screen_rect());
+-  CL_Display::push_translate(get_screen_x(), get_screen_y());
+-
+-  // FIXME: Do this only on map changes
+-  if (impl-&gt;last_serial != impl-&gt;parent-&gt;get_workspace().get_map().get_serial())
+-    //      || editor_map != parent-&gt;get_workspace().get_map())
+-  {
+-    impl-&gt;update_minimap_surface();
+-    impl-&gt;last_serial = impl-&gt;parent-&gt;get_workspace().get_map().get_serial();
+-    impl-&gt;editor_map  = impl-&gt;parent-&gt;get_workspace().get_map();
+-  }
+-
+-  if (1)
+-  { // Draw background color
+-    CL_Display::fill_rect(CL_Rect(CL_Point(0, 0),
+-                                  CL_Size(get_width(),
+-                                          get_height())),
+-                          CL_Color(200, 200, 200, 225));
+-  }
+-
+-  // FIXME: This doesn't work all that well
+-  TilemapLayer tilemap = TilemapLayer::current();
+-
+-  if (!tilemap.is_null() &amp;&amp; tilemap.get_height() != 0 &amp;&amp; tilemap.get_width() != 0)
+-  {
+-    int tile_size = tilemap.get_tileset().get_tile_size();
+-
+-    int map_width  = tilemap.get_width()  * tile_size;
+-    int map_height = tilemap.get_height() * tile_size;
+-
+-    CL_Size small_tile(tile_size * get_width() / map_width + 1,
+-                       tile_size * get_height() / map_height + 1);
+-
+-    Field&lt;int&gt;* field = tilemap.get_field();
+-
+-    // FIXME: No current tileset
+-    if (0)
+-    {
+-      for(int y = 0; y &lt; field-&gt;get_height(); ++y)
+-        for(int x = 0; x &lt; field-&gt;get_width(); ++x)
+-        {
+-          Tile* tile = tilemap.get_tileset().create(field-&gt;at(x, y));
+-          if (tile)
+-            CL_Display::fill_rect(CL_Rect(CL_Point((x * tile_size) * get_width() / map_width,
+-                                                   (y * tile_size) * get_height() / map_height),
+-                                          small_tile),
+-                                  tile-&gt;get_color());
+-          CL_Display::flush();
+-        }
+-    }
+-    impl-&gt;minimap_surface.draw(CL_Rect(CL_Point(0, 0),
+-                                       CL_Size(get_width(), get_height())));
+-
+-    // Draw cursor
+-    CL_Rect rect(impl-&gt;parent-&gt;get_clip_rect());
+-    CL_Rect screen_rect(CL_Point(rect.left  * get_width()  / map_width,
+-                                 rect.top   * get_height() / map_height),
+-                        CL_Size(rect.get_width() * get_width() /map_width,
+-                                rect.get_height()* get_height()/map_height));
+-    CL_Display::fill_rect(screen_rect,
+-                          CL_Color(255, 255, 0, 50));
+-    CL_Display::draw_rect(screen_rect,
+-                          CL_Color(0, 0, 0));
+-  }
+-
+-  CL_Display::pop_modelview();
+-  CL_Display::pop_cliprect();
+-}
+-
+-void
+-MinimapImpl::update_minimap_surface()
+-{
+-  // FIXME: This doesn't work all that well
+-  TilemapLayer tilemap = TilemapLayer::current();
+-  
+-  if (!tilemap.is_null())
+-  {
+-    Field&lt;int&gt;* field = tilemap.get_field();
+-
+-    CL_PixelBuffer buffer(tilemap.get_width(), tilemap.get_height(), 
+-                          tilemap.get_width()*4, CL_PixelFormat::rgba8888);
+-  
+-    int map_width  = tilemap.get_width();
+-    int map_height = tilemap.get_height();
+-
+-    // FIXME: No Tileset::current()
+-    unsigned char* buf = static_cast&lt;unsigned char*&gt;(buffer.get_data());
+-    for(int y = 0; y &lt; map_height; ++y)
+-      for(int x = 0; x &lt; map_width; ++x)
+-      {
+-        Tile* tile = tilemap.get_tileset().create(field-&gt;at(x, y));
+-        if (tile)
+-        {
+-          buf[4*(x + y * map_width) + 3] = tile-&gt;get_color().get_red();
+-          buf[4*(x + y * map_width) + 2] = tile-&gt;get_color().get_green();
+-          buf[4*(x + y * map_width) + 1] = tile-&gt;get_color().get_blue();
+-          buf[4*(x + y * map_width) + 0] = tile-&gt;get_color().get_alpha();
+-        } 
+-        else
+-        {
+-          buf[4*(x + y * map_width) + 0] = 0;
+-          buf[4*(x + y * map_width) + 1] = 0;
+-          buf[4*(x + y * map_width) + 2] = 0;
+-          buf[4*(x + y * map_width) + 3] = 0;
+-        }
+-      }
+-
+-    minimap_surface = CL_Surface(buffer);
+-  }
+-}
+-
+-void
+-Minimap::mouse_move(const CL_InputEvent&amp; event)
+-{
+-  // FIXME: This doesn't work all that well
+-  TilemapLayer tilemap = TilemapLayer::current();
+-  if (!tilemap.is_null())
+-  {
+-    int tile_size  = tilemap.get_tileset().get_tile_size();
+-    int map_width  = tilemap.get_width()  * tile_size;
+-    int map_height = tilemap.get_height() * tile_size;
+-
+-    if (impl-&gt;drag_active)
+-      impl-&gt;parent-&gt;move_to(event.mouse_pos.x * map_width / get_width(),
+-                            event.mouse_pos.y * map_height / get_height());
+-  }
+-}
+-
+-void
+-Minimap::mouse_down(const CL_InputEvent&amp; event)
+-{
+-  // FIXME: This doesn't work all that well
+-  TilemapLayer tilemap = TilemapLayer::current();
+-  if (!tilemap.is_null())
+-  {
+-    int tile_size  = tilemap.get_tileset().get_tile_size();
+-    int map_width  = tilemap.get_width()  * tile_size;
+-    int map_height = tilemap.get_height() * tile_size;
+-
+-    impl-&gt;parent-&gt;move_to(event.mouse_pos.x * map_width / get_width(),
+-                          event.mouse_pos.y * map_height / get_height());
+-    impl-&gt;drag_active = true;
+-    capture_mouse();
+-  }
+-}
+-
+-void
+-Minimap::mouse_up  (const CL_InputEvent&amp; event)
+-{
+-  TilemapLayer tilemap = TilemapLayer::current();
+-  if (!tilemap.is_null())
+-  {
+-    impl-&gt;drag_active = false;
+-    release_mouse();
+-  }
+-}
+-
+-void
+-Minimap::update_minimap()
+-{
+-  impl-&gt;update_minimap_surface();
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/minimap.hpp
+===================================================================
+--- trunk/flexlay/lib/minimap.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/minimap.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,49 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_MINIMAP_HPP
+-#define HEADER_FLEXLAY_MINIMAP_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;ClanLib/Core/System/sharedptr.h&gt;
+-
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class MinimapImpl;
+-class EditorMapComponent;
+-
+-/** */
+-class Minimap : public CL_Component
+-{
+-protected:
+-  virtual ~Minimap() {}
+-public:
+-  Minimap(EditorMapComponent* p, const CL_Rect&amp; rect, CL_Component* parent);
+-  
+-  void draw();
+-  void update_minimap();
+-
+-  void mouse_move(const CL_InputEvent&amp; event);
+-  void mouse_down(const CL_InputEvent&amp; event);
+-  void mouse_up  (const CL_InputEvent&amp; event);
+-  
+-private:
+-  boost::shared_ptr&lt;MinimapImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/object_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/object_layer.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/object_layer.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -15,7 +15,8 @@
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;object_layer.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;layer_impl.hpp&quot;
+ 
+ ObjectLayer ObjectLayer::current_;
+
+Deleted: trunk/flexlay/lib/object_selector.cpp
+===================================================================
+--- trunk/flexlay/lib/object_selector.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/object_selector.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,213 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;iostream&gt;
+-#include &lt;ClanLib/Core/core_iostream.h&gt;
+-#include &lt;ClanLib/display.h&gt;
+-#include &quot;editor_map.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
+-#include &quot;object_selector.hpp&quot;
+-#include &quot;object_add_command.hpp&quot;
+-
+-ObjectSelector::ObjectSelector(const CL_Rect&amp; rect, 
+-                               int obj_w, int obj_h,
+-                               CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    width(rect.get_width()/obj_w), height(rect.get_height()/obj_h),
+-    obj_width(obj_w), obj_height(obj_h)
+-{
+-  index = 0;
+-
+-  slots.push_back(sig_paint().connect(this, &amp;ObjectSelector::draw));
+-  slots.push_back(sig_mouse_move().connect(this, &amp;ObjectSelector::mouse_move));
+-  slots.push_back(sig_mouse_down().connect(this, &amp;ObjectSelector::mouse_down));
+-  slots.push_back(sig_mouse_up().connect(this, &amp;ObjectSelector::mouse_up));
+- 
+-  mouse_over_tile = -1;
+-  scrolling = false;
+-  offset = 0;
+-  scale = 1.0f;
+-  drag_obj = -1;
+-}
+-
+-ObjectSelector::~ObjectSelector()
+-{
+-}
+-
+-void
+-ObjectSelector::mouse_up(const CL_InputEvent&amp; event)
+-{
+-  switch(event.id)
+-  {
+-    case CL_MOUSE_LEFT:
+-    {
+-      if (drag_obj != -1)
+-      {
+-        release_mouse();
+-      
+-        if (!has_mouse_over())
+-        {
+-          CL_Point screen(event.mouse_pos.x + get_screen_rect().left,
+-                          event.mouse_pos.y + get_screen_rect().top);
+-
+-          CL_Point target(screen.x - EditorMapComponent::current()-&gt;get_screen_rect().left,
+-                          screen.y - EditorMapComponent::current()-&gt;get_screen_rect().top);
+-      
+-          // FIXME: Move this to the scripting layer
+-          //ObjectAddCommand command(ObjectLayer::current());
+-
+-          //ObjMapObject obj = brushes[drag_obj].to_sprite_object
+-          //(EditorMapComponent::current()-&gt;screen2world(target)).to_object();
+-
+-          //command.add_object(obj);
+-          //Workspace::current().get_map().execute(command.to_command());
+-                
+-          //std::cout &lt;&lt; &quot;C++: Calling on_drop&quot; &lt;&lt; std::endl;
+-          on_drop(brushes[drag_obj], target);
+-          //std::cout &lt;&lt; &quot;C++: Calling on_drop: done&quot; &lt;&lt; std::endl;
+-        }
+-        drag_obj = -1;
+-      }
+-    }
+-    break;
+-
+-    case CL_MOUSE_MIDDLE:
+-      scrolling = false;
+-      release_mouse();
+-      break;
+-
+-    default:
+-      break;
+-  }
+-}
+-
+-void
+-ObjectSelector::mouse_down(const CL_InputEvent&amp; event)
+-{
+-  switch(event.id)
+-  {
+-    case CL_MOUSE_LEFT:
+-    {
+-      if (mouse_over_tile != -1)
+-      {
+-        drag_obj = mouse_over_tile;
+-        capture_mouse();
+-      }
+-    }
+-    break;
+-      
+-    case CL_MOUSE_MIDDLE:
+-      scrolling = true;
+-      click_pos = event.mouse_pos;
+-      old_offset = offset;
+-      capture_mouse();
+-      break;
+-      
+-    case CL_MOUSE_WHEEL_UP:
+-      offset -= static_cast&lt;int&gt;(obj_height*scale); 
+-      break;
+-
+-    case CL_MOUSE_WHEEL_DOWN:
+-      offset += static_cast&lt;int&gt;(obj_height*scale); 
+-      break;
+-  }
+-}
+-
+-void
+-ObjectSelector::mouse_move(const CL_InputEvent&amp; event)
+-{
+-  if (scrolling)
+-  {
+-    offset = old_offset + (click_pos.y - event.mouse_pos.y);
+-  }
+-
+-  mouse_pos = event.mouse_pos;
+-
+-  int x = (event.mouse_pos.x)/static_cast&lt;int&gt;(obj_width);
+-  int y = (event.mouse_pos.y+offset)/static_cast&lt;int&gt;(obj_height);
+-
+-  mouse_over_tile = y * width + x;
+-
+-  if (mouse_over_tile &lt; 0 || mouse_over_tile &gt;= (int)brushes.size())
+-    mouse_over_tile = -1;
+-}
+-
+-void 
+-ObjectSelector::draw()
+-{
+-  if (offset &lt; 0)
+-    offset = 0;
+-
+-  CL_Display::push_cliprect(get_screen_rect());
+-
+-  // Handle scrolling in the Component
+-  CL_Display::push_modelview();
+-  CL_Display::add_translate(0, -offset);
+-  CL_Display::add_translate(get_screen_x(), get_screen_y());
+-    
+-  for(int i = 0; i &lt; (int)brushes.size(); ++i)
+-  {
+-    int x = i%width;
+-    int y = i/width;
+-
+-    CL_Rectf rect(CL_Pointf(x * obj_width, y * obj_height),
+-                  CL_Sizef(obj_width, obj_height));
+-
+-    CL_Sprite sprite = brushes[i].get_sprite();
+-    sprite.set_alignment(origin_center, 0, 0);
+-    sprite.set_scale(std::min(1.0f, (float)obj_width/(float)sprite.get_width()),
+-                     std::min(1.0f, (float)obj_height/(float)sprite.get_height()));
+-        
+-    sprite.draw(x * obj_width + obj_width/2, 
+-                y * obj_height + obj_height/2);
+-        
+-    //CL_Display::draw_rect(rect, CL_Color(0,0,0,128));
+-        
+-    if (mouse_over_tile == i &amp;&amp; has_mouse_over())
+-    {
+-      CL_Display::fill_rect(rect, CL_Color(0,0,255, 20));
+-    }
+-  }
+-
+-  CL_Display::pop_modelview();
+-  CL_Display::pop_cliprect();
+- 
+-  // Draw drag sprite
+-  if (drag_obj != -1)
+-  {
+-    CL_Display::set_cliprect(CL_Rect(CL_Point(0, 0), 
+-                                     CL_Size(CL_Display::get_width(),
+-                                             CL_Display::get_height())));
+-
+-    CL_Sprite sprite = brushes[drag_obj].get_sprite();
+-    sprite.set_alpha(0.5f);
+-    sprite.draw(mouse_pos.x + get_screen_x(), mouse_pos.y + get_screen_y());
+-  }
+-}
+-
+-void
+-ObjectSelector::add_brush(const ObjectBrush&amp; brush)
+-{
+-  brushes.push_back(brush);
+-}
+-
+-CL_Signal_v2&lt;ObjectBrush, CL_Point&gt;&amp;
+-ObjectSelector::sig_drop()
+-{
+-  return on_drop;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/object_selector.hpp
+===================================================================
+--- trunk/flexlay/lib/object_selector.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/object_selector.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,69 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_OBJECT_SELECTOR_HPP
+-#define HEADER_FLEXLAY_OBJECT_SELECTOR_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;object_brush.hpp&quot;
+-
+-/** */
+-class ObjectSelector : public CL_Component
+-{
+-private:
+-  std::vector&lt;CL_Slot&gt; slots;
+-
+-  int width;
+-  int height;
+-
+-  int obj_width;
+-  int obj_height;
+-
+-  int index;
+-  
+-  int offset;
+-  int old_offset;
+-  int mouse_over_tile;
+-  bool scrolling;
+-  CL_Point click_pos;
+-  CL_Point mouse_pos;
+-  float scale;
+-
+-  std::vector&lt;ObjectBrush&gt; brushes;
+-  int drag_obj;
+-
+-  CL_Signal_v2&lt;ObjectBrush, CL_Point&gt; on_drop;
+-
+-protected:
+-  virtual ~ObjectSelector();
+-
+-public:
+-  ObjectSelector(const CL_Rect&amp; rect, int obj_w, int obj_h, CL_Component* parent);
+-
+-  void draw();
+-  void add_brush(const ObjectBrush&amp; brush);
+-
+-  CL_Signal_v2&lt;ObjectBrush, CL_Point&gt;&amp; sig_drop();
+-private:
+-  void mouse_move(const CL_InputEvent&amp; event);
+-  void mouse_down(const CL_InputEvent&amp; event);
+-  void mouse_up  (const CL_InputEvent&amp; event); 
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/onion_skin_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -14,6 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++#include &quot;onion_skin_layer.hpp&quot;
++
+ #include &lt;iostream&gt;
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Core/System/error.h&gt;
+@@ -21,9 +23,9 @@
+ #include &lt;ClanLib/Display/pixel_format.h&gt;
+ #include &lt;ClanLib/Display/surface.h&gt;
+ #include &lt;ClanLib/Display/canvas.h&gt;
+-#include &quot;editor_map_component.hpp&quot;
++
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;layer_impl.hpp&quot;
+-#include &quot;onion_skin_layer.hpp&quot;
+ 
+ #define SCALE 4
+ 
+
+Deleted: trunk/flexlay/lib/panel.cpp
+===================================================================
+--- trunk/flexlay/lib/panel.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/panel.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,46 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;box.hpp&quot;
+-#include &quot;panel.hpp&quot;
+-
+-class PanelImpl
+-{
+-public:
+-  std::vector&lt;CL_Slot&gt; slots;
+-  CL_Component* parent;
+-
+-  void draw();
+-};
+-
+-Panel::Panel(const CL_Rect&amp; rect, CL_Component* parent)
+-  : CL_Component(rect, parent), impl(new PanelImpl())
+-{
+-  impl-&gt;parent = this;
+-  impl-&gt;slots.push_back(sig_paint().connect(impl.get(), &amp;PanelImpl::draw));
+-}
+-
+-void
+-PanelImpl::draw()
+-{
+-  CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+-  CL_Rect rect = parent-&gt;get_position();
+-  Box::draw_panel(CL_Rect(CL_Point(0, 0), CL_Size(rect.get_width()-1, rect.get_height()-1)));
+-  CL_Display::pop_modelview();
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/panel.hpp
+===================================================================
+--- trunk/flexlay/lib/panel.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/panel.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,36 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_PANEL_HPP
+-#define HEADER_FLEXLAY_PANEL_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class PanelImpl;
+-
+-/** */
+-class Panel : public CL_Component
+-{
+-public:
+-  Panel(const CL_Rect&amp; rect, CL_Component* parent);
+-private:
+-  boost::shared_ptr&lt;PanelImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/scrollbar.cpp
+===================================================================
+--- trunk/flexlay/lib/scrollbar.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/scrollbar.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,178 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &quot;scrollbar.hpp&quot;
+-
+-class ScrollbarImpl
+-{
+-public:
+-  std::vector&lt;CL_Slot&gt; slots;
+-
+-  ScrollbarImpl(Scrollbar* parent_) : parent(parent_) {}
+-
+-  Scrollbar* parent;
+-  float min;
+-  float max;
+-  float pagesize;
+-  float pos;
+-  Scrollbar::Orientation orientation;
+-
+-  CL_Signal_v1&lt;float&gt; on_scrollbar_move;
+-
+-  float old_pos;
+-  
+-  bool pressed;
+-  CL_Point click_pos;
+-  
+-  void draw();
+-  void on_mouse_up(const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-};
+-
+-Scrollbar::Scrollbar(const CL_Rect&amp; rect, Orientation orientation, CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    impl(new ScrollbarImpl(this))
+-{
+-  impl-&gt;min = 0;
+-  impl-&gt;max = 100;
+-  impl-&gt;pagesize = 10;
+-  impl-&gt;pos  = 0;
+-  impl-&gt;pressed = false;
+-  impl-&gt;orientation = orientation;
+-
+-  impl-&gt;slots.push_back(sig_paint().connect(impl.get(), &amp;ScrollbarImpl::draw));
+-
+-  impl-&gt;slots.push_back(sig_mouse_down().connect(impl.get(), &amp;ScrollbarImpl::on_mouse_down));
+-  impl-&gt;slots.push_back(sig_mouse_up().connect(impl.get(), &amp;ScrollbarImpl::on_mouse_up));
+-  impl-&gt;slots.push_back(sig_mouse_move().connect(impl.get(), &amp;ScrollbarImpl::on_mouse_move));
+-}
+-  
+-void
+-Scrollbar::set_range(float min, float max)
+-{
+-  impl-&gt;min = min;
+-  impl-&gt;max = max;
+-}
+-
+-void
+-Scrollbar::set_pagesize(float size)
+-{
+-  impl-&gt;pagesize = size;  
+-}
+-
+-void
+-Scrollbar::set_pos(float pos)
+-{
+-  impl-&gt;pos = pos;
+-}
+-
+-void 
+-ScrollbarImpl::draw()
+-{
+-  CL_Display::push_cliprect(parent-&gt;get_screen_rect());
+-  CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+-
+-  CL_Rect rect = CL_Rect(CL_Point(0, 0), 
+-                         CL_Size(parent-&gt;get_width()-1,
+-                                 parent-&gt;get_height()-1));
+-  CL_Display::fill_rect(rect,
+-                        CL_Color(255, 255, 255));
+-
+-  if (orientation == Scrollbar::HORIZONTAL)
+-  {
+-    float scale = parent-&gt;get_width()/(max - min);
+-    CL_Display::fill_rect(CL_Rect(CL_Point(int((pos-min-(pagesize/2)) * scale), 2), 
+-                                  CL_Size(int(pagesize*scale), 
+-                                          parent-&gt;get_height()-5)),
+-                          CL_Color(0, 0, 0));
+-  }
+-  else if (orientation == Scrollbar::VERTICAL)
+-  {
+-    float scale = parent-&gt;get_height()/(max - min);
+-    CL_Display::fill_rect(CL_Rect(CL_Point(2, int((pos-min-(pagesize/2)) * scale)), 
+-                                  CL_Size(parent-&gt;get_width()-5,
+-                                          int(pagesize*scale))),
+-                          CL_Color(0, 0, 0));     
+-  }
+-
+-  CL_Display::draw_rect(rect,
+-                        CL_Color(155, 155, 155));
+-
+-  CL_Display::pop_modelview();
+-  CL_Display::pop_cliprect();
+-}
+-
+-void
+-ScrollbarImpl::on_mouse_up(const CL_InputEvent&amp; event)
+-{
+-  if (event.id == CL_MOUSE_LEFT)
+-  {
+-    pressed = false;
+-    parent-&gt;release_mouse();
+-  }
+-}
+-
+-void
+-ScrollbarImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  if (event.id == CL_MOUSE_LEFT)
+-  {
+-    pressed   = true;
+-    click_pos = event.mouse_pos;
+-      
+-    parent-&gt;capture_mouse();
+-
+-    float scale = ((orientation == Scrollbar::VERTICAL)
+-                   ? parent-&gt;get_height() : parent-&gt;get_width())/(max - min);
+-    old_pos = pos * scale;
+-
+-    click_pos.x += parent-&gt;get_position().left;
+-    click_pos.y += parent-&gt;get_position().top;
+-  }
+-}
+-
+-void
+-ScrollbarImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  if(pressed)
+-  {
+-    CL_Rect rect = parent-&gt;get_position();
+-      
+-    float scale = ((orientation == Scrollbar::VERTICAL)
+-                   ? parent-&gt;get_height() : parent-&gt;get_width())/(max - min);
+-      
+-    if (orientation == Scrollbar::VERTICAL)
+-    {
+-      pos = (old_pos - (click_pos.y - (rect.top + event.mouse_pos.y)))/scale;
+-    }
+-    else if (orientation == Scrollbar::HORIZONTAL)
+-    {
+-      pos = (old_pos - (click_pos.x - (rect.left + event.mouse_pos.x)))/scale;
+-    }
+-    on_scrollbar_move(pos);
+-  }
+-}
+-
+-CL_Signal_v1&lt;float&gt;&amp;
+-Scrollbar::sig_scrollbar_move()
+-{
+-  return impl-&gt;on_scrollbar_move;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/scrollbar.hpp
+===================================================================
+--- trunk/flexlay/lib/scrollbar.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/scrollbar.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,46 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_SCROLLBAR_HPP
+-#define HEADER_FLEXLAY_SCROLLBAR_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class ScrollbarImpl;
+-
+-/** */
+-class Scrollbar : public CL_Component
+-{
+-protected:
+-  virtual ~Scrollbar() {}
+-public:
+-  enum Orientation { HORIZONTAL, VERTICAL };
+-
+-  Scrollbar(const CL_Rect&amp; rect, Orientation orientation, CL_Component* parent);
+-  
+-  void set_range(float min, float max);
+-  void set_pagesize(float size);
+-  void set_pos(float pos);
+-  
+-  CL_Signal_v1&lt;float&gt;&amp; sig_scrollbar_move();
+-private:
+-  boost::shared_ptr&lt;ScrollbarImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/sketch_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/sketch_layer.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -14,6 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++#include &quot;sketch_layer.hpp&quot;
++
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/gl.h&gt;
+ #include &lt;ClanLib/Core/core_iostream.h&gt;
+@@ -25,10 +27,10 @@
+ #include &lt;ClanLib/Display/blend_func.h&gt;
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+ #include &lt;ClanLib/Display/display_window.h&gt;
++
+ #include &quot;flexlay.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;layer_impl.hpp&quot;
+-#include &quot;sketch_layer.hpp&quot;
+ #include &quot;math.hpp&quot;
+ 
+ SketchLayer* SketchLayer::current_ = 0;
+
+Modified: trunk/flexlay/lib/sketch_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/sketch_layer.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -20,6 +20,7 @@
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &lt;ClanLib/Display/color.h&gt;
++#include &lt;ClanLib/Display/surface.h&gt;
+ #include &quot;layer.hpp&quot;
+ #include &quot;stroke.hpp&quot;
+ 
+
+Deleted: trunk/flexlay/lib/slider.cpp
+===================================================================
+--- trunk/flexlay/lib/slider.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/slider.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,114 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &quot;math.hpp&quot;
+-#include &quot;slider.hpp&quot;
+-
+-Slider::Slider(const CL_Rect&amp; rect, CL_Component* parent)
+-  : CL_Component(rect, parent)
+-{
+-  start = 0.0f;
+-  end   = 100.0f;
+-  value = 50.0f;
+-  pressed = false;
+-
+-  slots.push_back(sig_mouse_down().connect(this, &amp;Slider::on_mouse_down));
+-  slots.push_back(sig_mouse_up().connect(this, &amp;Slider::on_mouse_up));
+-  slots.push_back(sig_mouse_move().connect(this, &amp;Slider::on_mouse_move));
+-  slots.push_back(sig_paint().connect(this, &amp;Slider::draw));
+-}
+-
+-Slider::~Slider()
+-{
+-}
+-
+-void
+-Slider::draw()
+-{
+-  CL_Display::push_modelview();
+-  CL_Display::add_translate(get_screen_x(), get_screen_y());
+-    
+-  CL_Display::fill_rect(CL_Rect(CL_Point(0, get_height()/2 - 2),
+-                                CL_Size(get_width(), 5)),
+-                        CL_Color(255, 255, 255, 255));
+-
+-  CL_Display::fill_rect(CL_Rect(CL_Point(int(-2 + (value/(end-start)) * get_width()), 0),
+-                                CL_Size(5, get_height())),
+-                        CL_Color(0, 0, 0, 255));
+-
+-  CL_Display::pop_modelview();    
+-}
+-
+-void
+-Slider::set_range(float start_, float end_)
+-{
+-  start = start_;
+-  end   = end_;
+-}
+-
+-CL_Signal_v1&lt;float&gt;&amp;
+-Slider::sig_on_change()
+-{
+-  return on_change;
+-}
+-
+-void
+-Slider::set_value(float value_)
+-{
+-  value = value_;
+-  on_change(value);
+-}
+-
+-void
+-Slider::update_mouse(const CL_InputEvent&amp; event)
+-{
+-  set_value(Math::mid(start, (float(event.mouse_pos.x) / get_width()) * (end - start), end));
+-}
+-
+-void
+-Slider::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  if (event.id == CL_MOUSE_LEFT)
+-  {
+-    pressed = true;
+-    capture_mouse();
+-    update_mouse(event);
+-  }
+-}
+-
+-void
+-Slider::on_mouse_up  (const CL_InputEvent&amp; event)
+-{
+-  if (event.id == CL_MOUSE_LEFT)
+-  {
+-    pressed = false;
+-    release_mouse();
+-    update_mouse(event);
+-  }
+-}
+-
+-void
+-Slider::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  if (pressed)
+-  {
+-    update_mouse(event);
+-  }
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/slider.hpp
+===================================================================
+--- trunk/flexlay/lib/slider.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/slider.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,54 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_SLIDER_HPP
+-#define HEADER_FLEXLAY_SLIDER_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-
+-/** Little Slider GUI component */
+-class Slider : public CL_Component
+-{
+-protected:
+-  virtual ~Slider();
+-private:
+-  std::vector&lt;CL_Slot&gt; slots;
+-  float start;
+-  float end;
+-  float value;
+-  bool pressed;
+-
+-  CL_Signal_v1&lt;float&gt; on_change;
+-  
+-  void update_mouse(const CL_InputEvent&amp; event);
+-public:
+-  Slider(const CL_Rect&amp; rect, CL_Component* parent);
+-
+-  CL_Signal_v1&lt;float&gt;&amp; sig_on_change();
+-
+-  void set_range(float start, float end);
+-  void set_value(float value);
+-
+-  void draw();
+-  
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_up  (const CL_InputEvent&amp; event);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/tile_editor.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_editor.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tile_editor.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,136 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &quot;tile_editor.hpp&quot;
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/Display/sprite.h&gt;
+-#include &lt;ClanLib/Display/mouse.h&gt;
+-#include &quot;tile.hpp&quot;
+-
+-TileEditor::TileEditor(int x, int y, int w, int h, CL_Component* parent)
+-  : CL_Component(CL_Rect(CL_Rect(CL_Point(x, y), 
+-                                 CL_Size(w, h))), // FIXME: make this editable via script
+-                 parent)
+-{
+-  tile = 0;
+-  slots.connect(sig_paint(),      this, &amp;TileEditor::draw);
+-  slots.connect(sig_mouse_move(), this, &amp;TileEditor::mouse_move);
+-  slots.connect(sig_mouse_down(), this, &amp;TileEditor::mouse_down);
+-  slots.connect(sig_mouse_up  (), this, &amp;TileEditor::mouse_up);
+-}
+-
+-TileEditor::~TileEditor()
+-{
+-}
+-  
+-void
+-TileEditor::draw()
+-{
+-  CL_Display::push_translate(get_screen_x(), get_screen_x());
+-
+-  //no_tile.draw(0, 0);
+-  CL_Display::fill_rect(CL_Rect(0, 0, 32, 32), CL_Color(155, 0, 155));
+-
+-  if (tile)
+-  {
+-    tile-&gt;get_sprite().draw(0, 0);
+-    CL_Display::flush();
+-    for(int tile_y = 0; tile_y &lt; 8; ++tile_y)
+-      for(int tile_x = 0; tile_x &lt; 8; ++tile_x)
+-      {
+-        if (tile-&gt;get_col(tile_x, tile_y))
+-        {
+-          CL_Display::fill_rect(CL_Rect(tile_x*16, tile_y*16,
+-                                        tile_x*16 + 16, tile_y*16 + 16),
+-                                CL_Color(255, 0, 0, 128));
+-        }
+-      }
+-    CL_Display::flush();
+-    if (has_mouse_over())
+-    {
+-      CL_Display::fill_rect(CL_Rect(CL_Point(int(mouse_pos.x)/16 * 16, 
+-                                             int(mouse_pos.y)/16 * 16),
+-                                    CL_Size(16, 16)),
+-                            CL_Color(255, 255, 255, 128));
+-    }
+-  }
+-  else
+-  {
+-  }
+-
+-  CL_Display::pop_modelview();
+-}
+-
+-void
+-TileEditor::mouse_move(const CL_InputEvent&amp; event)
+-{
+-  mouse_pos = event.mouse_pos;
+-  
+-  if (CL_Mouse::get_keycode(CL_MOUSE_LEFT))
+-    paint(event.mouse_pos, true);
+-  else if (CL_Mouse::get_keycode(CL_MOUSE_RIGHT))
+-    paint(event.mouse_pos, false);
+-}
+-
+-void
+-TileEditor::mouse_down(const CL_InputEvent&amp; event)
+-{
+-  if (tile)
+-  {
+-    switch (event.id)
+-    {
+-      case CL_MOUSE_LEFT:
+-        paint(event.mouse_pos, true);
+-        break;
+-              
+-      case CL_MOUSE_RIGHT:
+-        paint(event.mouse_pos, false);
+-        break;
+-        
+-    }
+-  }
+-}
+-
+-void
+-TileEditor::paint(CL_Point pos, bool val)
+-{
+-  if (tile)
+-  {
+-    int x = int(pos.x) / 16;
+-    int y = int(pos.y) / 16;
+-
+-    if (x &gt;= 0 &amp;&amp; y &gt;= 0
+-        &amp;&amp; x &lt; 8 &amp;&amp; y &lt; 8)
+-    {
+-      tile-&gt;set_col(x, y, val);
+-    }
+-  }
+-}
+-
+-void
+-TileEditor::mouse_up(const CL_InputEvent&amp; event)
+-{
+-}
+-
+-void
+-TileEditor::set_tile(Tile* t)
+-{
+-  tile = t;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/tile_editor.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_editor.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tile_editor.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,51 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_TILE_EDITOR_HPP
+-#define HEADER_FLEXLAY_TILE_EDITOR_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-
+-class Tile;
+-
+-/** */
+-class TileEditor : public CL_Component
+-{
+-private:
+-  Tile* tile;
+-  CL_SlotContainer slots;
+-  CL_Point mouse_pos;
+-protected:
+-  virtual ~TileEditor();
+-public:
+-  TileEditor(int x, int y, int w, int h, CL_Component* parent);
+-  
+-  void draw();
+-  void mouse_move(const CL_InputEvent&amp; event);
+-  void mouse_down(const CL_InputEvent&amp; event);
+-  void mouse_up  (const CL_InputEvent&amp; event);
+-
+-  void set_tile(Tile* tile);
+-private:
+-  void paint(CL_Point pos, bool val);
+-
+-  TileEditor (const TileEditor&amp;);
+-  TileEditor&amp; operator= (const TileEditor&amp;);
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/tile_selection.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_selection.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tile_selection.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,134 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;iostream&gt;
+-#include &quot;math.hpp&quot;
+-#include &quot;tileset.hpp&quot;
+-#include &quot;tile_selection.hpp&quot;
+-
+-class TileSelectionImpl
+-{
+-public:
+-  TilemapLayer tilemap;
+-  CL_Point start_pos;
+-  CL_Rect  selection;
+-  bool active;
+-};
+-
+-TileSelection::TileSelection()
+-  : impl(new TileSelectionImpl())
+-{
+-  impl-&gt;active = false;
+-}
+-
+-TileSelection::~TileSelection()
+-{
+-}
+-
+-void
+-TileSelection::start(TilemapLayer tilemap_, const CL_Point&amp; pos)
+-{
+-  impl-&gt;tilemap = tilemap_;
+-  impl-&gt;active = true;
+-  impl-&gt;start_pos = pos;
+-  update(impl-&gt;start_pos);
+-}
+-
+-void
+-TileSelection::update(const CL_Point&amp; pos)
+-{
+-  impl-&gt;selection = CL_Rect(std::min(impl-&gt;start_pos.x, pos.x),
+-                            std::min(impl-&gt;start_pos.y, pos.y),
+-                            std::max(impl-&gt;start_pos.x, pos.x) + 1,
+-                            std::max(impl-&gt;start_pos.y, pos.y) + 1);
+-}
+-
+-bool
+-TileSelection::is_active()
+-{
+-  return impl-&gt;active;
+-}
+-
+-void
+-TileSelection::clear()
+-{
+-  impl-&gt;selection = CL_Rect();
+-  impl-&gt;active = false;
+-}
+-
+-void
+-TileSelection::draw(const CL_Color&amp; color)
+-{
+-  int tile_size = impl-&gt;tilemap.get_tileset().get_tile_size();
+-
+-  CL_Display::fill_rect(CL_Rect(impl-&gt;selection.left   * tile_size, 
+-                                impl-&gt;selection.top    * tile_size,
+-                                impl-&gt;selection.right  * tile_size, 
+-                                impl-&gt;selection.bottom * tile_size),
+-                        color);
+-}
+-
+-TileBrush
+-TileSelection::get_brush(const Field&lt;int&gt;&amp; field) const
+-{
+-  CL_Rect sel = impl-&gt;selection;
+-
+-  sel.normalize();
+-
+-  if (sel.left     &gt; field.get_width() - 1
+-      || sel.top   &gt; field.get_height() - 1
+-      || sel.right  &lt;= 0
+-      || sel.bottom &lt;= 0)
+-  { // Selection is empty
+-    std::cout &lt;&lt; &quot;Error: Invalid selection&quot; &lt;&lt; std::endl;
+-    TileBrush brush(1, 1);
+-    brush.at(0, 0) = 0;
+-    brush.set_opaque();
+-    return brush;
+-  }
+-  else
+-  { // Selection is valid
+-    // Cut the selection to the field size
+-    sel.left = Math::max(0, sel.left);
+-    sel.top  = Math::max(0, sel.top);
+-
+-    sel.right  = Math::min(sel.right,  field.get_width()); 
+-    sel.bottom = Math::min(sel.bottom, field.get_height()); 
+-
+-    TileBrush brush(sel.get_width(), 
+-                    sel.get_height());
+-
+-    for(int y = sel.top; y &lt; sel.bottom; ++y)
+-      for(int x = sel.left; x &lt; sel.right; ++x)
+-      {
+-        brush.at(x - sel.left, 
+-                 y - sel.top) = field.at(x, y);
+-      }
+-
+-    return brush;
+-  }
+-}
+-
+-CL_Rect
+-TileSelection::get_rect() const
+-{
+-  CL_Rect sel = impl-&gt;selection;
+-  sel.normalize();
+-  return sel;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/tile_selection.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_selection.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tile_selection.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,52 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_TILE_SELECTION_HPP
+-#define HEADER_FLEXLAY_TILE_SELECTION_HPP
+-
+-#include &quot;tile_brush.hpp&quot;
+-#include &quot;tilemap_layer.hpp&quot;
+-
+-class TileSelectionImpl;
+-
+-/** The TileSelection is a little helper class to manage rectangular
+-    selections of tiles and provides a way to convert this selection
+-    to a Brush which then can be used for either serialisation or be
+-    used for painting on the map itself */
+-class TileSelection
+-{
+-public:
+-  TileSelection();
+-  ~TileSelection();
+-
+-  void start (TilemapLayer tilemap, const CL_Point&amp; pos);
+-  void update(const CL_Point&amp; pos);
+-
+-  void clear();
+-  bool is_active();
+-
+-  CL_Rect get_rect() const;
+-
+-  void draw(const CL_Color&amp; color = CL_Color(255, 255, 255, 100));
+-
+-  TileBrush get_brush(const Field&lt;int&gt;&amp; field) const;
+-private:
+-  boost::shared_ptr&lt;TileSelectionImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/tilemap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -28,11 +28,9 @@
+ #include &quot;tileset.hpp&quot;
+ #include &quot;editor_map.hpp&quot;
+ #include &quot;tile_brush.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;blitter.hpp&quot;
+ #include &quot;layer_impl.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
+ 
+ TilemapLayer TilemapLayer::current_;
+ 
+
+Deleted: trunk/flexlay/lib/titlebar.cpp
+===================================================================
+--- trunk/flexlay/lib/titlebar.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/titlebar.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,122 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/Display/mouse.h&gt;
+-#include &quot;fonts.hpp&quot;
+-#include &quot;titlebar.hpp&quot;
+-
+-class TitlebarImpl
+-{
+-public:
+-  CL_Component* window;
+-  Titlebar* parent;
+-  CL_Point click_pos;
+-  CL_Rect old_pos;
+-  std::string title;
+-  std::vector&lt;CL_Slot&gt; slots;
+-  bool pressed;
+-
+-  TitlebarImpl(Titlebar* parent_) : parent(parent_) {}
+-
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_up(const CL_InputEvent&amp; event);
+-  void draw();
+-};
+-
+-Titlebar::Titlebar(const CL_Rect&amp; rect, const std::string&amp; title, CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    impl(new TitlebarImpl(this))
+-{
+-  impl-&gt;title = title;
+-  impl-&gt;pressed = false;
+-  impl-&gt;window = parent;
+-
+-  impl-&gt;slots.push_back(sig_mouse_down().connect(impl.get(), &amp;TitlebarImpl::on_mouse_down));
+-  impl-&gt;slots.push_back(sig_mouse_move().connect(impl.get(), &amp;TitlebarImpl::on_mouse_move));
+-  impl-&gt;slots.push_back(sig_mouse_up().connect(impl.get(), &amp;TitlebarImpl::on_mouse_up));
+-  impl-&gt;slots.push_back(sig_paint().connect(impl.get(), &amp;TitlebarImpl::draw));
+-}
+-
+-void
+-TitlebarImpl::on_mouse_up(const CL_InputEvent&amp; event)
+-{
+-  if (event.id == CL_MOUSE_LEFT)
+-  {
+-    pressed = false;
+-    parent-&gt;release_mouse();
+-  }
+-}
+-
+-void
+-TitlebarImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  if (event.id == CL_MOUSE_LEFT)
+-  {
+-    pressed   = true;
+-    click_pos = event.mouse_pos;
+-    parent-&gt;capture_mouse();
+-    window-&gt;raise();
+-
+-    old_pos = window-&gt;get_position();
+-    click_pos.x += old_pos.left;
+-    click_pos.y += old_pos.top;
+-  } 
+-}
+-
+-void
+-TitlebarImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  if(pressed)
+-  {
+-    CL_Rect rect = window-&gt;get_position();
+-
+-    CL_Point move(old_pos.left - (click_pos.x - (rect.left + event.mouse_pos.x)), 
+-                  old_pos.top  - (click_pos.y - (rect.top  + event.mouse_pos.y)));
+-
+-    window-&gt;set_position(move.x, move.y);
+-  }
+-}
+-
+-void
+-TitlebarImpl::draw()
+-{
+-  CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+-
+-  // FIXME: Hack should be done via has_mouse_over(), but that doesn't include child components
+-  if (parent-&gt;get_parent()-&gt;get_position().is_inside(CL_Point(CL_Mouse::get_x(), 
+-                                                              CL_Mouse::get_y())))
+-    //parent-&gt;get_parent()-&gt;has_mouse_over())
+-  {
+-    CL_Display::fill_rect(CL_Rect(CL_Point(0, 0),
+-                                  CL_Size(parent-&gt;get_width()-1, parent-&gt;get_height())), 
+-                          CL_Color(250, 250, 250));
+-  }
+-  else
+-  {
+-    CL_Display::fill_rect(CL_Rect(CL_Point(0, 0),
+-                                  CL_Size(parent-&gt;get_width()-1, parent-&gt;get_height())), 
+-                          CL_Color(240, 240, 240));
+-  }
+-
+-  Fonts::verdana11.draw(4, 0, title);
+-
+-  CL_Display::pop_modelview();
+-}
+-                  
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/titlebar.hpp
+===================================================================
+--- trunk/flexlay/lib/titlebar.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/titlebar.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,39 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_TITLEBAR_HPP
+-#define HEADER_FLEXLAY_TITLEBAR_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class TitlebarImpl;
+-
+-/** */
+-class Titlebar : public CL_Component
+-{
+-protected:
+-  virtual ~Titlebar() {}
+-public:
+-  Titlebar(const CL_Rect&amp; rect, const std::string&amp; title, CL_Component* parent);
+-
+-private:
+-  boost::shared_ptr&lt;TitlebarImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/tools/layer_move_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/layer_move_tool.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/layer_move_tool.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -15,14 +15,16 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++#include &quot;layer_move_tool.hpp&quot;
++
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
++
+ #include &quot;workspace.hpp&quot;
+ #include &quot;tool_impl.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;editor_map.hpp&quot;
+ #include &quot;layer.hpp&quot;
+-#include &quot;layer_move_tool.hpp&quot;
+ 
+ class LayerMoveToolImpl : public ToolImpl
+ {
+
+Modified: trunk/flexlay/lib/tools/objmap_select_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/objmap_select_tool.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/objmap_select_tool.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -15,22 +15,24 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++#include &quot;objmap_select_tool.hpp&quot;
++
+ #include &lt;algorithm&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &lt;ClanLib/Display/keyboard.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;editor_map_component.hpp&quot;
++
+ #include &quot;editor_map.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
++#include &quot;editor_names.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;gui_manager.hpp&quot;
+-#include &quot;editor_names.hpp&quot;
++#include &quot;object_delete_command.hpp&quot;
++#include &quot;object_move_command.hpp&quot;
++#include &quot;objmap_control_point.hpp&quot;
++#include &quot;objmap_object.hpp&quot;
+ #include &quot;popup_menu.hpp&quot;
+-#include &quot;objmap_object.hpp&quot;
+-#include &quot;objmap_control_point.hpp&quot;
+-#include &quot;object_move_command.hpp&quot;
+-#include &quot;object_delete_command.hpp&quot;
+ #include &quot;tool_impl.hpp&quot;
+-#include &quot;objmap_select_tool.hpp&quot;
+ 
+ class ObjMapSelectToolImpl : public ToolImpl
+ {
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -15,6 +15,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++#include &quot;sketch_stroke_tool.hpp&quot;
++
+ #include &lt;iostream&gt;
+ #include &lt;assert.h&gt;
+ #include &lt;ClanLib/gl.h&gt;
+@@ -23,10 +25,10 @@
+ #include &lt;ClanLib/Display/mouse.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;ClanLib/Display/input_context.h&gt;
+-#include &quot;editor_map_component.hpp&quot;
++
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;tool.hpp&quot;
+ #include &quot;bitmap_layer.hpp&quot;
+-#include &quot;sketch_stroke_tool.hpp&quot;
+ #include &quot;sprite_stroke_drawer.hpp&quot;
+ #include &quot;marker_stroke_drawer.hpp&quot;
+ #include &quot;stroke.hpp&quot;
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -19,6 +19,7 @@
+ #define HEADER_FLEXLAY_TOOLS_SKETCH_STROKE_TOOL_HPP
+ 
+ #include &quot;tool_impl.hpp&quot;
++#include &quot;tool.hpp&quot;
+ #include &quot;stroke_drawer.hpp&quot;
+ 
+ class SketchStrokeToolImpl;
+
+Modified: trunk/flexlay/lib/tools/tilemap_paint_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_paint_tool.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/tilemap_paint_tool.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -26,12 +26,12 @@
+ #include &quot;tilemap_layer.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+ #include &quot;editor_map.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;tile.hpp&quot;
+ #include &quot;workspace.hpp&quot;
+ #include &quot;paint_command.hpp&quot;
+ #include &quot;editor_names.hpp&quot;
+-#include &quot;tile_selection.hpp&quot;
++#include &quot;gui/tile_selection.hpp&quot;
+ #include &quot;tool_impl.hpp&quot;
+ #include &quot;tilemap_paint_tool.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tools/tilemap_select_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_select_tool.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/tilemap_select_tool.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -15,17 +15,19 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++#include &quot;tilemap_select_tool.hpp&quot;
++
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &lt;ClanLib/Display/input_event.h&gt;
++
+ #include &quot;globals.hpp&quot;
+ #include &quot;tilemap_layer.hpp&quot;
+ #include &quot;tool_impl.hpp&quot;
+ #include &quot;editor_map.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;tile_brush.hpp&quot;
+ #include &quot;editor_names.hpp&quot;
+-#include &quot;tilemap_select_tool.hpp&quot;
+ 
+ class TileMapSelectToolImpl : public ToolImpl
+ {
+
+Modified: trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -20,8 +20,9 @@
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
++
+ #include &quot;tool.hpp&quot;
+-#include &quot;tile_selection.hpp&quot;
++#include &quot;gui/tile_selection.hpp&quot;
+ 
+ class TileMapSelectToolImpl;
+ 
+
+Modified: trunk/flexlay/lib/tools/workspace_move_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/workspace_move_tool.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/workspace_move_tool.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -15,12 +15,14 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++#include &quot;workspace_move_tool.hpp&quot;
++
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &quot;tool_impl.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;workspace.hpp&quot;
+-#include &quot;workspace_move_tool.hpp&quot;
+ 
+ class WorkspaceMoveToolImpl : public ToolImpl
+ {
+
+Modified: trunk/flexlay/lib/tools/zoom2_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom2_tool.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/zoom2_tool.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -17,7 +17,8 @@
+ 
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;editor_map_component.hpp&quot;
++
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;tool_impl.hpp&quot;
+ #include &quot;zoom2_tool.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tools/zoom_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom_tool.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/tools/zoom_tool.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -17,7 +17,8 @@
+ 
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;editor_map_component.hpp&quot;
++
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;tool_impl.hpp&quot;
+ #include &quot;zoom_tool.hpp&quot;
+ 
+
+Deleted: trunk/flexlay/lib/viewport.cpp
+===================================================================
+--- trunk/flexlay/lib/viewport.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/viewport.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,47 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &quot;graphic_context_state.hpp&quot;
+-#include &quot;viewport.hpp&quot;
+-
+-class ViewportImpl
+-{
+-public:
+-  CL_Component* child;
+-  GraphicContextState gc_state;
+-};
+-
+-Viewport::Viewport(CL_Component* child, const CL_Rect&amp; rect, CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    impl(new ViewportImpl())
+-{
+-  impl-&gt;child = child;
+-  impl-&gt;gc_state.set_size(rect.get_width(), rect.get_height());
+-}
+-
+-void
+-Viewport::set_pos(const CL_Pointf&amp; pos)
+-{
+-  impl-&gt;gc_state.set_pos(pos);
+-}
+-
+-CL_Pointf
+-Viewport::get_pos() const
+-{
+-  return impl-&gt;gc_state.get_pos();
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/viewport.hpp
+===================================================================
+--- trunk/flexlay/lib/viewport.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/viewport.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,42 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_VIEWPORT_HPP
+-#define HEADER_FLEXLAY_VIEWPORT_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class ViewportImpl;
+-
+-/** */
+-class Viewport : public CL_Component
+-{
+-protected:
+-  virtual ~Viewport() {}
+-public:
+-  Viewport(CL_Component* child, const CL_Rect&amp; rect, CL_Component* parent);
+-  
+-  void set_pos(const CL_Pointf&amp; pos);
+-  CL_Pointf get_pos() const;
+-private:
+-  boost::shared_ptr&lt;ViewportImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/window.cpp
+===================================================================
+--- trunk/flexlay/lib/window.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/window.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,168 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;iostream&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;box.hpp&quot;
+-#include &quot;icon.hpp&quot;
+-#include &quot;helper.hpp&quot;
+-#include &quot;titlebar.hpp&quot;
+-#include &quot;window.hpp&quot;
+-
+-class WindowImpl
+-{
+-public:
+-  CL_Component* client_area;
+-  CL_Component* parent;
+-
+-  CL_Rect old_position;
+-  bool is_maximized;
+-
+-  Titlebar* titlebar;
+-  Icon* close;
+-  Icon* minimize;
+-  Icon* maximize;
+-
+-  std::vector&lt;CL_Slot&gt; slots;
+-
+-  void draw();
+-  void do_maximize();
+-  void do_close();
+-  void on_resize(int, int);
+-};
+-
+-Window::Window(const CL_Rect&amp; rect, const std::string&amp; title, CL_Component* parent)
+-  : CL_Component(rect, parent), impl(new WindowImpl())
+-{
+-  impl-&gt;titlebar = new Titlebar(CL_Rect(CL_Point(3+16,3), 
+-                                        CL_Size(get_width()-6-18-18-18, 12+3)), title,
+-                                this);
+-  //Fonts::verdana11.draw(8+15, 3, title);
+-
+-  impl-&gt;close = new Icon(CL_Rect(CL_Point(3, 3), CL_Size(18,18)), 
+-                         make_sprite(&quot;../data/images/window/close.png&quot;),
+-                         &quot;&quot;, this);
+-  impl-&gt;minimize = new Icon(CL_Rect(CL_Point(get_width()-3-18-18, 3), CL_Size(18,18)), 
+-                            make_sprite(&quot;../data/images/window/minimize.png&quot;),
+-                            &quot;&quot;, this);
+-  impl-&gt;maximize = new Icon(CL_Rect(CL_Point(get_width()-3-18, 3), CL_Size(18,18)), 
+-                            make_sprite(&quot;../data/images/window/maximize.png&quot;),
+-                            &quot;&quot;, this);
+-
+-  impl-&gt;client_area = new CL_Component(CL_Rect(CL_Point(4, 3+12+7), 
+-                                               CL_Size(rect.get_width()-10,
+-                                                       rect.get_height()-28)), this);
+-  impl-&gt;parent  = this;
+-  impl-&gt;is_maximized = false;
+-
+-  impl-&gt;slots.push_back(sig_resize().connect(impl.get(),      &amp;WindowImpl::on_resize));
+-
+-  impl-&gt;slots.push_back(sig_paint().connect(impl.get(),      &amp;WindowImpl::draw));
+-  impl-&gt;slots.push_back(impl-&gt;maximize-&gt;sig_clicked().connect(impl.get(), &amp;WindowImpl::do_maximize));
+-  impl-&gt;slots.push_back(impl-&gt;close-&gt;sig_clicked().connect(impl.get(), &amp;WindowImpl::do_close));
+-}
+-
+-Window::~Window()
+-{
+-  std::cout &lt;&lt; &quot;deleting: Window&quot; &lt;&lt; std::endl;
+-}
+-
+-void
+-WindowImpl::on_resize(int, int)
+-{
+-  titlebar-&gt;set_position(CL_Rect(CL_Point(3+16,3), CL_Size(parent-&gt;get_width()-6-18-18-18, 12+3)));
+-  close-&gt;set_position(3, 3);
+-  minimize-&gt;set_position(parent-&gt;get_width()-3-18-18, 3);
+-  maximize-&gt;set_position(parent-&gt;get_width()-3-18, 3);
+-  CL_Rect rect = parent-&gt;get_position();
+-  client_area-&gt;set_position(CL_Rect(CL_Point(4, 3+12+7), 
+-                                    CL_Size(rect.get_width()-10,
+-                                            rect.get_height()-28)));
+-}
+-
+-void
+-WindowImpl::draw()
+-{
+-  CL_Display::push_translate (parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+-
+-  CL_Color highlight(255, 255, 255);
+-  CL_Color midtone(150, 150, 150);
+-
+-  CL_Rect rect = parent-&gt;get_position() ;
+-
+-  Box::draw_window(CL_Rect(CL_Point(0, 0), CL_Size(rect.get_width()-1, rect.get_height()-1)));
+-  Box::draw_panel_down(client_area-&gt;get_position());
+-
+-  /*
+-    CL_Display::fill_rect(CL_Rect(CL_Point(0, 0), rect.get_size()), CL_Color(220, 220, 220));
+-    CL_Display::draw_rect(CL_Rect(CL_Point(0, 0), rect.get_size()), CL_Color(0, 0, 0));
+- 
+-    CL_Display::draw_line(1, rect.get_height()-2,
+-    rect.get_width()-2, rect.get_height()-2, midtone);
+-    CL_Display::draw_line(rect.get_width()-2, 1,
+-    rect.get_width()-2, rect.get_height()-2, midtone);
+-
+-    CL_Display::draw_line(1, 1,
+-    rect.get_width()-2, 1, highlight);
+-    CL_Display::draw_line(1, 1,
+-    1, rect.get_height()-2, highlight);
+-  */
+-
+-  CL_Display::pop_modelview();
+-}
+-
+-void
+-WindowImpl::do_close()
+-{
+-  parent-&gt;show(false);
+-}
+-
+-void
+-WindowImpl::do_maximize()
+-{
+-  // FIXME: Move this to scripting language
+-  if (!is_maximized)
+-  {
+-    is_maximized = true;
+-    old_position = parent-&gt;get_position();
+-    parent-&gt;set_position(parent-&gt;get_parent()-&gt;get_position());
+-  }
+-  else
+-  {
+-    is_maximized = false;
+-    parent-&gt;set_position(old_position);
+-  }
+-}
+-
+-CL_Component*
+-Window::get_client_area()
+-{
+-  return impl-&gt;client_area;
+-}
+-
+-void
+-Window::hide()
+-{
+-  CL_Component::show(false);
+-}
+-
+-void
+-Window::show()
+-{
+-  CL_Component::show(true);
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/window.hpp
+===================================================================
+--- trunk/flexlay/lib/window.hpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/window.hpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -1,44 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_WINDOW_HPP
+-#define HEADER_FLEXLAY_WINDOW_HPP
+-
+-
+-class WindowImpl;
+-
+-/** */
+-class Window : public CL_Component
+-{
+-protected:
+-  virtual ~Window();
+-public:
+-  Window(const CL_Rect&amp; rect, const std::string&amp; title, CL_Component* parent);
+-  
+-  void hide();
+-  void show();
+-
+-  CL_Component* get_client_area();
+-private:
+-  Window (const Window&amp;);
+-  Window&amp; operator= (const Window&amp;);
+-
+-  boost::shared_ptr&lt;WindowImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/workspace.cpp
+===================================================================
+--- trunk/flexlay/lib/workspace.cpp	2009-11-22 06:25:37 UTC (rev 727)
++++ trunk/flexlay/lib/workspace.cpp	2009-11-22 14:40:18 UTC (rev 728)
+@@ -14,17 +14,19 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++#include &quot;workspace.hpp&quot;
++
+ #include &lt;iostream&gt;
+ #include &lt;map&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;ClanLib/Display/display_window.h&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
++
+ #include &quot;editor_map.hpp&quot;
+-#include &quot;editor_map_component.hpp&quot;
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;editor_names.hpp&quot;
+ #include &quot;tools/tool.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+-#include &quot;workspace.hpp&quot;
+ 
+ Workspace Workspace::current_(false);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000219.html">[Flexlay-commit] r727 - trunk/flexlay/lib
+</A></li>
+	<LI>Next message: <A HREF="000222.html">[Flexlay-commit] r729 - trunk/flexlay/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#221">[ date ]</a>
+              <a href="thread.html#221">[ thread ]</a>
+              <a href="subject.html#221">[ subject ]</a>
+              <a href="author.html#221">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

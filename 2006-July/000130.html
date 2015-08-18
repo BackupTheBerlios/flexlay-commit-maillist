@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r634 - trunk/clanlib/Core/IOData/Generic
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r634%20-%20trunk/clanlib/Core/IOData/Generic&In-Reply-To=%3C200607051537.k65FbPln029825%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000129.html">
+   <LINK REL="Next"  HREF="000132.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r634 - trunk/clanlib/Core/IOData/Generic</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r634%20-%20trunk/clanlib/Core/IOData/Generic&In-Reply-To=%3C200607051537.k65FbPln029825%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r634 - trunk/clanlib/Core/IOData/Generic">grumbel at berlios.de
+       </A><BR>
+    <I>Wed Jul  5 17:37:25 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000129.html">[Flexlay-commit] r633 - in trunk: . lib netpanzer python ruby
+</A></li>
+        <LI>Next message: <A HREF="000132.html">[Flexlay-commit] r635 - in trunk: . lib lib/tools ruby supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#130">[ date ]</a>
+              <a href="thread.html#130">[ thread ]</a>
+              <a href="subject.html#130">[ subject ]</a>
+              <a href="author.html#130">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-05 17:37:25 +0200 (Wed, 05 Jul 2006)
+New Revision: 634
+
+Modified:
+   trunk/clanlib/Core/IOData/Generic/inputsource_file.cpp
+Log:
+- output error message before throwing exception, cause that causes crash for some reason
+
+Modified: trunk/clanlib/Core/IOData/Generic/inputsource_file.cpp
+===================================================================
+--- trunk/clanlib/Core/IOData/Generic/inputsource_file.cpp	2006-07-05 05:15:07 UTC (rev 633)
++++ trunk/clanlib/Core/IOData/Generic/inputsource_file.cpp	2006-07-05 15:37:25 UTC (rev 634)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;iostream&gt;
+ #include &quot;Core/precomp.h&quot;
+ 
+ #ifdef WIN32
+@@ -105,6 +106,7 @@
+ 		filehandle = fopen(filename.c_str(), &quot;rb&quot;);
+ 		if (filehandle == NULL)
+ 		{
++		   std::cout &lt;&lt; &quot;Error: Could not open file: &quot; &lt;&lt;  filename &lt;&lt; std::endl;
+ 			throw CL_Error(&quot;Could not open file: &quot; + filename);
+ 		}
+ 		fseek(filehandle, 0, SEEK_END);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000129.html">[Flexlay-commit] r633 - in trunk: . lib netpanzer python ruby
+</A></li>
+	<LI>Next message: <A HREF="000132.html">[Flexlay-commit] r635 - in trunk: . lib lib/tools ruby supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#130">[ date ]</a>
+              <a href="thread.html#130">[ thread ]</a>
+              <a href="subject.html#130">[ subject ]</a>
+              <a href="author.html#130">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

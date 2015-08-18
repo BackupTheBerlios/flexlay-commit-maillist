@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r630 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r630%20-%20trunk/supertux&In-Reply-To=%3C200607050330.k653UO42008446%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000131.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r630 - trunk/supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r630%20-%20trunk/supertux&In-Reply-To=%3C200607050330.k653UO42008446%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r630 - trunk/supertux">grumbel at berlios.de
+       </A><BR>
+    <I>Wed Jul  5 05:30:24 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000131.html">[Flexlay-commit] r631 - in trunk: . clanlib clanlib/API clanlib/API/Application clanlib/API/Core clanlib/API/Core/IOData clanlib/API/Core/Math clanlib/API/Core/Resources clanlib/API/Core/System clanlib/API/Core/XML clanlib/API/Display clanlib/API/Display/Collision clanlib/API/Display/Providers clanlib/API/GL clanlib/API/GUI clanlib/API/GUIStyleSilver clanlib/API/MikMod clanlib/API/Network clanlib/API/Network/IRC clanlib/API/Network/NetObjects clanlib/API/Network/NetSession clanlib/API/Network/NetVariables clanlib/API/Network/Socket clanlib/API/SDL clanlib/API/Signals clanlib/API/Sound clanlib/API/Sound/SoundFilters clanlib/API/Sound/SoundProviders clanlib/API/Vorbis clanlib/Application clanlib/Application/MacOS clanlib/Application/Unix clanlib/Application/Win32 clanlib/Core clanlib/Core/IOData clanlib/Core/IOData/Generic clanlib/Core/IOData/Unix clanlib/Core/IOData/Win32 clanlib/Core/Math clanlib/Core/Resources clanlib/Core/System clanlib/Core/System/Generic clanlib/Core/System/Unix! clanlib/Core/System/Win32 clanlib/Core/XML clanlib/Display clanlib/Display/Collision clanlib/Display/Providers clanlib/Display/Win32 clanlib/GL clanlib/GL/AGL clanlib/GL/GLX clanlib/GL/WGL clanlib/GUI clanlib/GUIStyleSilver clanlib/Signals clanlib/doc lib supertux windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#127">[ date ]</a>
+              <a href="thread.html#127">[ thread ]</a>
+              <a href="subject.html#127">[ subject ]</a>
+              <a href="author.html#127">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-05 05:29:58 +0200 (Wed, 05 Jul 2006)
+New Revision: 630
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/sprite.rb
+   trunk/supertux/tileset.rb
+Log:
+- fixed flexlay to be startable again, not sure if actually usable
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-03-31 22:54:19 UTC (rev 629)
++++ trunk/supertux/data.rb	2006-07-05 03:29:58 UTC (rev 630)
+@@ -45,11 +45,11 @@
+     proc{|data, sexpr| Door.new(&quot;hatch&quot;, data, sexpr)}],
+   [&quot;trampoline&quot;, &quot;images/objects/trampoline/trampoline1-0.png&quot;, :sprite,
+     proc{|data, sexpr| BadGuy.new(&quot;trampoline&quot;)}],
+-  [&quot;bell&quot;, &quot;images/objects/bell/bell.sprite&quot;, :sprite,
+-    proc{|data, sexpr| SimpleObject.new(&quot;bell&quot;)}],
++#  [&quot;bell&quot;, &quot;images/objects/bell/bell.sprite&quot;, :sprite,
++#    proc{|data, sexpr| SimpleObject.new(&quot;bell&quot;)}],
+   [&quot;rock&quot;, &quot;images/tiles/blocks/block11.png&quot;, :sprite,
+     proc{|data, sexpr| SimpleObject.new(&quot;rock&quot;)}],
+-  [&quot;unstable_tile&quot;, &quot;images/objects/unstable_tile/unstable_tile.png&quot;, :sprite,
++  [&quot;unstable_tile&quot;, &quot;images/objects/unstable_tile/crumbling-1.png&quot;, :sprite,
+     proc{|data, sexpr| SimpleTileObject.new(data, &quot;unstable_tile&quot;)}],
+   [&quot;infoblock&quot;, &quot;images/engine/editor/infoblock.png&quot;, :sprite,
+     proc{|data, sexpr| InfoBlock.new(data, sexpr)}],
+
+Modified: trunk/supertux/sprite.rb
+===================================================================
+--- trunk/supertux/sprite.rb	2006-03-31 22:54:19 UTC (rev 629)
++++ trunk/supertux/sprite.rb	2006-07-05 03:29:58 UTC (rev 630)
+@@ -40,7 +40,8 @@
+   def get_cl_sprite(action = &quot;default&quot;)
+     action = @actions[action]
+     sprite = make_sprite(@basedir + action.image)
+-    sprite.set_frame_offset(0, CL_Point.new(action.x_offset, action.y_offset))
++    # FIXME:
++    # sprite.set_frame_offset(0, CL_Point.new(action.x_offset, action.y_offset))
+     return sprite
+   end
+ end
+
+Modified: trunk/supertux/tileset.rb
+===================================================================
+--- trunk/supertux/tileset.rb	2006-03-31 22:54:19 UTC (rev 629)
++++ trunk/supertux/tileset.rb	2006-07-05 03:29:58 UTC (rev 630)
+@@ -37,7 +37,7 @@
+         # puts &quot;Loading tile: #{id} =&gt; #{image}&quot;
+ 
+         if not(image)
+-          image = get_value_from_tree(['images', '_'], data, &quot;notile.png&quot;)
++          image = get_value_from_tree(['images', '_'], data, &quot;tiles/auxiliary/notile.png&quot;)
+         end
+         
+         if image.is_a?(String) then
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000131.html">[Flexlay-commit] r631 - in trunk: . clanlib clanlib/API clanlib/API/Application clanlib/API/Core clanlib/API/Core/IOData clanlib/API/Core/Math clanlib/API/Core/Resources clanlib/API/Core/System clanlib/API/Core/XML clanlib/API/Display clanlib/API/Display/Collision clanlib/API/Display/Providers clanlib/API/GL clanlib/API/GUI clanlib/API/GUIStyleSilver clanlib/API/MikMod clanlib/API/Network clanlib/API/Network/IRC clanlib/API/Network/NetObjects clanlib/API/Network/NetSession clanlib/API/Network/NetVariables clanlib/API/Network/Socket clanlib/API/SDL clanlib/API/Signals clanlib/API/Sound clanlib/API/Sound/SoundFilters clanlib/API/Sound/SoundProviders clanlib/API/Vorbis clanlib/Application clanlib/Application/MacOS clanlib/Application/Unix clanlib/Application/Win32 clanlib/Core clanlib/Core/IOData clanlib/Core/IOData/Generic clanlib/Core/IOData/Unix clanlib/Core/IOData/Win32 clanlib/Core/Math clanlib/Core/Resources clanlib/Core/System clanlib/Core/System/Generic clanlib/Core/System/Unix! clanlib/Core/System/Win32 clanlib/Core/XML clanlib/Display clanlib/Display/Collision clanlib/Display/Providers clanlib/Display/Win32 clanlib/GL clanlib/GL/AGL clanlib/GL/GLX clanlib/GL/WGL clanlib/GUI clanlib/GUIStyleSilver clanlib/Signals clanlib/doc lib supertux windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#127">[ date ]</a>
+              <a href="thread.html#127">[ thread ]</a>
+              <a href="subject.html#127">[ subject ]</a>
+              <a href="author.html#127">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

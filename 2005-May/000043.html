@@ -1,0 +1,331 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r548 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r548%20-%20trunk/supertux&In-Reply-To=%3C200505082116.j48LGx85029942%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000044.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r548 - trunk/supertux</H1>
+    <B>Matthias Braun at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r548%20-%20trunk/supertux&In-Reply-To=%3C200505082116.j48LGx85029942%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r548 - trunk/supertux">matzebraun at sheep.berlios.de
+       </A><BR>
+    <I>Sun May  8 23:16:59 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000044.html">[Flexlay-commit] r549 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#43">[ date ]</a>
+              <a href="thread.html#43">[ thread ]</a>
+              <a href="subject.html#43">[ subject ]</a>
+              <a href="author.html#43">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: matzebraun
+Date: 2005-05-08 23:16:58 +0200 (Sun, 08 May 2005)
+New Revision: 548
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/supertux.rb
+   trunk/supertux/supertux.scm
+   trunk/supertux/tileset.rb
+Log:
+some images moved around in supertux
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/data.rb	2005-05-08 21:16:58 UTC (rev 548)
+@@ -1,61 +1,63 @@
+ $game_objects = [
+-  [&quot;jumpy&quot;, &quot;images/shared/jumpy-left-middle-0.png&quot;, &quot;sprite&quot;,
++  [&quot;jumpy&quot;, &quot;images/creatures/jumpy/left-middle.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;jumpy&quot;)}],
+-  [&quot;snowball&quot;, &quot;images/shared/snowball-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;snowball&quot;, &quot;images/creatures/snowball/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;snowball&quot;)}],
+-  [&quot;mriceblock&quot;, &quot;images/shared/mriceblock-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;mriceblock&quot;, &quot;images/creatures/mr_iceblock/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;mriceblock&quot;)}],
+-  [&quot;mrbomb&quot;, &quot;images/shared/mrbomb-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;mrbomb&quot;, &quot;images/creatures/mr_bomb/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;mrbomb&quot;)}],
+-  [&quot;flame&quot;, &quot;images/shared/flame-0.png&quot;, &quot;sprite&quot;,
++  [&quot;flame&quot;, &quot;images/creatures/flame/flame-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;flame&quot;)}], 
+-  [&quot;stalactite&quot;, &quot;images/shared/stalactite.png&quot;, &quot;sprite&quot;,
++  [&quot;stalactite&quot;, &quot;images/creatures/stalactite/falling.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;stalactite&quot;)}],
+-  [&quot;fish&quot;, &quot;images/shared/fish-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;fish&quot;, &quot;images/creatures/fish/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;fish&quot;)}],
+-  [&quot;flyingsnowball&quot;, &quot;images/shared/flyingsnowball-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;flyingsnowball&quot;, &quot;images/creatures/flying_snowball/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;flyingsnowball&quot;)}],
+-  [&quot;bouncingsnowball&quot;, &quot;images/shared/bouncingsnowball-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;bouncingsnowball&quot;, &quot;images/creatures/bouncing_snowball/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;bouncingsnowball&quot;)}],
+-  [&quot;spiky&quot;, &quot;images/shared/spiky-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;spiky&quot;, &quot;images/creatures/spiky/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;spiky&quot;)}],
+-  [&quot;mrtree&quot;, &quot;images/shared/mrtree-walk-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;mrtree&quot;, &quot;images/creatures/mr_tree/walk-left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;mrtree&quot;)}],
+-  [&quot;poisonivy&quot;, &quot;images/shared/poisonivy-left-0.png&quot;, &quot;sprite&quot;,
++  [&quot;poisonivy&quot;, &quot;images/creatures/poison_ivy/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;poisonivy&quot;)}],
+-  [&quot;dispenser&quot;, &quot;images/shared/dispenser-working.png&quot;, &quot;sprite&quot;,
++  [&quot;dispenser&quot;, &quot;images/creatures/dispenser/working.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| Dispenser.new(data, sexpr)}],
+-  [&quot;yeti&quot;, &quot;images/shared/yeti/yeti.png&quot;, &quot;sprite&quot;,
++  [&quot;yeti&quot;, &quot;images/creatures/yeti/yeti.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;yeti&quot;)}],
+-  [&quot;stalactite_yeti&quot;, &quot;images/editor/stalactite_yeti.png&quot;, &quot;sprite&quot;,
++  [&quot;stalactite_yeti&quot;, &quot;images/engine/editor/stalactite_yeti.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;yeti_stalactite&quot;)}],
+-  [&quot;spawnpoint&quot;, &quot;images/editor/spawnpoint.png&quot;, &quot;sprite&quot;,
++  [&quot;spawnpoint&quot;, &quot;images/engine/editor/spawnpoint.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| SpawnPoint.new(data, sexpr)}],
+-  [&quot;door&quot;, &quot;images/shared/door-1.png&quot;, &quot;sprite&quot;,
++  [&quot;ambient_sound&quot;, &quot;images/engine/editor/ambientsound.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| AmbientSound.new(data, sexpr)}],
++  [&quot;door&quot;, &quot;images/objects/door/door-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| Door.new(&quot;door&quot;, data, sexpr)}],
+-  [&quot;hatch&quot;, &quot;images/shared/hatch-1.png&quot;, &quot;sprite&quot;,
++  [&quot;hatch&quot;, &quot;images/objects/hatch/hatch-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| Door.new(&quot;hatch&quot;, data, sexpr)}],
+-  [&quot;trampoline&quot;, &quot;images/shared/trampoline-1.png&quot;, &quot;sprite&quot;,
++  [&quot;trampoline&quot;, &quot;images/objects/trampoline/trampoline1-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;trampoline&quot;)}],
+-  [&quot;bell&quot;, &quot;images/shared/bell/bell-m.png&quot;, &quot;sprite&quot;,
++  [&quot;bell&quot;, &quot;images/objects/bell/bell-m.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| SimpleObject.new(&quot;bell&quot;)}],
+-  [&quot;rock&quot;, &quot;images/tilesets/block11.png&quot;, &quot;sprite&quot;,
++  [&quot;rock&quot;, &quot;images/tiles/blocks/block11.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| SimpleObject.new(&quot;rock&quot;)}],
+-  [&quot;unstable_tile&quot;, &quot;images/shared/unstable_tile.png&quot;, &quot;sprite&quot;,
++  [&quot;unstable_tile&quot;, &quot;images/objects/unstable_tile/unstable_tile.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| SimpleTileObject.new(data, &quot;unstable_tile&quot;)}],
+-  [&quot;infoblock&quot;, &quot;images/editor/infoblock.png&quot;, &quot;sprite&quot;,
++  [&quot;infoblock&quot;, &quot;images/engine/editor/infoblock.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| InfoBlock.new(data, sexpr)}],
+-  [&quot;secretarea&quot;, &quot;images/editor/secretarea.png&quot;, &quot;rect&quot;,
++  [&quot;secretarea&quot;, &quot;images/engine/editor/secretarea.png&quot;, &quot;rect&quot;,
+     proc{|data, sexpr| SecretArea.new(data, sexpr)}],
+-  [&quot;sequencetrigger&quot;, &quot;images/editor/sequencetrigger.png&quot;, &quot;rect&quot;,
++  [&quot;sequencetrigger&quot;, &quot;images/engine/editor/sequencetrigger.png&quot;, &quot;rect&quot;,
+     proc{|data, sexpr| SequenceTrigger.new(data, sexpr)}],
+-  [&quot;background&quot;, &quot;images/editor/background.png&quot;, &quot;sprite&quot;,
++  [&quot;background&quot;, &quot;images/engine/editor/background.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| Background.new(data, sexpr)}],
+-  [&quot;particles-snow&quot;, &quot;images/editor/snow.png&quot;, &quot;sprite&quot;,
++  [&quot;particles-snow&quot;, &quot;images/engine/editor/snow.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| ParticleSystem.new(&quot;snow&quot;, sexpr)}],
+-  [&quot;particles-clouds&quot;, &quot;images/editor/clouds.png&quot;, &quot;sprite&quot;,
++  [&quot;particles-clouds&quot;, &quot;images/engine/editor/clouds.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| ParticleSystem.new(&quot;clouds&quot;, sexpr)}],
+-  [&quot;particles-rain&quot;, &quot;images/editor/rain.png&quot;, &quot;sprite&quot;,
++  [&quot;particles-rain&quot;, &quot;images/engine/editor/rain.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| ParticleSystem.new(&quot;rain&quot;, sexpr)}],
+ 	
+ ]
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/gameobj.rb	2005-05-08 21:16:58 UTC (rev 548)
+@@ -142,6 +142,41 @@
+   end
+ end
+ 
++class AmbientSound&lt;GameObj
++  def initialize(data, sexpr = [])
++    @data = data
++    @factor = get_value_from_tree([&quot;distance_factor&quot;, &quot;_&quot;],  sexpr, 0.1)
++    @bias = get_value_from_tree([&quot;distance_bias&quot;, &quot;_&quot;],  sexpr, 200)
++    @sample = get_value_from_tree([&quot;sample&quot;, &quot;_&quot;],  sexpr, &quot;waterfall&quot;)
++    connect_v1_ObjMapObject(data.to_object.sig_move(), method(:on_move))
++    on_move(data)
++  end
++
++  def on_move(data)
++    pos = @data.to_object.get_pos()
++    pos.x = (((pos.x+16)/32).to_i)*32
++    pos.y = (((pos.y+16)/32).to_i)*32
++    @data.to_object.set_pos(pos)
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write(&quot;       (ambient_sound (x %d) (y %d) (distance_factor \&quot;%s\&quot;) (distance_bias \&quot;%s\&quot;) (sample \&quot;%s\&quot;))\n&quot; % [pos.x, pos.y, @factor, @bias, @sample])
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new(&quot;AmbientSound Property Dialog&quot;, $gui.get_component())
++    dialog.add_float(&quot;Distance Factor: &quot;, @factor)
++    dialog.add_float(&quot;Distance Bias: &quot;, @bias)
++    dialog.add_string(&quot;Sample: &quot;, @sample)
++    dialog.set_callback(proc{|factor, bias, sample| 
++                          @factor = factor
++			  @bias = bias
++			  @sample = sample
++                        })
++  end
++end
++
+ class SimpleObject&lt;GameObj
+   def initialize(type)
+     @type = type
+@@ -262,9 +297,9 @@
+ 
+   def set_icon()
+     if(@type == &quot;image&quot;)
+-      @object.set_sprite(make_sprite($datadir + &quot;images/editor/background.png&quot;))
++      @object.set_sprite(make_sprite($datadir + &quot;images/engine/editor/background.png&quot;))
+     else
+-      @object.set_sprite(make_sprite($datadir + &quot;images/editor/gradient.png&quot;))
++      @object.set_sprite(make_sprite($datadir + &quot;images/engine/editor/gradient.png&quot;))
+     end
+   end
+ 
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/supertux.rb	2005-05-08 21:16:58 UTC (rev 548)
+@@ -23,11 +23,12 @@
+ def find_supertux_datadir()
+   # try to automatically detect the supertux datadir
+   possible_locations = [
+-    &quot;~/cvs/supertux/supertux/data&quot;,
+-    &quot;~/cvs/supertux/data&quot;,
+-    &quot;/usr/share/games/supertux&quot;,
+-    &quot;/usr/local/share/games/supertux&quot;,
+-    &quot;/opt/supertux/data&quot;,
++    &quot;~/cvs/supertux/supertux/data/&quot;,
++    &quot;~/cvs/supertux/data/&quot;,
++    &quot;/usr/share/games/supertux/&quot;,
++    &quot;/usr/local/share/games/supertux/&quot;,
++    &quot;/opt/supertux/data/&quot;,
++    &quot;~projects/supertux/trunk/supertux/data/&quot;,
+   ]
+   # `which supertux`
+ end
+@@ -92,7 +93,7 @@
+ 
+ $config  = Config.new()
+ if !$datadir then
+-  $datadir = File.expand_path(&quot;~/projects/supertux/data/&quot;)+&quot;/&quot;
++  $datadir = File.expand_path(&quot;~/projects/supertux/trunk/supertux/data/&quot;)+&quot;/&quot;
+ end
+ 
+ require &quot;data.rb&quot;
+@@ -101,7 +102,7 @@
+ require &quot;tileset.rb&quot;
+ 
+ $tileset = Tileset.new(32)
+-$tileset.load($datadir + &quot;images/tilesets/supertux.stgt&quot;)
++$tileset.load($datadir + &quot;images/tiles.strf&quot;)
+ $tileset.create_ungrouped_tiles_group()
+ 
+ $gui = SuperTuxGUI.new(width, height)
+
+Modified: trunk/supertux/supertux.scm
+===================================================================
+--- trunk/supertux/supertux.scm	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/supertux.scm	2005-05-08 21:16:58 UTC (rev 548)
+@@ -24,7 +24,7 @@
+                                    (list (list 'id   
+                                                (get-value-from-tree '(id _) (cdr el) -1))
+                                          (list 'image 
+-                                               (string-append *supertux:datadir* &quot;images/tilesets/&quot; 
++                                               (string-append *supertux:datadir* &quot;images/tiles/&quot; 
+                                                               (or (get-value-from-tree '(editor-images _) (cdr el) #f)
+                                                                   (get-value-from-tree '(images _) (cdr el) &quot;notile.png&quot;))))
+                                          )))))
+@@ -44,15 +44,15 @@
+                                    (list (list 'id   
+                                                (get-value-from-tree '(id _) (cdr el) -1))
+                                          (list 'image 
+-                                               (string-append *supertux:datadir* &quot;images/worldmap/&quot;
+-                                                              (get-value-from-tree '(image _) (cdr el) &quot;notile.png&quot;))))
++                                               (string-append *supertux:datadir* &quot;images/tiles/worldmap/&quot;
++                                                              (get-value-from-tree '(image _) (cdr el) &quot;auxiliary/notile.png&quot;))))
+                                    ))))
+                          (cdr data)))
+               (else
+                (error &quot;Not a supertux worldmap tileset&quot;)))))))
+ 
+-(supertux:load-worldmap-tiles (string-append *supertux:datadir* &quot;images/worldmap/antarctica.stwt&quot;))
+-(supertux:load-tiles (string-append *supertux:datadir* &quot;images/tilesets/supertux.stgt&quot;))
++(supertux:load-worldmap-tiles (string-append *supertux:datadir* &quot;images/tiles/worldmap/antarctica.stwt&quot;))
++(supertux:load-tiles (string-append *supertux:datadir* &quot;images/tiles/supertux.stgt&quot;))
+ 
+ ;;(tileset-add-tile '((id 6)
+ ;;                    (image &quot;/home/ingo/projects/windstille/trunk/data/images/tuxsprites/mrbomb.png&quot;)
+@@ -370,7 +370,7 @@
+     (set! (supertux:author level)     (get-value-from-tree '(author _) data &quot;&quot;))
+     (set! (supertux:theme level)      (get-value-from-tree '(theme _) data &quot;antarctica&quot;))
+     (set! (supertux:music level)      (get-value-from-tree '(music _) data &quot;Mortimers_chipdisko.mod&quot;))
+-    (set! (supertux:background level) (get-value-from-tree '(background _)   data &quot;arctis.png&quot;))
++    (set! (supertux:background level) (get-value-from-tree '(background _)   data &quot;arctis.jpg&quot;))
+ 
+     (set! (supertux:start-pos-x level) (get-value-from-tree '(start_pos_x  _) data 100))
+     (set! (supertux:start-pos-y level) (get-value-from-tree '(start_pos_y  _) data 170))
+
+Modified: trunk/supertux/tileset.rb
+===================================================================
+--- trunk/supertux/tileset.rb	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/tileset.rb	2005-05-08 21:16:58 UTC (rev 548)
+@@ -45,10 +45,10 @@
+         end
+         
+         if image.is_a?(String) then
+-          pixelbuffer = make_pixelbuffer($datadir + 'images/tilesets/' + image)
++          pixelbuffer = make_pixelbuffer($datadir + 'images/' + image)
+         elsif image.is_a?(Array) then
+           if image[0] == &quot;region&quot; then
+-            pixelbuffer = make_region_pixelbuffer($datadir + 'images/tilesets/' + image[1],
++            pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image[1],
+                                                   image[2], image[3], image[4], image[5])
+           end
+         end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000044.html">[Flexlay-commit] r549 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#43">[ date ]</a>
+              <a href="thread.html#43">[ thread ]</a>
+              <a href="subject.html#43">[ subject ]</a>
+              <a href="author.html#43">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

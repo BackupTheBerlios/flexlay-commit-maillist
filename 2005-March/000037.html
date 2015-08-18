@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r528 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r528%20-%20trunk/supertux&In-Reply-To=%3C200503302216.j2UMG2Am008685%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000036.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r528 - trunk/supertux</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r528%20-%20trunk/supertux&In-Reply-To=%3C200503302216.j2UMG2Am008685%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r528 - trunk/supertux">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Thu Mar 31 00:16:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000036.html">[Flexlay-commit] r527 - trunk/supertux
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#37">[ date ]</a>
+              <a href="thread.html#37">[ thread ]</a>
+              <a href="subject.html#37">[ subject ]</a>
+              <a href="author.html#37">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-31 00:16:02 +0200 (Thu, 31 Mar 2005)
+New Revision: 528
+
+Modified:
+   trunk/supertux/gameobj.rb
+   trunk/supertux/gui.rb
+Log:
+- fixed placement bug of rect object
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-03-30 20:53:43 UTC (rev 527)
++++ trunk/supertux/gameobj.rb	2005-03-30 22:16:02 UTC (rev 528)
+@@ -12,11 +12,13 @@
+ 
+     @message = get_value_from_tree([&quot;message&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
+ 
+-    x  = get_value_from_tree([&quot;x&quot;, &quot;_&quot;],  sexpr, 0)
+-    y  = get_value_from_tree([&quot;y&quot;, &quot;_&quot;],  sexpr, 0)
++    x  = get_value_from_tree([&quot;x&quot;, &quot;_&quot;],  sexpr, nil)
++    y  = get_value_from_tree([&quot;y&quot;, &quot;_&quot;],  sexpr, nil)
+     width  = get_value_from_tree([&quot;width&quot;, &quot;_&quot;],  sexpr, 64)
+     height = get_value_from_tree([&quot;height&quot;, &quot;_&quot;], sexpr, 64)
+-    @data.set_rect(CL_Rect.new(CL_Point.new(x, y), CL_Size.new(width, height)))
++    if x != nil and y != nil then
++      @data.set_rect(CL_Rect.new(CL_Point.new(x, y), CL_Size.new(width, height)))
++    end
+   end
+ 
+   def save(f, obj)
+@@ -46,11 +48,13 @@
+     @sequence = get_value_from_tree([&quot;sequence&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
+     @data.set_color(CL_Color.new(255, 0, 0, 128))
+ 
+-    x  = get_value_from_tree([&quot;x&quot;, &quot;_&quot;],  sexpr, 0)
+-    y  = get_value_from_tree([&quot;y&quot;, &quot;_&quot;],  sexpr, 0)
++    x  = get_value_from_tree([&quot;x&quot;, &quot;_&quot;],  sexpr, nil)
++    y  = get_value_from_tree([&quot;y&quot;, &quot;_&quot;],  sexpr, nil)
+     width  = get_value_from_tree([&quot;width&quot;, &quot;_&quot;],  sexpr, 64)
+     height = get_value_from_tree([&quot;height&quot;, &quot;_&quot;], sexpr, 64)
+-    @data.set_rect(CL_Rect.new(CL_Point.new(x, y), CL_Size.new(width, height)))
++    if x != nil and y != nil then
++      @data.set_rect(CL_Rect.new(CL_Point.new(x, y), CL_Size.new(width, height)))
++    end
+   end
+ 
+   def save(f, obj)
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2005-03-30 20:53:43 UTC (rev 527)
++++ trunk/supertux/gui.rb	2005-03-30 22:16:02 UTC (rev 528)
+@@ -46,29 +46,6 @@
+                                                 make_metadata(object)))
+     }
+ 
+-    # @colorpicker = ColorPicker.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128, 128)),
+-    #                                    @selector_window)
+-    #
+-    #     connect_v1_Color(@colorpicker.sig_color_change(), proc{|color|
+-    #                        $sketch_stroke_tool.set_color(color)
+-    #                      })
+-
+-#     @size_slider = Slider.new(CL_Rect.new(CL_Point.new(3, 150), CL_Size.new(128, 16)), @selector_window)
+-#     @size_slider.set_range(0.01, 2.0) # FIXME: using 0 size brush makes clanlib crashi
+-#     @size_slider.set_value(1.0)
+-#     connect_v1_float(@size_slider.sig_on_change, proc{|value|
+-#                        # puts &quot;Value: #{value}&quot;
+-#                        $sketch_stroke_tool.set_size(value)
+-#                      })
+-
+-#     @zoom_slider = Slider.new(CL_Rect.new(CL_Point.new(3, 182), CL_Size.new(128, 16)), @selector_window)
+-#     @zoom_slider.set_range(0.25, 10.0) # FIXME: using 0 size brush makes clanlib crashi
+-#     @zoom_slider.set_value(1.0)
+-#     connect_v1_float(@zoom_slider.sig_on_change, proc{|value|
+-#                        # puts &quot;Value: #{value}&quot;
+-#                        self.gui_set_zoom(value)
+-#                      })
+-
+     create_button_panel()
+ 
+     # FIXME: Having position in the Menus here is EXTREMLY ugly
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000036.html">[Flexlay-commit] r527 - trunk/supertux
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#37">[ date ]</a>
+              <a href="thread.html#37">[ thread ]</a>
+              <a href="subject.html#37">[ subject ]</a>
+              <a href="author.html#37">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

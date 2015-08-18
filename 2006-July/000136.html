@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r639 - in trunk: lib lib/tools supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r639%20-%20in%20trunk%3A%20lib%20lib/tools%20supertux&In-Reply-To=%3C200607111512.k6BFCRJN010050%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000135.html">
+   <LINK REL="Next"  HREF="000137.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r639 - in trunk: lib lib/tools supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r639%20-%20in%20trunk%3A%20lib%20lib/tools%20supertux&In-Reply-To=%3C200607111512.k6BFCRJN010050%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r639 - in trunk: lib lib/tools supertux">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 17:12:27 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000135.html">[Flexlay-commit] r638 - in trunk: clanlib/GL/GLX lib
+</A></li>
+        <LI>Next message: <A HREF="000137.html">[Flexlay-commit] r640 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#136">[ date ]</a>
+              <a href="thread.html#136">[ thread ]</a>
+              <a href="subject.html#136">[ subject ]</a>
+              <a href="author.html#136">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-11 17:12:25 +0200 (Tue, 11 Jul 2006)
+New Revision: 639
+
+Modified:
+   trunk/lib/clanlib.i
+   trunk/lib/editor_map_component.cxx
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/tools/tilemap_paint_tool.cxx
+   trunk/lib/workspace.cxx
+   trunk/supertux/gui.rb
+Log:
+- some cleanup
+- added 'brush-gridding'
+
+Modified: trunk/lib/clanlib.i
+===================================================================
+--- trunk/lib/clanlib.i	2006-07-11 14:33:23 UTC (rev 638)
++++ trunk/lib/clanlib.i	2006-07-11 15:12:25 UTC (rev 639)
+@@ -12,6 +12,13 @@
+ 	void set_size(int new_width, int new_height);
+ 	void set_position(int new_x, int new_y);
+ 	const CL_Rect&amp; get_position();
++
++	int get_width() const;
++	int get_height() const;
++
++	int get_screen_x() const;
++	int get_screen_y() const;
++
+ };
+ 
+ class CL_Size
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2006-07-11 14:33:23 UTC (rev 638)
++++ trunk/lib/editor_map_component.cxx	2006-07-11 15:12:25 UTC (rev 639)
+@@ -128,8 +128,6 @@
+ void
+ EditorMapComponentImpl::on_key_up(const CL_InputEvent&amp; event)
+ {
+-  std::cout &lt;&lt; &quot;Key up: &quot; &lt;&lt; event.repeat_count &lt;&lt; std::endl;
+-
+   CL_Rect rect = parent-&gt;get_position();
+   CL_InputEvent ev2 = event;
+   ev2.mouse_pos = CL_Point(CL_Mouse::get_x() - rect.left,
+@@ -152,7 +150,6 @@
+ void
+ EditorMapComponentImpl::mouse_down(const CL_InputEvent&amp; event)
+ {
+-  std::cout &lt;&lt; &quot;Event: &quot; &lt;&lt; event.id &lt;&lt; std::endl;
+   workspace.mouse_down(event);
+ }
+   
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2006-07-11 14:33:23 UTC (rev 638)
++++ trunk/lib/flexlay_wrap.i	2006-07-11 15:12:25 UTC (rev 639)
+@@ -209,6 +209,6 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
+-// 5
++// 6
+ 
+ /* EOF */
+
+Modified: trunk/lib/tools/tilemap_paint_tool.cxx
+===================================================================
+--- trunk/lib/tools/tilemap_paint_tool.cxx	2006-07-11 14:33:23 UTC (rev 638)
++++ trunk/lib/tools/tilemap_paint_tool.cxx	2006-07-11 15:12:25 UTC (rev 639)
+@@ -192,7 +192,9 @@
+       switch (mode)
+         {
+         case PAINTING:
+-          if (current_tile != last_draw)
++          if (CL_Keyboard::get_keycode(CL_KEY_LSHIFT) ||
++              (current_tile.x % brush.get_width()) == (last_draw.x % brush.get_width()) &amp;&amp;
++              (current_tile.y % brush.get_height() == (last_draw.y % brush.get_height())))
+             {
+               command-&gt;add_point(current_tile);
+               last_draw = current_tile;
+@@ -219,7 +221,7 @@
+       EditorMapComponent::current()-&gt;get_workspace().get_map().modify();
+ 
+       EditorMapComponent* parent = EditorMapComponent::current();
+-      CL_Point pos = tilemap.world2tile(parent-&gt;screen2world(event.mouse_pos));
++      current_tile = tilemap.world2tile(parent-&gt;screen2world(event.mouse_pos));
+ 
+       switch (event.id)
+         {
+@@ -229,11 +231,17 @@
+               parent-&gt;release_mouse();
+               mode = NONE;
+ 
+-              command-&gt;add_point(pos);
++              if (CL_Keyboard::get_keycode(CL_KEY_LSHIFT) ||
++                  (current_tile.x % brush.get_width()) == (last_draw.x % brush.get_width()) &amp;&amp;
++                  (current_tile.y % brush.get_height() == (last_draw.y % brush.get_height())))
++                {
++                  command-&gt;add_point(current_tile);
++                }
++
+               Workspace::current().get_map().execute(command-&gt;to_command());
+               command = 0;
+ 
+-              tilemap.draw_tile(brush, pos);
++              tilemap.draw_tile(brush, current_tile);
+               last_draw = CL_Point(-1, -1);
+             }
+           break;
+@@ -244,7 +252,7 @@
+               parent-&gt;release_mouse();
+               mode = NONE;
+ 
+-              selection.update(pos);
++              selection.update(current_tile);
+               brush = selection.get_brush(*tilemap.get_field());
+ 
+               if ((brush.get_width() &gt; 1 || brush.get_height() &gt; 1)
+
+Modified: trunk/lib/workspace.cxx
+===================================================================
+--- trunk/lib/workspace.cxx	2006-07-11 14:33:23 UTC (rev 638)
++++ trunk/lib/workspace.cxx	2006-07-11 15:12:25 UTC (rev 639)
+@@ -115,10 +115,11 @@
+ void
+ Workspace::key_down(const CL_InputEvent&amp; event)
+ {
+-  std::cout &lt;&lt; &quot;Workspace: &quot; &lt;&lt; event.id &lt;&lt; std::endl;
+   WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
+   if (it != impl-&gt;tools.end())
+     it-&gt;second.on_mouse_down(event);
++  else
++    std::cout &lt;&lt; &quot;Workspace: &quot; &lt;&lt; event.id &lt;&lt; std::endl;
+ }
+ 
+ EditorMap
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-07-11 14:33:23 UTC (rev 638)
++++ trunk/supertux/gui.rb	2006-07-11 15:12:25 UTC (rev 639)
+@@ -79,14 +79,6 @@
+     }
+ 
+     create_button_panel(buttonpanel_rect)
+-
+-    # FIXME: Having position in the Menus here is EXTREMLY ugly
+-    @tilegroup_menu = Menu.new(CL_Point.new(35*15+2, 54), @gui.get_component())
+-    @tilegroup_menu.add_item($mysprite, &quot;All Tiles&quot;, proc{@tileselector.set_tiles($tileset.get_tiles())})
+-    $tileset.tilegroups.each { |tilegroup|
+-      @tilegroup_menu.add_item($mysprite, tilegroup.name, proc{@tileselector.set_tiles(tilegroup.tiles)})
+-    }
+-
+     @recent_files_menu = Menu.new(CL_Point.new(32*2, 54), @gui.get_component())
+ 
+     @layer_menu = Menu.new(CL_Point.new(32*15+2, 54), @gui.get_component())
+@@ -165,7 +157,6 @@
+     
+     connect_v2(@editor_map.sig_on_key(&quot;e&quot;),  proc{ |x, y| gui_show_object_properties()})
+ 
+-
+     connect_v2(@editor_map.sig_on_key(&quot;a&quot;),  proc { |x, y|
+                  pos = @editor_map.screen2world(CL_Point.new(x, y))
+                  rectobj = ObjMapRectObject.new(CL_Rect.new(pos,
+@@ -242,7 +233,15 @@
+     button_panel.add_separator()
+     @run_icon = button_panel.add_icon(&quot;../data/images/icons24/run.png&quot;, proc{ gui_run_level() })
+ 
+-    button_panel.add_icon(&quot;../data/images/icons24/eye.png&quot;, proc{ @tilegroup_menu.run() })
++    @tilegroup_icon = button_panel.add_icon(&quot;../data/images/icons24/eye.png&quot;, proc{ @tilegroup_menu.run() })
++
++    @tilegroup_menu = Menu.new(CL_Point.new(@tilegroup_icon.get_screen_x(), 
++                                            @tilegroup_icon.get_screen_y() + @tilegroup_icon.get_height() - 2),
++                               @gui.get_component())
++    @tilegroup_menu.add_item($mysprite, &quot;All Tiles&quot;, proc{@tileselector.set_tiles($tileset.get_tiles())})
++    $tileset.tilegroups.each { |tilegroup|
++      @tilegroup_menu.add_item($mysprite, tilegroup.name, proc{@tileselector.set_tiles(tilegroup.tiles)})
++    }
+   end
+ 
+   def on_worldmap_object_drop(brush, pos)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000135.html">[Flexlay-commit] r638 - in trunk: clanlib/GL/GLX lib
+</A></li>
+	<LI>Next message: <A HREF="000137.html">[Flexlay-commit] r640 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#136">[ date ]</a>
+              <a href="thread.html#136">[ thread ]</a>
+              <a href="subject.html#136">[ subject ]</a>
+              <a href="author.html#136">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

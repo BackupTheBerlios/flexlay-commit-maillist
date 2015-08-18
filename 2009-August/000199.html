@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r706 - trunk/flexlay/windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r706%20-%20trunk/flexlay/windstille&In-Reply-To=%3C200908011757.n71HvHFl004661%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000198.html">
+   <LINK REL="Next"  HREF="000200.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r706 - trunk/flexlay/windstille</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r706%20-%20trunk/flexlay/windstille&In-Reply-To=%3C200908011757.n71HvHFl004661%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r706 - trunk/flexlay/windstille">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Aug  1 19:57:17 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000198.html">[Flexlay-commit] r705 - in trunk/netbrush: . src src/math src/widget
+</A></li>
+        <LI>Next message: <A HREF="000200.html">[Flexlay-commit] r707 - in trunk/flexlay: . lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#199">[ date ]</a>
+              <a href="thread.html#199">[ thread ]</a>
+              <a href="subject.html#199">[ subject ]</a>
+              <a href="author.html#199">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-08-01 19:57:17 +0200 (Sat, 01 Aug 2009)
+New Revision: 706
+
+Modified:
+   trunk/flexlay/windstille/controller.rb
+   trunk/flexlay/windstille/gui.rb
+   trunk/flexlay/windstille/sector.rb
+   trunk/flexlay/windstille/tileset.rb
+Log:
+Old changes floating around in my work dir
+
+Modified: trunk/flexlay/windstille/controller.rb
+===================================================================
+--- trunk/flexlay/windstille/controller.rb	2009-08-01 17:54:10 UTC (rev 705)
++++ trunk/flexlay/windstille/controller.rb	2009-08-01 17:57:17 UTC (rev 706)
+@@ -31,7 +31,7 @@
+ 
+   def load_level(filename)
+     $startlevel = Sector.new(filename)
+-    $startlevel.activate($workspace)
++    $startlevel.activate($gui.workspace)
+     add_recent_file(filename)
+   end
+ 
+
+Modified: trunk/flexlay/windstille/gui.rb
+===================================================================
+--- trunk/flexlay/windstille/gui.rb	2009-08-01 17:54:10 UTC (rev 705)
++++ trunk/flexlay/windstille/gui.rb	2009-08-01 17:57:17 UTC (rev 706)
+@@ -126,6 +126,8 @@
+   end
+ 
+   def show_layer(layer)
++    puts @workspace.get_map().get_metadata().layers
++
+     if layer == :background then
+       @button_panel.items[&quot;background&quot;].set_down();
+       TilemapLayer.set_current(@workspace.get_map().get_metadata().background)
+
+Modified: trunk/flexlay/windstille/sector.rb
+===================================================================
+--- trunk/flexlay/windstille/sector.rb	2009-08-01 17:54:10 UTC (rev 705)
++++ trunk/flexlay/windstille/sector.rb	2009-08-01 17:57:17 UTC (rev 706)
+@@ -142,7 +142,7 @@
+     # FIXME: Data might not get freed since its 'recursively' refcounted
+     @editormap.set_data(self)
+ 
+-    @current_layer = 1
++    @current_layer = 2
+ 
+     puts @editormap
+     puts @layers
+@@ -150,7 +150,7 @@
+ 
+   def activate(workspace)
+     $gui.workspace.set_map(@editormap)
+-
++    puts &quot;Activate: #{@current_layer} #{@layers.inspect}&quot;
+     TilemapLayer.set_current(@layers[@current_layer])
+     ObjectLayer.set_current(@objects)
+     
+
+Modified: trunk/flexlay/windstille/tileset.rb
+===================================================================
+--- trunk/flexlay/windstille/tileset.rb	2009-08-01 17:54:10 UTC (rev 705)
++++ trunk/flexlay/windstille/tileset.rb	2009-08-01 17:57:17 UTC (rev 706)
+@@ -77,10 +77,10 @@
+         name  = get_value_from_tree(['name', '_'], data, &quot;Unnamed&quot;)
+         tiles = get_value_from_tree(['tiles'], data, [])
+         
+-        if not @tilegroups then
+-          @tilegroups = []
++        if not $tileset.tilegroups then
++          $tileset.tilegroups = []
+         end
+-        @tilegroups.push(TileGroup.new(name, tiles))
++        $tileset.tilegroups.push(TileGroup.new(name, tiles))
+         
+       when :tiles
+         data   = i[1..-1]
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000198.html">[Flexlay-commit] r705 - in trunk/netbrush: . src src/math src/widget
+</A></li>
+	<LI>Next message: <A HREF="000200.html">[Flexlay-commit] r707 - in trunk/flexlay: . lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#199">[ date ]</a>
+              <a href="thread.html#199">[ thread ]</a>
+              <a href="subject.html#199">[ subject ]</a>
+              <a href="author.html#199">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

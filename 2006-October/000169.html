@@ -1,0 +1,664 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r674 - in trunk/netbrush/src: . widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r674%20-%20in%20trunk/netbrush/src%3A%20.%20widget&In-Reply-To=%3C200610282027.k9SKRlBd024491%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000168.html">
+   <LINK REL="Next"  HREF="000170.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r674 - in trunk/netbrush/src: . widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r674%20-%20in%20trunk/netbrush/src%3A%20.%20widget&In-Reply-To=%3C200610282027.k9SKRlBd024491%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r674 - in trunk/netbrush/src: . widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Oct 28 22:27:47 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000168.html">[Flexlay-commit] r673 - in trunk/netbrush: . data data/fonts src
+</A></li>
+        <LI>Next message: <A HREF="000170.html">[Flexlay-commit] r675 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#169">[ date ]</a>
+              <a href="thread.html#169">[ thread ]</a>
+              <a href="subject.html#169">[ subject ]</a>
+              <a href="author.html#169">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-28 22:27:46 +0200 (Sat, 28 Oct 2006)
+New Revision: 674
+
+Modified:
+   trunk/netbrush/src/airbrush_tool.cpp
+   trunk/netbrush/src/airbrush_tool.hpp
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/client_connection.cpp
+   trunk/netbrush/src/color_display.cpp
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/controller.hpp
+   trunk/netbrush/src/globals.cpp
+   trunk/netbrush/src/globals.hpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/screen_buffer.hpp
+   trunk/netbrush/src/server_connection.cpp
+   trunk/netbrush/src/text_view.cpp
+   trunk/netbrush/src/text_view.hpp
+   trunk/netbrush/src/widget/scrollbar.cpp
+   trunk/netbrush/src/widget/slider_widget.cpp
+   trunk/netbrush/src/widget/slider_widget.hpp
+Log:
+- added text view
+
+Modified: trunk/netbrush/src/airbrush_tool.cpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/airbrush_tool.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -33,6 +33,7 @@
+ #include &quot;airbrush_tool.hpp&quot;
+ 
+ AirbrushTool::AirbrushTool()
++  : current_stroke(0)
+ {
+ }
+ 
+
+Modified: trunk/netbrush/src/airbrush_tool.hpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.hpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/airbrush_tool.hpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -32,6 +32,7 @@
+ class AirbrushTool : public Tool
+ {
+ private:
++  Stroke* current_stroke;
+ 
+ public:
+   AirbrushTool();
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/client.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -19,7 +19,6 @@
+ #include &quot;widget/widget_manager.hpp&quot;
+ #include &quot;widget/scrollbar.hpp&quot;
+ #include &quot;widget/button.hpp&quot;
+-#include &quot;brush_widget.hpp&quot;
+ #include &quot;navigation.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+ #include &quot;command_line.hpp&quot;
+@@ -105,10 +104,6 @@
+                 //quit(1);
+               }
+             }
+-          else if (event.key.keysym.sym == SDLK_u)
+-            {
+-              navigation-&gt;update();
+-            }
+           else if (event.key.keysym.sym == SDLK_ESCAPE)
+             {
+               exit(EXIT_SUCCESS);
+@@ -279,9 +274,6 @@
+     widget_manager = new WidgetManager();
+     controller     = new Controller();
+ 
+-    widget_manager-&gt;add(new TextView(Rect(38, screen-&gt;h - 38,
+-                                          screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h)));
+-
+     widget_manager-&gt;add(navigation = new Navigation(Rect(Point(screen-&gt;w - 128 - 2, screen-&gt;h - 128 - 2),
+                                                          Size(128, 128))));
+     {
+@@ -306,10 +298,6 @@
+                         new Scrollbar(0, canvas_width, screen_buffer-&gt;get_rect().get_width(), Scrollbar::HORIZONTAL,
+                                       Rect(38, screen-&gt;h - 16 - 2 - 38,
+                                            screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 2 - 38)));
+-    
+-    brush_widget = new BrushWidget(Rect(Point(screen-&gt;w-128, 128+24+24), Size(128, 128)));
+-    
+-    widget_manager-&gt;add(brush_widget);
+ 
+     // Main Loop
+     while(true)
+
+Modified: trunk/netbrush/src/client_connection.cpp
+===================================================================
+--- trunk/netbrush/src/client_connection.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/client_connection.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -215,6 +215,7 @@
+   else if (tokens.size() &gt;= 1 &amp;&amp; 
+            (tokens[0] == &quot;dab&quot; ||
+             tokens[0] == &quot;stroke_begin&quot; ||
++            tokens[0] == &quot;message&quot;      ||
+             tokens[0] == &quot;stroke_end&quot;   ||
+             tokens[0] == &quot;set_brush&quot;    ||
+             tokens[0] == &quot;set_generic_brush&quot; ||
+
+Modified: trunk/netbrush/src/color_display.cpp
+===================================================================
+--- trunk/netbrush/src/color_display.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/color_display.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -43,6 +43,7 @@
+       std::swap(background, foreground);
+       controller-&gt;set_color(foreground);
+       set_dirty(true);
++      controller-&gt;puts(&quot;Colors swapped&quot;);
+     }
+ }
+ 
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/controller.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -33,47 +33,48 @@
+ #include &quot;widget/slider_widget.hpp&quot;
+ #include &quot;brush_widget.hpp&quot;
+ #include &quot;widget/button.hpp&quot;
++#include &quot;text_view.hpp&quot;
+ #include &quot;widget/widget_manager.hpp&quot;
+ #include &quot;controller.hpp&quot;
+ 
+ class RadiusCallback : public SliderCallback
+ {
+ public:
+-  void operator()(float v) {
+-    controller-&gt;set_generic_brush_radius(v * 100.0f + 0.1f);
++  void operator()(int v) {
++    controller-&gt;set_generic_brush_radius(v/1000.0f);
+   }
+ };
+ 
+ class SpikeCallback : public SliderCallback
+ {
+ public:
+-  void operator()(float v) {
+-    controller-&gt;set_generic_brush_spikes(int(v*18) + 2);
++  void operator()(int v) {
++    controller-&gt;set_generic_brush_spikes(v);
+   }
+ };
+ 
+ class HardnessCallback : public SliderCallback
+ {
+ public:
+-  void operator()(float v) {
+-    controller-&gt;set_generic_brush_hardness(v);
++  void operator()(int v) {
++    controller-&gt;set_generic_brush_hardness(v/1000.0f);
+   }
+ };
+ 
+ class AspectRatioCallback : public SliderCallback
+ {
+ public:
+-  void operator()(float v) {
+-    controller-&gt;set_generic_brush_aspect_ratio(v*19.0f + 1.0f);
++  void operator()(int v) {
++    controller-&gt;set_generic_brush_aspect_ratio(v/1000.0f);
+   }
+ };
+ 
+ class AngleCallback : public SliderCallback
+ {
+ public:
+-  void operator()(float v) 
++  void operator()(int v) 
+   {
+-    controller-&gt;set_generic_brush_angle(v * 180.0f);
++    controller-&gt;set_generic_brush_angle(v/1000.0f);
+   }
+ };
+ 
+@@ -117,6 +118,9 @@
+                                      Rect(Point(2, 2+2*34), Size(34, 34)),
+                                      new ToolButtonCallback(DrawingParameter::TOOL_COLOR_PICKER)));
+ 
++    widget_manager-&gt;add(text_view = new TextView(Rect(38, screen-&gt;h - 38,
++                                                      screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h)));
++
+   // Color Selection
+   alpha_picker            = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
+   saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
+@@ -129,19 +133,20 @@
+   widget_manager-&gt;add(color_display);
+ 
+   // Brush Slider
+-  radius_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(0)), Size(128, 24)),
++  radius_slider = new SliderWidget(100, 48*1000, 1, 
++                                   Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(0)), Size(128, 24)),
+                                    new RadiusCallback());
+   
+-  spike_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(1)), Size(128, 24)),
++  spike_slider = new SliderWidget(2, 20, 1, Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(1)), Size(128, 24)),
+                                   new SpikeCallback());
+   
+-  hardness_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(2)), Size(128, 24)),
++  hardness_slider = new SliderWidget(0, 1000, 1, Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(2)), Size(128, 24)),
+                                      new HardnessCallback());
+   
+-  aspect_ratio_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(3)), Size(128, 24)),
++  aspect_ratio_slider = new SliderWidget(1 * 1000, 20 * 1000, 1, Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(3)), Size(128, 24)),
+                                          new AspectRatioCallback());
+   
+-  angle_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(4)), Size(128, 24)),
++  angle_slider = new SliderWidget(0, 180 * 1000, 1, Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(4)), Size(128, 24)),
+                                   new AngleCallback());
+   widget_manager-&gt;add(radius_slider);
+   widget_manager-&gt;add(spike_slider);
+@@ -149,6 +154,11 @@
+   widget_manager-&gt;add(aspect_ratio_slider);
+   widget_manager-&gt;add(angle_slider);
+ 
++  brush_widget = new BrushWidget(Rect(Point(screen-&gt;w-128, 128+24+24), Size(128, 128)));
++  widget_manager-&gt;add(brush_widget);
++
++  text_view-&gt;put(&quot;netBrush Version 0.0.1\n&quot;);
++  set_generic_brush(client_draw_param-&gt;generic_brush);
+ }
+ 
+ 
+@@ -185,6 +195,14 @@
+ {
+   client_draw_param-&gt;generic_brush.shape = shape;
+   set_generic_brush(client_draw_param-&gt;generic_brush);
++  
++  /*
++    radius_slider-&gt;set_pos();
++  spike_slider-&gt;set_pos();;
++  hardness_slider-&gt;set_pos();
++  aspect_ratio_slider-&gt;set_pos();
++  angle_slider-&gt;set_pos();
++  */
+ }
+ 
+ void
+@@ -229,6 +247,12 @@
+   delete client_draw_param-&gt;brush_buffer;
+   client_draw_param-&gt;brush_buffer = brush.generate();
+   brush_widget-&gt;set_brush(client_draw_param-&gt;brush_buffer);
++  
++  radius_slider-&gt;set_pos(int(client_draw_param-&gt;generic_brush.radius * 1000));
++  spike_slider-&gt;set_pos(client_draw_param-&gt;generic_brush.spikes);
++  hardness_slider-&gt;set_pos(int(client_draw_param-&gt;generic_brush.hardness * 1000));
++  aspect_ratio_slider-&gt;set_pos(int(client_draw_param-&gt;generic_brush.aspect_ratio * 1000));
++  angle_slider-&gt;set_pos(int(client_draw_param-&gt;generic_brush.angle * 1000));
+ 
+   update_mouse_cursor();
+ }
+@@ -320,4 +344,10 @@
+   delete[] data;
+ }
+ 
++void
++Controller::puts(const std::string&amp; str)
++{
++  text_view-&gt;put(str+&quot;\n&quot;);
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/controller.hpp
+===================================================================
+--- trunk/netbrush/src/controller.hpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/controller.hpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -33,6 +33,8 @@
+ #include &quot;generic_brush.hpp&quot;
+ 
+ class SliderWidget;
++class TextView;
++class BrushWidget;
+ 
+ /** */
+ class Controller
+@@ -43,6 +45,9 @@
+   AlphaPicker*           alpha_picker;
+   ColorDisplay*          color_display;
+ 
++  BrushWidget* brush_widget;
++  TextView* text_view;
++
+   SliderWidget* radius_slider;
+   SliderWidget* spike_slider;
+   SliderWidget* hardness_slider;
+@@ -69,6 +74,8 @@
+   void set_generic_brush_angle(float angle);
+   void set_generic_brush(const GenericBrush&amp; brush);
+ 
++  void puts(const std::string&amp; str);
++
+   void update_mouse_cursor();
+ private:
+   Controller (const Controller&amp;);
+
+Modified: trunk/netbrush/src/globals.cpp
+===================================================================
+--- trunk/netbrush/src/globals.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/globals.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -33,8 +33,6 @@
+ 
+ std::map&lt;int, ClientState*&gt; client_states;
+ 
+-BrushWidget*      brush_widget = 0;
+-Stroke*           current_stroke = 0;
+ ServerConnection* server = 0;
+ 
+ Scrollbar* horizontal_scrollbar = 0;
+
+Modified: trunk/netbrush/src/globals.hpp
+===================================================================
+--- trunk/netbrush/src/globals.hpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/globals.hpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -40,7 +40,6 @@
+ class DrawingContext;
+ class DrawingParameter;
+ class WidgetManager;
+-class BrushWidget;
+ class ServerConnection;
+ class Scrollbar;
+ class Navigation;
+@@ -49,7 +48,6 @@
+ 
+ extern Scrollbar* horizontal_scrollbar;
+ extern Scrollbar* vertical_scrollbar;
+-extern BrushWidget* brush_widget;
+ extern DrawingContext*   draw_ctx;
+ extern DrawingParameter* client_draw_param;
+ extern std::map&lt;int, ClientState*&gt; client_states;
+@@ -58,7 +56,6 @@
+ extern WidgetManager* widget_manager;
+ 
+ extern ServerConnection* server;
+-extern Stroke* current_stroke;
+ 
+ extern Navigation* navigation;
+ extern Controller* controller;
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -116,7 +116,7 @@
+       dirty_region.top  &lt;  dirty_region.bottom)
+     {
+       draw_ctx-&gt;draw(target, dirty_region, trans_x, trans_y);
+-      if (!scrolling)
++      if (!complete_refresh)
+         stroke_buffer-&gt;draw(target, dirty_region, trans_x, trans_y);
+   
+       if (complete_refresh)
+@@ -239,7 +239,6 @@
+ void
+ ScreenBuffer::force_full_refresh()
+ {
+-  // FIXME: Ugly! Add function for fullscreen refresh in screenbuffer
+   Rect r(0, 0, screen_buffer-&gt;get_rect().get_width(), screen_buffer-&gt;get_rect().get_height());
+   r.left   -= scroll_offset_x;
+   r.right  -= scroll_offset_x;
+
+Modified: trunk/netbrush/src/screen_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.hpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/screen_buffer.hpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -38,7 +38,6 @@
+   //SDL_Surface* buffer;
+   Rect dirty_region;
+ 
+-  bool scrolling;
+   bool complete_refresh;
+ 
+   int scroll_offset_x;
+
+Modified: trunk/netbrush/src/server_connection.cpp
+===================================================================
+--- trunk/netbrush/src/server_connection.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/server_connection.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -28,6 +28,7 @@
+ #include &quot;globals.hpp&quot;
+ #include &quot;client_state.hpp&quot;
+ #include &quot;color.hpp&quot;
++#include &quot;controller.hpp&quot;
+ #include &quot;drawing_context.hpp&quot;
+ #include &quot;drawing_parameter.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+@@ -247,6 +248,13 @@
+                                                 atoi(tokens[4].c_str()), 
+                                                 atoi(tokens[5].c_str())));
+                 }
++              else if (tokens.size() &gt;= 3 &amp;&amp; tokens[2] == &quot;message&quot;)
++                {
++                  std::string str;
++                  for(int i = 3; i &lt; int(tokens.size()); ++i)
++                    str += tokens[i] + &quot; &quot;;
++                  controller-&gt;puts(str);
++                }
+               else if (tokens.size() == 6 &amp;&amp; tokens[2] == &quot;dab&quot;)
+                 {
+                   client_state-&gt;dab(atoi(tokens[3].c_str()), 
+
+Modified: trunk/netbrush/src/text_view.cpp
+===================================================================
+--- trunk/netbrush/src/text_view.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/text_view.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -33,11 +33,10 @@
+ {
+   SDL_Surface* temp = IMG_Load(&quot;data/fonts/8x8font.png&quot;);
+   font = TTY_CreateFont(temp, 8, 8, 
+-                    &quot;\x7f                                !\&quot;#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;
+-                    &quot;[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~&quot;);
+-  tty = TTY_Create(rect.get_width()/8, rect.get_height()/8, font);
+-  TTY_Clear(tty);
+-  TTY_printf(tty, &quot;netBrush Version 0.0.1&quot;);
++                        &quot;\x7f                                &quot;
++                        &quot;!\&quot;#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;
++                        &quot;[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~&quot;);
++  tty = TTY_Create(rect.get_width()/8, rect.get_height()/8+1, font);
+ }
+  
+ TextView::~TextView()
+@@ -60,7 +59,7 @@
+ void
+ TextView::draw(SDL_Surface* target)
+ {
+-  if (0)
++  if (1)
+     {
+       SDL_Rect r;
+       r.x = get_rect().left;
+@@ -68,9 +67,16 @@
+       r.w = get_rect().get_width();
+       r.h = get_rect().get_height();
+ 
+-      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 255, 255, 255));
++      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 64, 64, 64));
+     }
+   TTY_Blit(tty, target, get_rect().left, get_rect().top);
+ }
+ 
++void
++TextView::put(const std::string&amp; str)
++{
++  TTY_write(tty, str.c_str(), str.size());
++  set_dirty(true);
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/text_view.hpp
+===================================================================
+--- trunk/netbrush/src/text_view.hpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/text_view.hpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -49,7 +49,8 @@
+   void on_leave() {}
+ 
+   void draw(SDL_Surface* target);
+-  
++  void put(const std::string&amp; str);
++
+ private:
+   TextView (const TextView&amp;);
+   TextView&amp; operator= (const TextView&amp;);
+
+Modified: trunk/netbrush/src/widget/scrollbar.cpp
+===================================================================
+--- trunk/netbrush/src/widget/scrollbar.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/widget/scrollbar.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -79,8 +79,11 @@
+ void
+ Scrollbar::set_pos(int p)
+ {
+-  pos = p;
+-  set_dirty(true);
++  if (p != pos)
++    {
++      pos = p;
++      set_dirty(true);
++    }
+ }
+ 
+ /* EOF */
+
+Modified: trunk/netbrush/src/widget/slider_widget.cpp
+===================================================================
+--- trunk/netbrush/src/widget/slider_widget.cpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/widget/slider_widget.cpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -28,8 +28,14 @@
+ #include &quot;widget_manager.hpp&quot;
+ #include &quot;slider_widget.hpp&quot;
+ 
+-SliderWidget::SliderWidget(const Rect&amp; rect_, SliderCallback* callback_)
+-  : Widget(rect_), callback(callback_), pos(0.5f), dragging(false)
++SliderWidget::SliderWidget(int min_, int max_, int page_step_, const Rect&amp; rect_, SliderCallback* callback_)
++  : Widget(rect_), 
++    min(min_),
++    max(max_),
++    page_step(page_step_),
++    pos(min_),
++    callback(callback_), 
++    dragging(false)
+ {
+ }
+ 
+@@ -44,8 +50,8 @@
+   set_dirty(true);
+   if (dragging)
+     {
+-      pos = float(motion.x) / get_rect().get_width();
+-      pos = std::max(0.0f, std::min(pos, 1.0f));
++      pos = min + motion.x * (max - min) / get_rect().get_width();
++      pos = std::max(min, std::min(pos, max));
+       (*callback)(pos);
+     }
+ 
+@@ -65,8 +71,8 @@
+         {
+           dragging = true;
+ 
+-          pos = float(button.x) / get_rect().get_width();
+-          pos = std::max(0.0f, std::min(pos, 1.0f));
++          pos = min + button.x * (max - min) / get_rect().get_width();
++          pos = std::max(min, std::min(pos, max));
+ 
+           (*callback)(pos);
+ 
+@@ -105,7 +111,7 @@
+   SDL_FillRect(target, &amp;rect, SDL_MapRGB(target-&gt;format, 100, 100, 100));
+ 
+   SDL_Rect slider;
+-  slider.x = int(get_rect().get_width() * pos) + get_rect().left - 4;
++  slider.x = int(get_rect().get_width() * (pos - min)/(max - min)) + get_rect().left - 4;
+   slider.y = 2 + get_rect().top;
+   slider.w = 8;
+   slider.h = get_rect().get_height() - 4;
+@@ -113,4 +119,14 @@
+   SDL_FillRect(target, &amp;slider, SDL_MapRGB(target-&gt;format, 0, 0, 0));
+ }
+ 
++void
++SliderWidget::set_pos(int v)
++{
++  if (pos != v)
++    {
++      pos = v;
++      set_dirty(true);
++    }
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/widget/slider_widget.hpp
+===================================================================
+--- trunk/netbrush/src/widget/slider_widget.hpp	2006-10-24 14:22:36 UTC (rev 673)
++++ trunk/netbrush/src/widget/slider_widget.hpp	2006-10-28 20:27:46 UTC (rev 674)
+@@ -34,7 +34,7 @@
+ public:
+   SliderCallback() {}
+   virtual ~SliderCallback() {}
+-  virtual void operator()(float) =0;
++  virtual void operator()(int) =0;
+ 
+ private:
+   SliderCallback (const SliderCallback&amp;);
+@@ -45,12 +45,16 @@
+ class SliderWidget : public Widget
+ {
+ private:
++  int min;
++  int max;
++  int page_step;
++  int pos;
++
+   SliderCallback* callback;
+-  float pos;
+   bool  dragging;
+   
+ public:
+-  SliderWidget(const Rect&amp; rect_, SliderCallback* callback);
++  SliderWidget(int min, int max, int page_step, const Rect&amp; rect_, SliderCallback* callback);
+   ~SliderWidget();
+ 
+   void on_mouse_motion(const MouseMotionEvent&amp; motion);
+@@ -61,6 +65,8 @@
+ 
+   void draw(SDL_Surface* target);
+ 
++  void set_pos(int v);
++
+ private:
+   SliderWidget (const SliderWidget&amp;);
+   SliderWidget&amp; operator= (const SliderWidget&amp;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000168.html">[Flexlay-commit] r673 - in trunk/netbrush: . data data/fonts src
+</A></li>
+	<LI>Next message: <A HREF="000170.html">[Flexlay-commit] r675 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#169">[ date ]</a>
+              <a href="thread.html#169">[ thread ]</a>
+              <a href="subject.html#169">[ subject ]</a>
+              <a href="author.html#169">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

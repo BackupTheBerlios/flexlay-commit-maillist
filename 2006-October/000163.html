@@ -1,0 +1,1281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r668 - in trunk/netbrush: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r668%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610202315.k9KNFrFj015875%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000162.html">
+   <LINK REL="Next"  HREF="000164.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r668 - in trunk/netbrush: . src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r668%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610202315.k9KNFrFj015875%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r668 - in trunk/netbrush: . src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Oct 21 01:15:53 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000162.html">[Flexlay-commit] r667 - trunk/netbrush/src
+</A></li>
+        <LI>Next message: <A HREF="000164.html">[Flexlay-commit] r669 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#163">[ date ]</a>
+              <a href="thread.html#163">[ thread ]</a>
+              <a href="subject.html#163">[ subject ]</a>
+              <a href="author.html#163">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-21 01:15:53 +0200 (Sat, 21 Oct 2006)
+New Revision: 668
+
+Added:
+   trunk/netbrush/src/client_connection.cpp
+   trunk/netbrush/src/client_connection.hpp
+Modified:
+   trunk/netbrush/
+   trunk/netbrush/README
+   trunk/netbrush/SConstruct
+   trunk/netbrush/src/
+   trunk/netbrush/src/alpha_picker.hpp
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/color.hpp
+   trunk/netbrush/src/generic_brush.cpp
+   trunk/netbrush/src/generic_brush.hpp
+   trunk/netbrush/src/globals.cpp
+   trunk/netbrush/src/globals.hpp
+   trunk/netbrush/src/hue_picker.cpp
+   trunk/netbrush/src/hue_picker.hpp
+   trunk/netbrush/src/saturation_value_picker.cpp
+   trunk/netbrush/src/saturation_value_picker.hpp
+   trunk/netbrush/src/server.cpp
+Log:
+- moved some stuff into controller class
+
+
+Property changes on: trunk/netbrush
+___________________________________________________________________
+Name: svn:ignore
+   - 
+netbrush-client
+netbrush-server
+.sconsign.dblite
+
+   + 
+libcommon.a
+netbrush-client
+netbrush-server
+.sconsign.dblite
+
+
+Modified: trunk/netbrush/README
+===================================================================
+--- trunk/netbrush/README	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/README	2006-10-20 23:15:53 UTC (rev 668)
+@@ -16,7 +16,7 @@
+ 
+ Latest version of netBrush can be found at, no real webside exist yet:
+ 
+- * <A HREF="http://pingus.seul.org/~grumbel/tmp/">http://pingus.seul.org/~grumbel/tmp/</A>
++ * svn co <A HREF="svn://svn.berlios.de/flexlay/trunk/netbrush/">svn://svn.berlios.de/flexlay/trunk/netbrush/</A>
+ 
+ Question coments can go to the author, who is reachable at
+ <A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de.</A>
+@@ -28,13 +28,13 @@
+ netBrush is client/server based, so to take full use of it, you have
+ to start the server first, a simple:
+ 
+-./server 4711
++./netbrush-server 4711
+ 
+ will do, 4711 being the port number.
+ 
+ To start the client you have to give it a hostname and a port, like
+ this:
+ 
+-./client localhost 4711
++./netbrush-client localhost 4711
+ 
+ # EOF #
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/SConstruct	2006-10-20 23:15:53 UTC (rev 668)
+@@ -4,20 +4,27 @@
+ # netbrush_env['CXXFLAGS'] += ['-O2', '-Wall', '-g']
+ # netbrush_env.Program('netbrush', ['net.cpp', 'vector.cpp'])
+ 
++common_env = Environment()
++common_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
++libcommon = common_env.StaticLibrary('common', [
++        'src/command_line.cpp',
++        'src/command_line_generic.cpp',
++])
++
+ server_env = Environment()
+ server_env.ParseConfig('sdl-config --cflags --libs')
+ server_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
+-server_env['LIBS'] += ['SDL_net']
++server_env['LIBS'] += ['SDL_net'] + libcommon
+ server_env.Program('netbrush-server', [
+-        'src/server.cpp'
++        'src/server.cpp',
++        'src/client_connection.cpp',
+ ])
+ 
+-
+ client_env = Environment()
+ client_env.ParseConfig('sdl-config --cflags --libs')
+ client_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
+ client_env['CPPPATH'] += ['src/']
+-client_env['LIBS'] += ['SDL_image', 'SDL_net']
++client_env['LIBS'] += ['SDL_image', 'SDL_net'] + libcommon
+ client_env.Program('netbrush-client', [
+         'src/alpha_picker.cpp',
+         'src/brush_widget.cpp',
+@@ -49,8 +56,7 @@
+         'src/widget/widget_manager.cpp',
+         'src/navigation.cpp',
+         'src/graphic_context_state.cpp',
+-        'src/command_line.cpp',
+-        'src/command_line_generic.cpp'
++        'src/controller.cpp',
+ #        'src/widget/events.cpp',
+ ])
+ 
+
+
+Property changes on: trunk/netbrush/src
+___________________________________________________________________
+Name: svn:ignore
+   + .sconsign.dblite
+
+
+Modified: trunk/netbrush/src/alpha_picker.hpp
+===================================================================
+--- trunk/netbrush/src/alpha_picker.hpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/alpha_picker.hpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -28,6 +28,8 @@
+ 
+ #include &quot;widget/widget.hpp&quot;
+ 
++class Color;
++
+ /** */
+ class AlphaPicker : public Widget
+ {
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/client.cpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -19,14 +19,12 @@
+ #include &quot;widget/widget_manager.hpp&quot;
+ #include &quot;widget/scrollbar.hpp&quot;
+ #include &quot;widget/button.hpp&quot;
+-#include &quot;saturation_value_picker.hpp&quot;
+-#include &quot;hue_picker.hpp&quot;
+-#include &quot;alpha_picker.hpp&quot;
+ #include &quot;brush_widget.hpp&quot;
+ #include &quot;navigation.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+ #include &quot;command_line.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
++#include &quot;controller.hpp&quot;
+ 
+ SDL_Rect* make_rect(int x, int y, int w, int h)
+ {
+@@ -124,66 +122,6 @@
+     }  
+ }
+ 
+-class RadiusCallback : public SliderCallback
+-{
+-public:
+-  void operator()(float v) 
+-  {
+-    float radius = v * 100.0f + 0.1f;
+-    client_draw_param-&gt;generic_brush.radius = radius;
+-    //std::cout &lt;&lt; &quot;Radius: &quot; &lt;&lt; radius &lt;&lt; std::endl;
+-    brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+-  }
+-};
+-
+-class SpikeCallback : public SliderCallback
+-{
+-public:
+-  void operator()(float v) 
+-  {
+-    int spikes = int(v*18) + 2;
+-    //std::cout &lt;&lt; &quot;Spike: &quot; &lt;&lt; spikes &lt;&lt; std::endl;
+-    client_draw_param-&gt;generic_brush.spikes = spikes;    
+-    brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+-  }
+-};
+-
+-class HardnessCallback : public SliderCallback
+-{
+-public:
+-  void operator()(float v) 
+-  {
+-    float hardness = v;
+-    client_draw_param-&gt;generic_brush.hardness = hardness;
+-    //std::cout &lt;&lt; &quot;Hardness: &quot; &lt;&lt; hardness &lt;&lt; std::endl;
+-    brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+-  }
+-};
+-
+-class AspectRatioCallback : public SliderCallback
+-{
+-public:
+-  void operator()(float v) 
+-  {
+-    float aspect_ratio = v*19.0f + 1.0f;
+-    client_draw_param-&gt;generic_brush.aspect_ratio = aspect_ratio;
+-    //std::cout &lt;&lt; &quot;Aspect_Ratio: &quot; &lt;&lt; aspect_ratio &lt;&lt; std::endl;
+-    brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+-  }
+-};
+-
+-class AngleCallback : public SliderCallback
+-{
+-public:
+-  void operator()(float v) 
+-  {
+-    float angle = v * 360.0f;
+-    client_draw_param-&gt;generic_brush.angle = angle;
+-    //std::cout &lt;&lt; &quot;Angle: &quot; &lt;&lt; angle &lt;&lt; std::endl;
+-    brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+-  }
+-};
+-
+ class ToolButtonCallback : public ButtonCallback
+ {
+ private:
+@@ -340,6 +278,8 @@
+       }
+   
+     widget_manager = new WidgetManager();
++    controller     = new Controller();
++
+     widget_manager-&gt;add(navigation = new Navigation(Rect(Point(screen-&gt;w - 128 - 2, screen-&gt;h - 128 - 2),
+                                                          Size(128, 128))));
+     widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
+@@ -375,37 +315,10 @@
+                         new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_width(), Scrollbar::HORIZONTAL,
+                                       Rect(38, screen-&gt;h - 16 - 2,
+                                            screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 2)));
+-
+-    alpha_picker = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
+-    saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
+-    hue_picker   = new HuePicker(Rect(Point(screen-&gt;w-128, 128), Size(128, 24)));
+-
++    
+     brush_widget = new BrushWidget(Rect(Point(screen-&gt;w-128, 128+24+24), Size(128, 128)));
+     brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+ 
+-    SliderWidget* radius_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(0)), Size(128, 24)),
+-                                                   new RadiusCallback());
+-    widget_manager-&gt;add(radius_slider);
+-
+-    SliderWidget* spike_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(1)), Size(128, 24)),
+-                                                  new SpikeCallback());
+-    widget_manager-&gt;add(spike_slider);
+-
+-    SliderWidget* hardness_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(2)), Size(128, 24)),
+-                                                     new HardnessCallback());
+-    widget_manager-&gt;add(hardness_slider);
+-
+-    SliderWidget* aspect_ratio_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(3)), Size(128, 24)),
+-                                                         new AspectRatioCallback());
+-    widget_manager-&gt;add(aspect_ratio_slider);
+-
+-    SliderWidget* angle_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(4)), Size(128, 24)),
+-                                                  new AngleCallback());
+-    widget_manager-&gt;add(angle_slider);
+-
+-    widget_manager-&gt;add(saturation_value_picker);
+-    widget_manager-&gt;add(hue_picker);
+-    widget_manager-&gt;add(alpha_picker);
+     widget_manager-&gt;add(brush_widget);
+ 
+     // Main Loop
+
+Added: trunk/netbrush/src/client_connection.cpp
+===================================================================
+--- trunk/netbrush/src/client_connection.cpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/client_connection.cpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -0,0 +1,247 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;vector&gt;
++#include &lt;iostream&gt;
++#include &lt;sstream&gt;
++#include &lt;fstream&gt;
++#include &quot;client_connection.hpp&quot;
++
++extern std::vector&lt;ClientConnection*&gt; clients;
++extern std::vector&lt;std::string&gt; drawing_history;
++extern std::ofstream* outfile;
++
++static std::vector&lt;std::string&gt;
++tokenize(const std::string&amp; str, char split_char)
++{
++  std::string::size_type start = 0;
++  std::string::size_type end   = 0;
++
++  std::vector&lt;std::string&gt; tokens;
++
++  while (start &lt; str.size())
++    {
++      if ((end = str.find(split_char, start)) == std::string::npos)
++        {
++          tokens.push_back(str.substr(start));
++          break;
++        }
++
++      const std::string&amp; ret = str.substr(start, end - start);
++
++      if (!ret.empty())
++        tokens.push_back(ret);
++
++      start = end + 1;
++    }
++
++  return tokens;
++}
++
++ClientConnection::ClientConnection(int id_, TCPsocket socket)
++  : id(id_), 
++    tcpsock(socket),
++    invalid(false)
++{
++  buffer_pos = 0;
++  full_client = false;
++}
++  
++bool
++ClientConnection::is_invalid()
++{
++  return invalid;
++}
++
++void
++ClientConnection::update()
++{
++  if (invalid) return;
++
++  if (SDLNet_SocketReady(tcpsock))
++    {
++      const int MAXLEN = 1024;
++      char msg[MAXLEN];
++
++      int result = SDLNet_TCP_Recv(tcpsock, msg, MAXLEN);
++      if(result &lt;= 0) 
++        {
++          // TCP Connection is broken. (because of error or closure)
++          std::cout &lt;&lt; &quot;# Connection break, abort&quot; &lt;&lt; std::endl;
++          invalid = true;
++          return;
++        }
++      else 
++        {
++          for(int i = 0; i &lt; result; ++i)
++            {
++              if (msg[i] == '\n')
++                {
++                  process_line(buffer);
++                  buffer.clear();
++                  buffer_pos = 0;
++                }
++              else
++                {
++                  buffer += msg[i];
++                }
++            }
++        }
++    }
++}
++
++void
++ClientConnection::send_string(const std::string&amp; line)
++{
++  if (full_client)
++    {
++      if (invalid) return;
++        
++      //std::cout &lt;&lt; &quot;Sending: '&quot; &lt;&lt; line &lt;&lt; &quot;' ... &quot; &lt;&lt; std::flush;
++      int result = SDLNet_TCP_Send(tcpsock, const_cast&lt;char*&gt;(line.c_str()), line.length());
++      if (result &lt; int(line.length()))
++        {
++          // It may be good to disconnect sock because it is likely invalid now.
++          printf( &quot;Error: SDLNet_TCP_Send: '%s'\n&quot;, SDLNet_GetError() );
++          invalid = true;
++        }
++      std::cout &lt;&lt; &quot;done&quot; &lt;&lt; std::endl;
++    }
++}
++
++void
++ClientConnection::process_line(const std::string&amp; line)
++{
++  if (invalid) return;
++    
++  std::vector&lt;std::string&gt; tokens = tokenize(line, ' ');
++  if (tokens.size() == 2 &amp;&amp; tokens[0] == &quot;load&quot;)
++    {
++      for(int i = 0; i &lt; int(clients.size()); ++i)
++        {
++          if (clients[i])
++            {
++              clients[i]-&gt;send_string(&quot;clear\n&quot;);
++            }
++        }
++      std::cout &lt;&lt; &quot;# load unimplemented&quot; &lt;&lt; std::endl;
++    }
++  else if (tokens.size() == 2 &amp;&amp; tokens[0] == &quot;import&quot;)
++    {
++      std::cout &lt;&lt; &quot;# import unimplemented&quot; &lt;&lt; std::endl;
++    }
++  else if (tokens.size() == 2 &amp;&amp; tokens[0] == &quot;save&quot;)
++    {
++      for(int i = 0; i &lt; int(tokens[1].size()); ++i)
++        {
++          if (tokens[1][i] == '/' || tokens[1][i] == '.')
++            {
++              tokens[1][i] = '.';
++            }
++        }
++        
++      std::ostringstream filename;
++      filename &lt;&lt; &quot;images/&quot; &lt;&lt; tokens[1] &lt;&lt; &quot;.nbr&quot;;        
++
++      int j = 1;
++      std::string fname = filename.str();
++      while (access(fname.c_str(), F_OK) == 0)
++        {
++          filename.str(&quot;&quot;);
++          filename &lt;&lt; &quot;images/&quot; &lt;&lt; tokens[1] &lt;&lt; &quot;-&quot; &lt;&lt; j &lt;&lt; &quot;.nbr&quot;;
++          fname = filename.str();
++          j += 1;
++        }
++
++      std::cout &lt;&lt; &quot;# writing log to &quot; &lt;&lt; filename.str() &lt;&lt; std::endl;
++      std::ofstream out(fname.c_str());
++      for(int i = 0; i &lt; int(drawing_history.size()); ++i)
++        out &lt;&lt; drawing_history[i];
++      out.close();
++    }
++  else if (tokens.size() == 2 &amp;&amp; tokens[0] == &quot;client_version&quot;)
++    {
++      if (atoi(tokens[1].c_str()) == 1)
++        {
++          full_client = true;
++          for(int i = 0; i &lt; int(drawing_history.size()); ++i)
++            {
++              clients.back()-&gt;send_string(drawing_history[i]);
++            }
++        }
++    }
++  else if (tokens.size() == 1 &amp;&amp; tokens[0] == &quot;clear&quot;)
++    {
++      std::ostringstream filename;
++      filename &lt;&lt; &quot;sessions/session-&quot; &lt;&lt; time(NULL) &lt;&lt; &quot;.nbr&quot;;
++        
++      std::cout &lt;&lt; &quot;# writing log to &quot; &lt;&lt; filename.str() &lt;&lt; std::endl;
++      outfile-&gt;close();
++      delete outfile;
++      outfile = new std::ofstream(filename.str().c_str());
++
++      drawing_history.clear();
++
++      for(int i = 0; i &lt; int(clients.size()); ++i)
++        {
++          if (clients[i])
++            {
++              clients[i]-&gt;send_string(&quot;clear\n&quot;);
++            }
++        }
++    }
++  else if (tokens.size() &gt;= 1 &amp;&amp; 
++           (tokens[0] == &quot;dab&quot; ||
++            tokens[0] == &quot;stroke_begin&quot; ||
++            tokens[0] == &quot;stroke_end&quot;   ||
++            tokens[0] == &quot;set_brush&quot;    ||
++            tokens[0] == &quot;set_generic_brush&quot; ||
++            tokens[0] == &quot;set_color&quot;    ||
++            tokens[0] == &quot;set_tool&quot;     ||
++            tokens[0] == &quot;set_opacity&quot; 
++            ))
++    {
++      std::ostringstream str;
++      str &lt;&lt; &quot;client &quot; &lt;&lt; id &lt;&lt; &quot; &quot; &lt;&lt; line &lt;&lt; std::endl;
++      //std::cout &lt;&lt; &quot;SERVER: &quot; &lt;&lt; str.str();
++      drawing_history.push_back(str.str());
++      (*outfile) &lt;&lt; str.str() &lt;&lt; std::flush;
++
++      for(int i = 0; i &lt; int(clients.size()); ++i)
++        {
++          if (clients[i])
++            {
++              clients[i]-&gt;send_string(str.str());
++              // FIXME: write to file
++            }
++        }
++    }
++  else
++    {
++      std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; line &lt;&lt; std::endl;
++    }
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/client_connection.hpp
+===================================================================
+--- trunk/netbrush/src/client_connection.hpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/client_connection.hpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -0,0 +1,53 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_CLIENT_CONNECTION_HPP
++#define HEADER_CLIENT_CONNECTION_HPP
++
++#include &lt;string&gt;
++#include &quot;SDL_net.h&quot;
++
++class ClientConnection
++{
++public:
++  int id;
++  TCPsocket   tcpsock;
++  int         buffer_pos;
++  std::string buffer;
++  bool        invalid;
++  bool        full_client;
++
++public:
++  ClientConnection(int id_, TCPsocket socket);
++  
++  bool is_invalid();
++  void update();
++  void send_string(const std::string&amp; line);
++  void process_line(const std::string&amp; line);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/color.hpp
+===================================================================
+--- trunk/netbrush/src/color.hpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/color.hpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -41,6 +41,32 @@
+   Uint8 r;
+   Uint8 g;
+   Uint8 b;
++
++  static Color from_hue(Uint8 hue)
++  {
++    static Color colors[] = { Color(255,   0,   0),
++                              Color(255,   0, 255),
++                              Color(  0,   0, 255),
++                              Color(  0, 255, 255),
++                              Color(  0, 255,   0),
++                              Color(255, 255,   0),
++                              Color(255,   0,   0) };
++  
++    int seg_len = (255/6);
++    int seg  = (hue / seg_len);
++    int prog = (hue % seg_len);
++
++    return Color((((seg_len - prog) * colors[seg].r) + (prog * colors[seg+1].r))/seg_len,
++                 (((seg_len - prog) * colors[seg].g) + (prog * colors[seg+1].g))/seg_len,
++                 (((seg_len - prog) * colors[seg].b) + (prog * colors[seg+1].b))/seg_len);
++  }
++
++  void apply_value_saturation(Uint8 value, Uint8 saturation)
++  {
++    r = (0*value + (255-value) * ((255 * saturation + r * (255 - saturation))/255))/255;
++    g = (0*value + (255-value) * ((255 * saturation + g * (255 - saturation))/255))/255;
++    b = (0*value + (255-value) * ((255 * saturation + b * (255 - saturation))/255))/255;
++  }
+ };
+ 
+ #endif
+
+Modified: trunk/netbrush/src/generic_brush.cpp
+===================================================================
+--- trunk/netbrush/src/generic_brush.cpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/generic_brush.cpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -26,7 +26,7 @@
+ #include &quot;generic_brush.hpp&quot;
+ 
+ GrayscaleBuffer*
+-GenericBrush::generate()
++GenericBrush::generate() const
+ {
+   return generate_brushmask(shape, radius, spikes, hardness, aspect_ratio, angle);
+ }
+
+Modified: trunk/netbrush/src/generic_brush.hpp
+===================================================================
+--- trunk/netbrush/src/generic_brush.hpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/generic_brush.hpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -47,7 +47,7 @@
+       angle(0.0f)
+   {}
+ 
+-  GrayscaleBuffer* generate();
++  GrayscaleBuffer* generate() const;
+ };
+ 
+ #endif
+
+Modified: trunk/netbrush/src/globals.cpp
+===================================================================
+--- trunk/netbrush/src/globals.cpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/globals.cpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -33,9 +33,6 @@
+ 
+ std::map&lt;int, ClientState*&gt; client_states;
+ 
+-SaturationValuePicker* saturation_value_picker =0;
+-HuePicker*   hue_picker =0;
+-AlphaPicker*      alpha_picker = 0;
+ BrushWidget*      brush_widget = 0;
+ Stroke*           current_stroke = 0;
+ ServerConnection* server = 0;
+@@ -45,4 +42,6 @@
+ 
+ Navigation* navigation = 0;
+ 
++Controller* controller = 0;
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/globals.hpp
+===================================================================
+--- trunk/netbrush/src/globals.hpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/globals.hpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -32,6 +32,7 @@
+ #include &lt;vector&gt;
+ #include &lt;string&gt;
+ 
++class Controller;
+ class StrokeBuffer;
+ class ScreenBuffer;
+ class Stroke;
+@@ -39,9 +40,6 @@
+ class DrawingContext;
+ class DrawingParameter;
+ class WidgetManager;
+-class SaturationValuePicker;
+-class HuePicker;
+-class AlphaPicker;
+ class BrushWidget;
+ class ServerConnection;
+ class Scrollbar;
+@@ -59,13 +57,11 @@
+ extern StrokeBuffer*     stroke_buffer;
+ extern WidgetManager* widget_manager;
+ 
+-extern SaturationValuePicker* saturation_value_picker;
+-extern HuePicker*   hue_picker;
+-extern AlphaPicker* alpha_picker;
+ extern ServerConnection* server;
+ extern Stroke* current_stroke;
+ 
+ extern Navigation* navigation;
++extern Controller* controller;
+ 
+ #endif
+ 
+
+Modified: trunk/netbrush/src/hue_picker.cpp
+===================================================================
+--- trunk/netbrush/src/hue_picker.cpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/hue_picker.cpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -28,7 +28,7 @@
+ #include &quot;color.hpp&quot;
+ #include &quot;globals.hpp&quot;
+ #include &quot;widget/widget_manager.hpp&quot;
+-#include &quot;saturation_value_picker.hpp&quot;
++#include &quot;controller.hpp&quot;
+ #include &quot;globals.hpp&quot;
+ 
+ #include &quot;hue_picker.hpp&quot;
+@@ -45,7 +45,8 @@
+     for(int x = 0; x &lt; surface-&gt;w; ++x)
+       {
+         int hue = 255 * x / surface-&gt;w;
+-        const Color&amp; color = get_color(hue);
++        
++        const Color&amp; color = Color::from_hue(hue);
+         data[3*(y * surface-&gt;w + x)+0] = color.r;
+         data[3*(y * surface-&gt;w + x)+1] = color.g;
+         data[3*(y * surface-&gt;w + x)+2] = color.b;
+@@ -53,26 +54,6 @@
+   SDL_UnlockSurface(surface);  
+ }
+ 
+-Color
+-HuePicker::get_color(Uint8 hue)
+-{
+-  static Color colors[] = { Color(255,   0,   0),
+-                            Color(255,   0, 255),
+-                            Color(  0,   0, 255),
+-                            Color(  0, 255, 255),
+-                            Color(  0, 255,   0),
+-                            Color(255, 255,   0),
+-                            Color(255,   0,   0) };
+-  
+-  int seg_len = (255/6);
+-  int seg  = (hue / seg_len);
+-  int prog = (hue % seg_len);
+-
+-  return Color((((seg_len - prog) * colors[seg].r) + (prog * colors[seg+1].r))/seg_len,
+-               (((seg_len - prog) * colors[seg].g) + (prog * colors[seg+1].g))/seg_len,
+-               (((seg_len - prog) * colors[seg].b) + (prog * colors[seg+1].b))/seg_len);
+-}
+-
+ void
+ HuePicker::on_mouse_motion(const MouseMotionEvent&amp; motion)
+ {
+@@ -80,7 +61,7 @@
+     {
+       click_pos.x = motion.x;
+       click_pos.y = motion.y;
+-      saturation_value_picker-&gt;set_color(get_color(255 * click_pos.x / get_rect().get_width()));
++      controller-&gt;set_color_hue(255 * click_pos.x / get_rect().get_width());
+       set_dirty(true);
+     }
+ }
+@@ -102,7 +83,7 @@
+           click_pos.x = button.x;
+           click_pos.y = button.y;
+ 
+-          saturation_value_picker-&gt;set_color(get_color(255 * click_pos.x / get_rect().get_width()));
++          controller-&gt;set_color_hue(255 * click_pos.x / get_rect().get_width());
+ 
+           set_dirty(true);
+           widget_manager-&gt;grab(this);
+
+Modified: trunk/netbrush/src/hue_picker.hpp
+===================================================================
+--- trunk/netbrush/src/hue_picker.hpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/hue_picker.hpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -39,8 +39,6 @@
+ public:
+   HuePicker(const Rect&amp; rect);
+ 
+-  Color get_color(Uint8 hue);
+-
+   void on_mouse_motion(const MouseMotionEvent&amp; motion);
+   void on_mouse_button(const MouseButtonEvent&amp; button);
+ 
+
+Modified: trunk/netbrush/src/saturation_value_picker.cpp
+===================================================================
+--- trunk/netbrush/src/saturation_value_picker.cpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/saturation_value_picker.cpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -28,17 +28,13 @@
+ #include &quot;globals.hpp&quot;
+ #include &quot;widget/widget_manager.hpp&quot;
+ #include &quot;color.hpp&quot;
+-#include &quot;alpha_picker.hpp&quot;
++#include &quot;controller.hpp&quot;
+ #include &quot;saturation_value_picker.hpp&quot;
+ 
+ SaturationValuePicker::SaturationValuePicker(const Rect&amp; rect_)
+   : Widget(rect_), dragging(false), click_pos(64, 64)
+ {
+   surface = create_surface(rect_.get_width(), rect_.get_height());
+-  set_color(Color(255, 0, 0));
+-
+-  alpha_picker-&gt;set_color(get_color(255 * click_pos.x/get_rect().get_width(),
+-                                    255 * click_pos.y/get_rect().get_height()));
+ }
+ 
+ void
+@@ -61,8 +57,6 @@
+       }
+   SDL_UnlockSurface(surface);
+   
+-  alpha_picker-&gt;set_color(get_color(255 - 255 * click_pos.x/get_rect().get_width(),
+-                                    255 * click_pos.y/get_rect().get_height()));
+   set_dirty(true);
+ }
+ 
+@@ -82,8 +76,8 @@
+     {
+       click_pos.x = std::min(std::max(0, motion.x), get_rect().get_width());
+       click_pos.y = std::min(std::max(0, motion.y), get_rect().get_height());
+-      alpha_picker-&gt;set_color(get_color(255 - 255 * click_pos.x/get_rect().get_width(),
+-                                        255 * click_pos.y/get_rect().get_height()));
++      controller-&gt;set_color_value_saturation(255 - 255 * click_pos.x/get_rect().get_width(),
++                                             255 * click_pos.y/get_rect().get_height());
+     }
+ }
+ 
+@@ -106,8 +100,8 @@
+       
+           set_dirty(true);
+           widget_manager-&gt;grab(this);
+-          alpha_picker-&gt;set_color(get_color(255 - 255 * click_pos.x/get_rect().get_width(),
+-                                            255 * click_pos.y/get_rect().get_height()));
++          controller-&gt;set_color_value_saturation(255 - 255 * click_pos.x/get_rect().get_width(),
++                                                 255 * click_pos.y/get_rect().get_height());
+         }
+     }
+ }
+
+Modified: trunk/netbrush/src/saturation_value_picker.hpp
+===================================================================
+--- trunk/netbrush/src/saturation_value_picker.hpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/saturation_value_picker.hpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -26,6 +26,7 @@
+ #ifndef HEADER_SATURATION_VALUE_PICKER_HPP
+ #define HEADER_SATURATION_VALUE_PICKER_HPP
+ 
++#include &quot;color.hpp&quot;
+ #include &quot;widget/widget.hpp&quot;
+ 
+ /** */
+
+Modified: trunk/netbrush/src/server.cpp
+===================================================================
+--- trunk/netbrush/src/server.cpp	2006-10-20 14:29:33 UTC (rev 667)
++++ trunk/netbrush/src/server.cpp	2006-10-20 23:15:53 UTC (rev 668)
+@@ -5,6 +5,8 @@
+ #include &lt;vector&gt;
+ #include &quot;SDL.h&quot;
+ #include &quot;SDL_net.h&quot;
++#include &quot;client_connection.hpp&quot;
++#include &quot;command_line.hpp&quot;
+ 
+ #ifdef WIN32
+ #include  &lt;io.h&gt;
+@@ -12,8 +14,6 @@
+ #define F_OK   0
+ #endif
+ 
+-class ClientConnection;
+-
+ std::vector&lt;ClientConnection*&gt; clients;
+ SDLNet_SocketSet socketset;
+ 
+@@ -23,222 +23,6 @@
+ 
+ std::ofstream* outfile = 0;
+ 
+-std::vector&lt;std::string&gt;
+-tokenize(const std::string&amp; str, char split_char)
+-{
+-  std::string::size_type start = 0;
+-  std::string::size_type end   = 0;
+-
+-  std::vector&lt;std::string&gt; tokens;
+-
+-  while (start &lt; str.size())
+-    {
+-      if ((end = str.find(split_char, start)) == std::string::npos)
+-        {
+-          tokens.push_back(str.substr(start));
+-          break;
+-        }
+-
+-      const std::string&amp; ret = str.substr(start, end - start);
+-
+-      if (!ret.empty())
+-        tokens.push_back(ret);
+-
+-      start = end + 1;
+-    }
+-
+-  return tokens;
+-}
+-
+-class ClientConnection
+-{
+-public:
+-  int id;
+-  TCPsocket   tcpsock;
+-  int         buffer_pos;
+-  std::string buffer;
+-  bool        invalid;
+-  bool        full_client;
+-public:
+-  ClientConnection(int id_, TCPsocket socket)
+-    : id(id_), 
+-      tcpsock(socket),
+-      invalid(false)
+-  {
+-    buffer_pos = 0;
+-    full_client = false;
+-  }
+-  
+-  bool is_invalid()
+-  {
+-    return invalid;
+-  }
+-
+-  void update()
+-  {
+-    if (invalid) return;
+-
+-    if (SDLNet_SocketReady(tcpsock))
+-      {
+-        const int MAXLEN = 1024;
+-        char msg[MAXLEN];
+-
+-        int result = SDLNet_TCP_Recv(tcpsock, msg, MAXLEN);
+-        if(result &lt;= 0) 
+-          {
+-            // TCP Connection is broken. (because of error or closure)
+-            std::cout &lt;&lt; &quot;# Connection break, abort&quot; &lt;&lt; std::endl;
+-            invalid = true;
+-            return;
+-          }
+-        else 
+-          {
+-            for(int i = 0; i &lt; result; ++i)
+-              {
+-                if (msg[i] == '\n')
+-                  {
+-                    process_line(buffer);
+-                    buffer.clear();
+-                    buffer_pos = 0;
+-                  }
+-                else
+-                  {
+-                    buffer += msg[i];
+-                  }
+-              }
+-          }
+-      }
+-  }
+-
+-  void send_string(const std::string&amp; line)
+-  {
+-    if (full_client)
+-      {
+-        if (invalid) return;
+-
+-        int result = SDLNet_TCP_Send(tcpsock, const_cast&lt;char*&gt;(line.c_str()), line.length());
+-        if (result &lt; int(line.length()))
+-          {
+-            // It may be good to disconnect sock because it is likely invalid now.
+-            printf( &quot;Error: SDLNet_TCP_Send: '%s'\n&quot;, SDLNet_GetError() );
+-            invalid = true;
+-          }
+-      }
+-  }
+-
+-  void process_line(const std::string&amp; line)
+-  {
+-    if (invalid) return;
+-    
+-    std::vector&lt;std::string&gt; tokens = tokenize(line, ' ');
+-    if (tokens.size() == 2 &amp;&amp; tokens[0] == &quot;load&quot;)
+-      {
+-        for(int i = 0; i &lt; int(clients.size()); ++i)
+-          {
+-            if (clients[i])
+-              {
+-                clients[i]-&gt;send_string(&quot;clear\n&quot;);
+-              }
+-          }
+-        std::cout &lt;&lt; &quot;# load unimplemented&quot; &lt;&lt; std::endl;
+-      }
+-    else if (tokens.size() == 2 &amp;&amp; tokens[0] == &quot;import&quot;)
+-      {
+-        std::cout &lt;&lt; &quot;# import unimplemented&quot; &lt;&lt; std::endl;
+-      }
+-    else if (tokens.size() == 2 &amp;&amp; tokens[0] == &quot;save&quot;)
+-      {
+-        for(int i = 0; i &lt; int(tokens[1].size()); ++i)
+-          {
+-            if (tokens[1][i] == '/' || tokens[1][i] == '.')
+-              {
+-                tokens[1][i] = '.';
+-              }
+-          }
+-        
+-        std::ostringstream filename;
+-        filename &lt;&lt; &quot;images/&quot; &lt;&lt; tokens[1] &lt;&lt; &quot;.nbr&quot;;        
+-
+-        int j = 1;
+-        std::string fname = filename.str();
+-        while (access(fname.c_str(), F_OK) == 0)
+-          {
+-            filename.str(&quot;&quot;);
+-            filename &lt;&lt; &quot;images/&quot; &lt;&lt; tokens[1] &lt;&lt; &quot;-&quot; &lt;&lt; j &lt;&lt; &quot;.nbr&quot;;
+-            fname = filename.str();
+-            j += 1;
+-          }
+-
+-        std::cout &lt;&lt; &quot;# writing log to &quot; &lt;&lt; filename.str() &lt;&lt; std::endl;
+-        std::ofstream out(fname.c_str());
+-        for(int i = 0; i &lt; int(drawing_history.size()); ++i)
+-          out &lt;&lt; drawing_history[i];
+-        out.close();
+-      }
+-    else if (tokens.size() == 2 &amp;&amp; tokens[0] == &quot;client_version&quot;)
+-      {
+-        if (atoi(tokens[1].c_str()) == 1)
+-          {
+-            full_client = true;
+-            for(int i = 0; i &lt; int(drawing_history.size()); ++i)
+-              {
+-                clients.back()-&gt;send_string(drawing_history[i]);
+-              }
+-          }
+-      }
+-    else if (tokens.size() == 1 &amp;&amp; tokens[0] == &quot;clear&quot;)
+-      {
+-        std::ostringstream filename;
+-        filename &lt;&lt; &quot;sessions/session-&quot; &lt;&lt; time(NULL) &lt;&lt; &quot;.nbr&quot;;
+-        
+-        std::cout &lt;&lt; &quot;# writing log to &quot; &lt;&lt; filename.str() &lt;&lt; std::endl;
+-        outfile-&gt;close();
+-        delete outfile;
+-        outfile = new std::ofstream(filename.str().c_str());
+-
+-        drawing_history.clear();
+-
+-        for(int i = 0; i &lt; int(clients.size()); ++i)
+-          {
+-            if (clients[i])
+-              {
+-                clients[i]-&gt;send_string(&quot;clear\n&quot;);
+-              }
+-          }
+-      }
+-    else if (tokens.size() &gt;= 1 &amp;&amp; 
+-             (tokens[0] == &quot;dab&quot; ||
+-              tokens[0] == &quot;stroke_begin&quot; ||
+-              tokens[0] == &quot;stroke_end&quot;   ||
+-              tokens[0] == &quot;set_brush&quot;    ||
+-              tokens[0] == &quot;set_generic_brush&quot; ||
+-              tokens[0] == &quot;set_color&quot;    ||
+-              tokens[0] == &quot;set_tool&quot;     ||
+-              tokens[0] == &quot;set_opacity&quot; 
+-              ))
+-      {
+-        std::ostringstream str;
+-        str &lt;&lt; &quot;client &quot; &lt;&lt; id &lt;&lt; &quot; &quot; &lt;&lt; line &lt;&lt; std::endl;
+-        //std::cout &lt;&lt; &quot;SERVER: &quot; &lt;&lt; str.str();
+-        drawing_history.push_back(str.str());
+-        (*outfile) &lt;&lt; str.str() &lt;&lt; std::flush;
+-
+-        for(int i = 0; i &lt; int(clients.size()); ++i)
+-          {
+-            if (clients[i])
+-              {
+-                clients[i]-&gt;send_string(str.str());
+-                // FIXME: write to file
+-              }
+-          }
+-      }
+-    else
+-      {
+-        std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; line &lt;&lt; std::endl;
+-      }
+-  }
+-};
+-
+ void accept_connections()
+ {
+   if (SDLNet_SocketReady(serversock))
+@@ -333,37 +117,83 @@
+ 
+ int main(int argc, char** argv)
+ {
+-  if(SDL_Init(0)==-1) {
+-    printf(&quot;SDL_Init: %s\n&quot;, SDL_GetError());
+-    exit(1);
+-  }
++  try {
++    std::string port;
++    CommandLine argp;
+ 
+-  if(SDLNet_Init()==-1) {
+-    printf(&quot;SDLNet_Init: %s\n&quot;, SDLNet_GetError());
+-    exit(2);
+-  }
++    argp.add_usage(&quot;[OPTIONS] PORT&quot;);
++    argp.add_group(&quot;General:&quot;);
++    argp.add_option('v', &quot;version&quot;, &quot;&quot;, &quot;Print the netBrush server version&quot;);
++    argp.add_option('h', &quot;help&quot;, &quot;&quot;, &quot;Print this help&quot;);
+ 
+-  atexit(SDL_Quit);
+-  atexit(SDLNet_Quit);
++    argp.parse_args(argc, argv);
++    while(argp.next())
++      {
++        switch(argp.get_key())
++          {
++          case 'h':
++            argp.print_help();
++            return 0;
++            break;
++            
++          case 'v':
++            std::cout &lt;&lt; &quot;netBrush Server 0.1.0&quot; &lt;&lt; std::endl;
++            return 0;
++            break;
++            
++          case CommandLine::REST_ARG:
++            if (!port.empty())
++              {
++                std::cout &lt;&lt; &quot;Invalid argument: &quot; &lt;&lt; argp.get_argument() &lt;&lt; std::endl;
++                return 1;
++              }
++            else
++              {
++                port = argp.get_argument();
++              }
++            break;
++          }
++      }
+ 
+-  std::ostringstream filename;
+-  filename &lt;&lt; &quot;sessions/session-&quot; &lt;&lt; time(NULL) &lt;&lt; &quot;.nbr&quot;;
++    if (port.empty())
++      {
++        argp.print_help();
++        return 1;
++      }
+ 
+-  std::cout &lt;&lt; &quot;# writing log to &quot; &lt;&lt; filename.str() &lt;&lt; std::endl;
+-  outfile = new std::ofstream(filename.str().c_str());
++    if(SDL_Init(0)==-1) {
++      printf(&quot;SDL_Init: %s\n&quot;, SDL_GetError());
++      exit(1);
++    }
+ 
+-  if (argc == 2)
+-    {
+-      std::cout &lt;&lt; &quot;# listening on: &quot; &lt;&lt; argv[1] &lt;&lt; std::endl;
+-      connect(atoi(argv[1]));
++    if(SDLNet_Init()==-1) {
++      printf(&quot;SDLNet_Init: %s\n&quot;, SDLNet_GetError());
++      exit(2);
+     }
+-  else
+-    {
+-      std::cout &lt;&lt; &quot;Usage: &quot; &lt;&lt; argv[0] &lt;&lt; &quot; PORT&quot; &lt;&lt; std::endl;
+-    }
+ 
+-  outfile-&gt;close();
+-  delete outfile;
++    atexit(SDL_Quit);
++    atexit(SDLNet_Quit);
+ 
++    std::ostringstream filename;
++    filename &lt;&lt; &quot;sessions/session-&quot; &lt;&lt; time(NULL) &lt;&lt; &quot;.nbr&quot;;
++
++    std::cout &lt;&lt; &quot;# writing log to &quot; &lt;&lt; filename.str() &lt;&lt; std::endl;
++    outfile = new std::ofstream(filename.str().c_str());
++
++    if (argc == 2)
++      {
++        std::cout &lt;&lt; &quot;# listening on: &quot; &lt;&lt; port &lt;&lt; std::endl;
++        connect(atoi(port.c_str()));
++      }
++    else
++      {
++        std::cout &lt;&lt; &quot;Usage: &quot; &lt;&lt; argv[0] &lt;&lt; &quot; PORT&quot; &lt;&lt; std::endl;
++      }
++
++    outfile-&gt;close();
++    delete outfile;
++  } catch (std::exception&amp; err) {
++    std::cout &lt;&lt; &quot;Exception: &quot; &lt;&lt; err.what() &lt;&lt; std::endl;
++  }
+   return 0;
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000162.html">[Flexlay-commit] r667 - trunk/netbrush/src
+</A></li>
+	<LI>Next message: <A HREF="000164.html">[Flexlay-commit] r669 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#163">[ date ]</a>
+              <a href="thread.html#163">[ thread ]</a>
+              <a href="subject.html#163">[ subject ]</a>
+              <a href="author.html#163">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

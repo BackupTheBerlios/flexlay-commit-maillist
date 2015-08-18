@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r730 - in trunk/flexlay/lib: . gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r730%20-%20in%20trunk/flexlay/lib%3A%20.%20gui&In-Reply-To=%3C200911221445.nAMEjhJq010039%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000222.html">
+   <LINK REL="Next"  HREF="000224.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r730 - in trunk/flexlay/lib: . gui</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r730%20-%20in%20trunk/flexlay/lib%3A%20.%20gui&In-Reply-To=%3C200911221445.nAMEjhJq010039%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r730 - in trunk/flexlay/lib: . gui">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 15:45:43 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000222.html">[Flexlay-commit] r729 - trunk/flexlay/lib
+</A></li>
+        <LI>Next message: <A HREF="000224.html">[Flexlay-commit] r731 - in trunk/flexlay/lib: . tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#223">[ date ]</a>
+              <a href="thread.html#223">[ thread ]</a>
+              <a href="subject.html#223">[ subject ]</a>
+              <a href="author.html#223">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 15:45:43 +0100 (Sun, 22 Nov 2009)
+New Revision: 730
+
+Added:
+   trunk/flexlay/lib/gui/menu.cpp
+   trunk/flexlay/lib/gui/menu.hpp
+   trunk/flexlay/lib/gui/tile_selector.cpp
+   trunk/flexlay/lib/gui/tile_selector.hpp
+Removed:
+   trunk/flexlay/lib/menu.cpp
+   trunk/flexlay/lib/menu.hpp
+Modified:
+   trunk/flexlay/lib/flexlay_wrap.i
+Log:
+Moved CL_Component classes to gui/
+
+
+Modified: trunk/flexlay/lib/flexlay_wrap.i
+===================================================================
+--- trunk/flexlay/lib/flexlay_wrap.i	2009-11-22 14:44:03 UTC (rev 729)
++++ trunk/flexlay/lib/flexlay_wrap.i	2009-11-22 14:45:43 UTC (rev 730)
+@@ -46,14 +46,14 @@
+ #include &quot;flexlay.hpp&quot;
+ #include &quot;globals.hpp&quot;
+ #include &quot;gui_manager.hpp&quot;
+-#include &quot;tile_selector.hpp&quot;
++#include &quot;gui/tile_selector.hpp&quot;
+ #include &quot;object_brush.hpp&quot;
+ #include &quot;gui/object_selector.hpp&quot;
+ #include &quot;gui/icon.hpp&quot;
+ #include &quot;gui/window.hpp&quot;
+ #include &quot;gui/panel.hpp&quot;
+ #include &quot;gui/directory_view.hpp&quot;
+-#include &quot;menu.hpp&quot;
++#include &quot;gui/menu.hpp&quot;
+ #include &quot;gui/menubar.hpp&quot;
+ #include &quot;gui/scrollbar.hpp&quot;
+ #include &quot;graphic_context_state.hpp&quot;
+@@ -160,7 +160,7 @@
+ %include &quot;flexlay.hpp&quot;
+ %include &quot;globals.hpp&quot;
+ %include &quot;gui_manager.hpp&quot;
+-%include &quot;tile_selector.hpp&quot;
++%include &quot;gui/tile_selector.hpp&quot;
+ %include &quot;object_brush.hpp&quot;
+ %include &quot;gui/object_selector.hpp&quot;
+ %include &quot;gui/icon.hpp&quot;
+@@ -168,7 +168,7 @@
+ %include &quot;gui/panel.hpp&quot;
+ %include &quot;gui/minimap.hpp&quot;
+ %include &quot;gui/directory_view.hpp&quot;
+-%include &quot;menu.hpp&quot;
++%include &quot;gui/menu.hpp&quot;
+ %include &quot;gui/menubar.hpp&quot;
+ %include &quot;gui/scrollbar.hpp&quot;
+ 
+
+Copied: trunk/flexlay/lib/gui/menu.cpp (from rev 727, trunk/flexlay/lib/menu.cpp)
+
+Copied: trunk/flexlay/lib/gui/menu.hpp (from rev 727, trunk/flexlay/lib/menu.hpp)
+
+Copied: trunk/flexlay/lib/gui/tile_selector.cpp (from rev 728, trunk/flexlay/lib/tile_selector.cpp)
+
+Copied: trunk/flexlay/lib/gui/tile_selector.hpp (from rev 728, trunk/flexlay/lib/tile_selector.hpp)
+
+Deleted: trunk/flexlay/lib/menu.cpp
+===================================================================
+--- trunk/flexlay/lib/menu.cpp	2009-11-22 14:44:03 UTC (rev 729)
++++ trunk/flexlay/lib/menu.cpp	2009-11-22 14:45:43 UTC (rev 730)
+@@ -1,288 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/sprite.h&gt;
+-#include &quot;fonts.hpp&quot;
+-#include &quot;box.hpp&quot;
+-#include &quot;menu.hpp&quot;
+-
+-class MenuItem;
+-
+-class MenuImpl
+-{
+-public:
+-  Menu* parent;
+-  std::vector&lt;CL_Slot&gt; slots;
+-
+-  typedef std::vector&lt;MenuItem*&gt; Items;
+-  Items items;
+-  
+-  int current_item;
+-
+-  int width;
+-  int height;
+-
+-  MenuImpl() {
+-    current_item = -1;
+-  }
+-
+-  void draw();
+-  void recalc_size();
+-  int  get_width();
+-  int  get_height();
+-
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-};
+-
+-class MenuItem
+-{
+-protected:
+-  MenuImpl* parent;
+-  CL_Signal_v0 on_clicked;
+-
+-public:
+-  MenuItem(MenuImpl* parent_) 
+-    : parent(parent_) {}
+-
+-  virtual ~MenuItem() {}
+-
+-  virtual void draw(int x, int y, bool active) =0;
+-  virtual int get_width() =0;
+-  virtual int get_height() =0;
+-
+-  CL_Signal_v0&amp; sig_clicked() { return on_clicked; }
+-};
+-
+-class SeparatorMenuItem : public MenuItem
+-{
+-public:
+-  SeparatorMenuItem(MenuImpl* parent_) 
+-    : MenuItem(parent_)
+-  {}
+-  virtual ~SeparatorMenuItem() {}
+-
+-  void draw(int x, int y, bool active) 
+-  {
+-    CL_Display::fill_rect(CL_Rect(CL_Point(x, y), CL_Size(parent-&gt;get_width()-7, 2)), 
+-                          CL_Color(150, 150, 150));
+-    CL_Display::fill_rect(CL_Rect(CL_Point(x, y+1), CL_Size(parent-&gt;get_width()-7, 1)),
+-                          CL_Color(255, 255, 255));
+-  }
+-
+-  int get_width()  { return 10; }
+-  int get_height() { return 2; }
+-};
+-
+-class TextMenuItem : public MenuItem
+-{
+-private:
+-  CL_Sprite sprite;
+-  std::string text;
+-
+-public:
+-  TextMenuItem(const CL_Sprite&amp; sprite_, const std::string&amp; text_, MenuImpl* parent_)
+-    : MenuItem(parent_),
+-      sprite(sprite_),
+-      text(text_) 
+-  {
+-    if (sprite)
+-      sprite.set_alignment(origin_center);
+-  }
+-
+-  virtual ~TextMenuItem() {}
+-
+-  void draw(int x, int y, bool active) {
+-    if (active)
+-      CL_Display::fill_rect(CL_Rect(CL_Point(x, y-2), CL_Size(parent-&gt;get_width() - 7, 18)), 
+-                            CL_Color(255, 255, 255));
+-    if (sprite)
+-    {
+-      sprite.draw(x+10, y+7);
+-    }
+-    Fonts::verdana11.draw(x+24, y, text);
+-  }
+-  int get_width()  { return Fonts::verdana11.bounding_rect(0, 0, text).get_width() + 16; }
+-  int get_height() { return Fonts::verdana11.get_height(); }
+-};
+-
+-Menu::Menu(const CL_Point&amp; pos, CL_Component* parent)
+-  : CL_Component(CL_Rect(pos, CL_Size(1,1)), parent),
+-    impl(new MenuImpl())
+-{
+-  impl-&gt;parent = this;
+-
+-  impl-&gt;width  = 1;
+-  impl-&gt;height = 1;
+-
+-  impl-&gt;slots.push_back(sig_paint().connect(impl.get(), &amp;MenuImpl::draw));
+-  impl-&gt;slots.push_back(sig_mouse_move().connect(impl.get(), &amp;MenuImpl::on_mouse_move));
+-  impl-&gt;slots.push_back(sig_mouse_down().connect(impl.get(), &amp;MenuImpl::on_mouse_down));
+-
+-  show(false);
+-}
+-
+-Menu::~Menu()
+-{
+-  clear();
+-}
+-
+-void
+-Menu::clear()
+-{
+-  for(MenuImpl::Items::iterator i = impl-&gt;items.begin(); i != impl-&gt;items.end(); ++i)
+-    delete *i;
+-  impl-&gt;items.clear();
+-}
+-
+-MenuItemHandle
+-Menu::add_separator()
+-{
+-  impl-&gt;items.push_back(new SeparatorMenuItem(impl.get()));
+-  impl-&gt;recalc_size();
+-  return impl-&gt;items.size()-1;
+-}
+-
+-MenuItemHandle
+-Menu::add_item(const std::string&amp; name)
+-{
+-  impl-&gt;items.push_back(new TextMenuItem(CL_Sprite(), name, impl.get()));
+-  impl-&gt;recalc_size();
+-  return impl-&gt;items.size()-1;
+-}
+-
+-MenuItemHandle
+-Menu::add_item(const CL_Sprite&amp; sprite, const std::string&amp; name)
+-{
+-  impl-&gt;items.push_back(new TextMenuItem(sprite, name, impl.get()));
+-  impl-&gt;recalc_size();
+-  return impl-&gt;items.size()-1;
+-}
+-
+-MenuItemHandle
+-Menu::add_submenu(const std::string&amp; name, const Menu&amp; submenu)
+-{
+-  impl-&gt;recalc_size();
+-  return -1;
+-}
+-
+-void
+-MenuImpl::recalc_size()
+-{
+-  height = 0;
+-  width = 0;
+-
+-  for(Items::iterator i = items.begin(); i != items.end(); ++i)
+-    width = std::max(width, (*i)-&gt;get_width());
+-
+-  for(Items::iterator i = items.begin(); i != items.end(); ++i)
+-    height += (*i)-&gt;get_height() + 6;
+-  
+-  width  += 12 + 24;
+-  height += 8;
+-
+-  parent-&gt;set_size(width, height);
+-}
+-
+-void
+-MenuImpl::draw()
+-{
+-  CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+-
+-  Box::draw_window(CL_Rect(CL_Point(0, 0), 
+-                           CL_Size(parent-&gt;get_width(),
+-                                   parent-&gt;get_height())));
+-  int x_pos = 3;
+-  int y_pos = 6;
+-
+-  for(int i = 0; i &lt; int(items.size()); ++i)
+-  {
+-    if (i == current_item)
+-      items[i]-&gt;draw(x_pos, y_pos, true);
+-    else
+-      items[i]-&gt;draw(x_pos, y_pos, false);
+-    y_pos += items[i]-&gt;get_height() + 6;
+-  }
+-  CL_Display::pop_modelview();
+-}
+-
+-int
+-MenuImpl::get_width()
+-{
+-  return width;
+-}
+-
+-int
+-MenuImpl::get_height()
+-{
+-  return height;
+-}
+-
+-void
+-MenuImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  if (current_item != -1)
+-  {
+-    items[current_item]-&gt;sig_clicked()();
+-  }
+-  parent-&gt;release_mouse();
+-  parent-&gt;show(false);
+-}
+-
+-void
+-MenuImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  if (parent-&gt;has_mouse_over())
+-  {
+-    int y_pos = 6;
+-
+-    for(int i = 0; i &lt; int(items.size()); ++i)
+-    {
+-      y_pos += items[i]-&gt;get_height() + 6;      
+-      if (y_pos &gt; event.mouse_pos.y)
+-      {
+-        current_item = i;
+-        return;
+-      }
+-    }
+-    current_item = -1;
+-  }
+-  else
+-  {
+-    current_item = -1;
+-  }
+-}
+-
+-CL_Signal_v0&amp;
+-Menu::sig_clicked(MenuItemHandle item)
+-{
+-  return impl-&gt;items[item]-&gt;sig_clicked();
+-}
+-
+-void
+-Menu::run()
+-{
+-  // FIXME: Make menu act sane on == 0 items
+-  if (impl-&gt;items.size() &gt; 0)
+-  {
+-    show(true);
+-    capture_mouse();
+-    raise();
+-  }
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/menu.hpp
+===================================================================
+--- trunk/flexlay/lib/menu.hpp	2009-11-22 14:44:03 UTC (rev 729)
++++ trunk/flexlay/lib/menu.hpp	2009-11-22 14:45:43 UTC (rev 730)
+@@ -1,53 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_MENU_HPP
+-#define HEADER_FLEXLAY_MENU_HPP
+-
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-class MenuImpl;
+-class CL_Sprite;
+-
+-typedef int MenuItemHandle;
+-
+-/** */
+-class Menu : public CL_Component
+-{
+-protected:
+-  virtual ~Menu();
+-
+-public:
+-  Menu(const CL_Point&amp; pos, CL_Component* parent);
+-
+-  void clear();
+-
+-  MenuItemHandle add_item(const std::string&amp; name);
+-  MenuItemHandle add_item(const CL_Sprite&amp; sprite, const std::string&amp; name);
+-  MenuItemHandle add_submenu(const std::string&amp; name, const Menu&amp; submenu);
+-  MenuItemHandle add_separator();
+-
+-  CL_Signal_v0&amp; sig_clicked(MenuItemHandle item);
+-
+-  void run();
+-private:
+-  boost::shared_ptr&lt;MenuImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000222.html">[Flexlay-commit] r729 - trunk/flexlay/lib
+</A></li>
+	<LI>Next message: <A HREF="000224.html">[Flexlay-commit] r731 - in trunk/flexlay/lib: . tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#223">[ date ]</a>
+              <a href="thread.html#223">[ thread ]</a>
+              <a href="subject.html#223">[ subject ]</a>
+              <a href="author.html#223">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

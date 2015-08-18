@@ -1,0 +1,215 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r651 - in trunk/netbrush: . widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r651%20-%20in%20trunk/netbrush%3A%20.%20widget&In-Reply-To=%3C200610191310.k9JDAZGP008766%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000146.html">
+   <LINK REL="Next"  HREF="000148.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r651 - in trunk/netbrush: . widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r651%20-%20in%20trunk/netbrush%3A%20.%20widget&In-Reply-To=%3C200610191310.k9JDAZGP008766%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r651 - in trunk/netbrush: . widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 19 15:10:35 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000146.html">[Flexlay-commit] r650 - trunk/netbrush
+</A></li>
+        <LI>Next message: <A HREF="000148.html">[Flexlay-commit] r652 - in trunk/netbrush: . widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#147">[ date ]</a>
+              <a href="thread.html#147">[ thread ]</a>
+              <a href="subject.html#147">[ subject ]</a>
+              <a href="author.html#147">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-19 15:10:34 +0200 (Thu, 19 Oct 2006)
+New Revision: 651
+
+Modified:
+   trunk/netbrush/client.cpp
+   trunk/netbrush/drawing_context.hpp
+   trunk/netbrush/screen_buffer.cpp
+   trunk/netbrush/widget/widget.cpp
+Log:
+- fixed scrolling a bit
+
+Modified: trunk/netbrush/client.cpp
+===================================================================
+--- trunk/netbrush/client.cpp	2006-10-19 12:37:24 UTC (rev 650)
++++ trunk/netbrush/client.cpp	2006-10-19 13:10:34 UTC (rev 651)
+@@ -216,9 +216,9 @@
+     printf(&quot;SDL_SetVideoMode: %s\n&quot;, SDL_GetError());
+   SDL_WM_SetCaption(&quot;netBrush&quot;, &quot;netBrush&quot;);
+ 
+-  screen_buffer = new ScreenBuffer(Rect(68, 0, screen-&gt;w - 128, screen-&gt;h));
+-  draw_ctx      = new DrawingContext(1024, 1024);
+-  stroke_buffer = new StrokeBuffer(1024, 1024);
++  screen_buffer = new ScreenBuffer(Rect(68 + 16, 0 + 16, screen-&gt;w - 128 - 16, screen-&gt;h - 16));
++  draw_ctx      = new DrawingContext(2048, 2048);
++  stroke_buffer = new StrokeBuffer(2048, 2048);
+ 
+   std::cout &lt;&lt; &quot;# clear screen&quot; &lt;&lt; std::endl;
+ 
+
+Modified: trunk/netbrush/drawing_context.hpp
+===================================================================
+--- trunk/netbrush/drawing_context.hpp	2006-10-19 12:37:24 UTC (rev 650)
++++ trunk/netbrush/drawing_context.hpp	2006-10-19 13:10:34 UTC (rev 651)
+@@ -49,6 +49,9 @@
+   void clear();
+ 
+   void draw(SDL_Surface* target, const Rect&amp; region, int x_of, int y_of);
++
++  int get_width()  const { return drawable-&gt;w; }
++  int get_height() const { return drawable-&gt;h; }
+ };
+ 
+ #endif
+
+Modified: trunk/netbrush/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/screen_buffer.cpp	2006-10-19 12:37:24 UTC (rev 650)
++++ trunk/netbrush/screen_buffer.cpp	2006-10-19 13:10:34 UTC (rev 651)
+@@ -44,33 +44,6 @@
+     click_pos_y(0),
+     scrolling(false)
+ {
+-#if 0 
+-  // Create drawable
+-  Uint32 rmask, gmask, bmask, amask;
+-
+-  /* SDL interprets each pixel as a 32-bit number, so our masks must depend
+-     on the endianness (byte order) of the machine */
+-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+-  rmask = 0xff000000;
+-  gmask = 0x00ff0000;
+-  bmask = 0x0000ff00;
+-  amask = 0; //0x000000ff;
+-#else
+-  rmask = 0x000000ff;
+-  gmask = 0x0000ff00;
+-  bmask = 0x00ff0000;
+-  amask = 0; //0xff000000;
+-#endif
+-
+-  buffer = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 24,
+-                                rmask, gmask, bmask, amask);
+-
+-  if(buffer == NULL) 
+-    {
+-      fprintf(stderr, &quot;CreateRGBSurface failed: %s\n&quot;, SDL_GetError());
+-      exit(1);
+-    }
+-#endif 
+ }
+ 
+ ScreenBuffer::~ScreenBuffer()
+@@ -108,8 +81,19 @@
+               &lt;&lt; dirty_region.bottom 
+               &lt;&lt; std::endl;
+ 
+-  draw_ctx-&gt;draw(target, dirty_region, trans_x, trans_y);
++  if (0)
++    { // FIXME: Slow, ugly and only for testing
++      SDL_Rect r;
++      r.x = get_rect().left;
++      r.y = get_rect().top;
++      r.w = get_rect().get_width();
++      r.h = get_rect().get_height();
++      std::cout &lt;&lt; &quot;fill rect: &quot; &lt;&lt; r.x &lt;&lt; &quot; &quot; &lt;&lt; r.y &lt;&lt; &quot; &quot; &lt;&lt; r.w &lt;&lt; &quot; &quot; &lt;&lt; r.h &lt;&lt; std::endl;
++      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++      SDL_UpdateRect(target, r.x, r.y, r.w, r.h);
++    }
+ 
++  draw_ctx-&gt;draw(target, dirty_region, trans_x, trans_y);
+   stroke_buffer-&gt;draw(target, dirty_region, trans_x, trans_y);
+   
+   SDL_UpdateRect(target, 
+@@ -142,11 +126,11 @@
+     y = 0;
+   
+   // FIXME: This must be drawable size, not screen size
+-  if (x + w &gt; screen-&gt;w)
+-    w = screen-&gt;w - x;
++  if (x + w &gt; draw_ctx-&gt;get_width())
++    w = draw_ctx-&gt;get_width() - x;
+ 
+-  if (y + h &gt; screen-&gt;h)
+-    h = screen-&gt;h - y;
++  if (y + h &gt; draw_ctx-&gt;get_height())
++    h = draw_ctx-&gt;get_height() - y;
+ 
+   //std::cout &lt;&lt; &quot;Dirty: &quot; &lt;&lt; x &lt;&lt; &quot; &quot; &lt;&lt; y &lt;&lt; &quot; &quot; &lt;&lt; w &lt;&lt; &quot; &quot; &lt;&lt; h &lt;&lt; std::endl;
+ 
+@@ -199,8 +183,16 @@
+     {
+       scroll_offset_x = old_scroll_offset_x + (motion.x - click_pos_x);
+       scroll_offset_y = old_scroll_offset_y + (motion.y - click_pos_y);
+-      mark_dirty(get_rect());
+-      //std::cout &lt;&lt; &quot;Scrolling: &quot; &lt;&lt; scroll_offset_x &lt;&lt; &quot; &quot; &lt;&lt; scroll_offset_y &lt;&lt; std::endl;
++
++      // FIXME: JUCK?!
++      Rect r(0, 0, get_rect().get_width(), get_rect().get_height());
++      r.left   -= scroll_offset_x;
++      r.right  -= scroll_offset_x;
++      r.top    -= scroll_offset_y;
++      r.bottom -= scroll_offset_y;
++      mark_dirty(r);
++
++      std::cout &lt;&lt; &quot;Scrolling: &quot; &lt;&lt; scroll_offset_x &lt;&lt; &quot; &quot; &lt;&lt; scroll_offset_y &lt;&lt; std::endl;
+     } 
+ }
+ 
+
+Modified: trunk/netbrush/widget/widget.cpp
+===================================================================
+--- trunk/netbrush/widget/widget.cpp	2006-10-19 12:37:24 UTC (rev 650)
++++ trunk/netbrush/widget/widget.cpp	2006-10-19 13:10:34 UTC (rev 651)
+@@ -26,7 +26,7 @@
+ #include &quot;widget.hpp&quot;
+ 
+ Widget::Widget(const Rect&amp; rect_)
+-  : rect(rect_.left+1, rect_.top+1, rect_.right-1, rect_.bottom-1),  // FIXME: Cheap way to add border
++  : rect(rect_),
+     dirty(false) 
+ {
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000146.html">[Flexlay-commit] r650 - trunk/netbrush
+</A></li>
+	<LI>Next message: <A HREF="000148.html">[Flexlay-commit] r652 - in trunk/netbrush: . widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#147">[ date ]</a>
+              <a href="thread.html#147">[ thread ]</a>
+              <a href="subject.html#147">[ subject ]</a>
+              <a href="author.html#147">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

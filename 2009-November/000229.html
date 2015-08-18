@@ -1,0 +1,486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r736 - trunk/flexlay/lib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r736%20-%20trunk/flexlay/lib&In-Reply-To=%3C200911231521.nANFLOfB000319%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000228.html">
+   <LINK REL="Next"  HREF="000230.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r736 - trunk/flexlay/lib</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r736%20-%20trunk/flexlay/lib&In-Reply-To=%3C200911231521.nANFLOfB000319%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r736 - trunk/flexlay/lib">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov 23 16:21:24 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000228.html">[Flexlay-commit] r735 - trunk/flexlay/lib
+</A></li>
+        <LI>Next message: <A HREF="000230.html">[Flexlay-commit] r737 - in trunk/flexlay/lib: . gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#229">[ date ]</a>
+              <a href="thread.html#229">[ thread ]</a>
+              <a href="subject.html#229">[ subject ]</a>
+              <a href="author.html#229">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-23 16:21:19 +0100 (Mon, 23 Nov 2009)
+New Revision: 736
+
+Modified:
+   trunk/flexlay/lib/editor_map.cpp
+   trunk/flexlay/lib/editor_map.hpp
+   trunk/flexlay/lib/graphic_context_state.cpp
+   trunk/flexlay/lib/graphic_context_state.hpp
+   trunk/flexlay/lib/layer.cpp
+   trunk/flexlay/lib/layer.hpp
+   trunk/flexlay/lib/layer_impl.hpp
+   trunk/flexlay/lib/object_layer.cpp
+   trunk/flexlay/lib/onion_skin_layer.cpp
+   trunk/flexlay/lib/sketch_layer.cpp
+   trunk/flexlay/lib/tilemap_layer.cpp
+   trunk/flexlay/lib/tilemap_layer.hpp
+   trunk/flexlay/lib/workspace.cpp
+Log:
+Reduced EditorMapComponent dependency
+
+
+Modified: trunk/flexlay/lib/editor_map.cpp
+===================================================================
+--- trunk/flexlay/lib/editor_map.cpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/editor_map.cpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -99,10 +99,10 @@
+ }
+ 
+ void
+-EditorMap::draw (EditorMapComponent* parent, CL_GraphicContext* gc)
++EditorMap::draw(const GraphicContextState&amp; state, CL_GraphicContext* gc)
+ {
+   for(EditorMapImpl::Layers::iterator i = impl-&gt;layers.begin(); i != impl-&gt;layers.end(); ++i)
+-    (*i).draw(parent, gc);
++    (*i).draw(state, gc);
+   
+   gc-&gt;flush();
+ }
+
+Modified: trunk/flexlay/lib/editor_map.hpp
+===================================================================
+--- trunk/flexlay/lib/editor_map.hpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/editor_map.hpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -24,7 +24,6 @@
+ #include &quot;command.hpp&quot;
+ 
+ class CL_GraphicContext;
+-class EditorMapComponent;
+ class EditorMapImpl;
+ class Layer;
+ class MetaData;
+@@ -37,8 +36,7 @@
+ public:
+   EditorMap(bool create = false);
+ 
+-  /** FIXME: EditorMapComponent parameter shouldn't really be here */
+-  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
++  void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc);
+   
+   /** Draw stuff that is only relevant on the GUI (bounding rects and such) */
+   void draw_gui(CL_GraphicContext* gc);
+
+Modified: trunk/flexlay/lib/graphic_context_state.cpp
+===================================================================
+--- trunk/flexlay/lib/graphic_context_state.cpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/graphic_context_state.cpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -59,7 +59,7 @@
+ }
+ 
+ void
+-GraphicContextState::push(CL_GraphicContext* gc)
++GraphicContextState::push(CL_GraphicContext* gc) const
+ {
+   if (gc == 0)
+     gc = CL_Display::get_current_window()-&gt;get_gc();
+@@ -75,7 +75,7 @@
+ }
+ 
+ void
+-GraphicContextState::pop(CL_GraphicContext* gc)
++GraphicContextState::pop(CL_GraphicContext* gc) const
+ {
+   if (gc == 0)
+     gc = CL_Display::get_current_window()-&gt;get_gc();
+@@ -84,7 +84,7 @@
+ }
+ 
+ CL_Rectf
+-GraphicContextState::get_clip_rect()
++GraphicContextState::get_clip_rect() const
+ {
+   return CL_Rectf(CL_Pointf(-impl-&gt;offset.x,
+                             -impl-&gt;offset.y),
+@@ -122,7 +122,7 @@
+ }
+ 
+ float
+-GraphicContextState::get_zoom()
++GraphicContextState::get_zoom() const
+ {
+   return impl-&gt;zoom;
+ }
+@@ -178,7 +178,7 @@
+ }
+ 
+ float
+-GraphicContextState::get_rotation()
++GraphicContextState::get_rotation() const
+ {
+   return impl-&gt;rotation;
+ }
+
+Modified: trunk/flexlay/lib/graphic_context_state.hpp
+===================================================================
+--- trunk/flexlay/lib/graphic_context_state.hpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/graphic_context_state.hpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -35,12 +35,12 @@
+ 
+   void set_size(int w, int h);
+ 
+-  void push(CL_GraphicContext* gc = 0);
+-  void pop (CL_GraphicContext* gc = 0);
++  void push(CL_GraphicContext* gc = 0) const;
++  void pop (CL_GraphicContext* gc = 0) const;
+ 
+   /** Return a rectangle in world coordinates that represents the area
+       visible on the screen */
+-  CL_Rectf get_clip_rect();
++  CL_Rectf get_clip_rect() const;
+ 
+   int get_width()  const;
+   int get_height() const;
+@@ -49,7 +49,7 @@
+   void  set_rotation(float angle);
+ 
+   /** Return the current rotation angel */
+-  float get_rotation();
++  float get_rotation() const;
+ 
+   /** Move the center of the visible area to pos */
+   void      set_pos(const CL_Pointf&amp; pos);
+@@ -60,7 +60,7 @@
+       position even after zoomed in/out */
+   void  set_zoom(CL_Pointf pos, float z);
+   void  set_zoom(float z);
+-  float get_zoom(); 
++  float get_zoom() const; 
+ 
+   void zoom_to (const CL_Rectf&amp; rect);
+ 
+
+Modified: trunk/flexlay/lib/layer.cpp
+===================================================================
+--- trunk/flexlay/lib/layer.cpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/layer.cpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -33,7 +33,7 @@
+ }
+ 
+ void
+-Layer::draw(EditorMapComponent* parent, CL_GraphicContext* gc) 
++Layer::draw(const GraphicContextState&amp; state, CL_GraphicContext* gc) 
+ { 
+   if (impl.get())
+   {
+@@ -41,12 +41,12 @@
+     {
+       gc-&gt;push_modelview();
+       gc-&gt;add_translate(impl-&gt;pos.x, impl-&gt;pos.y);
+-      impl-&gt;draw(parent, gc);
++      impl-&gt;draw(state, gc);
+       gc-&gt;pop_modelview();
+     }
+     else
+     {
+-      impl-&gt;draw(parent, gc);
++      impl-&gt;draw(state, gc);
+     }
+   }
+ }
+
+Modified: trunk/flexlay/lib/layer.hpp
+===================================================================
+--- trunk/flexlay/lib/layer.hpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/layer.hpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -22,10 +22,10 @@
+ #include &quot;meta_data.hpp&quot;
+ 
+ class CL_Rect;
+-class EditorMapComponent;
+ class LayerImpl;
+ class CL_Pointf;
+ class CL_GraphicContext;
++class GraphicContextState;
+ 
+ /** Each \a EditorMap consists out of one or more \a Layer,
+     The \a Layer is an abstract base class from which the
+@@ -48,7 +48,7 @@
+       the layer itself) */
+   void     set_metadata(MetaData data_);
+ 
+-  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
++  void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc);
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
+ 
+
+Modified: trunk/flexlay/lib/layer_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/layer_impl.hpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/layer_impl.hpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -21,7 +21,7 @@
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+ #include &quot;meta_data.hpp&quot;
+ 
+-class EditorMapComponent;
++class GraphicContextState;
+ 
+ class LayerImpl
+ {
+@@ -41,7 +41,7 @@
+   {}
+   virtual ~LayerImpl() {}
+ 
+-  virtual void draw(EditorMapComponent* parent, CL_GraphicContext* gc) =0;
++  virtual void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc) =0;
+   virtual bool has_bounding_rect() const =0;
+ 
+   // FIXME: Should use CL_Rectf
+
+Modified: trunk/flexlay/lib/object_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/object_layer.cpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/object_layer.cpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -31,7 +31,7 @@
+   ObjectLayerImpl() {}
+   virtual ~ObjectLayerImpl() {}
+   
+-  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
++  void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc);
+   bool has_bounding_rect() const { return false; }
+ };
+ 
+@@ -45,12 +45,12 @@
+ }
+ 
+ void
+-ObjectLayerImpl::draw(EditorMapComponent* parent, CL_GraphicContext* gc)
++ObjectLayerImpl::draw(const GraphicContextState&amp; state, CL_GraphicContext* gc)
+ {
+   for(ObjectLayer::Objects::iterator i = objects.begin(); i != objects.end(); ++i)
+   {
+     // FIXME: Add clipping here
+-    if (parent-&gt;get_clip_rect().is_overlapped((*i).get_bound_rect()))
++    if (state.get_clip_rect().is_overlapped((*i).get_bound_rect()))
+       (*i).draw(gc);
+   }
+ 
+
+Modified: trunk/flexlay/lib/onion_skin_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -41,7 +41,7 @@
+   std::vector&lt;EditorMap&gt; editormaps;
+   std::vector&lt;CL_Color&gt;  color;
+ 
+-  void draw(EditorMapComponent* parent, CL_GraphicContext* gc) 
++  void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc) 
+   {
+     // FIXME: We need to stop onion layer to draw onto itself
+     surface.set_blend_func(blend_one, blend_one_minus_src_alpha);
+@@ -60,8 +60,8 @@
+ {
+ }
+ 
+-OnionSkinLayer::OnionSkinLayer(int width, int height)
+-  : impl(new OnionSkinLayerImpl())
++OnionSkinLayer::OnionSkinLayer(int width, int height) :
++  impl(new OnionSkinLayerImpl())
+ {
+   impl-&gt;surface  = CL_Surface(CL_PixelBuffer(width/SCALE, height/SCALE, width*4/SCALE, CL_PixelFormat::rgba8888));
+   impl-&gt;surface2 = CL_Surface(CL_PixelBuffer(width/SCALE, height/SCALE, width*4/SCALE, CL_PixelFormat::rgba8888));
+@@ -109,7 +109,7 @@
+     impl-&gt;canvas2-&gt;get_gc()-&gt;push_modelview();
+     impl-&gt;canvas2-&gt;get_gc()-&gt;add_scale(1.0f/SCALE, 1.0f/SCALE);
+ 
+-    impl-&gt;editormaps[i].draw(EditorMapComponent::current(), impl-&gt;canvas2-&gt;get_gc());
++    impl-&gt;editormaps[i].draw(EditorMapComponent::current()-&gt;get_gc_state(), impl-&gt;canvas2-&gt;get_gc());
+ 
+     impl-&gt;canvas2-&gt;get_gc()-&gt;pop_modelview();
+ 
+
+Modified: trunk/flexlay/lib/sketch_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.cpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/sketch_layer.cpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -80,7 +80,7 @@
+     }
+   }
+   
+-  void draw(EditorMapComponent* parent, CL_GraphicContext* gc) 
++  void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc) 
+   {
+     // Nothing to draw, so we go byebye
+     if (strokes.empty()) 
+@@ -89,20 +89,20 @@
+     if (canvas)
+     {
+       // Draw to canvas
+-      if (last_zoom != parent-&gt;get_gc_state().get_zoom() ||
+-          last_pos  != parent-&gt;get_gc_state().get_pos()  ||
+-          last_rot  != parent-&gt;get_gc_state().get_rotation())
++      if (last_zoom != state.get_zoom() ||
++          last_pos  != state.get_pos()  ||
++          last_rot  != state.get_rotation())
+       {
+         // Rerender the image
+-        last_zoom   = parent-&gt;get_gc_state().get_zoom();
+-        last_pos    = parent-&gt;get_gc_state().get_pos();
+-        last_rot    = parent-&gt;get_gc_state().get_rotation();
++        last_zoom   = state.get_zoom();
++        last_pos    = state.get_pos();
++        last_rot    = state.get_rotation();
+ 
+-        parent-&gt;get_gc_state().push(canvas-&gt;get_gc());
++        state.push(canvas-&gt;get_gc());
+         canvas-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
+         //canvas-&gt;get_gc()-&gt;clear(CL_Color::white);
+ 
+-        CL_Rectf visible_area = parent-&gt;get_clip_rect();
++        CL_Rectf visible_area = state.get_clip_rect();
+ 
+         for(Strokes::iterator i = strokes.begin(); i != strokes.end(); ++i)
+         {
+@@ -114,7 +114,7 @@
+             i-&gt;draw(canvas-&gt;get_gc());
+           }
+         }
+-        parent-&gt;get_gc_state().pop(canvas-&gt;get_gc());
++        state.pop(canvas-&gt;get_gc());
+ 
+         canvas-&gt;sync_surface();
+       }
+
+Modified: trunk/flexlay/lib/tilemap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/tilemap_layer.cpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -48,7 +48,7 @@
+ 
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
+-  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
++  void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc);
+ };
+ 
+ TilemapLayer::TilemapLayer()
+@@ -85,13 +85,13 @@
+ }
+ 
+ void
+-TilemapLayer::draw(EditorMapComponent* parent, CL_GraphicContext* gc)
++TilemapLayer::draw(const GraphicContextState&amp; state, CL_GraphicContext* gc)
+ {
+-  impl-&gt;draw(parent, gc);
++  impl-&gt;draw(state, gc);
+ }
+ 
+ void
+-TilemapLayerImpl::draw(EditorMapComponent* parent, CL_GraphicContext* gc)
++TilemapLayerImpl::draw(const GraphicContextState&amp; state, CL_GraphicContext* gc)
+ {
+   int tile_size = this-&gt;tileset.get_tile_size();
+ 
+@@ -102,7 +102,7 @@
+                           this-&gt;background_color);
+   CL_Display::flush();
+ 
+-  CL_Rect rect(parent-&gt;get_clip_rect());
++  CL_Rect rect(state.get_clip_rect());
+ 
+   int start_x = std::max(0, rect.left / tile_size);
+   int start_y = std::max(0, rect.top  / tile_size);
+
+Modified: trunk/flexlay/lib/tilemap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.hpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/tilemap_layer.hpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -18,9 +18,10 @@
+ #define HEADER_FLEXLAY_TILEMAP_LAYER_HPP
+ 
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
++#include &lt;boost/shared_ptr.hpp&gt;
++
+ #include &quot;field.hpp&quot;
+ #include &quot;meta_data.hpp&quot;
+-#include &lt;boost/shared_ptr.hpp&gt;
+ #include &quot;layer.hpp&quot;
+ 
+ class Tileset;
+@@ -40,7 +41,7 @@
+   TilemapLayer(Tileset tileset, int w,  int h);
+   ~TilemapLayer();
+ 
+-  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
++  void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc);
+ 
+   Tileset get_tileset();
+ 
+
+Modified: trunk/flexlay/lib/workspace.cpp
+===================================================================
+--- trunk/flexlay/lib/workspace.cpp	2009-11-22 20:06:00 UTC (rev 735)
++++ trunk/flexlay/lib/workspace.cpp	2009-11-23 15:21:19 UTC (rev 736)
+@@ -58,7 +58,7 @@
+   CL_Display::clear(CL_Color(100, 0, 100));
+ 
+   impl-&gt;editor_map.draw_gui(CL_Display::get_current_window()-&gt;get_gc());
+-  impl-&gt;editor_map.draw(EditorMapComponent::current(), CL_Display::get_current_window()-&gt;get_gc());
++  impl-&gt;editor_map.draw(EditorMapComponent::current()-&gt;get_gc_state(), CL_Display::get_current_window()-&gt;get_gc());
+   
+   // FIXME: Only draw active tool?!
+   for(WorkspaceImpl::Tools::iterator it = impl-&gt;tools.begin();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000228.html">[Flexlay-commit] r735 - trunk/flexlay/lib
+</A></li>
+	<LI>Next message: <A HREF="000230.html">[Flexlay-commit] r737 - in trunk/flexlay/lib: . gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#229">[ date ]</a>
+              <a href="thread.html#229">[ thread ]</a>
+              <a href="subject.html#229">[ subject ]</a>
+              <a href="author.html#229">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

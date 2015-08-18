@@ -1,0 +1,419 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r619 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r619%20-%20trunk/supertux&In-Reply-To=%3C200601211035.k0LAZmZx024233%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000117.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r619 - trunk/supertux</H1>
+    <B>matzebraun at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r619%20-%20trunk/supertux&In-Reply-To=%3C200601211035.k0LAZmZx024233%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r619 - trunk/supertux">matzebraun at berlios.de
+       </A><BR>
+    <I>Sat Jan 21 11:35:48 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000117.html">[Flexlay-commit] r620 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#116">[ date ]</a>
+              <a href="thread.html#116">[ thread ]</a>
+              <a href="subject.html#116">[ subject ]</a>
+              <a href="author.html#116">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: matzebraun
+Date: 2006-01-21 11:35:47 +0100 (Sat, 21 Jan 2006)
+New Revision: 619
+
+Removed:
+   trunk/supertux/tuxsprites.xml
+   trunk/supertux/tuxtiles.xml
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+old files
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-10-10 13:55:49 UTC (rev 618)
++++ trunk/supertux/data.rb	2006-01-21 10:35:47 UTC (rev 619)
+@@ -71,6 +71,8 @@
+     proc{|data, sexpr| SimpleObject.new(&quot;point&quot;)}],
+   [&quot;platform&quot;, &quot;images/objects/flying_platform/flying_platform-0.png&quot;, :sprite,
+     proc{|data, sexpr| Platform.new(data, sexpr)}],
++  [&quot;scriptedobject&quot;, &quot;images/engine/editor/scriptedobject.png&quot;, :sprite,
++    proc{|data, sexpr| ScriptedObject.new(data, sexpr)}]
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-10-10 13:55:49 UTC (rev 618)
++++ trunk/supertux/gameobj.rb	2006-01-21 10:35:47 UTC (rev 619)
+@@ -504,4 +504,60 @@
+   end
+ end
+ 
++class ScriptedObject&lt;GameObj
++  def initialize(data, sexpr = [])
++    @data = data
++    @name = get_value_from_tree([&quot;name&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
++    @sprite = get_value_from_tree([&quot;sprite&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
++    @visible = get_value_from_tree([&quot;visible&quot;, &quot;_&quot;], sexpr, true)
++    @physic_enabled = get_value_from_tree([&quot;physic-enabled&quot;, &quot;_&quot;], sexpr, false)
++    @solid = get_value_from_tree([&quot;solid&quot;, &quot;_&quot;], sexpr, false)
++    @layer = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], sexpr, 100) 
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write(&quot;      (scriptedobject\n&quot;)
++    f.write(&quot;        (x %d) (y %d)\n&quot; % [pos.x, pos.y])
++    f.write(&quot;        (name \&quot;%s\&quot;)\n&quot; % @name)
++    f.write(&quot;        (sprite \&quot;%s\&quot;)\n&quot; % @sprite)
++    f.write(&quot;        (layer %d)\n&quot; % @layer)
++    if(@visible == true)
++      f.write(&quot;        (visible #t)\n&quot;)
++    else
++      f.write(&quot;        (visible #f)\n&quot;)
++    end
++    if(@physic_enabled == true)
++      f.write(&quot;        (physic-enabled #t)\n&quot;)
++    else
++      f.write(&quot;        (physic-enabled #f)\n&quot;)
++    end
++    if(@solid == true)
++      f.write(&quot;        (solid #t)\n&quot;)
++    else
++      f.write(&quot;        (solid #f)\n&quot;)
++    end
++    f.write(&quot;      )\n&quot;);
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new(&quot;Scripted Object Property Dialog&quot;,
++                               $gui.get_component())
++    dialog.add_string(&quot;Name: &quot;, @name)
++    dialog.add_string(&quot;Sprite: &quot;, @sprite)
++    dialog.add_int(&quot;Layer: &quot;, @layer)
++    dialog.add_bool(&quot;Visible: &quot;, @visible)
++    dialog.add_bool(&quot;Physics: &quot;, @physic_enabled)
++    dialog.add_bool(&quot;Solid: &quot;, @solid)
++    dialog.set_callback(proc{|name, sprite, layer, visible, physic_enabled, solid| 
++                          @name = name
++                          @sprite = sprite
++                          @layer = layer
++                          @visible = visible
++                          @physic_enabled = physic_enabled
++                          @solid = solid
++                        })
++  end
++end
++
+ # EOF #
+
+Deleted: trunk/supertux/tuxsprites.xml
+===================================================================
+--- trunk/supertux/tuxsprites.xml	2005-10-10 13:55:49 UTC (rev 618)
++++ trunk/supertux/tuxsprites.xml	2006-01-21 10:35:47 UTC (rev 619)
+@@ -1,28 +0,0 @@
+-&lt;resources&gt;
+-  &lt;section name=&quot;sprites&quot;&gt;
+-    &lt;sprite name=&quot;jumpy&quot;&gt;
+-      &lt;image file=&quot;images/tuxsprites/jumpy.png&quot; /&gt;
+-      &lt;translation origin=&quot;bottom_center&quot; /&gt;
+-    &lt;/sprite&gt;
+-
+-    &lt;sprite name=&quot;mriceblock&quot;&gt;
+-      &lt;image file=&quot;images/tuxsprites/mriceblock.png&quot; /&gt;
+-      &lt;translation origin=&quot;bottom_center&quot; /&gt;
+-    &lt;/sprite&gt;
+-
+-    &lt;sprite name=&quot;mrbomb&quot;&gt;
+-      &lt;image file=&quot;images/tuxsprites/mrbomb.png&quot; /&gt;
+-      &lt;translation origin=&quot;bottom_center&quot; /&gt;
+-    &lt;/sprite&gt;
+-
+-    &lt;sprite name=&quot;flame&quot;&gt;
+-      &lt;image file=&quot;images/tuxsprites/flame.png&quot; /&gt;
+-      &lt;translation origin=&quot;top_left&quot; /&gt;
+-    &lt;/sprite&gt;
+-
+-    &lt;sprite name=&quot;stalactite&quot;&gt;
+-      &lt;image file=&quot;images/tuxsprites/stalactite.png&quot; /&gt;
+-      &lt;translation origin=&quot;top_center&quot; /&gt;
+-    &lt;/sprite&gt;
+-  &lt;/section&gt;
+-&lt;/resources&gt;
+\ No newline at end of file
+
+Deleted: trunk/supertux/tuxtiles.xml
+===================================================================
+--- trunk/supertux/tuxtiles.xml	2005-10-10 13:55:49 UTC (rev 618)
++++ trunk/supertux/tuxtiles.xml	2006-01-21 10:35:47 UTC (rev 619)
+@@ -1,226 +0,0 @@
+-&lt;resources&gt;
+-  &lt;section name=&quot;tiles&quot;&gt;
+-    &lt;sprite name=&quot;background1&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/background1.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;background2&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/background2.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;background3&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/background3.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;background4&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/background4.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;background5&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/background5.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;background6&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/background6.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;background7&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/background7.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;background8&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/background8.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;backgroundtile1&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/backgroundtile1.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;backgroundtile2&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/backgroundtile2.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;backgroundtile3&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/backgroundtile3.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;backgroundtile4&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/backgroundtile4.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;backgroundtile5&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/backgroundtile5.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block1&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block1.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block10&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block10.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block11&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block11.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block2&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block2.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block3&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block3.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block4&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block4.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block5&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block5.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block6&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block6.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block7&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block7.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block8&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block8.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;block9&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/block9.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;bonus1&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/bonus1.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;coin1&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/coin1.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;coin2&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/coin2.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;coin3&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/coin3.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow1&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow1.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow10&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow10.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow11&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow11.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow12&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow12.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow2&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow2.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow3&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow3.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow4&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow4.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow5&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow5.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow6&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow6.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow7&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow7.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow8&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow8.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;darksnow9&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/darksnow9.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;grey&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/grey.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;grey2&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/grey2.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;grey3&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/grey3.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;grey4&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/grey4.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;grey5&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/grey5.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;grey6&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/grey6.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;notile&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/notile.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;pipe1&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/pipe1.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;pipe2&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/pipe2.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;pipe3&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/pipe3.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;pipe4&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/pipe4.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;pipe5&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/pipe5.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;pipe6&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/pipe6.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;pipe7&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/pipe7.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;pipe8&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/pipe8.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow1&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow1.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow10&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow10.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow11&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow11.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow12&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow12.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow13&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow13.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow14&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow14.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow15&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow15.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow16&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow16.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow17&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow17.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow18&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow18.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow19&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow19.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow2&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow2.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow3&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow3.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow4&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow4.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow5&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow5.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow6&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow6.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow7&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow7.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow8&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow8.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-    &lt;sprite name=&quot;snow9&quot;&gt;
+-      &lt;image file=&quot;images/tuxtiles/snow9.png&quot; /&gt;
+-    &lt;/sprite&gt;
+-  &lt;/section&gt;
+-&lt;/resources&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000117.html">[Flexlay-commit] r620 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#116">[ date ]</a>
+              <a href="thread.html#116">[ thread ]</a>
+              <a href="subject.html#116">[ subject ]</a>
+              <a href="author.html#116">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,538 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r523 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r523%20-%20trunk/supertux&In-Reply-To=%3C200503301837.j2UIbtdg017523%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000031.html">
+   <LINK REL="Next"  HREF="000033.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r523 - trunk/supertux</H1>
+    <B>Matthias Braun at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r523%20-%20trunk/supertux&In-Reply-To=%3C200503301837.j2UIbtdg017523%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r523 - trunk/supertux">matzebraun at sheep.berlios.de
+       </A><BR>
+    <I>Wed Mar 30 20:37:55 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000031.html">[Flexlay-commit] r522 - trunk/lib
+</A></li>
+        <LI>Next message: <A HREF="000033.html">[Flexlay-commit] r524 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#32">[ date ]</a>
+              <a href="thread.html#32">[ thread ]</a>
+              <a href="subject.html#32">[ subject ]</a>
+              <a href="author.html#32">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: matzebraun
+Date: 2005-03-30 20:37:53 +0200 (Wed, 30 Mar 2005)
+New Revision: 523
+
+Modified:
+   trunk/supertux/TODO
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/sector.rb
+   trunk/supertux/supertux.rb
+Log:
+- Added more supertux objects: background, particle systems, bell, unstable_tile
+- Improved the parsing functions a bit
+
+
+
+Modified: trunk/supertux/TODO
+===================================================================
+--- trunk/supertux/TODO	2005-03-30 18:29:46 UTC (rev 522)
++++ trunk/supertux/TODO	2005-03-30 18:37:53 UTC (rev 523)
+@@ -13,7 +13,6 @@
+  - moving platforms + path
+  - camera path 
+  - automatic backup of files
+- - reset points
+  - get rid of make_metadat, get_ruby_object in SuperTux code
+  - faster tile-loading (load on demand, pixelbuffer cache)
+  - make controlpoints unzoomable
+@@ -23,6 +22,9 @@
+  - objects need to have visible text-lables attached to them (name of
+    spawnpoints, etc.)
+  - sexpr based config file, no evil eval games
++ - all pseudo object without position (background, particle-system) should be
++   placed beside each other beginning at 0, -32. (Currently they're all placed
++   at 0,0)
+ 
+ New Object Types:
+ =================
+@@ -51,5 +53,6 @@
+ ====
+ 
+  - switching to the current sector resets visible properties
++ - sometime the tilemap is alot huger than the level
+ 
+ # EOF #
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-03-30 18:29:46 UTC (rev 522)
++++ trunk/supertux/data.rb	2005-03-30 18:37:53 UTC (rev 523)
+@@ -1,36 +1,48 @@
+ $game_objects = [
+-  [&quot;money&quot;, &quot;images/shared/jumpy-left-middle-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;money&quot;)}],
++  [&quot;jumpy&quot;, &quot;images/shared/jumpy-left-middle-0.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| BadGuy.new(&quot;jumpy&quot;)}],
+   [&quot;snowball&quot;, &quot;images/shared/snowball-left-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;snowball&quot;)}],
++    proc{|data, sexpr| BadGuy.new(&quot;snowball&quot;)}],
+   [&quot;mriceblock&quot;, &quot;images/shared/mriceblock-left-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;mriceblock&quot;)}],
++    proc{|data, sexpr| BadGuy.new(&quot;mriceblock&quot;)}],
+   [&quot;mrbomb&quot;, &quot;images/shared/mrbomb-left-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;mrbomb&quot;)}],
++    proc{|data, sexpr| BadGuy.new(&quot;mrbomb&quot;)}],
+   [&quot;flame&quot;, &quot;images/shared/flame-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;flame&quot;)}], 
++    proc{|data, sexpr| BadGuy.new(&quot;flame&quot;)}], 
+   [&quot;stalactite&quot;, &quot;images/shared/stalactite.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;stalactite&quot;)}],
++    proc{|data, sexpr| BadGuy.new(&quot;stalactite&quot;)}],
+   [&quot;fish&quot;, &quot;images/shared/fish-left-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;fish&quot;)}],
++    proc{|data, sexpr| BadGuy.new(&quot;fish&quot;)}],
+   [&quot;flyingsnowball&quot;, &quot;images/shared/flyingsnowball-left-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;flyingsnowball&quot;)}],
++    proc{|data, sexpr| BadGuy.new(&quot;flyingsnowball&quot;)}],
+   [&quot;bouncingsnowball&quot;, &quot;images/shared/bouncingsnowball-left-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;bouncingsnowball&quot;)}],
++    proc{|data, sexpr| BadGuy.new(&quot;bouncingsnowball&quot;)}],
+   [&quot;spiky&quot;, &quot;images/shared/spiky-left-0.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;spiky&quot;)}],
+-  [&quot;playerspawn&quot;, &quot;images/shared/spawnpoint.png&quot;, &quot;sprite&quot;,
+-    proc{|data| SpawnPoint.new(data)}],
++    proc{|data, sexpr| BadGuy.new(&quot;spiky&quot;)}],
+   [&quot;spawnpoint&quot;, &quot;images/shared/spawnpoint.png&quot;, &quot;sprite&quot;,
+-    proc{|data| SpawnPoint.new(data)}],
++    proc{|data, sexpr| SpawnPoint.new(data)}],
+   [&quot;door&quot;, &quot;images/shared/door-1.png&quot;, &quot;sprite&quot;,
+-    proc{|data| Door.new(data)}],
++    proc{|data, sexpr| Door.new(data)}],
+   [&quot;trampoline&quot;, &quot;images/shared/trampoline-1.png&quot;, &quot;sprite&quot;,
+-    proc{|data| BadGuy.new(&quot;trampoline&quot;)}],
++    proc{|data, sexpr| BadGuy.new(&quot;trampoline&quot;)}],
++  [&quot;bell&quot;, &quot;images/shared/bell/bell-m.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| SimpleObject.new(&quot;bell&quot;)}],
++  [&quot;rock&quot;, &quot;images/tilesets/block11.png&quot;, &quot;sprite&quot;,
++	proc{|data, sexpr| SimpleObject.new(&quot;rock&quot;)}],
++  [&quot;unstable_tile&quot;, &quot;images/shared/unstable_tile.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| SimpleTileObject.new(data, &quot;unstable_tile&quot;)}],
+   [&quot;secretarea&quot;, &quot;images/shared/secretarea.png&quot;, &quot;rect&quot;,
+     proc{|data, sexpr| SecretArea.new(data, sexpr)}],
+   [&quot;sequencetrigger&quot;, &quot;images/shared/sequencetrigger.png&quot;, &quot;rect&quot;,
+-    proc{|data, sexpr| SequenceTrigger.new(data, sexpr)}]
++    proc{|data, sexpr| SequenceTrigger.new(sexpr)}],
++  [&quot;background&quot;, &quot;images/editor/background.png&quot;, &quot;sprite&quot;,
++	proc{|data, sexpr| Background.new(sexpr)}],
++  [&quot;particles-snow&quot;, &quot;images/editor/snow.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| ParticleSystem.new(&quot;snow&quot;, sexpr)}],
++  [&quot;particles-clouds&quot;, &quot;images/editor/clouds.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| ParticleSystem.new(&quot;clouds&quot;, sexpr)}],
++  [&quot;particles-rain&quot;, &quot;images/editor/rain.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| ParticleSystem.new(&quot;rain&quot;, sexpr)}],
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+@@ -43,10 +55,10 @@
+     x = get_value_from_tree([&quot;x&quot;, &quot;_&quot;], sexpr, 0)
+     y = get_value_from_tree([&quot;y&quot;, &quot;_&quot;], sexpr, 0)
+     
+-    obj = create_gameobject(objmap, object, CL_Pointf.new(x, y), sexpr)
++    create_gameobject(objmap, object, CL_Pointf.new(x, y), sexpr)
+   else
+     print &quot;Error: Couldn't resolve object type: &quot;, name, &quot;\n&quot;
+-    print &quot;Sector: Unhandled tag: &quot;, name, &quot;\n&quot;
++	print &quot;Sector: Unhandled tag: &quot;, name, &quot;\n&quot;
+   end
+ end
+ 
+@@ -56,7 +68,7 @@
+     
+   when &quot;sprite&quot; 
+     obj = ObjMapSpriteObject.new(make_sprite($datadir + data[1]), pos, make_metadata(nil))
+-    obj.to_object.set_metadata(make_metadata(data[3].call(obj)))
++    obj.to_object.set_metadata(make_metadata(data[3].call(obj, sexpr)))
+     
+   when &quot;rect&quot;
+     obj = ObjMapRectObject.new(CL_Rect.new(CL_Point.new(pos.x.to_i, pos.y.to_i), CL_Size.new(64, 64)),
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-03-30 18:29:46 UTC (rev 522)
++++ trunk/supertux/gameobj.rb	2005-03-30 18:37:53 UTC (rev 523)
+@@ -1,6 +1,6 @@
+ class GameObj
+   def property_dialog()
+-    print &quot;No PropertyDialog Implemented for type: &quot;, self.class(), &quot;\n&quot;
++    print &quot;Object &quot;, self.class, &quot; has no properties\n&quot;
+   end
+ end
+ 
+@@ -45,7 +45,6 @@
+     @data     = data
+     @sequence = get_value_from_tree([&quot;sequence&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
+     @data.set_color(CL_Color.new(255, 0, 0, 128))
+-    
+ 
+     x  = get_value_from_tree([&quot;x&quot;, &quot;_&quot;],  sexpr, 0)
+     y  = get_value_from_tree([&quot;y&quot;, &quot;_&quot;],  sexpr, 0)
+@@ -88,7 +87,7 @@
+   attr_accessor :name
+   attr_reader   :data
+ 
+-  def initialize(data)
++  def initialize(data, sexpr = [])
+     @data = data
+     @name = &quot;start&quot;
+     connect_v1_ObjMapObject(data.to_object.sig_move(), method(:on_move))
+@@ -116,6 +115,107 @@
+   end
+ end
+ 
++class SimpleObject&lt;GameObj
++  def initialize(type)
++    @type = type
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write(&quot;       (%s (x %d) (y %d))\n&quot; % [@type, pos.x, pos.y])
++  end  
++end
++
++class SimpleTileObject&lt;GameObj
++  def initialize(data, type, sexpr = [])
++    @type = type
++    @data = data
++    connect_v1_ObjMapObject(@data.to_object.sig_move(), method(:on_move))
++    on_move(data)
++  end
++
++  def on_move(data)
++    pos = @data.to_object.get_pos()    
++    pos.x = (((pos.x+16)/32).to_i)*32
++    pos.y = (((pos.y+16)/32).to_i)*32
++    @data.to_object.set_pos(pos)       
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write(&quot;       (%s (x %d) (y %d))\n&quot; % [@type, pos.x, pos.y])
++  end  
++end
++
++class ParticleSystem&lt;GameObj
++  def initialize(type, sexpr = [])
++	@type = type
++	@layer = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], sexpr, -1)
++  end
++
++  def save(f, obj)
++	f.write(&quot;       (particles-%s\n&quot; % [@type])
++	if(@layer != -1)
++      f.write(&quot;         (layer %d)\n&quot; % [@layer])
++	f.write(&quot;       )\n&quot;)
++	end
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new(&quot;%s-ParticleSystem Property Dialog&quot; % [@type],
++			$gui.get_component())
++    dialog.add_int(&quot;Layer: &quot;, @layer)
++    dialog.set_callback(proc{|layer| 
++                          @layer = layer
++                        })
++  end
++end
++
++class Background&lt;GameObj
++  attr_accessor :message
++  attr_accessor :speed
++  attr_accessor :layer
++
++  def initialize(sexpr = [])
++	@image = get_value_from_tree([&quot;image&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
++	@speed = get_value_from_tree([&quot;speed&quot;, &quot;_&quot;], sexpr, 1.0)
++	@layer = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], sexpr, -1)
++  end
++
++  def save(f, obj)
++    f.write(&quot;       (background\n&quot;)
++	f.write(&quot;         (image \&quot;%s\&quot;)\n&quot; % [@image])
++	f.write(&quot;         (speed %f)\n&quot; % [@speed])
++	if(@layer != -1)
++	  f.write(&quot;         (layer %d)\n&quot; % [@layer])
++	end
++	f.write(&quot;       )\n&quot;)
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new(&quot;Background Property Dialog&quot;, $gui.get_component())
++    dialog.add_string(&quot;Image: &quot;, @image)
++	dialog.add_float(&quot;Speed: &quot;, @speed)
++	dialog.add_int(&quot;Layer: &quot;, @layer)
++	dialog.set_callback(proc{|image, speed|
++						  @image = image
++						  @speed = speed
++						  @layer = layer
++						})
++  end
++end
++
++class UnimplementedObject&lt;GameObj
++  def initialize(sexpr = [])
++	@sexpr = sexpr
++  end
++
++  def save(f)
++	f.write(&quot;           (sexpr %s)\n&quot; % [@sexpr])
++	# TODO
++  end
++end
++
+ class Door&lt;GameObj
+   attr_accessor :sector, :spawnpoint
+   attr_reader   :data
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2005-03-30 18:29:46 UTC (rev 522)
++++ trunk/supertux/sector.rb	2005-03-30 18:37:53 UTC (rev 523)
+@@ -1,7 +1,7 @@
+ class Sector
+   parent    = nil
+   name      = nil
+-  song      = nil
++  music     = nil
+   gravity   = 10.0
+   
+   width  = nil
+@@ -11,12 +11,14 @@
+   interactive = nil
+   foreground  = nil
+   
+-  objects   = nil
++  objects	  = nil
+ #  sketch    = nil
+   editormap = nil
+ 
++  cameramode = &quot;normal&quot;
++
+   attr_reader   :objects, :background, :interactive, :foreground, :parent, :width, :height
+-  attr_accessor :name, :song, :gravity
++  attr_accessor :name, :music, :gravity
+   
+   def initialize(parent)
+     @parent = parent
+@@ -36,7 +38,7 @@
+ 
+   def new_from_size(name, width, height)
+     @name = name
+-    @song = &quot;&lt;No Song&gt;&quot;
++    @music = &quot;&quot;
+     @gravity = 10.0
+     
+     @width  = width
+@@ -45,7 +47,7 @@
+     @foreground  = TilemapLayer.new($tileset, @width, @height)
+     @interactive = TilemapLayer.new($tileset, @width, @height)
+     @background  = TilemapLayer.new($tileset, @width, @height)       
+-    @objects = ObjectLayer.new()
++    @objects	 = ObjectLayer.new()
+     # @sketch  = SketchLayer.new()
+ 
+     @editormap = EditorMap.new()
+@@ -61,8 +63,8 @@
+   end
+ 
+   def load_v1(data)
+-    @name = &quot;&lt;No Name&gt;&quot;
+-    @song = &quot;supertux-1.ogg&quot;
++    @name = &quot;main&quot;
++    @music = &quot;&quot;
+     @gravity = 10.0
+     
+     @width  = get_value_from_tree([&quot;width&quot;, &quot;_&quot;], data, 20)
+@@ -117,11 +119,11 @@
+   
+   def load_v2(data)
+     @name = &quot;&lt;No Name&gt;&quot;
+-    @song = &quot;supertux-1.ogg&quot;
++    @music = &quot;&quot;
+     @gravity = 10.0
+     
+-    @width  = 20
+-    @height = 15
++    @width  = 0
++    @height = 0
+ 
+     @background  = nil
+     @interactive = nil
+@@ -136,9 +138,10 @@
+         @name = data[0]
+       elsif name == &quot;gravity&quot;
+         @gravity = data[0]
+-      elsif name == &quot;playerspawn&quot;
+-        print &quot;playerspawn unhandled&quot;
++	  elsif name == &quot;music&quot;
++		@music = data[0]
+       elsif name == &quot;tilemap&quot;
++		layer   = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], data, &quot;interactive&quot;)
+         width   = get_value_from_tree([&quot;width&quot;, &quot;_&quot;],  data, 20)
+         height  = get_value_from_tree([&quot;height&quot;, &quot;_&quot;], data, 15)
+         solid   = get_value_from_tree([&quot;solid&quot;, &quot;_&quot;],  data, false)
+@@ -150,31 +153,32 @@
+           @interactive = tilemap
+           @width       = width
+           @height      = height
+-        elsif not(@background)
++        elsif layer == &quot;background&quot;
+           @background = tilemap
+-        elsif not(@foreground)
+-          @foreground = tilemap
++        elsif layer == &quot;foreground&quot;
++		  @foreground = tilemap
+         else
+-          print &quot;Error: Duplicate tilemap in levelfile\n&quot;
++          print &quot;Flexlay doesn't handle tilemap layer '&quot;, layer, &quot;'.\n&quot;
+         end
+-      elsif name == &quot;background&quot;
+-        print &quot;background unhandled\n&quot;
++	  elsif name == &quot;camera&quot;
++		@cameramode = &quot;normal&quot;
++		# TODO...
+       else
+         puts &quot;Creating #{name}...&quot;
+-        create_gameobject_from_data(@objects, name, data)
++		create_gameobject_from_data(@objects, name, data)
+       end
+     end
+     
+     print &quot;Tileset: &quot;, $tileset, &quot; &quot;, width, &quot; &quot;, height, &quot;\n&quot;
+ 
++	if(@interactive == nil || @width == 0 || @height == 0)
++	  throw &quot;No interactive tilemap in sector '&quot;, @name , &quot;'.\n&quot;
++	end
++
+     if (@background == nil)
+       @background = TilemapLayer.new($tileset, @width, @height)
+     end
+ 
+-    if (@interactive == nil)
+-      @interactive = TilemapLayer.new($tileset, @width, @height)
+-    end
+-    
+     if (@foreground == nil)
+       @foreground = TilemapLayer.new($tileset, @width, @height)
+     end
+@@ -218,9 +222,9 @@
+ 
+   def save(f)   
+     f.write(&quot;    (name  \&quot;%s\&quot;)\n&quot;  % @name)
+-    f.write(&quot;    (width  %d)\n&quot;  % @width)
+-    f.write(&quot;    (height  %d)\n&quot; % @height)   
+-    f.write(&quot;    (music  \&quot;%s\&quot;)\n&quot; % @song)
++    if(@music != &quot;&quot;)
++        f.write(&quot;    (music  \&quot;%s\&quot;)\n&quot; % @music)
++    end
+     f.write(&quot;    (gravity %f)\n&quot; % @gravity)
+     
+     # FIXME: Make me configurable
+@@ -228,27 +232,26 @@
+             &quot;                (speed 0.5))\n&quot;)
+    
+     save_tilemap(f, @background,  &quot;background&quot;)
+-    save_tilemap(f, @interactive, &quot;main&quot;, :solid)
++    save_tilemap(f, @interactive, &quot;interactive&quot;, :solid)
+     save_tilemap(f, @foreground,  &quot;foreground&quot;)
+ #    save_strokelayer(f, @sketch)
+ 
+     f.write(&quot;    (camera\n&quot;)
+-    f.write(&quot;      (mode \&quot;normal\&quot;)\n&quot;)
+-    f.write(&quot;      (path\n&quot;)
++    f.write(&quot;      (mode \&quot;%s\&quot;)\n&quot; % [@cameramode])
++#    f.write(&quot;      (path\n&quot;)
++#    @objects.get_objects().each {|obj|
++#      pathnode = obj.get_metadata()
++#      if (pathnode.is_a?(PathNode))
++#        f.write(&quot;       (point (x %d) (y %d) (speed 1))\n&quot; % obj.get_pos().x, obj.get_pos().y)
++#      end
++#    }
++#    f.write(&quot;      )&quot;)
++	f.write(&quot;    )\n\n&quot;)
+ 
+-    @objects.get_objects().each {|obj|
+-      pathnode = obj.get_metadata()
+-      if (pathnode.is_a?(PathNode))
+-        f.write(&quot;       (point (x %d) (y %d) (speed 1))\n&quot; % obj.get_pos().x, obj.get_pos().y)
+-      end
+-    }
+-
+-    f.write(&quot;    ))\n\n&quot;)
+-
+     for obj in @objects.get_objects()
+       # FIXME: not sure why I need get_ruby_object() here
+-      badguy = get_ruby_object(obj.get_metadata())
+-      badguy.save(f, obj)
++      object = get_ruby_object(obj.get_metadata())
++      object.save(f, obj)
+     end
+   end
+ end
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-03-30 18:29:46 UTC (rev 522)
++++ trunk/supertux/supertux.rb	2005-03-30 18:37:53 UTC (rev 523)
+@@ -90,7 +90,7 @@
+ 
+ $config  = Config.new()
+ if !$datadir then
+-  $datadir = File.expand_path(&quot;~/cvs/supertux/supertux/data/&quot;)+&quot;/&quot;
++  $datadir = File.expand_path(&quot;~/projects/supertux/data/&quot;)+&quot;/&quot;
+ end
+ 
+ require &quot;data.rb&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000031.html">[Flexlay-commit] r522 - trunk/lib
+</A></li>
+	<LI>Next message: <A HREF="000033.html">[Flexlay-commit] r524 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#32">[ date ]</a>
+              <a href="thread.html#32">[ thread ]</a>
+              <a href="subject.html#32">[ subject ]</a>
+              <a href="author.html#32">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

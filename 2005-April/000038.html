@@ -1,0 +1,450 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r529 - trunk/netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r529%20-%20trunk/netpanzer&In-Reply-To=%3C200504010307.j3137Ur2000850%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000039.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r529 - trunk/netpanzer</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r529%20-%20trunk/netpanzer&In-Reply-To=%3C200504010307.j3137Ur2000850%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r529 - trunk/netpanzer">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr  1 05:07:30 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000039.html">[Flexlay-commit] r530 - in trunk: lib ruby supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#38">[ date ]</a>
+              <a href="thread.html#38">[ thread ]</a>
+              <a href="subject.html#38">[ subject ]</a>
+              <a href="author.html#38">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-04-01 05:06:55 +0200 (Fri, 01 Apr 2005)
+New Revision: 529
+
+Removed:
+   trunk/netpanzer/sprites/
+Modified:
+   trunk/netpanzer/gameobjects.rb
+   trunk/netpanzer/netpanzer.cxx
+   trunk/netpanzer/netpanzer.hxx
+   trunk/netpanzer/netpanzer.i
+   trunk/netpanzer/netpanzer.rb
+Log:
+- changed sprite and tilehandling so that it uses the netPanzer datafiles, hell of a lot faster now
+
+Modified: trunk/netpanzer/gameobjects.rb
+===================================================================
+--- trunk/netpanzer/gameobjects.rb	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/gameobjects.rb	2005-04-01 03:06:55 UTC (rev 529)
+@@ -135,13 +135,13 @@
+     end
+ 
+     def get_sprite()
+-      sprite = make_sprite(&quot;sprites/#{@brushindex}.png&quot;)
++      sprite = NetPanzerData::instance().get_tilegroup_sprite($brushes[@brushindex][0])
+       return sprite
+     end
+ 
+     def TileObject.create(objmap, brushindex, x, y)
+       obj = TileObject.new(brushindex)
+-      sprite_obj = ObjMapSpriteObject.new(make_sprite(&quot;sprites/#{brushindex}.png&quot;),
++      sprite_obj = ObjMapSpriteObject.new(NetPanzerData::instance().get_tilegroup_sprite($brushes[brushindex][0]),
+                                           CL_Pointf.new(x*32, y*32),
+                                           make_metadata(obj))
+       obj.data = sprite_obj
+
+Modified: trunk/netpanzer/netpanzer.cxx
+===================================================================
+--- trunk/netpanzer/netpanzer.cxx	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/netpanzer.cxx	2005-04-01 03:06:55 UTC (rev 529)
+@@ -32,13 +32,13 @@
+ #include &quot;tile_provider_impl.hxx&quot;
+ #include &quot;tile.hxx&quot;
+ #include &quot;tileset.hxx&quot;
++#include &quot;blitter.hxx&quot;
+ #include &quot;tilemap_layer.hxx&quot;
+ #include &quot;editor_map.hxx&quot;
+ #include &quot;netpanzer.hxx&quot;
+ 
+ NetPanzerData* NetPanzerData::instance_ = 0;
+ 
+-
+ class NetPanzerTileProviderImpl : public TileProviderImpl
+ {
+ private:
+@@ -64,10 +64,13 @@
+       }
+     else
+       {
+-        CL_SpriteDescription desc;
+-        desc.add_frame(get_pixelbuffer());
+-        sprite = CL_Sprite(desc);
+-        
++        NetPanzerTileGroup&amp; tilegroup = NetPanzerData::instance()-&gt;find_tilegroup(id);
++        int dist = id - tilegroup.start;
++
++        CL_Rect rect(CL_Point((dist % tilegroup.width) * 32,
++                              (dist / tilegroup.width) * 32),
++                     CL_Size(32, 32));
++        sprite.add_frame(tilegroup.get_surface(), rect);
+         return sprite;
+       }
+   }
+@@ -79,12 +82,13 @@
+         return buffer;
+       }
+     else
+-      {	
++      {
+         // FIXME: ClanLibs indexed handling seems broken, so we do
+         // the conversion ourself
+         const CL_Palette&amp; palette = NetPanzerData::instance()-&gt;get_palette();
+         unsigned char* data = NetPanzerData::instance()-&gt;get_tiledata() + (32*32) * id;
+         buffer = CL_PixelBuffer(32, 32, 32*3, CL_PixelFormat::rgb888);
++
+         buffer.lock();
+         unsigned char* target = static_cast&lt;unsigned char*&gt;(buffer.get_data());
+ 
+@@ -106,13 +110,95 @@
+ }
+ 
+ void
+-NetPanzerData::init(const std::string&amp; datadir_)
++NetPanzerData::register_tilegroup(int start, int width, int height)
+ {
++  NetPanzerTileGroup group;
++
++  group.start  = start;
++  group.width  = width;
++  group.height = height;
++
++  tilegroups.push_back(group);
++}
++
++void
++NetPanzerData::load_data(const std::string&amp; datadir_)
++{
+   datadir = datadir_;
++  std::cout &lt;&lt; &quot;NetPanzerData: Loading data from '&quot; &lt;&lt; datadir &lt;&lt; &quot;'&quot; &lt;&lt; std::endl;
+   palette = load_palette(datadir + &quot;/&quot; + &quot;wads/netp.act&quot;);
+   tileset = load_tileset(datadir + &quot;/&quot; + &quot;wads/summer12mb.tls&quot;);
+ }
+ 
++CL_Surface
++NetPanzerTileGroup::get_surface()
++{
++  if (!surface)
++    {
++      CL_PixelBuffer buffer(width*32, height*32, width*32*4, CL_PixelFormat::rgba8888);
++
++      for(int y = 0; y &lt; height; ++y)
++        for(int x = 0; x &lt; width; ++x)
++          {
++            const CL_Palette&amp; palette = NetPanzerData::instance()-&gt;get_palette();
++            unsigned char* data = NetPanzerData::instance()-&gt;get_tiledata() + (32*32) * (start + width*y + x);
++            
++            CL_PixelBuffer tile(32, 32, 32*3, CL_PixelFormat::rgb888);
++            tile.lock();
++            unsigned char* target = static_cast&lt;unsigned char*&gt;(tile.get_data());
++
++            for(int i = 0; i &lt; 32*32; ++i)
++              {
++                target[3*i+0] = palette[data[i]].get_blue();
++                target[3*i+1] = palette[data[i]].get_green();
++                target[3*i+2] = palette[data[i]].get_red();
++              }
++            tile.unlock();
++                
++            blit(buffer, tile, x * 32, y * 32);
++          }
++      
++      surface = CL_Surface(buffer);
++    }
++
++  return surface;
++}
++
++CL_Sprite
++NetPanzerData::get_tilegroup_sprite(int index)
++{
++  for(TileGroups::iterator i = tilegroups.begin(); i != tilegroups.end(); ++i)
++    {
++      if (index == i-&gt;start)
++        {
++          CL_Sprite sprite;
++          sprite.add_frame(i-&gt;get_surface(), CL_Rect(CL_Point(0, 0),
++                                                     CL_Size(i-&gt;get_surface().get_width(),
++                                                             i-&gt;get_surface().get_height())));
++          return sprite;
++        }
++    }
++
++  std::cout &lt;&lt; &quot;NetPanzerData: Couldn't get tilegroup_sprite for '&quot; &lt;&lt; index &lt;&lt; &quot;'&quot; &lt;&lt; std::endl;
++  return CL_Sprite();
++}
++
++NetPanzerTileGroup&amp;
++NetPanzerData::find_tilegroup(int index)
++{
++  for(TileGroups::iterator i = tilegroups.begin(); i != tilegroups.end(); ++i)
++    {
++      if (i-&gt;start &lt;= index &amp;&amp; index &lt; i-&gt;start + (i-&gt;width*i-&gt;height))
++        {
++          return *i;
++        }
++    }
++
++  std::cout &lt;&lt; &quot;NetPanzerData: Couldn't find tilegroup for '&quot; &lt;&lt; index &lt;&lt; &quot;'&quot; &lt;&lt; std::endl;
++  // return some junk just to keep it running
++  return tilegroups.front();
++}
++
+ const Tileset&amp;
+ NetPanzerData::get_tileset() const
+ {
+@@ -183,12 +269,6 @@
+       file.read(reinterpret_cast&lt;char*&gt;(&amp;tile_count), sizeof(tile_count));
+       file.read(reinterpret_cast&lt;char*&gt;(raw_palette), sizeof(raw_palette));
+ 
+-      std::cout &lt;&lt; &quot;ID:      &quot; &lt;&lt; netp_id_header &lt;&lt; std::endl;
+-      std::cout &lt;&lt; &quot;Version: &quot; &lt;&lt; version &lt;&lt; std::endl;
+-      std::cout &lt;&lt; &quot;Width:   &quot; &lt;&lt; width &lt;&lt; std::endl;
+-      std::cout &lt;&lt; &quot;Height:  &quot; &lt;&lt; height &lt;&lt; std::endl;
+-      std::cout &lt;&lt; &quot;Count:   &quot; &lt;&lt; tile_count &lt;&lt; std::endl;
+-
+       NetPanzerTileHeader* tile_headers = new NetPanzerTileHeader[tile_count];
+ 
+       file.read(reinterpret_cast&lt;char*&gt;(tile_headers), 
+@@ -200,44 +280,19 @@
+       file.read(reinterpret_cast&lt;char*&gt;(tiledata), tilesize*tile_count);
+       file.close();
+ 
+-      if (0)
+-        {
+-          // FIXME: The palette in the netpanzer 'summer12mb.tls' file
+-          // is either broken or otherwise corrupt, so we ignore it
+-          // and use the seperate palette file 'netp.act' which works
+-          // fine.
+-
+-          // Convert palette in native format
+-          CL_Palette palette;
+-          for(int i = 0; i &lt; 256; ++i)
+-            {
+-              palette.colors[i].set_red  (raw_palette[3*i + 0]);
+-              palette.colors[i].set_green(raw_palette[3*i + 1]);
+-              palette.colors[i].set_blue (raw_palette[3*i + 2]);
+-              palette.colors[i].set_alpha(255);
+-
+-              if (0)
+-                {
+-                  std::cout &lt;&lt; &quot;Palette: &quot;
+-                            &lt;&lt; (int)raw_palette[3*i + 0] &lt;&lt; &quot; &quot;
+-                            &lt;&lt; (int)raw_palette[3*i + 1] &lt;&lt; &quot; &quot;
+-                            &lt;&lt; (int)raw_palette[3*i + 2]
+-                            &lt;&lt; std::endl;
+-                }
+-            }
+-          
+-          NetPanzerData::instance()-&gt;palette  = palette;
+-        }
+-
++      // FIXME: The palette in the netpanzer 'summer12mb.tls' file
++      // is either broken or otherwise corrupt, so we ignore it
++      // and use the seperate palette file 'netp.act' which works
++      // fine.
++      
+       NetPanzerData::instance()-&gt;tiledata = tiledata;
+       
+       Tileset tileset(width);
+ 
+       for(int i = 0; i &lt; tile_count; ++i)
+         {
+-          Tile* tile = new Tile(TileProvider(new NetPanzerTileProviderImpl(i)));
+-          tileset.add_tile(i, tile);
+-          delete tile;
++          Tile tile(TileProvider(new NetPanzerTileProviderImpl(i)));
++          tileset.add_tile(i, &amp;tile);
+         }
+       return tileset;
+     }
+
+Modified: trunk/netpanzer/netpanzer.hxx
+===================================================================
+--- trunk/netpanzer/netpanzer.hxx	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/netpanzer.hxx	2005-04-01 03:06:55 UTC (rev 529)
+@@ -22,6 +22,8 @@
+ 
+ #include &lt;string&gt;
+ #include &lt;ClanLib/Display/palette.h&gt;
++#include &lt;ClanLib/Display/surface.h&gt;
++#include &lt;ClanLib/Display/sprite.h&gt;
+ #include &quot;../lib/tileset.hxx&quot;
+ #include &quot;../lib/tilemap_layer.hxx&quot;
+ #include &quot;../lib/shared_ptr.hxx&quot;
+@@ -38,6 +40,19 @@
+   char	avg_color;
+ };
+ 
++struct NetPanzerTileGroup
++{
++  int start;
++  int width;
++  int height;
++  
++  CL_Surface get_surface(); 
++
++private:
++  /** Surface holding the tilegroups image */
++  CL_Surface surface;
++};
++
+ class NetPanzerData
+ {
+ private:
+@@ -56,16 +71,33 @@
+   CL_Palette     palette;
+   Tileset        tileset;
+   unsigned char* tiledata;
+-  
++  typedef std::vector&lt;NetPanzerTileGroup&gt; TileGroups;
++  TileGroups tilegroups;
++
+ public:
+   NetPanzerData();
+-  void init(const std::string&amp; datadir_);
++
++  /** Register a tilegroup, ie. a section of tiles that belong
++      together and form an building, lake, a section of trees, etc.
++
++      \param start the tile-id for the upper/left tile
++      \param width the width of tilegroup
++      \param height the height of the tilegroup
++  */
++  void register_tilegroup(int start, int width, int height);
++
++  void load_data(const std::string&amp; datadir_);
+   const CL_Palette&amp; get_palette() const;
+   const Tileset&amp;    get_tileset() const;
+   unsigned char*    get_tiledata() const;
+ 
+   CL_Palette load_palette(const std::string&amp; filename);
+   Tileset    load_tileset(const std::string&amp; filename);
++  CL_Sprite  get_tilegroup_sprite(int index);
++
++  /** Locate the tilegroup in which the tile with \a tileindex is
++      located */
++  NetPanzerTileGroup&amp; find_tilegroup(int tileindex);
+ };
+ 
+ class NetPanzerFileStruct
+
+Modified: trunk/netpanzer/netpanzer.i
+===================================================================
+--- trunk/netpanzer/netpanzer.i	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/netpanzer.i	2005-04-01 03:06:55 UTC (rev 529)
+@@ -4,11 +4,11 @@
+ %{
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/Core/System/error.h&gt;
++#include &lt;ClanLib/Display/sprite.h&gt;
+ #include &quot;netpanzer.hxx&quot;
+ %}
+ 
+ %import  &quot;../lib/flexlay_wrap.i&quot;
+ %include &quot;netpanzer.hxx&quot;
+ 
+-
+ // EOF //
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/netpanzer.rb	2005-04-01 03:06:55 UTC (rev 529)
+@@ -45,8 +45,13 @@
+ $config = Config.new()
+ 
+ $datadir = &quot;/home/ingo/games/netpanzer-0.1.5&quot;
+-NetPanzerData::instance().init($datadir)
+ 
++$brushes.each_with_index{|(start, width, height, name), index|
++  NetPanzerData::instance().register_tilegroup(start, width, height)
++}
++
++NetPanzerData::instance().load_data($datadir)
++
+ $tileset = NetPanzerData::instance().get_tileset()
+ 
+ $editor = Editor.new()
+@@ -286,15 +291,6 @@
+     recent_files_menu.add_item(mysprite, filename, proc{ netpanzer_load_level(filename) })
+ end
+ 
+-def has_element(lst, el)
+-  lst.each {|i|
+-    if i == el then 
+-      return True
+-    end
+-  }
+-  return false
+-end
+-
+ menu = CL_Menu.new($gui.get_component())
+ menu.add_item(&quot;File/New...&quot;, proc{gui_level_new})
+ menu.add_item(&quot;File/Open...&quot;, proc{gui_level_load})
+@@ -327,14 +323,13 @@
+ 
+ menu.add_item(&quot;Zoom/1:4 (25%) &quot;,  proc{ gui_set_zoom(0.25) })
+ menu.add_item(&quot;Zoom/1:2 (50%) &quot;,  proc{ gui_set_zoom(0.5) })
+-menu.add_item(&quot;Zoom/1:1 (100%) &quot;, proc{ gui_set_zoom(1.0) }) 
++menu.add_item(&quot;Zoom/1:1 (100%) &quot;, proc{ gui_set_zoom(1.0) })
+ menu.add_item(&quot;Zoom/2:1 (200%) &quot;, proc{ gui_set_zoom(2.0) })
+ menu.add_item(&quot;Zoom/4:1 (400%) &quot;, proc{ gui_set_zoom(4.0) })
+ 
+ menu.add_item(&quot;Scripts/Flatten&quot;,  proc{ $workspace.get_map().get_data().flatten() })
+ menu.add_item(&quot;Scripts/Unflatten&quot;,  proc{ $workspace.get_map().get_data().unflatten() })
+ 
+-# minimap_panel = Panel(CL_Rect(CL_Point(0, 600-56), CL_Size(800-134, 56)), $gui.get_component())
+ $minimap = Minimap.new($editor_map, CL_Rect.new(CL_Point.new(3, ($screen.height-112)+56 - 128-3), CL_Size.new(128, 128)), $option_panel)
+ 
+ $load_dialog = SimpleFileDialog.new(&quot;Load netPanzer Level&quot;, &quot;Load&quot;, &quot;Cancel&quot;, $gui.get_component())
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000039.html">[Flexlay-commit] r530 - in trunk: lib ruby supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#38">[ date ]</a>
+              <a href="thread.html#38">[ thread ]</a>
+              <a href="subject.html#38">[ subject ]</a>
+              <a href="author.html#38">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

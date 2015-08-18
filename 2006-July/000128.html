@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r632 - trunk/ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r632%20-%20trunk/ruby&In-Reply-To=%3C200607050436.k654aoRq022815%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000131.html">
+   <LINK REL="Next"  HREF="000129.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r632 - trunk/ruby</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r632%20-%20trunk/ruby&In-Reply-To=%3C200607050436.k654aoRq022815%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r632 - trunk/ruby">grumbel at berlios.de
+       </A><BR>
+    <I>Wed Jul  5 06:36:50 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000131.html">[Flexlay-commit] r631 - in trunk: . clanlib clanlib/API clanlib/API/Application clanlib/API/Core clanlib/API/Core/IOData clanlib/API/Core/Math clanlib/API/Core/Resources clanlib/API/Core/System clanlib/API/Core/XML clanlib/API/Display clanlib/API/Display/Collision clanlib/API/Display/Providers clanlib/API/GL clanlib/API/GUI clanlib/API/GUIStyleSilver clanlib/API/MikMod clanlib/API/Network clanlib/API/Network/IRC clanlib/API/Network/NetObjects clanlib/API/Network/NetSession clanlib/API/Network/NetVariables clanlib/API/Network/Socket clanlib/API/SDL clanlib/API/Signals clanlib/API/Sound clanlib/API/Sound/SoundFilters clanlib/API/Sound/SoundProviders clanlib/API/Vorbis clanlib/Application clanlib/Application/MacOS clanlib/Application/Unix clanlib/Application/Win32 clanlib/Core clanlib/Core/IOData clanlib/Core/IOData/Generic clanlib/Core/IOData/Unix clanlib/Core/IOData/Win32 clanlib/Core/Math clanlib/Core/Resources clanlib/Core/System clanlib/Core/System/Generic clanlib/Core/System/Unix! clanlib/Core/System/Win32 clanlib/Core/XML clanlib/Display clanlib/Display/Collision clanlib/Display/Providers clanlib/Display/Win32 clanlib/GL clanlib/GL/AGL clanlib/GL/GLX clanlib/GL/WGL clanlib/GUI clanlib/GUIStyleSilver clanlib/Signals clanlib/doc lib supertux windstille
+</A></li>
+        <LI>Next message: <A HREF="000129.html">[Flexlay-commit] r633 - in trunk: . lib netpanzer python ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-05 06:36:12 +0200 (Wed, 05 Jul 2006)
+New Revision: 632
+
+Modified:
+   trunk/ruby/SConstruct
+Log:
+- added a cutdown version of ClanLib-0.8
+
+Modified: trunk/ruby/SConstruct
+===================================================================
+--- trunk/ruby/SConstruct	2006-07-05 04:25:17 UTC (rev 631)
++++ trunk/ruby/SConstruct	2006-07-05 04:36:12 UTC (rev 632)
+@@ -53,8 +53,13 @@
+ #env.Command('flexlay_ruby_wrap.cxx', '../lib/flexlay_wrap.i',
+ #            &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+ 
+-clanLib_env = Environment()
+-clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
++clanLib_env = Environment(CPPPATH=['../clanlib/'],
++                          LIBPATH=['../clanlib/'],
++                          LIBS=['clanCore', 'clanDisplay', 'clanGL', 'clanSignals', 'clanGUI', 'clanGUIStyleSilver'],
++                          )
++# Use this if you want to use your globally installed ClanLib
++#  clanLib_env = Environment()
++#  clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
+ 
+ libflexlay_ruby_env = env.Copy()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000131.html">[Flexlay-commit] r631 - in trunk: . clanlib clanlib/API clanlib/API/Application clanlib/API/Core clanlib/API/Core/IOData clanlib/API/Core/Math clanlib/API/Core/Resources clanlib/API/Core/System clanlib/API/Core/XML clanlib/API/Display clanlib/API/Display/Collision clanlib/API/Display/Providers clanlib/API/GL clanlib/API/GUI clanlib/API/GUIStyleSilver clanlib/API/MikMod clanlib/API/Network clanlib/API/Network/IRC clanlib/API/Network/NetObjects clanlib/API/Network/NetSession clanlib/API/Network/NetVariables clanlib/API/Network/Socket clanlib/API/SDL clanlib/API/Signals clanlib/API/Sound clanlib/API/Sound/SoundFilters clanlib/API/Sound/SoundProviders clanlib/API/Vorbis clanlib/Application clanlib/Application/MacOS clanlib/Application/Unix clanlib/Application/Win32 clanlib/Core clanlib/Core/IOData clanlib/Core/IOData/Generic clanlib/Core/IOData/Unix clanlib/Core/IOData/Win32 clanlib/Core/Math clanlib/Core/Resources clanlib/Core/System clanlib/Core/System/Generic clanlib/Core/System/Unix! clanlib/Core/System/Win32 clanlib/Core/XML clanlib/Display clanlib/Display/Collision clanlib/Display/Providers clanlib/Display/Win32 clanlib/GL clanlib/GL/AGL clanlib/GL/GLX clanlib/GL/WGL clanlib/GUI clanlib/GUIStyleSilver clanlib/Signals clanlib/doc lib supertux windstille
+</A></li>
+	<LI>Next message: <A HREF="000129.html">[Flexlay-commit] r633 - in trunk: . lib netpanzer python ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

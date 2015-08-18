@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r690 - trunk/netbrush/experimental
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r690%20-%20trunk/netbrush/experimental&In-Reply-To=%3C200611041829.kA4ITjPj031340%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000182.html">
+   <LINK REL="Next"  HREF="000184.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r690 - trunk/netbrush/experimental</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r690%20-%20trunk/netbrush/experimental&In-Reply-To=%3C200611041829.kA4ITjPj031340%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r690 - trunk/netbrush/experimental">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Nov  4 19:29:45 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000182.html">[Flexlay-commit] r689 - trunk/netbrush/experimental
+</A></li>
+        <LI>Next message: <A HREF="000184.html">[Flexlay-commit] r691 - in trunk/netbrush: . src src/widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-04 19:29:44 +0100 (Sat, 04 Nov 2006)
+New Revision: 690
+
+Modified:
+   trunk/netbrush/experimental/input_device_xinput.cpp
+Log:
+- some cleanup
+
+Modified: trunk/netbrush/experimental/input_device_xinput.cpp
+===================================================================
+--- trunk/netbrush/experimental/input_device_xinput.cpp	2006-11-04 18:23:44 UTC (rev 689)
++++ trunk/netbrush/experimental/input_device_xinput.cpp	2006-11-04 18:29:44 UTC (rev 690)
+@@ -148,122 +148,122 @@
+     }
+ }
+ 
+-      XDeviceInfo*
+-        InputDevice_XInput::find_device_info(Display	*display,
+-                                             const char	*name,
+-                                             Bool	only_extended)
+-        {
+-          // FIXME: Not really needed could simply pass XDeviceInfo to the
+-          // constructor, might however make a nicer interface
+-          XDeviceInfo	*devices;
+-          int		loop;
+-          int		num_devices;
+-          int		len = strlen(name);
+-          Bool     is_id = True;
+-          XID		id = 0;
++XDeviceInfo*
++InputDevice_XInput::find_device_info(Display	*display,
++                                     const char	*name,
++                                     Bool	only_extended)
++{
++  // FIXME: Not really needed could simply pass XDeviceInfo to the
++  // constructor, might however make a nicer interface
++  XDeviceInfo	*devices;
++  int		loop;
++  int		num_devices;
++  int		len = strlen(name);
++  Bool     is_id = True;
++  XID		id = 0;
+ 
+-          for(loop=0; loop&lt;len; loop++) {
+-            if (!isdigit(name[loop])) {
+-              is_id = False;
+-              break;
+-            }
+-          }
++  for(loop=0; loop&lt;len; loop++) {
++    if (!isdigit(name[loop])) {
++      is_id = False;
++      break;
++    }
++  }
+ 
+-          if (is_id) {
+-            id = atoi(name);
+-          }
++  if (is_id) {
++    id = atoi(name);
++  }
+ 
+-          devices = XListInputDevices(display, &amp;num_devices);
++  devices = XListInputDevices(display, &amp;num_devices);
+ 
+-          for(loop=0; loop&lt;num_devices; loop++) {
+-            if ((!only_extended || (devices[loop].use == IsXExtensionDevice)) &amp;&amp;
+-                ((!is_id &amp;&amp; strcmp(devices[loop].name, name) == 0) ||
+-                 (is_id &amp;&amp; devices[loop].id == id))) {
+-              return &amp;devices[loop];
+-            }
+-          }
+-          return NULL;
+-        }
++  for(loop=0; loop&lt;num_devices; loop++) {
++    if ((!only_extended || (devices[loop].use == IsXExtensionDevice)) &amp;&amp;
++        ((!is_id &amp;&amp; strcmp(devices[loop].name, name) == 0) ||
++         (is_id &amp;&amp; devices[loop].id == id))) {
++      return &amp;devices[loop];
++    }
++  }
++  return NULL;
++}
+ 
+-      int
+-        InputDevice_XInput::register_events(Display		*dpy,
+-                                            XDeviceInfo	*info,
+-                                            const char		*dev_name,
+-                                            Bool		handle_proximity)
+-      {
+-        int             number = 0;	/* number of events registered */
+-        XEventClass     event_list[7];
+-        int             i;
+-        XDevice         *device;
+-        Window          root_win;
+-        unsigned long   screen;
+-        XInputClassInfo *ip;
++int
++InputDevice_XInput::register_events(Display		*dpy,
++                                    XDeviceInfo	*info,
++                                    const char		*dev_name,
++                                    Bool		handle_proximity)
++{
++  int             number = 0;	/* number of events registered */
++  XEventClass     event_list[7];
++  int             i;
++  XDevice         *device;
++  Window          root_win;
++  unsigned long   screen;
++  XInputClassInfo *ip;
+ 
+-        screen   = DefaultScreen(dpy);
+-        root_win = RootWindow(dpy, screen);
++  screen   = DefaultScreen(dpy);
++  root_win = RootWindow(dpy, screen);
+ 
+-        device = XOpenDevice(dpy, info-&gt;id);
++  device = XOpenDevice(dpy, info-&gt;id);
+ 
+-        if (!device) {
+-          fprintf(stderr, &quot;unable to open device %s\n&quot;, dev_name);
+-          return 0;
+-        }
++  if (!device) {
++    fprintf(stderr, &quot;unable to open device %s\n&quot;, dev_name);
++    return 0;
++  }
+ 
+-        if (device-&gt;num_classes &gt; 0)
+-          {
+-            for (ip = device-&gt;classes, i = 0; i&lt;info-&gt;num_classes; ip++, ++i)
+-              {
+-                switch (ip-&gt;input_class) {
+-                case KeyClass:
+-                  DeviceKeyPress  (device, key_press_type,   event_list[number]); number++;
+-                  DeviceKeyRelease(device, key_release_type, event_list[number]); number++;
+-                  break;
++  if (device-&gt;num_classes &gt; 0)
++    {
++      for (ip = device-&gt;classes, i = 0; i&lt;info-&gt;num_classes; ip++, ++i)
++        {
++          switch (ip-&gt;input_class) {
++          case KeyClass:
++            DeviceKeyPress  (device, key_press_type,   event_list[number]); number++;
++            DeviceKeyRelease(device, key_release_type, event_list[number]); number++;
++            break;
+ 
+-                case ButtonClass:
+-                  DeviceButtonPress  (device, button_press_type,   event_list[number]); number++;
+-                  DeviceButtonRelease(device, button_release_type, event_list[number]); number++;
+-                  break;
++          case ButtonClass:
++            DeviceButtonPress  (device, button_press_type,   event_list[number]); number++;
++            DeviceButtonRelease(device, button_release_type, event_list[number]); number++;
++            break;
+ 
+-                case ValuatorClass:
+-                  DeviceMotionNotify(device, motion_type, event_list[number]); number++;
+-                  if (handle_proximity) {
+-                    ProximityIn (device, proximity_in_type,  event_list[number]); number++;
+-                    ProximityOut(device, proximity_out_type, event_list[number]); number++;
+-                  }
+-                  break;
++          case ValuatorClass:
++            DeviceMotionNotify(device, motion_type, event_list[number]); number++;
++            if (handle_proximity) {
++              ProximityIn (device, proximity_in_type,  event_list[number]); number++;
++              ProximityOut(device, proximity_out_type, event_list[number]); number++;
++            }
++            break;
+ 		
+-                default:
+-                  fprintf(stderr, &quot;unknown class\n&quot;);
+-                  break;
+-                }
+-              }
+-
+-            if (XSelectExtensionEvent(dpy, root_win, event_list, number))
+-              {
+-                fprintf(stderr, &quot;error selecting extended events\n&quot;);
+-                return 0;
+-              }
++          default:
++            fprintf(stderr, &quot;unknown class\n&quot;);
++            break;
+           }
++        }
+ 
+-        //std::cout &lt;&lt; &quot;### Registered events: &quot; &lt;&lt; number &lt;&lt; std::endl;
+-        return number;
+-      }
++      if (XSelectExtensionEvent(dpy, root_win, event_list, number))
++        {
++          fprintf(stderr, &quot;error selecting extended events\n&quot;);
++          return 0;
++        }
++    }
+ 
+-      void
+-        InputDevice_XInput::on_xevent(XEvent &amp;event)
+-      {
+-        if (0)
+-          std::cout &lt;&lt; this &lt;&lt; &quot; event: &quot;
+-                    &lt;&lt; event.type &lt;&lt; &quot; Defs: &quot;
+-                    &lt;&lt; motion_type &lt;&lt; &quot; &quot;
+-                    &lt;&lt; button_press_type &lt;&lt; &quot; &quot;
+-                    &lt;&lt; button_release_type &lt;&lt; &quot; &quot;
+-                    &lt;&lt; key_press_type &lt;&lt; &quot; &quot;
+-                    &lt;&lt; key_release_type &lt;&lt; &quot; &quot;
+-                    &lt;&lt; proximity_out_type &lt;&lt; &quot; &quot;
+-                    &lt;&lt; proximity_in_type &lt;&lt; &quot; &quot;
+-                    &lt;&lt; std::endl;
++  //std::cout &lt;&lt; &quot;### Registered events: &quot; &lt;&lt; number &lt;&lt; std::endl;
++  return number;
++}
+ 
++void
++InputDevice_XInput::on_xevent(XEvent &amp;event)
++{
++  if (0)
++    std::cout &lt;&lt; this &lt;&lt; &quot; event: &quot;
++              &lt;&lt; event.type &lt;&lt; &quot; Defs: &quot;
++              &lt;&lt; motion_type &lt;&lt; &quot; &quot;
++              &lt;&lt; button_press_type &lt;&lt; &quot; &quot;
++              &lt;&lt; button_release_type &lt;&lt; &quot; &quot;
++              &lt;&lt; key_press_type &lt;&lt; &quot; &quot;
++              &lt;&lt; key_release_type &lt;&lt; &quot; &quot;
++              &lt;&lt; proximity_out_type &lt;&lt; &quot; &quot;
++              &lt;&lt; proximity_in_type &lt;&lt; &quot; &quot;
++              &lt;&lt; std::endl;
++
+   if (event.type == motion_type)
+     {
+       on_device_motion_event((XDeviceMotionEvent *)&amp;event);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000182.html">[Flexlay-commit] r689 - trunk/netbrush/experimental
+</A></li>
+	<LI>Next message: <A HREF="000184.html">[Flexlay-commit] r691 - in trunk/netbrush: . src src/widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r492 - in trunk: lib pingus
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r492%20-%20in%20trunk%3A%20lib%20pingus&In-Reply-To=%3C200503011248.j21CmH2Z004584%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000004.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r492 - in trunk: lib pingus</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r492%20-%20in%20trunk%3A%20lib%20pingus&In-Reply-To=%3C200503011248.j21CmH2Z004584%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r492 - in trunk: lib pingus">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar  1 13:48:17 CET 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000004.html">[Flexlay-commit] r493 - in trunk: lib paint pingus
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#3">[ date ]</a>
+              <a href="thread.html#3">[ thread ]</a>
+              <a href="subject.html#3">[ subject ]</a>
+              <a href="author.html#3">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-01 13:48:16 +0100 (Tue, 01 Mar 2005)
+New Revision: 492
+
+Modified:
+   trunk/lib/objmap_sprite_object.cxx
+   trunk/lib/objmap_sprite_object.hxx
+   trunk/pingus/worldobjs.rb
+   trunk/pingus/xmlreader.rb
+Log:
+- added some basic support for flipping
+
+Modified: trunk/lib/objmap_sprite_object.cxx
+===================================================================
+--- trunk/lib/objmap_sprite_object.cxx	2005-02-28 04:02:43 UTC (rev 491)
++++ trunk/lib/objmap_sprite_object.cxx	2005-03-01 12:48:16 UTC (rev 492)
+@@ -57,12 +57,22 @@
+ {
+   CL_Point  align = CL_Point(0, 0);
+   CL_Origin origin_e;
+-
++  
+   sprite.get_alignment(origin_e, align.x, align.y);
+ 
+   CL_Point origin = calc_origin(origin_e, CL_Size(sprite.get_width(),
+                                                   sprite.get_height()));
+   align.x = -align.x;
++
++  // FIXME: This looks a bit hacky
++  float scale_x, scale_y;
++  sprite.get_scale(scale_x, scale_y);
++
++  if (scale_x &lt; 0)
++    align.x += sprite.get_width();
++  
++  if (scale_y &lt; 0)
++    align.y += sprite.get_height();
+       
+   return CL_Rectf(pos - origin - align,
+                   CL_Sizef(sprite.get_width(), sprite.get_height()));
+@@ -75,6 +85,10 @@
+ 
+   impl-&gt;sprite.get_scale(scale_x, scale_y);
+   impl-&gt;sprite.set_scale(scale_x, -scale_y);
++  if (scale_y &lt; 0)
++    impl-&gt;pos.y -= impl-&gt;sprite.get_height();
++  else
++    impl-&gt;pos.y += impl-&gt;sprite.get_height();
+ }
+ 
+ void
+@@ -83,8 +97,18 @@
+   float scale_x, scale_y;
+   impl-&gt;sprite.get_scale(scale_x, scale_y);
+   impl-&gt;sprite.set_scale(-scale_x, scale_y);
++  if (scale_x &lt; 0)
++    impl-&gt;pos.x -= impl-&gt;sprite.get_width();
++  else
++    impl-&gt;pos.x += impl-&gt;sprite.get_width();
+ }
+ 
++void
++ObjMapSpriteObject::set_rotate(float angle)
++{
++  impl-&gt;sprite.set_angle(angle);
++}
++
+ ObjMapObject
+ ObjMapSpriteObject::to_object()
+ {
+
+Modified: trunk/lib/objmap_sprite_object.hxx
+===================================================================
+--- trunk/lib/objmap_sprite_object.hxx	2005-02-28 04:02:43 UTC (rev 491)
++++ trunk/lib/objmap_sprite_object.hxx	2005-03-01 12:48:16 UTC (rev 492)
+@@ -37,6 +37,7 @@
+                      const CL_Pointf&amp; pos_, 
+                      const MetaData&amp; data_);
+ 
++  void set_rotate(float angle);
+   void flip_horizontal();
+   void flip_vertical();
+   
+
+Modified: trunk/pingus/worldobjs.rb
+===================================================================
+--- trunk/pingus/worldobjs.rb	2005-02-28 04:02:43 UTC (rev 491)
++++ trunk/pingus/worldobjs.rb	2005-03-01 12:48:16 UTC (rev 492)
+@@ -126,7 +126,11 @@
+   end
+ 
+   def get_image()
+-    return @properties['surface'] || &quot;core/misc/404sprite&quot;
++    if @properties['surface'] then
++      return @properties['surface'][0]
++    else
++      return &quot;core/misc/404sprite&quot;
++    end
+   end
+ 
+   def get_pos()
+@@ -137,10 +141,32 @@
+     @data = data
+     if @properties.has_key?('position') then
+       @data.to_object().set_pos(get_pos())
+-      @properties.delete('position')
++      @properties.delete('position')   
+     end
++    set_modifier()
+   end
+ 
++  def set_modifier()
++    if @properties['surface'] then
++      modifier = @properties['surface'][1]
++      case modifier
++      when &quot;ROT0&quot;
++        
++      when &quot;ROT90&quot;
++      when &quot;ROT180&quot;
++      when &quot;ROT270&quot;
++      when &quot;ROT0FLIP&quot;
++        @data.flip_horizontal()
++      when &quot;ROT90FLIP&quot;
++      when &quot;ROT180FLIP&quot;
++        @data.flip_vertical()
++      when &quot;ROT270FLIP&quot;
++      else
++        puts &quot;Error: Unknown modifier: #{modifier}&quot;
++      end
++    end
++  end
++
+   def property_dialog()
+     puts &quot;Property: #{@properties.inspect}&quot;
+ 
+@@ -162,7 +188,7 @@
+       else
+         puts &quot;Warning: Ignoring '#{k}' property, type '#{$objects[@typename][k][0]}' is unknown&quot;
+       end
+-     }
++    }
+     dialog.set_callback(proc{|message| 
+                           @message = message
+                         })
+
+Modified: trunk/pingus/xmlreader.rb
+===================================================================
+--- trunk/pingus/xmlreader.rb	2005-02-28 04:02:43 UTC (rev 491)
++++ trunk/pingus/xmlreader.rb	2005-03-01 12:48:16 UTC (rev 492)
+@@ -34,8 +34,7 @@
+ 
+       when :image
+         # FIXME: handle modifier somewhere
+-        return ret.elements['image'].text      
+-
++        return [ret.elements['image'].text, ret.elements['modifier'].text]
+       end
+     else
+       return default
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000004.html">[Flexlay-commit] r493 - in trunk: lib paint pingus
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#3">[ date ]</a>
+              <a href="thread.html#3">[ thread ]</a>
+              <a href="subject.html#3">[ subject ]</a>
+              <a href="author.html#3">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

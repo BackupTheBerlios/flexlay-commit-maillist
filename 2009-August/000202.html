@@ -1,0 +1,498 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r709 - in trunk/flexlay: guile netpanzer python	ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r709%20-%20in%20trunk/flexlay%3A%20guile%20netpanzer%20python%0A%09ruby&In-Reply-To=%3C200908011759.n71HxYqM004922%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000201.html">
+   <LINK REL="Next"  HREF="000203.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r709 - in trunk/flexlay: guile netpanzer python	ruby</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r709%20-%20in%20trunk/flexlay%3A%20guile%20netpanzer%20python%0A%09ruby&In-Reply-To=%3C200908011759.n71HxYqM004922%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r709 - in trunk/flexlay: guile netpanzer python	ruby">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Aug  1 19:59:34 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000201.html">[Flexlay-commit] r708 - in trunk/flexlay: . netpanzer
+</A></li>
+        <LI>Next message: <A HREF="000203.html">[Flexlay-commit] r710 - in trunk/flexlay: guile lib netpanzer	python ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#202">[ date ]</a>
+              <a href="thread.html#202">[ thread ]</a>
+              <a href="subject.html#202">[ subject ]</a>
+              <a href="author.html#202">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-08-01 19:59:34 +0200 (Sat, 01 Aug 2009)
+New Revision: 709
+
+Modified:
+   trunk/flexlay/guile/gui.cxx
+   trunk/flexlay/guile/scm_functor.cxx
+   trunk/flexlay/guile/scm_helper.cxx
+   trunk/flexlay/netpanzer/netpanzer.cxx
+   trunk/flexlay/python/editor.cxx
+   trunk/flexlay/python/python_functor.cxx
+   trunk/flexlay/python/python_meta_data.cxx
+   trunk/flexlay/python/python_object.cxx
+   trunk/flexlay/python/sexpr_parser.cxx
+   trunk/flexlay/ruby/ruby_functor.cxx
+   trunk/flexlay/ruby/ruby_meta_data.cxx
+   trunk/flexlay/ruby/ruby_object.cxx
+   trunk/flexlay/ruby/ruby_sexpr_parser.cxx
+Log:
+Upgraded to GPLv3+
+
+Modified: trunk/flexlay/guile/gui.cxx
+===================================================================
+--- trunk/flexlay/guile/gui.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/guile/gui.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/signals.h&gt;
+
+Modified: trunk/flexlay/guile/scm_functor.cxx
+===================================================================
+--- trunk/flexlay/guile/scm_functor.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/guile/scm_functor.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Feuerkraft - A Tank Battle Game
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;iostream&gt;
+ #include &lt;libguile.h&gt;
+
+Modified: trunk/flexlay/guile/scm_helper.cxx
+===================================================================
+--- trunk/flexlay/guile/scm_helper.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/guile/scm_helper.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;scm_helper.hxx&quot;
+ 
+
+Modified: trunk/flexlay/netpanzer/netpanzer.cxx
+===================================================================
+--- trunk/flexlay/netpanzer/netpanzer.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/netpanzer/netpanzer.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;iostream&gt;
+ #include &lt;sstream&gt;
+
+Modified: trunk/flexlay/python/editor.cxx
+===================================================================
+--- trunk/flexlay/python/editor.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/python/editor.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;ClanLib/Signals/signal_v0.h&gt;
+ #include &quot;../blitter.hxx&quot;
+
+Modified: trunk/flexlay/python/python_functor.cxx
+===================================================================
+--- trunk/flexlay/python/python_functor.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/python/python_functor.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;Python.h&quot;
+ #include &quot;python_functor.hxx&quot;
+
+Modified: trunk/flexlay/python/python_meta_data.cxx
+===================================================================
+--- trunk/flexlay/python/python_meta_data.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/python/python_meta_data.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;iostream&gt;
+ #include &quot;python_meta_data.hxx&quot;
+
+Modified: trunk/flexlay/python/python_object.cxx
+===================================================================
+--- trunk/flexlay/python/python_object.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/python/python_object.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;python_object.hxx&quot;
+ 
+
+Modified: trunk/flexlay/python/sexpr_parser.cxx
+===================================================================
+--- trunk/flexlay/python/sexpr_parser.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/python/sexpr_parser.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;sexpr_parser.hxx&quot;
+ 
+
+Modified: trunk/flexlay/ruby/ruby_functor.cxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_functor.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/ruby/ruby_functor.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;iostream&gt;
+ #include &quot;flexlay_wrap.hxx&quot;
+
+Modified: trunk/flexlay/ruby/ruby_meta_data.cxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_meta_data.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/ruby/ruby_meta_data.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/Signals/signal_v0.h&gt;
+
+Modified: trunk/flexlay/ruby/ruby_object.cxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_object.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/ruby/ruby_object.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;ruby_object.hxx&quot;
+ 
+
+Modified: trunk/flexlay/ruby/ruby_sexpr_parser.cxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_sexpr_parser.cxx	2009-08-01 17:59:27 UTC (rev 708)
++++ trunk/flexlay/ruby/ruby_sexpr_parser.cxx	2009-08-01 17:59:34 UTC (rev 709)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;lispreader.hxx&quot;
+ #include &quot;ruby_sexpr_parser.hxx&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000201.html">[Flexlay-commit] r708 - in trunk/flexlay: . netpanzer
+</A></li>
+	<LI>Next message: <A HREF="000203.html">[Flexlay-commit] r710 - in trunk/flexlay: guile lib netpanzer	python ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#202">[ date ]</a>
+              <a href="thread.html#202">[ thread ]</a>
+              <a href="subject.html#202">[ subject ]</a>
+              <a href="author.html#202">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

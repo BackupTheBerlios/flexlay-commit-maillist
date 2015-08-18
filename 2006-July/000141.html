@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r644 - trunk/paint
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r644%20-%20trunk/paint&In-Reply-To=%3C200607240736.k6O7aGgw009312%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000140.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r644 - trunk/paint</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r644%20-%20trunk/paint&In-Reply-To=%3C200607240736.k6O7aGgw009312%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r644 - trunk/paint">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Jul 24 09:36:16 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000140.html">[Flexlay-commit] r643 - in trunk: lib ruby supertux
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#141">[ date ]</a>
+              <a href="thread.html#141">[ thread ]</a>
+              <a href="subject.html#141">[ subject ]</a>
+              <a href="author.html#141">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-24 09:36:13 +0200 (Mon, 24 Jul 2006)
+New Revision: 644
+
+Modified:
+   trunk/paint/gui.rb
+   trunk/paint/image.rb
+   trunk/paint/paint.rb
+Log:
+- made paint basically working again
+
+Modified: trunk/paint/gui.rb
+===================================================================
+--- trunk/paint/gui.rb	2006-07-11 18:59:31 UTC (rev 643)
++++ trunk/paint/gui.rb	2006-07-24 07:36:13 UTC (rev 644)
+@@ -5,9 +5,11 @@
+     @gui    = GUIManager.new()
+     
+     @editor_map = EditorMapComponent.new($screen_rect, @gui.get_component())
+-    @workspace  = Workspace.new($screen_rect.get_width(), $screen_rect.get_height())
++    @workspace  = @editor_map.get_workspace()
+     @editor_map.set_workspace(@workspace)
+-    @workspace.set_tool($sketch_stroke_tool.to_tool());
++    @workspace.set_tool(0, $sketch_stroke_tool.to_tool());
++    @workspace.set_tool(1, $sketch_stroke_tool.to_tool());
++    @workspace.set_tool(2, $workspace_move_tool.to_tool())
+     # @workspace.set_tool($layer_move_tool.to_tool());
+ 
+     @selector_window_main = Window.new(CL_Rect.new(CL_Point.new($screen_rect.get_width()-160, 5), 
+
+Modified: trunk/paint/image.rb
+===================================================================
+--- trunk/paint/image.rb	2006-07-11 18:59:31 UTC (rev 643)
++++ trunk/paint/image.rb	2006-07-24 07:36:13 UTC (rev 644)
+@@ -3,7 +3,7 @@
+   attr_accessor :editormap
+ 
+   def initialize(filename = nil)
+-    @editormap = EditorMap.new()
++    @editormap = EditorMap.new(true)
+     @editormap.set_bounding_rect(CL_Rect.new(0, 0, 1024, 768))
+     @editormap.set_background_color(CL_Color.new(255, 255, 255))
+ 
+
+Modified: trunk/paint/paint.rb
+===================================================================
+--- trunk/paint/paint.rb	2006-07-11 18:59:31 UTC (rev 643)
++++ trunk/paint/paint.rb	2006-07-24 07:36:13 UTC (rev 644)
+@@ -35,6 +35,7 @@
+ flexlay.init(&quot;Flexlay Paint&quot;, $screen_rect.get_width(), $screen_rect.get_height(), false)
+ 
+ $sketch_stroke_tool  = SketchStrokeTool.new()
++$workspace_move_tool = WorkspaceMoveTool.new()
+ $layer_move_tool     = LayerMoveTool.new()
+ $zoom_tool           = ZoomTool.new()
+ $objmap_select_tool  = ObjMapSelectTool.new()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000140.html">[Flexlay-commit] r643 - in trunk: lib ruby supertux
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#141">[ date ]</a>
+              <a href="thread.html#141">[ thread ]</a>
+              <a href="subject.html#141">[ subject ]</a>
+              <a href="author.html#141">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

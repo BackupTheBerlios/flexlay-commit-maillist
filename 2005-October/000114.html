@@ -1,0 +1,925 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r617 - in trunk: . lib netpanzer paint ruby supertux supertux-portable windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r617%20-%20in%20trunk%3A%20.%20lib%20netpanzer%20paint%20ruby%20supertux%20supertux-portable%20windstille&In-Reply-To=%3C200510101236.j9ACaaYX013372%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000113.html">
+   <LINK REL="Next"  HREF="000115.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r617 - in trunk: . lib netpanzer paint ruby supertux supertux-portable windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r617%20-%20in%20trunk%3A%20.%20lib%20netpanzer%20paint%20ruby%20supertux%20supertux-portable%20windstille&In-Reply-To=%3C200510101236.j9ACaaYX013372%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r617 - in trunk: . lib netpanzer paint ruby supertux supertux-portable windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Mon Oct 10 14:36:36 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000113.html">[Flexlay-commit] r616 - trunk/supertux
+</A></li>
+        <LI>Next message: <A HREF="000115.html">[Flexlay-commit] r618 - trunk/supertux-portable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#114">[ date ]</a>
+              <a href="thread.html#114">[ thread ]</a>
+              <a href="subject.html#114">[ subject ]</a>
+              <a href="author.html#114">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-10-10 14:36:33 +0200 (Mon, 10 Oct 2005)
+New Revision: 617
+
+Added:
+   trunk/supertux-portable/
+   trunk/supertux-portable/gui.rb
+   trunk/supertux-portable/gui_specs.rb
+   trunk/supertux-portable/level.rb
+   trunk/supertux-portable/main.rb
+   trunk/supertux-portable/supertux-portable-editor
+   trunk/supertux-portable/supertux-portable.rb
+Modified:
+   trunk/lib/flexlay.cxx
+   trunk/lib/flexlay.hxx
+   trunk/lib/flexlay_wrap.i
+   trunk/netpanzer/netpanzer.rb
+   trunk/paint/paint.rb
+   trunk/ruby/sexpr.rb
+   trunk/supertux/TileMap.rb
+   trunk/supertux/supertux.rb
+   trunk/windstille/windstille-editor
+   trunk/windstille/windstille.rb
+Log:
+- added supertux-portable editor framework
+
+Modified: trunk/lib/flexlay.cxx
+===================================================================
+--- trunk/lib/flexlay.cxx	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/lib/flexlay.cxx	2005-10-10 12:36:33 UTC (rev 617)
+@@ -47,7 +47,7 @@
+ }
+ 
+ void
+-Flexlay::init(int width, int height, bool fullscreen_, bool allow_resize_)
++Flexlay::init(const std::string&amp; title, int width, int height, bool fullscreen_, bool allow_resize_)
+ {
+   screen_width  = width;
+   screen_height = height;
+@@ -73,7 +73,7 @@
+   
+     datadir = &quot;../data/&quot;;
+ 
+-    window = new CL_DisplayWindow(PACKAGE_STRING,
++    window = new CL_DisplayWindow(title,
+                                   screen_width, screen_height, fullscreen, allow_resize);
+ 
+     resources = CL_ResourceManager(datadir + &quot;flexlay.xml&quot;);
+
+Modified: trunk/lib/flexlay.hxx
+===================================================================
+--- trunk/lib/flexlay.hxx	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/lib/flexlay.hxx	2005-10-10 12:36:33 UTC (rev 617)
+@@ -97,7 +97,8 @@
+ 
+   CL_Signal_v2&lt;int, int&gt;&amp; sig_resize();
+ 
+-  void init(int width = 800, int height = 600, bool fullscreen = false, bool allow_resize = false);
++  void init(const std::string&amp; title = &quot;Flexlay&quot;, int width = 800, int height = 600,
++            bool fullscreen = false, bool allow_resize = false);
+   void deinit();
+ };
+ 
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/lib/flexlay_wrap.i	2005-10-10 12:36:33 UTC (rev 617)
+@@ -205,6 +205,6 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
+-// 2
++// 3
+ 
+ /* EOF */
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/netpanzer/netpanzer.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -38,7 +38,7 @@
+ $screen  = CL_Size.new(640, 480)
+ 
+ $flexlay = Flexlay.new()
+-$flexlay.init($screen.width, $screen.height, false, true)
++$flexlay.init(&quot;netPanzer Editor&quot;, $screen.width, $screen.height, false, true)
+ 
+ class Config
+   attr_accessor :datadir, :recent_files
+
+Modified: trunk/paint/paint.rb
+===================================================================
+--- trunk/paint/paint.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/paint/paint.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -32,7 +32,7 @@
+ # $screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(800, 600))
+ $screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(1024, 768))
+ 
+-flexlay.init($screen_rect.get_width(), $screen_rect.get_height(), false)
++flexlay.init(&quot;Flexlay Paint&quot;, $screen_rect.get_width(), $screen_rect.get_height(), false)
+ 
+ $sketch_stroke_tool  = SketchStrokeTool.new()
+ $layer_move_tool     = LayerMoveTool.new()
+
+Modified: trunk/ruby/sexpr.rb
+===================================================================
+--- trunk/ruby/sexpr.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/ruby/sexpr.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -36,30 +36,30 @@
+       ret.push(i[1..-1])
+     end
+   end
+-    
++  
+   return ret
+ end
+ 
+ def get_value_from_tree(spec, tree, default)
+-    if spec == []
+-      return tree
+-    elsif spec == ['_']
+-	  # is it a translatable string?
+-	  if(tree[0].instance_of?(Array) and tree[0][0] == :&quot;_&quot;)
+-		return tree[0][1]
+-	  else
+-        return tree[0]
+-	  end
+-    elsif tree == []
+-      return default
++  if spec == []
++    return tree
++  elsif spec == ['_']
++    # is it a translatable string?
++    if(tree[0].instance_of?(Array) and tree[0][0] == :&quot;_&quot;)
++      return tree[0][1]
+     else
+-      el = assoc_ref(tree, spec[0].to_sym)
+-      if el
+-        return get_value_from_tree(spec[1..-1], el, default)
+-      else
+-        return default
+-      end
++      return tree[0]
+     end
++  elsif tree == []
++    return default
++  else
++    el = assoc_ref(tree, spec[0].to_sym)
++    if el
++      return get_value_from_tree(spec[1..-1], el, default)
++    else
++      return default
++    end
++  end
+ end
+ 
+ def write_sexpr(f, sexpr, indent = 0)
+
+Modified: trunk/supertux/TileMap.rb
+===================================================================
+--- trunk/supertux/TileMap.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/supertux/TileMap.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -1,5 +1,5 @@
+ class TileMap
+-  attr_reader :tilemaplayer
++  attr_accessor :tilemaplayer
+ 
+   def initialize()
+   end
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/supertux/supertux.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -53,7 +53,7 @@
+ flexlay = Flexlay.new()
+ width = 1024
+ height = 768
+-flexlay.init(width, height)
++flexlay.init(&quot;SuperTux Editor&quot;, width, height)
+ 
+ # Tools
+ $tilemap_paint_tool  = TileMapPaintTool.new()
+
+Added: trunk/supertux-portable/gui.rb
+===================================================================
+--- trunk/supertux-portable/gui.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/supertux-portable/gui.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -0,0 +1,107 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++require &quot;layout_component.rb&quot;
++require &quot;gui_specs.rb&quot;
++
++## GUI class which holds all the GUI components and the state of them
++class GUI
++  attr_reader :workspace, :gui, :tileselector, :objectselector, :tilegroup_menu, :layer_menu, :recent_files_menu
++
++  def run()
++    ## Enter main loop here
++    @gui.run()
++  end
++
++  def initialize()
++    @gui = GUIManager.new()
++    
++    @components = LayoutComponent.create_from_sexpr(CL_Rect.new(0,0, $screen_width, $screen_height),
++                                                    SExpression.new($guilayout_spec),
++                                                    @gui.get_component())
++    
++    connect_v2_graceful($flexlay.sig_resize(), proc{|w, h|
++                          @components.set_size(w, h)
++                        })
++
++    post_initalize()
++  end
++
++  def post_initalize()
++    @editor_map = @components.get('editormap').component
++    @workspace  = Workspace.new()
++    @editor_map.set_workspace(@workspace)
++
++    @button_panel = @components.get('buttonpanel').component
++
++    @button_panel.items[&quot;undo&quot;].disable()
++    @button_panel.items[&quot;redo&quot;].disable()
++
++    @layer_menu = Menu.new(CL_Point.new(32*15+2, 54), @gui.get_component())
++    @layer_menu.add_item(&quot;Show all&quot;,          proc{ show_all() })
++    @layer_menu.add_item(&quot;Show current&quot;,      proc{ show_current() })
++    @layer_menu.add_item(&quot;Show only current&quot;, proc{ show_only_current() })
++    
++    @toolbar = ButtonPanel.new_from_spec(0, 23+33, 33, 32*4+2, false, $toolbar_spec, @gui.get_component)
++    @menu    = @components.get('menubar').component
++
++    @tileselector = @components.get('tileselector').component
++    @tileselector.set_tileset($tileset)
++    @tileselector.set_scale(0.75)
++    @tileselector.set_tiles($tileset.get_tiles)
++    @tileselector.show(true)
++    
++    @objectselector = @components.get('objectselector').component
++    @objectselector.show(false)
++
++    connect_v2_ObjectBrush_Point(@objectselector.sig_drop(), proc{|brush, pos| on_object_drop(brush, pos) })
++
++    @load_dialog = SimpleFileDialog.new(&quot;Load Sector&quot;, &quot;Load&quot;, &quot;Cancel&quot;, @gui.get_component())
++    @load_dialog.set_filename($datadir + &quot;levels/&quot;)
++    @save_dialog = SimpleFileDialog.new(&quot;Save Sector as...&quot;, &quot;Save&quot;, &quot;Cancel&quot;, @gui.get_component())
++    @save_dialog.set_filename($datadir + &quot;levels/&quot;)
++    
++    register_keybindings($keybinding_spec)
++
++  end
++
++  def register_keybindings(spec)
++    spec.each{ |(key, callback)|
++      connect_v2(@editor_map.sig_on_key(key), callback)
++    }
++  end
++
++  def on_map_change()
++    puts &quot;Mapchange&quot; 
++    if (@workspace.get_map().undo_stack_size() &gt; 0)
++      @button_panel.items[&quot;undo&quot;].enable()
++    else
++      @button_panel.items[&quot;undo&quot;].disable()
++    end
++
++    if (@workspace.get_map().redo_stack_size() &gt; 0)
++      @button_panel.items[&quot;redo&quot;].enable()
++    else
++      @button_panel.items[&quot;redo&quot;].disable()
++    end
++  end
++
++end
++
++# EOF #
+
+Added: trunk/supertux-portable/gui_specs.rb
+===================================================================
+--- trunk/supertux-portable/gui_specs.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/supertux-portable/gui_specs.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -0,0 +1,125 @@
++##  $Id$
++##   ______ __               ___
++##  |   ___|  |.-----.--.--.|   | .---.-.--.--.
++##  |   ___|  ||  -__|_   _||   |_|  _  |  |  |
++##  |__|   |__||_____|__.__||_____|___._|___  |
++##                                      |_____|
++##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++##  02111-1307, USA.
++
++$menu_spec = [
++  [&quot;File&quot;,
++    [&quot;Open...&quot;,    proc{ $gui.level_load() }],
++    [&quot;Save...&quot;,    proc{ $gui.level_save() }],
++    [&quot;Save As...&quot;, proc{ $gui.level_save_as() }],
++    [&quot;Quit&quot;,       proc{ $gui.gui.quit() }],
++  ],
++  [&quot;Edit&quot;,
++    [&quot;Resize&quot;, proc{ $gui.resize_level() }],
++    [&quot;Resize to selection&quot;, proc{ $gui.resize_level_to_selection()}],
++    [&quot;Debug Shell&quot;, proc{ $gui.run_python()}],
++  ],
++  [&quot;Zoom&quot;,
++    [&quot;1:4 (25%)&quot;,   proc{ $gui.set_zoom(0.125) }],
++    [&quot;1:2 (50%) &quot;,  proc{ $gui.set_zoom(0.25) }],
++    [&quot;1:1 (100%) &quot;, proc{ $gui.set_zoom(0.5) }],
++    [&quot;2:1 (200%) &quot;, proc{ $gui.set_zoom(1.0) }],
++    [&quot;4:1 (400%) &quot;, proc{ $gui.set_zoom(2.0) }],
++  ]
++]
++
++$buttonpanel_spec = [
++  [:icon,       &quot;new&quot;,         &quot;../data/images/icons24/stock_new.png&quot;,     proc{ $gui.new_level() }],
++  [:icon,       &quot;open&quot;,        &quot;../data/images/icons24/stock_open.png&quot;,    proc{ $gui.level_load() }],
++  [:small_icon, &quot;recent&quot;,      &quot;../data/images/icons24/downarrow.png&quot;,     proc{ $gui.recent_files_menu.run() }],
++  [:icon,       &quot;save&quot;,        &quot;../data/images/icons24/stock_save.png&quot;,    proc{ $gui.level_save() }],
++  [:icon,       &quot;saveas&quot;,      &quot;../data/images/icons24/stock_save_as.png&quot;, proc{ $gui.level_save_as() }],
++  [:seperator],
++  [:icon,       &quot;copy&quot;,        &quot;../data/images/icons24/stock_copy.png&quot;,    nil],
++  [:icon,       &quot;paste&quot;,       &quot;../data/images/icons24/stock_paste.png&quot;,   nil],
++  [:seperator],
++  [:icon,       &quot;undo&quot;,        &quot;../data/images/icons24/stock_undo.png&quot;,    proc{ $gui.workspace.get_map().undo() }],
++  [:icon,       &quot;redo&quot;,        &quot;../data/images/icons24/stock_redo.png&quot;,    proc{ $gui.workspace.get_map().redo() }],
++  [:seperator],
++  [:toggle,     &quot;grid&quot;,        &quot;../data/images/icons24/grid.png&quot;,          proc{ $gui.toggle_grid() }],
++  [:seperator],
++  [:icon,       &quot;background&quot;,  &quot;../data/images/icons24/background.png&quot;,    proc{ $gui.show_layer(:background) }],
++  [:icon,       &quot;interactive&quot;, &quot;../data/images/icons24/interactive.png&quot;,   proc{ $gui.show_layer(:interactive) }],
++  [:icon,       &quot;interactivebackground&quot;, &quot;../data/images/icons24/interactive.png&quot;,   proc{ $gui.show_layer(:interactivebackground) }],
++  [:icon,       &quot;foreground&quot;,  &quot;../data/images/icons24/foreground.png&quot;,    proc{ $gui.show_layer(:foreground) }],
++  [:icon,       &quot;properties&quot;,  &quot;../data/images/icons24/stock_properties.png&quot;, proc{ $gui.layer_properties() }],
++  [:icon,       &quot;viewprops&quot;,   &quot;../data/images/icons24/eye.png&quot;,           proc{ $gui.layer_menu.run() }],
++  [:seperator],
++  [:icon,       &quot;tilegroups&quot;,  &quot;../data/images/icons24/eye.png&quot;,           proc{ $gui.tilegroup_menu.run() }],
++]
++
++$toolbar_spec = [
++  [:icon, &quot;paint&quot;,  &quot;../data/images/tools/stock-tool-pencil-22.png&quot;,      proc{ $controller.set_tilemap_paint_tool() }],
++  [:icon, &quot;select&quot;, &quot;../data/images/tools/stock-tool-rect-select-22.png&quot;, proc{ $controller.set_tilemap_select_tool() }],
++  [:icon, &quot;zoom&quot;,   &quot;../data/images/tools/stock-tool-zoom-22.png&quot;,        proc{ $controller.set_zoom_tool() }],
++  [:icon, &quot;object&quot;, &quot;../data/images/tools/stock-tool-clone-22.png&quot;,       proc{ $controller.set_objmap_select_tool() }],
++]
++
++$keybinding_spec = [
++  [&quot;f1&quot;, proc{ |x, y| $gui.toggle_minimap()}],
++  [&quot;m&quot;,  proc{ |x, y| $gui.toggle_minimap()}],
++  [&quot;g&quot;,  proc{ |x, y| $gui.toggle_grid()}],
++  [&quot;4&quot;,  proc{ |x, y| $gui.toggle_display_props()}],
++  [&quot;3&quot;,  proc{ |x, y| $gui.show_layer(:foreground)}],
++  [&quot;2&quot;,  proc{ |x, y| $gui.show_layer(:interactive)}],
++  [&quot;1&quot;,  proc{ |x, y| $gui.show_layer(:background)}],
++]
++
++$guilayout_spec = \
++[:vbox, 
++  [:homogenus, false],
++  [:components,
++    
++    [:menubar,     
++      [:name,   'menubar'], 
++      [:size, 23],
++      [:spec,   $menu_spec]],
++
++    [:buttonpanel, 
++      [:name,   'buttonpanel'],
++      [:size, 33], 
++      [:spec,   $buttonpanel_spec]],
++
++    [:hbox, 
++      [:components,
++
++        [:editormap, 
++          [:name, 'editormap']],
++
++        [:panel,
++          [:layout, :vbox],
++          [:size, 192],
++          [:components,
++            [:tab,
++              [:components,
++                [:tileselector,
++                  [:name, 'tileselector']],
++                [:objectselector,
++                  [:name, 'objectselector']]]],
++            [:minimap, 
++              [:name,    'minimap'],
++              [:size,    144],
++              [:padding, 5],
++            ]]]
++      ]]]]
++
++## EOF ##
+
+Added: trunk/supertux-portable/level.rb
+===================================================================
+--- trunk/supertux-portable/level.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/supertux-portable/level.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -0,0 +1,31 @@
++class Level
++  attr_reader :interactive
++
++  def initialize(width, height)
++    @interactive  = TilemapLayer.new($tileset, width, height)
++    @objects = ObjectLayer.new()
++
++    @layers = []
++    @layers.push(@interactive)
++    @layers.push(@objects)
++
++    @editormap = EditorMap.new()
++    @layers.each {|layer| @editormap.add_layer(layer.to_layer()) }
++    @editormap.set_data(self)
++    @current_layer = 0
++  end
++
++  def activate(workspace)
++    $gui.workspace.set_map(@editormap)
++
++    TilemapLayer.set_current(@layers[@current_layer])
++    ObjectLayer.set_current(@objects)
++    
++    connect(@editormap.sig_change(), proc{
++              $gui.on_map_change()
++            })
++  end
++
++end
++
++# EOF #
+
+Added: trunk/supertux-portable/main.rb
+===================================================================
+--- trunk/supertux-portable/main.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/supertux-portable/main.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -0,0 +1,25 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++require &quot;supertux-portable.rb&quot;
++
++$editor = SuperTuxPortableEditor.new(ARGV)
++$editor.run()
++
++# EOF #
+
+Added: trunk/supertux-portable/supertux-portable-editor
+===================================================================
+--- trunk/supertux-portable/supertux-portable-editor	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/supertux-portable/supertux-portable-editor	2005-10-10 12:36:33 UTC (rev 617)
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib:../ruby
++export LD_LIBRARY_PATH
++
++RUBYLIB=.:$RUBYLIB:../ruby
++export RUBYLIB
++
++exec ruby -w ./main.rb &quot;$@&quot;
++
++# EOF #
+
+
+Property changes on: trunk/supertux-portable/supertux-portable-editor
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/supertux-portable/supertux-portable.rb
+===================================================================
+--- trunk/supertux-portable/supertux-portable.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/supertux-portable/supertux-portable.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -0,0 +1,58 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++require &quot;flexlay_wrap&quot;
++include Flexlay_wrap
++
++require &quot;flexlay.rb&quot;
++require &quot;gui.rb&quot;
++require &quot;level.rb&quot;
++
++class SuperTuxPortableEditor
++  def initialize(args)
++    @levelfile = nil
++
++    init_flexlay()
++  end
++
++  def init_flexlay()
++    $screen_width  = 800
++    $screen_height = 600
++    $fullscreen    = false
++
++    ## Init Flexlay itself
++    $flexlay = Flexlay.new()
++    $flexlay.init(&quot;SuperTux Portable Editor V0.1&quot;, $screen_width, $screen_height, $fullscreen, true)
++
++    $tileset = Tileset.new(8)
++
++    $datadir = &quot;/home/ingo/projects/supertux/trunk/supertux-portable/&quot;
++    $gui = GUI.new()
++
++    Level.new(100, 30).activate($gui.workspace)
++  end
++
++  def run()
++    $gui.run()
++    # $flexlay.deinit()
++  end
++
++end
++
++# EOF #
+
+Modified: trunk/windstille/windstille-editor
+===================================================================
+--- trunk/windstille/windstille-editor	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/windstille/windstille-editor	2005-10-10 12:36:33 UTC (rev 617)
+@@ -6,6 +6,6 @@
+ RUBYLIB=.:$RUBYLIB:../ruby
+ export RUBYLIB
+ 
+-exec ruby ./windstille.rb &quot;$@&quot;
++exec ruby -w ./main.rb &quot;$@&quot;
+ 
+ # EOF #
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-10-02 23:05:24 UTC (rev 616)
++++ trunk/windstille/windstille.rb	2005-10-10 12:36:33 UTC (rev 617)
+@@ -36,135 +36,157 @@
+ require &quot;sector.rb&quot;
+ require &quot;tileset.rb&quot;
+ 
+-def parse_command_line()
+-  cmd = CommandLine.new() {
+-    name(&quot;Windstille Editor V0.1&quot;)
+-    usage(&quot;[OPTION]... [FILE]...&quot;)
+-    description(&quot;Editor for editing Windstille map files.&quot;)
+-    
+-    group(&quot;Display&quot;)
+-    option(?f, &quot;fullscreen&quot;, nil,            &quot;Launch in fullscreen mode&quot;)
+-    option(?w, &quot;window&quot;,     nil,            &quot;Launch in window mode&quot;)
+-    option(?g, &quot;geometry&quot;,   &quot;WIDTHxHEIGHT&quot;, &quot;Launch in the given resolution&quot;)
++class WindstilleEditor
++  private
++  def initialize(args)
++    @levelfile = nil
+ 
+-    group(&quot;Misc&quot;)
+-    option(?d, &quot;datadir&quot;,    &quot;DIR&quot;,          &quot;Set the datadir to use&quot;)
+-    option(?h, &quot;help&quot;,       nil,            &quot;Print this help&quot;)
++    init_config()
++    init_command_line()
++    eval_command_line(args)
++    init_flexlay()
++    init_datadir()
++    run_user_rb()
++  end
+ 
+-    text(&quot;Report bugs to &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;.&quot;)
+-  }
++  def run_user_rb()
++    home = ENV['HOME']
++    if home then
++      user_rb = home + &quot;/.windstille-editor/user.rb&quot;
++    else 
++      user_rb = &quot;user.rb&quot;
++    end
+ 
+-  begin
+-    args = cmd.parse(ARGV)
+-  rescue CommandLineException =&gt; err
+-    puts('windstille-editor:' + err)
+-    exit()
++    if File.exists?(user_rb) then
++      require user_rb
++    end
+   end
+ 
+-  args.each { |option, argument|
+-    case option
+-    when ?w
+-      $config.set(&quot;fullscreen&quot;, false)
++  def init_datadir()
++    # Make sure that the datadir is set before starting the windstille editor
++    if $datadir == nil or not File.exist?($datadir) then
++      dialog = GenericDialog.new(&quot;Windstille Data Directory&quot;, $gui.gui.get_component())
++      dialog.add_label(&quot;You need to specify the datadir of Windstille is located&quot;)
++      dialog.add_string(&quot;Datadir:&quot;, $datadir || &quot;&quot;)
+       
+-    when ?f
+-      $config.set(&quot;fullscreen&quot;, true)
+-      
+-    when ?d
+-      $config.set(&quot;datadir&quot;, argument)
++      dialog.set_block { |datadir|
++        $datadir = datadir 
++        # datadir is ready, so startup
++        init_windstille_editor()
++      }
++    else
++      # datadir is ready, so startup
++      init_windstille_editor()
++    end
++  end
+ 
+-    when ?g
+-      (width, height) = argument.scanf(&quot;%dx%d&quot;)
+-      $config.set(&quot;screen-width&quot;,  width)  if width
+-      $config.set(&quot;screen-height&quot;, height) if height
+-      
+-    when ?h
+-      cmd.print_help()
+-      cmd.exit()
+-      exit()
+-
+-    when :rest
+-      $levelfile = argument
+-
++  def init_windstille_editor()
++    $controller = Controller.new()
++    
++    $tileset = Tileset.new(32)
++    $tileset.load($datadir + &quot;tiles.scm&quot;)
++    
++    $gui.post_initalize()
++    
++    if not @levelfile then
++      Sector.new(100, 30).activate($workspace)
+     else
+-      raise &quot;Bug: Unhandled option: -#{option} #{argument}&quot;
++      $controller.load_level(@levelfile)
+     end
+-  }
+-end
+ 
+-$config = SExprConfigFile.new(&quot;windstille-editor&quot;) {
+-  register(&quot;datadir&quot;,       nil)
+-  register(&quot;screen-width&quot;,  800)
+-  register(&quot;screen-height&quot;, 600)
+-  register(&quot;fullscreen&quot;,    false)
+-  register(&quot;recent-files&quot;,  [])
+-}
++    $gui.workspace.set_tool($controller.tilemap_paint_tool.to_tool());   
++  end
+ 
+-parse_command_line()
++  def run()
++    $gui.run()
+ 
+-$datadir       = $config.get(&quot;datadir&quot;)
+-$fullscreen    = $config.get(&quot;fullscreen&quot;)
++    $config.set(&quot;datadir&quot;, $datadir)
++    $config.set(&quot;recent-files&quot;, $controller.recent_files)
++    $config.write()
+ 
+-$screen_width  = $config.get(&quot;screen-width&quot;)
+-$screen_height = $config.get(&quot;screen-height&quot;)
++    # $flexlay.deinit()
++  end
+ 
+-## Init Flexlay itself
+-$flexlay = Flexlay.new()
+-$flexlay.init($screen_width, $screen_height, $fullscreen, true)
++  def init_flexlay()
++    ## Init Flexlay itself
++    $flexlay = Flexlay.new()
++    $flexlay.init(&quot;Windstille Editor V0.1&quot;, $screen_width, $screen_height, $fullscreen, true)
+ 
+-$gui = GUI.new()
++    $gui = GUI.new()
++  end
+ 
+-## Initialize Tools and stuff
+-def init()
+-  $controller = Controller.new()
+-  
+-  $tileset = Tileset.new(32)
+-  $tileset.load($datadir + &quot;tiles.scm&quot;)
+-  
+-  $gui.post_initalize()
++  def init_config()
++    $config = SExprConfigFile.new(&quot;windstille-editor&quot;) {
++      register(&quot;datadir&quot;,       nil)
++      register(&quot;screen-width&quot;,  800)
++      register(&quot;screen-height&quot;, 600)
++      register(&quot;fullscreen&quot;,    false)
++      register(&quot;recent-files&quot;,  [])
++    }
+ 
+-  if not $levelfile then
+-    Sector.new(100, 30).activate($workspace)
+-  else
+-    $controller.load_level($levelfile)
++    $datadir       = $config.get(&quot;datadir&quot;)
++    $fullscreen    = $config.get(&quot;fullscreen&quot;)
++
++    $screen_width  = $config.get(&quot;screen-width&quot;)
++    $screen_height = $config.get(&quot;screen-height&quot;)
+   end
+ 
+-  $gui.workspace.set_tool($controller.tilemap_paint_tool.to_tool());
+-end
++  def init_command_line()
++    @cmd = CommandLine.new() {
++      name(&quot;Windstille Editor V0.1&quot;)
++      usage(&quot;[OPTION]... [FILE]...&quot;)
++      description(&quot;Editor for editing Windstille map files.&quot;)
++      
++      group(&quot;Display&quot;)
++      option(?f, &quot;fullscreen&quot;, nil,            &quot;Launch in fullscreen mode&quot;)
++      option(?w, &quot;window&quot;,     nil,            &quot;Launch in window mode&quot;)
++      option(?g, &quot;geometry&quot;,   &quot;WIDTHxHEIGHT&quot;, &quot;Launch in the given resolution&quot;)
+ 
+-if $datadir == nil or not File.exist?($datadir) then
+-  dialog = GenericDialog.new(&quot;Windstille Data Directory&quot;, $gui.gui.get_component())
+-  dialog.add_label(&quot;You need to specify the datadir of Windstille is located&quot;)
+-  dialog.add_string(&quot;Datadir:&quot;, $datadir || &quot;&quot;)
+-  
+-  dialog.set_block { |datadir|
+-    $datadir = datadir 
+-    # datadir is ready, so startup
+-    init()
+-  }
+-else
+-  # datadir is ready, so startup
+-  init()
+-end
++      group(&quot;Misc&quot;)
++      option(?d, &quot;datadir&quot;,    &quot;DIR&quot;,          &quot;Set the datadir to use&quot;)
++      option(?h, &quot;help&quot;,       nil,            &quot;Print this help&quot;)
+ 
+-begin # Run user code if available
+-  home = ENV['HOME']
+-  if home then
+-    user_rb = home + &quot;/.windstille-editor/user.rb&quot;
+-  else 
+-    user_rb = &quot;user.rb&quot;
++      text(&quot;Report bugs to &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;.&quot;)
++    }
+   end
++  
++  def eval_command_line(argv)
++    begin
++      args = @cmd.parse(argv)
++    rescue CommandLineException =&gt; err
++      puts('windstille-editor:' + err)
++      exit()
++    end
+ 
+-  if File.exists?(user_rb) then
+-      require user_rb
+-  end
+-end
++    args.each { |option, argument|
++      case option
++      when ?w
++        $config.set(&quot;fullscreen&quot;, false)
++        
++      when ?f
++        $config.set(&quot;fullscreen&quot;, true)
++        
++      when ?d
++        $config.set(&quot;datadir&quot;, argument)
+ 
+-$gui.run()
++      when ?g
++        (width, height) = argument.scanf(&quot;%dx%d&quot;)
++        $config.set(&quot;screen-width&quot;,  width)  if width
++        $config.set(&quot;screen-height&quot;, height) if height
++        
++      when ?h
++        @cmd.print_help()
++        @cmd.exit()
++        exit()
+ 
+-$config.set(&quot;datadir&quot;, $datadir)
+-$config.set(&quot;recent-files&quot;, $controller.recent_files)
+-$config.write()
++      when :rest
++        $levelfile = argument
+ 
+-# $flexlay.deinit()
++      else
++        raise &quot;Bug: Unhandled option: -#{option} #{argument}&quot;
++      end
++    }
++  end
++end
+ 
+ # EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000113.html">[Flexlay-commit] r616 - trunk/supertux
+</A></li>
+	<LI>Next message: <A HREF="000115.html">[Flexlay-commit] r618 - trunk/supertux-portable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#114">[ date ]</a>
+              <a href="thread.html#114">[ thread ]</a>
+              <a href="subject.html#114">[ subject ]</a>
+              <a href="author.html#114">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

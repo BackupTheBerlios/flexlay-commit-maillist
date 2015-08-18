@@ -1,0 +1,1904 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r497 - in trunk: lib paint
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r497%20-%20in%20trunk%3A%20lib%20paint&In-Reply-To=%3C200503200043.j2K0hiPP012352%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000007.html">
+   <LINK REL="Next"  HREF="000008.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r497 - in trunk: lib paint</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r497%20-%20in%20trunk%3A%20lib%20paint&In-Reply-To=%3C200503200043.j2K0hiPP012352%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r497 - in trunk: lib paint">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 20 01:43:44 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000007.html">[Flexlay-commit] r496 - trunk/lib
+</A></li>
+        <LI>Next message: <A HREF="000008.html">[Flexlay-commit] r498 - trunk/data/images/icons24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-20 01:43:21 +0100 (Sun, 20 Mar 2005)
+New Revision: 497
+
+Added:
+   trunk/lib/onion_skin_layer.cxx
+   trunk/lib/onion_skin_layer.hxx
+   trunk/lib/sprite_brush.cxx
+   trunk/lib/sprite_brush.hxx
+   trunk/paint/TODO
+   trunk/paint/animation.rb
+   trunk/paint/gui.rb
+   trunk/paint/image.rb
+Modified:
+   trunk/lib/SConstruct
+   trunk/lib/bitmap_layer.cxx
+   trunk/lib/editor_map.cxx
+   trunk/lib/editor_map.hxx
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/layer.cxx
+   trunk/lib/layer.hxx
+   trunk/lib/layer_impl.hxx
+   trunk/lib/object_layer.cxx
+   trunk/lib/objmap_control_point.cxx
+   trunk/lib/objmap_control_point.hxx
+   trunk/lib/objmap_object.cxx
+   trunk/lib/objmap_object.hxx
+   trunk/lib/objmap_object_impl.hxx
+   trunk/lib/objmap_path_node.cxx
+   trunk/lib/objmap_rect_object.cxx
+   trunk/lib/objmap_rect_object.hxx
+   trunk/lib/objmap_sprite_object.cxx
+   trunk/lib/sketch_layer.cxx
+   trunk/lib/tilemap_layer.cxx
+   trunk/lib/tilemap_layer.hxx
+   trunk/lib/workspace.cxx
+   trunk/paint/paint.rb
+Log:
+- added primitive animation support
+- added sprite brush support again
+
+Modified: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/SConstruct	2005-03-20 00:43:21 UTC (rev 497)
+@@ -75,7 +75,8 @@
+     'directory_view.cxx',
+     'fonts.cxx',
+     'minimap.cxx',
+-    'meta_data.cxx', 
++    'meta_data.cxx',
++    'onion_skin_layer.cxx',
+     'object_layer.cxx',
+     'object_add_command.cxx',
+     'object_brush.cxx',
+@@ -102,6 +103,7 @@
+     'stroke.cxx',
+     'stroke_drawer.cxx',
+     'sprite_stroke_drawer.cxx',
++    'sprite_brush.cxx',
+ #    'marker_stroke_drawer.cxx',
+     'slider.cxx', 
+     'scrollbar.cxx',
+
+Modified: trunk/lib/bitmap_layer.cxx
+===================================================================
+--- trunk/lib/bitmap_layer.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/bitmap_layer.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -85,7 +85,7 @@
+     delete canvas;
+   }
+ 
+-  void draw(EditorMapComponent* parent) 
++  void draw(EditorMapComponent* parent, CL_GraphicContext* gc) 
+   {
+     assert(canvas);
+ 
+@@ -94,10 +94,10 @@
+       return;
+ 
+     surface.set_blend_func(blend_one, blend_one_minus_src_alpha);
+-    surface.draw(0, 0);
++    surface.draw(0, 0, gc);
+ 
+     if (BitmapLayer::current()-&gt;impl.get() == this)
+-      CL_Display::draw_rect(get_bounding_rect(), CL_Color(155, 155, 155, 100));
++      gc-&gt;draw_rect(get_bounding_rect(), CL_Color(155, 155, 155, 100));
+   }
+ 
+   CL_Rect get_bounding_rect() { 
+
+Modified: trunk/lib/editor_map.cxx
+===================================================================
+--- trunk/lib/editor_map.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/editor_map.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -18,6 +18,7 @@
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+ #include &lt;iostream&gt;
++#include &lt;assert.h&gt;
+ #include &lt;ClanLib/Core/core_iostream.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
+@@ -67,31 +68,37 @@
+ }
+ 
+ void
+-EditorMap::add_layer(const Layer&amp; layer)
++EditorMap::add_layer(const Layer&amp; layer, int pos)
+ {
+-  impl-&gt;layers.push_back(layer);
++  assert(pos == -1 || (pos &gt;= 0 &amp;&amp; pos &lt; int(impl-&gt;layers.size())));
++
++  if (pos == -1) // insert at last pos
++    impl-&gt;layers.push_back(layer);
++  else
++    impl-&gt;layers.insert(impl-&gt;layers.begin() + pos, layer);
++
+   impl-&gt;serial += 1;
+ }
+ 
+ void
+-EditorMap::draw (EditorMapComponent* parent)
++EditorMap::draw (EditorMapComponent* parent, CL_GraphicContext* gc)
+ {
+   CL_Rect rect = get_bounding_rect();
+ 
+   if (rect != CL_Rect(0,0,0,0))
+     {
+-      CL_Display::fill_rect(rect, impl-&gt;background_color);
+-      CL_Display::draw_rect(rect, impl-&gt;foreground_color);
++      gc-&gt;fill_rect(rect, impl-&gt;background_color);
++      gc-&gt;draw_rect(rect, impl-&gt;foreground_color);
+     }
+   else
+     {
+-      CL_Display::clear(impl-&gt;background_color);
++      gc-&gt;clear(impl-&gt;background_color);
+     }
+ 
+   for(EditorMapImpl::Layers::iterator i = impl-&gt;layers.begin(); i != impl-&gt;layers.end(); ++i)
+-    (*i).draw(parent);
++    (*i).draw(parent, gc);
+   
+-  CL_Display::flush();
++  gc-&gt;flush();
+ }
+ 
+ bool
+
+Modified: trunk/lib/editor_map.hxx
+===================================================================
+--- trunk/lib/editor_map.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/editor_map.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -41,9 +41,10 @@
+ public:
+   EditorMap();
+ 
+-  void draw(EditorMapComponent* parent);
++  /** FIXME: EditorMapComponent parameter shouldn't really be here */
++  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
+ 
+-  void add_layer(const Layer&amp; layer);
++  void add_layer(const Layer&amp; layer, int pos = -1);
+ 
+   bool is_modified() const;
+   void set_unmodified();
+@@ -59,6 +60,10 @@
+ 
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
++
++  /** Set the bounding rect for this map, if the given rect is
++      CL_Rect() the bounding rect will be calculated automatically
++      from the content of the map */
+   void    set_bounding_rect(const CL_Rect&amp; rect);
+ 
+   void set_background_color(const CL_Color&amp; color);
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/flexlay_wrap.i	2005-03-20 00:43:21 UTC (rev 497)
+@@ -35,6 +35,7 @@
+ #include &quot;layer.hxx&quot;
+ #include &quot;tilemap_layer.hxx&quot;
+ #include &quot;object_layer.hxx&quot;
++#include &quot;onion_skin_layer.hxx&quot;
+ 
+ #include &quot;minimap.hxx&quot;
+ #include &quot;editor_map.hxx&quot;
+@@ -66,6 +67,7 @@
+ #include &quot;brushmask.hxx&quot;
+ #include &quot;brush.hxx&quot;
+ #include &quot;generated_brush.hxx&quot;
++#include &quot;sprite_brush.hxx&quot;
+ 
+ #include &quot;colorpicker.hxx&quot;
+ #include &quot;slider.hxx&quot;
+@@ -151,6 +153,7 @@
+ %include &quot;layer.hxx&quot;
+ %include &quot;tilemap_layer.hxx&quot;
+ %include &quot;object_layer.hxx&quot;
++%include &quot;onion_skin_layer.hxx&quot;
+ 
+ %include &quot;editor_map.hxx&quot;
+ %include &quot;workspace.hxx&quot;
+@@ -181,6 +184,7 @@
+ %include &quot;brushmask.hxx&quot;
+ %include &quot;brush.hxx&quot;
+ %include &quot;generated_brush.hxx&quot;
++%include &quot;sprite_brush.hxx&quot;
+ 
+ %include &quot;colorpicker.hxx&quot;
+ %include &quot;slider.hxx&quot;
+
+Modified: trunk/lib/layer.cxx
+===================================================================
+--- trunk/lib/layer.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/layer.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -37,20 +37,20 @@
+ }
+ 
+ void
+-Layer::draw(EditorMapComponent* parent) 
++Layer::draw(EditorMapComponent* parent, CL_GraphicContext* gc) 
+ { 
+   if (impl.get())
+     {
+       if (impl-&gt;pos.x != 0 || impl-&gt;pos.y != 0)
+         {
+-          CL_Display::push_modelview();
+-          CL_Display::add_translate(impl-&gt;pos.x, impl-&gt;pos.y);
+-          impl-&gt;draw(parent);    
+-          CL_Display::pop_modelview();
++          gc-&gt;push_modelview();
++          gc-&gt;add_translate(impl-&gt;pos.x, impl-&gt;pos.y);
++          impl-&gt;draw(parent, gc);
++          gc-&gt;pop_modelview();
+         }
+       else
+         {
+-          impl-&gt;draw(parent);
++          impl-&gt;draw(parent, gc);
+         }
+     }
+ }
+
+Modified: trunk/lib/layer.hxx
+===================================================================
+--- trunk/lib/layer.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/layer.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -21,6 +21,7 @@
+ #define HEADER_LAYER_HXX
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
++#include &lt;ClanLib/Display/graphic_context.h&gt;
+ #include &quot;meta_data.hxx&quot;
+ #include &quot;shared_ptr.hxx&quot;
+ 
+@@ -48,7 +49,7 @@
+       the layer itself) */
+   void     set_metadata(MetaData data_);
+ 
+-  void draw(EditorMapComponent* parent);
++  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
+ 
+
+Modified: trunk/lib/layer_impl.hxx
+===================================================================
+--- trunk/lib/layer_impl.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/layer_impl.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -21,6 +21,7 @@
+ #define HEADER_LAYER_IMPL_HXX
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
++#include &lt;ClanLib/Display/graphic_context.h&gt;
+ #include &quot;meta_data.hxx&quot;
+ 
+ class EditorMapComponent;
+@@ -41,7 +42,7 @@
+   LayerImpl() {}
+   virtual ~LayerImpl() {}
+ 
+-  virtual void draw(EditorMapComponent* parent) =0;
++  virtual void draw(EditorMapComponent* parent, CL_GraphicContext* gc) =0;
+   virtual bool has_bounding_rect() const =0;
+ 
+   // FIXME: Should use CL_Rectf
+
+Modified: trunk/lib/object_layer.cxx
+===================================================================
+--- trunk/lib/object_layer.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/object_layer.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -39,7 +39,7 @@
+   ObjectLayerImpl() {}
+   virtual ~ObjectLayerImpl() {}
+   
+-  void draw(EditorMapComponent* parent);
++  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
+   bool has_bounding_rect() const { return false; }
+ };
+ 
+@@ -53,16 +53,16 @@
+ }
+ 
+ void
+-ObjectLayerImpl::draw(EditorMapComponent* parent)
++ObjectLayerImpl::draw(EditorMapComponent* parent, CL_GraphicContext* gc)
+ {
+   for(ObjectLayer::Objects::iterator i = objects.begin(); i != objects.end(); ++i)
+     {
+-      (*i).draw();
++      (*i).draw(gc);
+     }
+ 
+   for(ObjectLayer::ControlPoints::iterator i = control_points.begin(); i != control_points.end(); ++i)
+     {
+-      (*i).draw();
++      (*i).draw(gc);
+     }
+ }
+ 
+
+Modified: trunk/lib/objmap_control_point.cxx
+===================================================================
+--- trunk/lib/objmap_control_point.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_control_point.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -26,7 +26,7 @@
+   CL_Pointf  pos;
+   MetaData  data;
+ 
+-  void draw();
++  void draw(CL_GraphicContext* gc);
+   CL_Rect get_bound_rect() const;
+   CL_Signal_v1&lt;CL_Pointf&gt; on_set_pos;
+ };
+@@ -46,15 +46,15 @@
+ }
+ 
+ void
+-ObjMapControlPoint::draw()
++ObjMapControlPoint::draw(CL_GraphicContext* gc)
+ {
+-  impl-&gt;draw();
++  impl-&gt;draw(gc);
+ }
+ 
+ void
+-ObjMapControlPointImpl::draw()
++ObjMapControlPointImpl::draw(CL_GraphicContext* gc)
+ {
+-  sprite.draw(static_cast&lt;int&gt;(pos.x), static_cast&lt;int&gt;(pos.y));
++  sprite.draw(static_cast&lt;int&gt;(pos.x), static_cast&lt;int&gt;(pos.y), gc);
+ }
+ 
+ void
+
+Modified: trunk/lib/objmap_control_point.hxx
+===================================================================
+--- trunk/lib/objmap_control_point.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_control_point.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -41,7 +41,7 @@
+   CL_Pointf get_pos() const;
+   void     set_pos(const CL_Pointf&amp; p);
+   void     set_pos_raw(const CL_Pointf&amp; p);
+-  void     draw();
++  void     draw(CL_GraphicContext* gc);
+ 
+   CL_Rect get_bound_rect() const;
+ 
+
+Modified: trunk/lib/objmap_object.cxx
+===================================================================
+--- trunk/lib/objmap_object.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_object.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -71,10 +71,10 @@
+ }
+ 
+ void
+-ObjMapObject::draw()
++ObjMapObject::draw(CL_GraphicContext* gc)
+ {
+   if (impl.get())
+-    impl-&gt;draw();
++    impl-&gt;draw(gc);
+ }
+ 
+ CL_Rectf
+
+Modified: trunk/lib/objmap_object.hxx
+===================================================================
+--- trunk/lib/objmap_object.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_object.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -21,6 +21,7 @@
+ #define HEADER_OBJMAP_OBJECT_HXX
+ 
+ #include &lt;ClanLib/signals.h&gt;
++#include &lt;ClanLib/Display/graphic_context.h&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &quot;meta_data.hxx&quot;
+@@ -46,7 +47,7 @@
+   CL_Signal_v1&lt;ObjMapObject&gt;&amp; sig_select();
+   CL_Signal_v1&lt;ObjMapObject&gt;&amp; sig_deselect();
+ 
+-  void draw();
++  void draw(CL_GraphicContext* gc);
+   CL_Rectf get_bound_rect() const;
+ 
+   void add_control_points();
+
+Modified: trunk/lib/objmap_object_impl.hxx
+===================================================================
+--- trunk/lib/objmap_object_impl.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_object_impl.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -38,7 +38,7 @@
+   ObjMapObjectImpl();
+   virtual ~ObjMapObjectImpl();
+ 
+-  virtual void draw() =0;
++  virtual void draw(CL_GraphicContext* gc) =0;
+   virtual CL_Rectf get_bound_rect() const  =0;
+ 
+   virtual void add_control_points();
+
+Modified: trunk/lib/objmap_path_node.cxx
+===================================================================
+--- trunk/lib/objmap_path_node.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_path_node.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -29,7 +29,7 @@
+   
+   ObjMapPathNodeImpl();
+ 
+-  void draw();
++  void draw(CL_GraphicContext* gc);
+   CL_Rectf get_bound_rect() const;
+ };
+ 
+@@ -40,22 +40,22 @@
+ }
+ 
+ void
+-ObjMapPathNodeImpl::draw()
++ObjMapPathNodeImpl::draw(CL_GraphicContext* gc)
+ {
+-  CL_Display::fill_rect(CL_Rect(CL_Point(pos) - CL_Point(16,16), CL_Size(32, 32)), 
+-                        CL_Color(200, 255, 200));
++  gc-&gt;fill_rect(CL_Rect(CL_Point(pos) - CL_Point(16,16), CL_Size(32, 32)), 
++                CL_Color(200, 255, 200));
+   if (next)
+     {
+-      CL_Display::draw_line(static_cast&lt;int&gt;(pos.x), static_cast&lt;int&gt;(pos.y),
+-                            static_cast&lt;int&gt;((pos.x + next-&gt;pos.x)/2),
+-                            static_cast&lt;int&gt;((pos.y+next-&gt;pos.y)/2),
+-                            CL_Color(255, 255, 0));
++      gc-&gt;draw_line(static_cast&lt;int&gt;(pos.x), static_cast&lt;int&gt;(pos.y),
++                    static_cast&lt;int&gt;((pos.x + next-&gt;pos.x)/2),
++                    static_cast&lt;int&gt;((pos.y+next-&gt;pos.y)/2),
++                    CL_Color(255, 255, 0));
+ 
+-      CL_Display::draw_line(static_cast&lt;int&gt;((pos.x + next-&gt;pos.x)/2), 
+-                            static_cast&lt;int&gt;((pos.y+next-&gt;pos.y)/2),
+-                            static_cast&lt;int&gt;(next-&gt;pos.x),
+-                            static_cast&lt;int&gt;(next-&gt;pos.y), 
+-                            CL_Color(255, 0, 0));
++      gc-&gt;draw_line(static_cast&lt;int&gt;((pos.x + next-&gt;pos.x)/2), 
++                    static_cast&lt;int&gt;((pos.y+next-&gt;pos.y)/2),
++                    static_cast&lt;int&gt;(next-&gt;pos.x),
++                    static_cast&lt;int&gt;(next-&gt;pos.y), 
++                    CL_Color(255, 0, 0));
+     }
+ }
+ 
+
+Modified: trunk/lib/objmap_rect_object.cxx
+===================================================================
+--- trunk/lib/objmap_rect_object.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_rect_object.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -121,7 +121,7 @@
+     }
+   }
+ 
+-  void draw();
++  void draw(CL_GraphicContext* gc);
+   CL_Rectf get_bound_rect() const;
+   void add_control_points();
+   void update_control_points();
+@@ -214,9 +214,9 @@
+ }
+ 
+ void
+-ObjMapRectObjectImpl::draw()
++ObjMapRectObjectImpl::draw(CL_GraphicContext* gc)
+ {
+-  CL_Display::fill_rect(get_bound_rect(), color);
++  gc-&gt;fill_rect(get_bound_rect(), color);
+ }
+ 
+ CL_Rectf
+@@ -242,7 +242,7 @@
+   objmap.add_control_point(cp_top_right);
+   objmap.add_control_point(cp_bottom_left);
+   objmap.add_control_point(cp_bottom_right);
+-  objmap.add_control_point(  cp_top_middle);
++  objmap.add_control_point(cp_top_middle);
+   objmap.add_control_point(cp_bottom_middle);
+   objmap.add_control_point(cp_middle_left);
+   objmap.add_control_point(cp_middle_right);
+
+Modified: trunk/lib/objmap_rect_object.hxx
+===================================================================
+--- trunk/lib/objmap_rect_object.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_rect_object.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -34,7 +34,7 @@
+                    const CL_Color&amp; color_,
+                    const MetaData&amp; data_);
+     
+-  void draw();
++  void draw(CL_GraphicContext* gc);
+ 
+   void set_color(const CL_Color&amp; color);
+ 
+
+Modified: trunk/lib/objmap_sprite_object.cxx
+===================================================================
+--- trunk/lib/objmap_sprite_object.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/objmap_sprite_object.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -26,7 +26,7 @@
+ public:
+   CL_Sprite sprite;
+ 
+-  void draw();
++  void draw(CL_GraphicContext* gc);
+   CL_Rectf get_bound_rect() const;
+ 
+   ObjMapObject*  duplicate(int handle_);
+@@ -47,9 +47,9 @@
+ }
+ 
+ void
+-ObjMapSpriteObjectImpl::draw()
++ObjMapSpriteObjectImpl::draw(CL_GraphicContext* gc)
+ {
+-  sprite.draw(pos.x, pos.y);
++  sprite.draw(pos.x, pos.y, gc);
+ }
+ 
+ CL_Rectf
+
+Added: trunk/lib/onion_skin_layer.cxx
+===================================================================
+--- trunk/lib/onion_skin_layer.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/onion_skin_layer.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -0,0 +1,102 @@
++//  $Id$
++// 
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &lt;iostream&gt;
++#include &lt;ClanLib/Core/System/error.h&gt;
++#include &lt;ClanLib/Display/pixel_buffer.h&gt;
++#include &lt;ClanLib/Display/pixel_format.h&gt;
++#include &lt;ClanLib/Display/surface.h&gt;
++#include &lt;ClanLib/Display/canvas.h&gt;
++#include &quot;editor_map_component.hxx&quot;
++#include &quot;layer_impl.hxx&quot;
++#include &quot;onion_skin_layer.hxx&quot;
++
++class OnionSkinLayerImpl : public LayerImpl
++{
++public:
++  CL_Surface  surface;
++  CL_Canvas*  canvas;
++
++  CL_Surface  surface2;
++  CL_Canvas*  canvas2;
++
++  void draw(EditorMapComponent* parent, CL_GraphicContext* gc) 
++  {
++    // FIXME: We need to stop onion layer to draw onto itself
++    surface.draw(0, 0);
++  }
++
++  bool has_bounding_rect() const
++  {
++    return false;
++  }
++};
++
++OnionSkinLayer::OnionSkinLayer(int width, int height)
++  : impl(new OnionSkinLayerImpl())
++{
++  impl-&gt;surface  = CL_Surface(CL_PixelBuffer(width, height, width*4, CL_PixelFormat::rgba8888));
++  impl-&gt;surface2 = CL_Surface(CL_PixelBuffer(width, height, width*4, CL_PixelFormat::rgba8888));
++
++  try
++    {
++      impl-&gt;canvas = new CL_Canvas(impl-&gt;surface);
++      impl-&gt;canvas-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
++      impl-&gt;canvas-&gt;get_gc()-&gt;flush();
++      impl-&gt;canvas-&gt;sync_surface();
++
++      impl-&gt;canvas2 = new CL_Canvas(impl-&gt;surface2);
++      impl-&gt;canvas2-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
++      impl-&gt;canvas2-&gt;get_gc()-&gt;flush();
++      impl-&gt;canvas2-&gt;sync_surface();
++    }
++  catch(CL_Error&amp; err) 
++    {
++      std::cout &lt;&lt; &quot;CL_Error: &quot; &lt;&lt; err.message &lt;&lt; std::endl;
++      throw err;
++    }
++}
++
++void
++OnionSkinLayer::clear()
++{
++  impl-&gt;canvas-&gt;get_gc()-&gt;clear();
++  impl-&gt;canvas-&gt;sync_surface();
++}
++
++void
++OnionSkinLayer::add_map(EditorMap editor_map, float transparency)
++{
++  // FIXME: Parameter are a bit unclear here
++  impl-&gt;canvas2-&gt;get_gc()-&gt;clear();
++  editor_map.draw(EditorMapComponent::current(), impl-&gt;canvas2-&gt;get_gc());
++  impl-&gt;canvas2-&gt;sync_surface();
++  impl-&gt;surface2.set_alpha(transparency);
++  impl-&gt;surface2.draw(0, 0, impl-&gt;canvas-&gt;get_gc());
++  impl-&gt;canvas-&gt;sync_surface();
++}
++
++Layer
++OnionSkinLayer::to_layer()
++{
++  return Layer(impl);
++}
++
++/* EOF */
++
+
+Added: trunk/lib/onion_skin_layer.hxx
+===================================================================
+--- trunk/lib/onion_skin_layer.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/onion_skin_layer.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -0,0 +1,53 @@
++//  $Id$
++// 
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_ONION_SKIN_LAYER_HXX
++#define HEADER_ONION_SKIN_LAYER_HXX
++
++#include &quot;editor_map.hxx&quot;
++
++class OnionSkinLayerImpl;
++
++/** The OnionSkinLayer is used to render one or multiple EditorMap
++    renderings in a transparent fashion onto another EditorMap. This
++    is usefull for animation programms and the like where one might
++    need to see the previous or next frames together with the current
++    frame. Might also be usefull for games which have shadow worlds,
++    which reassamble the normal world in a darker fashion. */
++class OnionSkinLayer
++{
++public:
++  /** FIXME: Should probally be CL_Rect instead of just
++      width/height */
++  OnionSkinLayer(int width, int height);
++  
++  /** Adds an EditorMap to the OnionSkin */
++  void add_map(EditorMap editor_map, float transparency);
++
++  void clear();
++
++  bool is_null() const { return !impl.get(); }
++  Layer to_layer();
++private:
++  SharedPtr&lt;OnionSkinLayerImpl&gt; impl;  
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/lib/sketch_layer.cxx
+===================================================================
+--- trunk/lib/sketch_layer.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/sketch_layer.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -82,7 +82,7 @@
+       }
+   }
+   
+-  void draw(EditorMapComponent* parent) 
++  void draw(EditorMapComponent* parent, CL_GraphicContext* gc) 
+   {
+     // Nothing to draw, so we go byebye
+     if (strokes.empty()) 
+
+Added: trunk/lib/sprite_brush.cxx
+===================================================================
+--- trunk/lib/sprite_brush.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/sprite_brush.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -0,0 +1,60 @@
++//  $Id$
++// 
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &quot;brush_impl.hxx&quot;
++#include &quot;sprite_brush.hxx&quot;
++
++class SpriteBrushImpl : public BrushImpl
++{
++public:
++  CL_Sprite sprite;
++  
++  SpriteBrushImpl(const CL_Sprite&amp; sprite_)
++    : sprite(sprite_)
++  {
++    sprite.set_alignment (origin_center, 0, 0);
++  }
++
++  virtual ~SpriteBrushImpl()
++  {
++  }
++
++  CL_Sprite get_sprite() 
++  {
++    return sprite;
++  }
++
++  BrushImpl* clone() const 
++  {
++    return new SpriteBrushImpl(sprite);
++  }
++};
++
++SpriteBrush::SpriteBrush(const CL_Sprite&amp; sprite_)
++  : impl(new SpriteBrushImpl(sprite_))
++{
++}
++
++Brush
++SpriteBrush::to_brush()
++{
++  return Brush(impl);
++}
++
++/* EOF */
+
+Added: trunk/lib/sprite_brush.hxx
+===================================================================
+--- trunk/lib/sprite_brush.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/sprite_brush.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -0,0 +1,42 @@
++//  $Id$
++// 
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_SPRITE_BRUSH_HXX
++#define HEADER_SPRITE_BRUSH_HXX
++
++#include &lt;ClanLib/Display/sprite.h&gt;
++#include &quot;brush.hxx&quot;
++#include &quot;shared_ptr.hxx&quot;
++
++class SpriteBrushImpl;
++
++class SpriteBrush
++{
++public:
++  SpriteBrush(const CL_Sprite&amp; sprite_);
++
++  Brush to_brush();
++private:
++  SharedPtr&lt;SpriteBrushImpl&gt; impl;
++};
++
++
++#endif
++
++/* EOF */
+
+Modified: trunk/lib/tilemap_layer.cxx
+===================================================================
+--- trunk/lib/tilemap_layer.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/tilemap_layer.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -55,8 +55,8 @@
+ 
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
+-  void draw(EditorMapComponent* parent);
+-  void draw_tile(int id, int x, int y, bool attribute);
++  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
++  void draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc);
+ };
+ 
+ TilemapLayer::TilemapLayer()
+@@ -94,7 +94,7 @@
+ }
+ 
+ void
+-TilemapLayer::draw_tile(int id, int x, int y, bool attribute)
++TilemapLayer::draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc)
+ {
+   Tile* tile = impl-&gt;tileset.create(id);
+ 
+@@ -105,23 +105,23 @@
+ 
+       sprite.set_color(impl-&gt;foreground_color);
+ 
+-      sprite.draw (x, y);
++      sprite.draw(x, y, gc);
+       
+       if (attribute)
+-        CL_Display::fill_rect(CL_Rect(CL_Point(x, y), CL_Size(impl-&gt;tileset.get_tile_size(),
+-                                                              impl-&gt;tileset.get_tile_size())),
+-                              tile-&gt;get_attribute_color());
++        gc-&gt;fill_rect(CL_Rect(CL_Point(x, y), CL_Size(impl-&gt;tileset.get_tile_size(),
++                                                      impl-&gt;tileset.get_tile_size())),
++                      tile-&gt;get_attribute_color());
+     }
+ }
+ 
+ void
+-TilemapLayer::draw(EditorMapComponent* parent)
++TilemapLayer::draw(EditorMapComponent* parent, CL_GraphicContext* gc)
+ {
+-  impl-&gt;draw(parent);
++  impl-&gt;draw(parent, gc);
+ }
+ 
+ void
+-TilemapLayerImpl::draw_tile(int id, int x, int y, bool attribute)
++TilemapLayerImpl::draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc)
+ {
+   Tile* tile = tileset.create(id);
+ 
+@@ -132,7 +132,7 @@
+ 
+       sprite.set_color(foreground_color);
+ 
+-      sprite.draw (x, y);
++      sprite.draw(x, y, gc);
+       
+       if (attribute)
+         CL_Display::fill_rect(CL_Rect(CL_Point(x, y), CL_Size(tileset.get_tile_size(),
+@@ -142,7 +142,7 @@
+ }
+ 
+ void
+-TilemapLayerImpl::draw(EditorMapComponent* parent)
++TilemapLayerImpl::draw(EditorMapComponent* parent, CL_GraphicContext* gc)
+ {
+   int tile_size = this-&gt;tileset.get_tile_size();
+ 
+@@ -165,7 +165,8 @@
+       {
+         draw_tile(this-&gt;field.at(x, y), 
+                   x * tile_size, y * tile_size,
+-                  this-&gt;draw_attribute);
++                  this-&gt;draw_attribute,
++                  gc);
+       }
+ 
+   if (this-&gt;draw_grid)
+
+Modified: trunk/lib/tilemap_layer.hxx
+===================================================================
+--- trunk/lib/tilemap_layer.hxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/tilemap_layer.hxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -43,7 +43,7 @@
+   TilemapLayer(Tileset tileset, int w,  int h);
+   ~TilemapLayer();
+ 
+-  void draw(EditorMapComponent* parent);
++  void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
+ 
+   Tileset get_tileset();
+ 
+@@ -64,7 +64,7 @@
+   /** Draw the given single tile to the map */
+   void draw_tile(int id, const CL_Point&amp; pos);
+ 
+-  void draw_tile(int id, int x, int y, bool attribute);
++  void draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc);
+ 
+   int get_width()  const;
+   int get_height() const;
+
+Modified: trunk/lib/workspace.cxx
+===================================================================
+--- trunk/lib/workspace.cxx	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/lib/workspace.cxx	2005-03-20 00:43:21 UTC (rev 497)
+@@ -19,6 +19,7 @@
+ 
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
++#include &lt;ClanLib/Display/display_window.h&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &quot;editor.hxx&quot;
+ #include &quot;editor_map.hxx&quot;
+@@ -61,7 +62,7 @@
+ 
+   CL_Display::clear(CL_Color(100, 0, 100));
+ 
+-  impl-&gt;editor_map.draw(EditorMapComponent::current());
++  impl-&gt;editor_map.draw(EditorMapComponent::current(), CL_Display::get_current_window()-&gt;get_gc());
+   
+   if (1) // has_mouse_over()) FIXME: Seperate cursor and state here
+     impl-&gt;tool.draw();
+
+Added: trunk/paint/TODO
+===================================================================
+--- trunk/paint/TODO	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/paint/TODO	2005-03-20 00:43:21 UTC (rev 497)
+@@ -0,0 +1,3 @@
++ - start as border-less fullscreen app without grabbing the mouse
++ - allow resize
++ - take bound-rect into account when drawing
+\ No newline at end of file
+
+Added: trunk/paint/animation.rb
+===================================================================
+--- trunk/paint/animation.rb	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/paint/animation.rb	2005-03-20 00:43:21 UTC (rev 497)
+@@ -0,0 +1,45 @@
++class Animation
++  def initialize()
++    @frames = [Image.new()]
++    @current_frame = 0
++  end
++
++  def next_frame()
++    @current_frame = (@current_frame + 1) % @frames.length
++    get_current_image().activate($gui.workspace)
++  end
++
++  def previous_frame()
++    @current_frame = (@current_frame - 1) % @frames.length
++    get_current_image().activate($gui.workspace)
++  end
++
++  def get_current_image()
++    return @frames[@current_frame]
++  end
++
++  def goto_frame(index)
++    @current_frame = index % @frames.length
++  end
++
++  def add_frame(index = nil)
++    if index then
++      
++    else
++      img = Image.new()
++      @frames.push(img)
++      next_frame()
++
++      # Hack for Onion_Skin
++      onion_skin = OnionSkinLayer.new(1024, 768)
++      # onion_skin.to_layer().set_pos(CL_Pointf.new(-100, -100))
++      img.editormap.add_layer(onion_skin.to_layer(), 0)
++      
++      if (@current_frame &gt; 0) then
++        onion_skin.add_map(@frames[@current_frame - 1].editormap, 0.5)
++      end
++    end
++  end
++end
++
++# EOF #
+
+Added: trunk/paint/gui.rb
+===================================================================
+--- trunk/paint/gui.rb	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/paint/gui.rb	2005-03-20 00:43:21 UTC (rev 497)
+@@ -0,0 +1,184 @@
++class PaintGUI
++  attr_reader :workspace, :selector_window
++
++  def initialize()
++    @editor = Editor.new()
++    @gui    = @editor.get_gui_manager()
++    
++    @editor_map = EditorMapComponent.new($screen_rect, @gui.get_component())
++    @workspace  = Workspace.new($screen_rect.get_width(), $screen_rect.get_height())
++    @editor_map.set_workspace(@workspace)
++    @workspace.set_tool($sketch_stroke_tool.to_tool());
++    # @workspace.set_tool($layer_move_tool.to_tool());
++
++    @selector_window_main = Window.new(CL_Rect.new(CL_Point.new($screen_rect.get_width()-160, 5), 
++                                                   CL_Size.new(128 + 6 + 10, 558)),
++                                       &quot;ColorPicker&quot;,
++                                       @gui.get_component())
++    @selector_window = @selector_window_main.get_client_area()
++
++    @colorpicker = ColorPicker.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128, 128)),
++                                   @selector_window)
++
++    connect_v1_Color(@colorpicker.sig_color_change(), proc{|color|
++                       $sketch_stroke_tool.set_color(color)
++                     })
++
++    @bgcolorpicker = ColorPicker.new(CL_Rect.new(CL_Point.new(3, 300), CL_Size.new(128, 128)),
++                                     @selector_window)
++
++    connect_v1_Color(@bgcolorpicker.sig_color_change(), proc{|color|
++                       @workspace.get_map().set_background_color(color)
++                     })
++
++    @size_slider = Slider.new(CL_Rect.new(CL_Point.new(3, 150), CL_Size.new(128, 16)), @selector_window)
++    @size_slider.set_range(0.01, 2.0) # FIXME: using 0 size brush makes clanlib crashi
++    @size_slider.set_value(1.0)
++    connect_v1_float(@size_slider.sig_on_change, proc{|value|
++                       # puts &quot;Value: #{value}&quot;
++                       $sketch_stroke_tool.set_size(value)
++                     })
++
++    @brush_hardness = Slider.new(CL_Rect.new(CL_Point.new(3, 170), CL_Size.new(128, 16)),
++                                 @selector_window)
++    @brush_hardness.set_range(0.0, 1.0)
++    @brush_hardness.set_value(0.75)
++    connect_v1_float(@brush_hardness.sig_on_change, proc{|value|
++                       drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++                       GeneratedBrush.new(drawer.get_brush()).set_hardness(value)
++                     })
++
++    @brush_spikes = Slider.new(CL_Rect.new(CL_Point.new(3, 190), CL_Size.new(128, 16)),
++                                 @selector_window)
++    @brush_spikes.set_range(2, 20)
++    @brush_spikes.set_value(2)
++    connect_v1_float(@brush_spikes.sig_on_change, proc{|value|
++                       drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++                       GeneratedBrush.new(drawer.get_brush()).set_spikes(value.to_i)
++                     })
++
++    @brush_aspects = Slider.new(CL_Rect.new(CL_Point.new(3, 210), CL_Size.new(128, 16)),
++                                 @selector_window)
++    @brush_aspects.set_range(0.1, 10)
++    @brush_aspects.set_value(1)
++    connect_v1_float(@brush_aspects.sig_on_change, proc{|value|
++                       drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++                       GeneratedBrush.new(drawer.get_brush()).set_aspect_ratio(value)
++                     })
++
++    @brush_angles = Slider.new(CL_Rect.new(CL_Point.new(3, 230), CL_Size.new(128, 16)),
++                                 @selector_window)
++    @brush_angles.set_range(0, 360)
++    @brush_angles.set_value(0)
++    connect_v1_float(@brush_angles.sig_on_change, proc{|value|
++                       drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++                       GeneratedBrush.new(drawer.get_brush()).set_angle(value)
++                     })
++
++    @brush_shape_circle  = CL_Button.new(CL_Rect.new(CL_Point.new(5, 250), CL_Size.new(40, 25)), &quot;Circ&quot;, @selector_window)
++    @brush_shape_rect    = CL_Button.new(CL_Rect.new(CL_Point.new(45, 250), CL_Size.new(40, 25)), &quot;Squa&quot;, @selector_window)
++    @brush_shape_diamond = CL_Button.new(CL_Rect.new(CL_Point.new(85, 250), CL_Size.new(40, 25)), &quot;Diam&quot;, @selector_window)
++
++    connect(@brush_shape_circle.sig_clicked(), proc{ 
++              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++              GeneratedBrush.new(drawer.get_brush()).set_shape(BRUSH_SHAPE_CIRCLE)
++            })
++    connect(@brush_shape_rect.sig_clicked(), proc{ 
++              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++              GeneratedBrush.new(drawer.get_brush()).set_shape(BRUSH_SHAPE_SQUARE)
++            })
++    connect(@brush_shape_diamond.sig_clicked(), proc{ 
++              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++              GeneratedBrush.new(drawer.get_brush()).set_shape(BRUSH_SHAPE_DIAMOND)
++            })
++
++#    @zoom_slider = Slider.new(CL_Rect.new(CL_Point.new(3, 182), CL_Size.new(128, 16)), @selector_window)
++#    @zoom_slider.set_range(0.25, 10.0) # FIXME: using 0 size brush makes clanlib crashi
++#    @zoom_slider.set_value(1.0)
++#    connect_v1_float(@zoom_slider.sig_on_change, proc{|value|
++#                       # puts &quot;Value: #{value}&quot;
++#                       self.gui_set_zoom(value)
++#                     })
++
++    connect_v2(@editor_map.sig_on_key(&quot;escape&quot;),  proc{ |x, y| puts &quot;bye, bye&quot;})
++    connect_v2(@editor_map.sig_on_key(&quot;esc&quot;),  proc{ |x, y| puts &quot;bye, bye2&quot;})
++    connect_v2(@editor_map.sig_on_key(&quot;q&quot;),  proc{ |x, y| $gui.quit()})
++    connect_v2(@editor_map.sig_on_key(&quot;s&quot;),  proc{ |x, y| $image.save(&quot;/tmp/test.scm&quot;)})
++    connect_v2(@editor_map.sig_on_key(&quot;l&quot;),  proc{ |x, y| 
++                 $image = Image.new(&quot;/tmp/test.scm&quot;)
++                 $image.activate($gui.workspace())
++               })
++
++    connect_v2(@editor_map.sig_on_key(&quot;1&quot;),  proc{ |x, y| $animation.previous_frame()})
++    connect_v2(@editor_map.sig_on_key(&quot;2&quot;),  proc{ |x, y| $animation.next_frame()})
++
++
++    connect_v2(@editor_map.sig_on_key(&quot;g&quot;),  proc{ |x, y|
++                 $gui.workspace.get_gc_state.set_rotation($gui.workspace.get_gc_state.get_rotation() - 10)
++               })
++    connect_v2(@editor_map.sig_on_key(&quot;c&quot;),  proc{ |x, y| 
++                 $gui.workspace.get_gc_state.set_rotation($gui.workspace.get_gc_state.get_rotation() + 10)
++               })
++
++    @normal_mode = CL_Button.new(CL_Rect.new(CL_Point.new(5, 500), CL_Size.new(40, 25)), &quot;Norm&quot;, @selector_window)
++    @erase_mode  = CL_Button.new(CL_Rect.new(CL_Point.new(45, 500), CL_Size.new(40, 25)), &quot;Erase&quot;, @selector_window)
++    @add_mode    = CL_Button.new(CL_Rect.new(CL_Point.new(85, 500), CL_Size.new(40, 25)), &quot;Add&quot;, @selector_window)
++    @shader_mode = CL_Button.new(CL_Rect.new(CL_Point.new(125, 500), CL_Size.new(40, 25)), &quot;Shad&quot;, @selector_window)
++
++    connect(@normal_mode.sig_clicked(), proc{ 
++              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++              drawer.set_mode(SpriteStrokeDrawer::DM_NORMAL)
++            })
++    connect(@erase_mode.sig_clicked(),  proc{ 
++              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++              drawer.set_mode(SpriteStrokeDrawer::DM_ERASE)
++            })
++    connect(@add_mode.sig_clicked(),    proc{
++              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++              drawer.set_mode(SpriteStrokeDrawer::DM_ADDITION)
++            })
++    connect(@shader_mode.sig_clicked(),    proc{
++              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
++              drawer.set_mode(SpriteStrokeDrawer::DM_SHADER)
++            })
++
++    button_panel = ButtonPanel.new(0, 0, 33, 33*3, false, @gui.get_component)
++    button_panel.add_icon(&quot;../data/images/tools/stock-tool-pencil-22.png&quot;, proc{ 
++                            @workspace.set_tool($sketch_stroke_tool.to_tool())
++                          })
++    button_panel.add_icon(&quot;../data/images/tools/stock-tool-zoom-22.png&quot;, proc{ 
++                            @workspace.set_tool($zoom_tool.to_tool())
++                          })
++    button_panel.add_icon(&quot;../data/images/tools/stock-tool-move-22.png&quot;, proc{ 
++                            @workspace.set_tool($layer_move_tool.to_tool())
++                          })
++
++    anim_panel = ButtonPanel.new($screen_rect.get_width()/2 - (32*10)/2-16-32, 0, 32*11+1+16, 33,
++                                 true, @gui.get_component)
++    anim_panel.add_icon(&quot;../data/images/icons24/stock_new.png&quot;,
++                        proc{ $animation.add_frame() })
++    anim_panel.add_seperator()
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_skipbackward.png&quot;)
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_fastbackward.png&quot;)
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_playbackward.png&quot;)
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_slowmotionbackward.png&quot;)
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_previous.png&quot;,
++                        proc{ $animation.previous_frame()})
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_next.png&quot;,
++                        proc{ $animation.next_frame()})
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_slowmotion.png&quot;)
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_play.png&quot;)
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_fastforward.png&quot;)
++    anim_panel.add_icon(&quot;../data/images/icons24/anim_skipforward.png&quot;)
++  end
++
++  def quit()
++    @gui.quit()
++  end
++
++  def run()
++    @gui.run()
++  end
++end
++
++# EOF #
+
+Added: trunk/paint/image.rb
+===================================================================
+--- trunk/paint/image.rb	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/paint/image.rb	2005-03-20 00:43:21 UTC (rev 497)
+@@ -0,0 +1,196 @@
++class Image
++  attr_reader :layers
++  attr_accessor :editormap
++
++  def initialize(filename = nil)
++    @editormap = EditorMap.new()
++    @editormap.set_bounding_rect(CL_Rect.new(0, 0, 1024, 768))
++    @editormap.set_background_color(CL_Color.new(255, 255, 255))
++    @layers  = []
++    
++    if filename then
++      load(filename)
++      set_active_layer(0)
++    else
++      add_layer()
++      set_active_layer(0)
++    end
++  end
++  
++  def set_active_layer(i)
++    if (i &gt;= 0 &amp;&amp; i &lt; layers.size) then
++      BitmapLayer.set_current(layers[i])
++    end
++  end
++
++  def add_layer()
++    layer = BitmapLayer.new(1024, 768)
++    layer.to_layer().set_pos(CL_Pointf.new(0, 0))
++    @layers.push(layer)
++    @editormap.add_layer(layer.to_layer()) 
++    puts &quot;Add layer: #{layer}&quot; 
++    return layer
++  end
++
++  def layers_count()
++    return layers.size
++  end
++
++  def activate(workspace)
++    workspace.set_map(@editormap)
++    BitmapLayer.set_current(layers[0])
++    connect(@editormap.sig_change(), proc{$gui.on_map_change()})
++  end
++
++  def load(filename)
++    tree = sexpr_read_from_file(filename)
++    if tree == nil
++        raise(&quot;Couldn't load level: %s&quot; % filename)
++    end
++    
++    # Skip flexlay-paint tag
++    tree = tree[1..-1]
++    puts &quot;REst: #{tree.length}&quot;
++    while not tree.empty? do
++      (tag, *data) = tree[0]
++
++      puts &quot;Tag: #{tag}&quot;
++
++      if tag == &quot;layer&quot; then
++        puts &quot;MUMU LAYER&quot; 
++        parse_layer(data)
++      end
++
++      tree = tree[1..-1]
++      puts &quot;REst2: #{tree.length}&quot;
++    end
++
++    set_active_layer(0)
++  end
++
++  def parse_layer(tree)
++    layer = add_layer()
++
++    while not tree.empty? do
++      (tag, *data) = tree[0]
++      
++      if tag == &quot;stroke&quot; then
++        parse_stroke(layer, data)
++      end
++
++      tree = tree[1..-1]
++    end
++    puts &quot;&quot;
++  end
++
++  def parse_stroke(layer, tree)
++    stroke = Stroke.new()
++
++    sprite_drawer = SpriteStrokeDrawer.new()
++    # FIXME: insert loader for brush here
++    sprite_drawer.set_brush(GeneratedBrush.new(BRUSH_SHAPE_CIRCLE, 
++                                               32,  # radius
++                                               2,   # spikes
++                                               0.75, # hardness
++                                               1.0, # aspect
++                                               0).to_brush()) # angle
++    
++    sprite_drawer.set_color(CL_Color.new(0, 0, 0, 155))
++    sprite_drawer.set_size(1.0)
++    stroke.set_drawer(sprite_drawer.to_drawer())
++
++    while not tree.empty? do
++      (tag, *data) = tree[0]     
++
++      if tag == &quot;dab&quot; then
++        time     = get_value_from_tree([&quot;time&quot;, &quot;_&quot;], data, 0)
++        position = get_value_from_tree([&quot;position&quot;],  data, [0, 0])
++        pressure = get_value_from_tree([&quot;pressure&quot;, &quot;_&quot;],  data, 1.0)
++        tilt     = get_value_from_tree([&quot;tilt&quot;, &quot;_&quot;],  data, [0, 0])
++
++        # FIXME: No tilt support
++        stroke.add_dab(Dab.new(position[0].to_f, position[1].to_f, pressure.to_f))
++      elsif tag == &quot;drawer&quot; then
++        if data[0][0] == &quot;sprite-stroke-drawer&quot; then
++          data = data[0][1..-1]
++          mode    = get_value_from_tree([&quot;mode&quot;, &quot;_&quot;], data, SpriteStrokeDrawer::DM_NORMAL)
++          spacing = get_value_from_tree([&quot;spacing&quot;, &quot;_&quot;], data, 15.0)
++          size    = get_value_from_tree([&quot;size&quot;, &quot;_&quot;],    data,  1.0)
++          color   = get_value_from_tree([&quot;color&quot;],    data, [0, 255, 0, 255])
++          brush   = get_value_from_tree([&quot;brush&quot;, &quot;generated-brush&quot;],    data, [])
++
++          drawer = SpriteStrokeDrawer.new()
++          drawer.set_spacing(spacing)
++          drawer.set_mode(mode)
++          drawer.set_size(size)
++          drawer.set_color(CL_Color.new(color[0], color[1], color[2], color[3]))
++          drawer.set_brush(GeneratedBrush.new(get_value_from_tree([&quot;shape&quot;, &quot;_&quot;], brush, 0),
++                                              get_value_from_tree([&quot;radius&quot;, &quot;_&quot;], brush, 32),
++                                              get_value_from_tree([&quot;spikes&quot;, &quot;_&quot;], brush, 2),
++                                              get_value_from_tree([&quot;hardness&quot;, &quot;_&quot;], brush, 0.75),
++                                              get_value_from_tree([&quot;aspect-ratio&quot;, &quot;_&quot;], brush, 1.0),
++                                              get_value_from_tree([&quot;angle&quot;, &quot;_&quot;], brush, 0)).to_brush)
++          stroke.set_drawer(drawer.to_drawer)
++        else
++          puts &quot;Error: Unknown drawer: #{data[0][0]}&quot; 
++        end
++      end
++
++      tree = tree[1..-1]
++    end
++    
++    print &quot;.&quot;
++    $stdout.flush
++    layer.add_stroke(stroke)
++  end
++
++  def save(filename)
++    f = File.new(filename, &quot;w&quot;)
++    f.puts &quot;(flexlay-paint&quot;
++    @layers.each { |layer|
++      f.puts &quot;(layer&quot;
++      layer.get_strokes().each{|stroke|
++        f.puts &quot;  (stroke&quot;
++        
++        # FIXME: This won't work with a real smartptr!
++        sprite_stroke_drawer = SpriteStrokeDrawer.new(stroke.get_drawer())
++
++        f.puts &quot;      (drawer (sprite-stroke-drawer&quot;
++        f.puts &quot;                 (mode    #{sprite_stroke_drawer.get_mode})&quot;
++        f.puts &quot;                 (spacing #{sprite_stroke_drawer.get_spacing})&quot;
++        f.puts &quot;                 (size    #{sprite_stroke_drawer.get_size})&quot;
++        f.puts &quot;                 (color   &quot;\
++        &quot;#{sprite_stroke_drawer.get_color.get_red} &quot; \
++        &quot;#{sprite_stroke_drawer.get_color.get_green} &quot; \
++        &quot;#{sprite_stroke_drawer.get_color.get_blue} &quot; \
++        &quot;#{sprite_stroke_drawer.get_color.get_alpha})&quot;
++        # FIXME: This won't work with multilpe brush types
++        brush = GeneratedBrush.new(sprite_stroke_drawer.get_brush())
++        f.puts &quot;                 (brush   (generated-brush&quot;
++        f.puts &quot;                            (shape  #{brush.get_shape})&quot;
++        f.puts &quot;                            (radius #{brush.get_radius})&quot;
++        f.puts &quot;                            (spikes #{brush.get_spikes})&quot;
++        f.puts &quot;                            (hardness #{brush.get_hardness})&quot;
++        f.puts &quot;                            (aspect-ratio #{brush.get_aspect_ratio})&quot;
++        f.puts &quot;                            (angle #{brush.get_angle})&quot;
++        f.puts &quot;                  ))&quot;
++        f.puts &quot;       ))&quot;
++
++        stroke.get_dabs().each{|dab|
++          f.puts &quot;    (dab&quot;
++          f.puts &quot;      (time     #{dab.time})&quot;
++          f.puts &quot;      (position #{dab.pos.x} #{dab.pos.y})&quot;
++          f.puts &quot;      (pressure #{dab.pressure})&quot;
++          f.puts &quot;      (tilt     #{dab.tilt.x} #{dab.tilt.y})&quot;
++          f.puts &quot;)&quot;
++        }
++        f.puts &quot;)&quot;
++      }
++      f.puts &quot;)&quot;
++    }
++    f.puts &quot;)&quot;
++    f.close()
++  end
++end
++
++# EOF #
+
+Modified: trunk/paint/paint.rb
+===================================================================
+--- trunk/paint/paint.rb	2005-03-18 22:59:13 UTC (rev 496)
++++ trunk/paint/paint.rb	2005-03-20 00:43:21 UTC (rev 497)
+@@ -23,11 +23,14 @@
+ 
+ require &quot;flexlay.rb&quot;
+ require &quot;sexpr.rb&quot;
++require &quot;animation.rb&quot;
++require &quot;image.rb&quot;
++require &quot;gui.rb&quot;
+ 
+ flexlay = Flexlay.new()
+ 
+-$screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(800, 600))
+-# $screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(1152, 864))
++# $screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(800, 600))
++$screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(1024, 768))
+ 
+ flexlay.init($screen_rect.get_width(), $screen_rect.get_height(), false)
+ 
+@@ -35,378 +38,26 @@
+ $layer_move_tool     = LayerMoveTool.new()
+ $zoom_tool           = ZoomTool.new()
+ 
+-class PaintGUI
+-  attr_reader :workspace, :selector_window
++$sketch_stroke_tool.set_color(CL_Color.new(0, 0, 0, 50))
+ 
+-  def initialize()
+-    @editor = Editor.new()
+-    @gui    = @editor.get_gui_manager()
+-    
+-    @editor_map = EditorMapComponent.new($screen_rect, @gui.get_component())
+-    @workspace  = Workspace.new($screen_rect.get_width(), $screen_rect.get_height())
+-    @editor_map.set_workspace(@workspace)
+-    # @workspace.set_tool($sketch_stroke_tool.to_tool());
+-    @workspace.set_tool($layer_move_tool.to_tool());
+-
+-    @selector_window_main = Window.new(CL_Rect.new(CL_Point.new($screen_rect.get_width()-160, 5), 
+-                                                   CL_Size.new(128 + 6 + 10, 558)),
+-                                       &quot;ColorPicker&quot;,
+-                                       @gui.get_component())
+-    @selector_window = @selector_window_main.get_client_area()
+-
+-    @colorpicker = ColorPicker.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128, 128)),
+-                                   @selector_window)
+-
+-    connect_v1_Color(@colorpicker.sig_color_change(), proc{|color|
+-                       $sketch_stroke_tool.set_color(color)
+-                     })
+-
+-    @bgcolorpicker = ColorPicker.new(CL_Rect.new(CL_Point.new(3, 300), CL_Size.new(128, 128)),
+-                                     @selector_window)
+-
+-    connect_v1_Color(@bgcolorpicker.sig_color_change(), proc{|color|
+-                       @workspace.get_map().set_background_color(color)
+-                     })
+-
+-    @size_slider = Slider.new(CL_Rect.new(CL_Point.new(3, 150), CL_Size.new(128, 16)), @selector_window)
+-    @size_slider.set_range(0.01, 2.0) # FIXME: using 0 size brush makes clanlib crashi
+-    @size_slider.set_value(1.0)
+-    connect_v1_float(@size_slider.sig_on_change, proc{|value|
+-                       # puts &quot;Value: #{value}&quot;
+-                       $sketch_stroke_tool.set_size(value)
+-                     })
+-
+-    @brush_hardness = Slider.new(CL_Rect.new(CL_Point.new(3, 170), CL_Size.new(128, 16)),
+-                                 @selector_window)
+-    @brush_hardness.set_range(0.0, 1.0)
+-    @brush_hardness.set_value(0.75)
+-    connect_v1_float(@brush_hardness.sig_on_change, proc{|value|
+-                       drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-                       GeneratedBrush.new(drawer.get_brush()).set_hardness(value)
+-                     })
+-
+-    @brush_spikes = Slider.new(CL_Rect.new(CL_Point.new(3, 190), CL_Size.new(128, 16)),
+-                                 @selector_window)
+-    @brush_spikes.set_range(2, 20)
+-    @brush_spikes.set_value(2)
+-    connect_v1_float(@brush_spikes.sig_on_change, proc{|value|
+-                       drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-                       GeneratedBrush.new(drawer.get_brush()).set_spikes(value.to_i)
+-                     })
+-
+-    @brush_aspects = Slider.new(CL_Rect.new(CL_Point.new(3, 210), CL_Size.new(128, 16)),
+-                                 @selector_window)
+-    @brush_aspects.set_range(0.1, 10)
+-    @brush_aspects.set_value(1)
+-    connect_v1_float(@brush_aspects.sig_on_change, proc{|value|
+-                       drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-                       GeneratedBrush.new(drawer.get_brush()).set_aspect_ratio(value)
+-                     })
+-
+-    @brush_angles = Slider.new(CL_Rect.new(CL_Point.new(3, 230), CL_Size.new(128, 16)),
+-                                 @selector_window)
+-    @brush_angles.set_range(0, 360)
+-    @brush_angles.set_value(0)
+-    connect_v1_float(@brush_angles.sig_on_change, proc{|value|
+-                       drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-                       GeneratedBrush.new(drawer.get_brush()).set_angle(value)
+-                     })
+-
+-    @brush_shape_circle  = CL_Button.new(CL_Rect.new(CL_Point.new(5, 250), CL_Size.new(40, 25)), &quot;Circ&quot;, @selector_window)
+-    @brush_shape_rect    = CL_Button.new(CL_Rect.new(CL_Point.new(45, 250), CL_Size.new(40, 25)), &quot;Squa&quot;, @selector_window)
+-    @brush_shape_diamond = CL_Button.new(CL_Rect.new(CL_Point.new(85, 250), CL_Size.new(40, 25)), &quot;Diam&quot;, @selector_window)
+-
+-    connect(@brush_shape_circle.sig_clicked(), proc{ 
+-              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-              GeneratedBrush.new(drawer.get_brush()).set_shape(BRUSH_SHAPE_CIRCLE)
+-            })
+-    connect(@brush_shape_rect.sig_clicked(), proc{ 
+-              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-              GeneratedBrush.new(drawer.get_brush()).set_shape(BRUSH_SHAPE_SQUARE)
+-            })
+-    connect(@brush_shape_diamond.sig_clicked(), proc{ 
+-              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-              GeneratedBrush.new(drawer.get_brush()).set_shape(BRUSH_SHAPE_DIAMOND)
+-            })
+-
+-#    @zoom_slider = Slider.new(CL_Rect.new(CL_Point.new(3, 182), CL_Size.new(128, 16)), @selector_window)
+-#    @zoom_slider.set_range(0.25, 10.0) # FIXME: using 0 size brush makes clanlib crashi
+-#    @zoom_slider.set_value(1.0)
+-#    connect_v1_float(@zoom_slider.sig_on_change, proc{|value|
+-#                       # puts &quot;Value: #{value}&quot;
+-#                       self.gui_set_zoom(value)
+-#                     })
+-
+-    connect_v2(@editor_map.sig_on_key(&quot;escape&quot;),  proc{ |x, y| puts &quot;bye, bye&quot;})
+-    connect_v2(@editor_map.sig_on_key(&quot;esc&quot;),  proc{ |x, y| puts &quot;bye, bye2&quot;})
+-    connect_v2(@editor_map.sig_on_key(&quot;q&quot;),  proc{ |x, y| $gui.quit()})
+-    connect_v2(@editor_map.sig_on_key(&quot;s&quot;),  proc{ |x, y| $image.save(&quot;/tmp/test.scm&quot;)})
+-    connect_v2(@editor_map.sig_on_key(&quot;l&quot;),  proc{ |x, y| 
+-                 $image = Image.new(&quot;/tmp/test.scm&quot;)
+-                 $image.activate($gui.workspace())
+-               })
+-
+-    connect_v2(@editor_map.sig_on_key(&quot;g&quot;),  proc{ |x, y|
+-                 $gui.workspace.get_gc_state.set_rotation($gui.workspace.get_gc_state.get_rotation() - 10)
+-               })
+-    connect_v2(@editor_map.sig_on_key(&quot;c&quot;),  proc{ |x, y| 
+-                 $gui.workspace.get_gc_state.set_rotation($gui.workspace.get_gc_state.get_rotation() + 10)
+-               })
+-
+-    @normal_mode = CL_Button.new(CL_Rect.new(CL_Point.new(5, 500), CL_Size.new(40, 25)), &quot;Norm&quot;, @selector_window)
+-    @erase_mode  = CL_Button.new(CL_Rect.new(CL_Point.new(45, 500), CL_Size.new(40, 25)), &quot;Erase&quot;, @selector_window)
+-    @add_mode    = CL_Button.new(CL_Rect.new(CL_Point.new(85, 500), CL_Size.new(40, 25)), &quot;Add&quot;, @selector_window)
+-    @shader_mode = CL_Button.new(CL_Rect.new(CL_Point.new(125, 500), CL_Size.new(40, 25)), &quot;Shad&quot;, @selector_window)
+-
+-    connect(@normal_mode.sig_clicked(), proc{ 
+-              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-              drawer.set_mode(SpriteStrokeDrawer::DM_NORMAL)
+-            })
+-    connect(@erase_mode.sig_clicked(),  proc{ 
+-              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-              drawer.set_mode(SpriteStrokeDrawer::DM_ERASE)
+-            })
+-    connect(@add_mode.sig_clicked(),    proc{
+-              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-              drawer.set_mode(SpriteStrokeDrawer::DM_ADDITION)
+-            })
+-    connect(@shader_mode.sig_clicked(),    proc{
+-              drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-              drawer.set_mode(SpriteStrokeDrawer::DM_SHADER)
+-            })
+-
+-    button_panel = ButtonPanel.new(0, 0, 33, 33*3, false, @gui.get_component)
+-    button_panel.add_icon(&quot;../data/images/tools/stock-tool-pencil-22.png&quot;, proc{ 
+-                            @workspace.set_tool($sketch_stroke_tool.to_tool())
+-                          })
+-    button_panel.add_icon(&quot;../data/images/tools/stock-tool-move-22.png&quot;, proc{ 
+-                            @workspace.set_tool($layer_move_tool.to_tool())
+-                          })
+-    button_panel.add_icon(&quot;../data/images/tools/stock-tool-zoom-22.png&quot;, proc{ 
+-                            @workspace.set_tool($zoom_tool.to_tool())
+-                          })
+-  end
+-
+-  def quit()
+-    @gui.quit()
+-  end
+-
+-  def run()
+-    @gui.run()
+-  end
+-end
+-
+-class Image
+-  attr_reader :layers
+-  
+-  def initialize(filename = nil)
+-    @editormap = EditorMap.new()
+-    @editormap.set_background_color(CL_Color.new(255, 255, 255))
+-    @layers  = []
+-    
+-    if filename then
+-      load(filename)
+-      set_active_layer(0)
+-    else
+-      add_layer()
+-      add_layer()
+-      add_layer()
+-      set_active_layer(0)
+-    end
+-  end
+-  
+-  def set_active_layer(i)
+-    if (i &gt;= 0 &amp;&amp; i &lt; layers.size) then
+-      BitmapLayer.set_current(layers[i])
+-    end
+-  end
+-
+-  def add_layer()
+-    layer = BitmapLayer.new(640, 480)
+-    layer.to_layer().set_pos(CL_Pointf.new(rand(100)-50, rand(100)-50))
+-    @layers.push(layer)
+-    @editormap.add_layer(layer.to_layer()) 
+-    puts &quot;Add layer: #{layer}&quot; 
+-    return layer
+-  end
+-
+-  def layers_count()
+-    return layers.size
+-  end
+-
+-  def activate(workspace)
+-    workspace.set_map(@editormap)
+-    connect(@editormap.sig_change(), proc{$gui.on_map_change()})
+-  end
+-
+-  def load(filename)
+-    tree = sexpr_read_from_file(filename)
+-    if tree == nil
+-        raise(&quot;Couldn't load level: %s&quot; % filename)
+-    end
+-    
+-    # Skip flexlay-paint tag
+-    tree = tree[1..-1]
+-    puts &quot;REst: #{tree.length}&quot;
+-    while not tree.empty? do
+-      (tag, *data) = tree[0]
+-
+-      puts &quot;Tag: #{tag}&quot;
+-
+-      if tag == &quot;layer&quot; then
+-        puts &quot;MUMU LAYER&quot; 
+-        parse_layer(data)
+-      end
+-
+-      tree = tree[1..-1]
+-      puts &quot;REst2: #{tree.length}&quot;
+-    end
+-
+-    set_active_layer(0)
+-  end
+-
+-  def parse_layer(tree)
+-    layer = add_layer()
+-
+-    while not tree.empty? do
+-      (tag, *data) = tree[0]
+-      
+-      if tag == &quot;stroke&quot; then
+-        parse_stroke(layer, data)
+-      end
+-
+-      tree = tree[1..-1]
+-    end
+-    puts &quot;&quot;
+-  end
+-
+-  def parse_stroke(layer, tree)
+-    stroke = Stroke.new()
+-
+-    sprite_drawer = SpriteStrokeDrawer.new()
+-    # FIXME: insert loader for brush here
+-    sprite_drawer.set_brush(GeneratedBrush.new(BRUSH_SHAPE_CIRCLE, 
+-                                               32,  # radius
+-                                               2,   # spikes
+-                                               0.75, # hardness
+-                                               1.0, # aspect
+-                                               0).to_brush()) # angle
+-    
+-    sprite_drawer.set_color(CL_Color.new(0, 0, 0, 155))
+-    sprite_drawer.set_size(1.0)
+-    stroke.set_drawer(sprite_drawer.to_drawer())
+-
+-    while not tree.empty? do
+-      (tag, *data) = tree[0]     
+-
+-      if tag == &quot;dab&quot; then
+-        time     = get_value_from_tree([&quot;time&quot;, &quot;_&quot;], data, 0)
+-        position = get_value_from_tree([&quot;position&quot;],  data, [0, 0])
+-        pressure = get_value_from_tree([&quot;pressure&quot;, &quot;_&quot;],  data, 1.0)
+-        tilt     = get_value_from_tree([&quot;tilt&quot;, &quot;_&quot;],  data, [0, 0])
+-
+-        # FIXME: No tilt support
+-        stroke.add_dab(Dab.new(position[0].to_f, position[1].to_f, pressure.to_f))
+-      elsif tag == &quot;drawer&quot; then
+-        if data[0][0] == &quot;sprite-stroke-drawer&quot; then
+-          data = data[0][1..-1]
+-          mode    = get_value_from_tree([&quot;mode&quot;, &quot;_&quot;], data, SpriteStrokeDrawer::DM_NORMAL)
+-          spacing = get_value_from_tree([&quot;spacing&quot;, &quot;_&quot;], data, 15.0)
+-          size    = get_value_from_tree([&quot;size&quot;, &quot;_&quot;],    data,  1.0)
+-          color   = get_value_from_tree([&quot;color&quot;],    data, [0, 255, 0, 255])
+-          brush   = get_value_from_tree([&quot;brush&quot;, &quot;generated-brush&quot;],    data, [])
+-
+-          drawer = SpriteStrokeDrawer.new()
+-          drawer.set_spacing(spacing)
+-          drawer.set_mode(mode)
+-          drawer.set_size(size)
+-          drawer.set_color(CL_Color.new(color[0], color[1], color[2], color[3]))
+-          drawer.set_brush(GeneratedBrush.new(get_value_from_tree([&quot;shape&quot;, &quot;_&quot;], brush, 0),
+-                                              get_value_from_tree([&quot;radius&quot;, &quot;_&quot;], brush, 32),
+-                                              get_value_from_tree([&quot;spikes&quot;, &quot;_&quot;], brush, 2),
+-                                              get_value_from_tree([&quot;hardness&quot;, &quot;_&quot;], brush, 0.75),
+-                                              get_value_from_tree([&quot;aspect-ratio&quot;, &quot;_&quot;], brush, 1.0),
+-                                              get_value_from_tree([&quot;angle&quot;, &quot;_&quot;], brush, 0)).to_brush)
+-          stroke.set_drawer(drawer.to_drawer)
+-        else
+-          puts &quot;Error: Unknown drawer: #{data[0][0]}&quot; 
+-        end
+-      end
+-
+-      tree = tree[1..-1]
+-    end
+-    
+-    print &quot;.&quot;
+-    $stdout.flush
+-    layer.add_stroke(stroke)
+-  end
+-
+-  def save(filename)
+-    f = File.new(filename, &quot;w&quot;)
+-    f.puts &quot;(flexlay-paint&quot;
+-    @layers.each { |layer|
+-      f.puts &quot;(layer&quot;
+-      layer.get_strokes().each{|stroke|
+-        f.puts &quot;  (stroke&quot;
+-        
+-        # FIXME: This won't work with a real smartptr!
+-        sprite_stroke_drawer = SpriteStrokeDrawer.new(stroke.get_drawer())
+-
+-        f.puts &quot;      (drawer (sprite-stroke-drawer&quot;
+-        f.puts &quot;                 (mode    #{sprite_stroke_drawer.get_mode})&quot;
+-        f.puts &quot;                 (spacing #{sprite_stroke_drawer.get_spacing})&quot;
+-        f.puts &quot;                 (size    #{sprite_stroke_drawer.get_size})&quot;
+-        f.puts &quot;                 (color   &quot;\
+-        &quot;#{sprite_stroke_drawer.get_color.get_red} &quot; \
+-        &quot;#{sprite_stroke_drawer.get_color.get_green} &quot; \
+-        &quot;#{sprite_stroke_drawer.get_color.get_blue} &quot; \
+-        &quot;#{sprite_stroke_drawer.get_color.get_alpha})&quot;
+-        # FIXME: This won't work with multilpe brush types
+-        brush = GeneratedBrush.new(sprite_stroke_drawer.get_brush())
+-        f.puts &quot;                 (brush   (generated-brush&quot;
+-        f.puts &quot;                            (shape  #{brush.get_shape})&quot;
+-        f.puts &quot;                            (radius #{brush.get_radius})&quot;
+-        f.puts &quot;                            (spikes #{brush.get_spikes})&quot;
+-        f.puts &quot;                            (hardness #{brush.get_hardness})&quot;
+-        f.puts &quot;                            (aspect-ratio #{brush.get_aspect_ratio})&quot;
+-        f.puts &quot;                            (angle #{brush.get_angle})&quot;
+-        f.puts &quot;                  ))&quot;
+-        f.puts &quot;       ))&quot;
+-
+-        stroke.get_dabs().each{|dab|
+-          f.puts &quot;    (dab&quot;
+-          f.puts &quot;      (time     #{dab.time})&quot;
+-          f.puts &quot;      (position #{dab.pos.x} #{dab.pos.y})&quot;
+-          f.puts &quot;      (pressure #{dab.pressure})&quot;
+-          f.puts &quot;      (tilt     #{dab.tilt.x} #{dab.tilt.y})&quot;
+-          f.puts &quot;)&quot;
+-        }
+-        f.puts &quot;)&quot;
+-      }
+-      f.puts &quot;)&quot;
+-    }
+-    f.puts &quot;)&quot;
+-    f.close()
+-  end
+-end
+-
+ $gui   = PaintGUI.new()
+ 
+-$image = Image.new()
+-# $image = Image.new(&quot;example2.scm&quot;)
+-# $image = Image.new()
+-# $image.add_layer()
+-# $image.add_layer()
++$animation = Animation.new()
++$image = $animation.get_current_image()
+ 
+ $image.activate($gui.workspace)
+ 
+ drawer = SpriteStrokeDrawer.new($sketch_stroke_tool.get_drawer())
+-drawer.set_brush(GeneratedBrush.new(BRUSH_SHAPE_CIRCLE, 
+-                                    32,  # radius
+-                                    2,   # spikes
+-                                    0.75, # hardness
+-                                    1.0, # aspect
+-                                    0).to_brush()) # angle
++if true then
++  drawer.set_brush(GeneratedBrush.new(BRUSH_SHAPE_CIRCLE, 
++                                      32,  # radius
++                                      2,   # spikes
++                                      0.75, # hardness
++                                      1.0, # aspect
++                                      0).to_brush()) # angle
++else
++  drawer.set_brush(SpriteBrush.new(make_sprite(&quot;../data/images/brush/brush8.png&quot;)).to_brush)
++end
+ 
+ $image.layers_count.times {|i|
+   button = CL_Button.new(CL_Rect.new(CL_Point.new(25*i+6, 450), CL_Size.new(25, 25)), &quot;#{i}&quot;,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000007.html">[Flexlay-commit] r496 - trunk/lib
+</A></li>
+	<LI>Next message: <A HREF="000008.html">[Flexlay-commit] r498 - trunk/data/images/icons24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

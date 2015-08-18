@@ -1,0 +1,2193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r696 - in trunk/netbrush: data/fonts src src/math	src/widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r696%20-%20in%20trunk/netbrush%3A%20data/fonts%20src%20src/math%0A%09src/widget&In-Reply-To=%3C200611060229.kA62TdQ6021332%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000188.html">
+   <LINK REL="Next"  HREF="000190.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r696 - in trunk/netbrush: data/fonts src src/math	src/widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r696%20-%20in%20trunk/netbrush%3A%20data/fonts%20src%20src/math%0A%09src/widget&In-Reply-To=%3C200611060229.kA62TdQ6021332%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r696 - in trunk/netbrush: data/fonts src src/math	src/widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov  6 03:29:39 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000188.html">[Flexlay-commit] r695 - trunk/netbrush/src
+</A></li>
+        <LI>Next message: <A HREF="000190.html">[Flexlay-commit] r697 - in trunk/netbrush: . src src/widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-06 03:29:37 +0100 (Mon, 06 Nov 2006)
+New Revision: 696
+
+Modified:
+   trunk/netbrush/data/fonts/8x8font.png
+   trunk/netbrush/src/airbrush_tool.hpp
+   trunk/netbrush/src/alpha_picker.cpp
+   trunk/netbrush/src/alpha_picker.hpp
+   trunk/netbrush/src/brush_widget.cpp
+   trunk/netbrush/src/brush_widget.hpp
+   trunk/netbrush/src/brushmask.hpp
+   trunk/netbrush/src/circle_tool.cpp
+   trunk/netbrush/src/circle_tool.hpp
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/client_connection.cpp
+   trunk/netbrush/src/client_state.cpp
+   trunk/netbrush/src/client_state.hpp
+   trunk/netbrush/src/color.cpp
+   trunk/netbrush/src/color.hpp
+   trunk/netbrush/src/color_display.cpp
+   trunk/netbrush/src/color_display.hpp
+   trunk/netbrush/src/colorpicker_tool.cpp
+   trunk/netbrush/src/colorpicker_tool.hpp
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/controller.hpp
+   trunk/netbrush/src/debug.cpp
+   trunk/netbrush/src/debug.hpp
+   trunk/netbrush/src/drawing_context.cpp
+   trunk/netbrush/src/drawing_context.hpp
+   trunk/netbrush/src/drawing_parameter.cpp
+   trunk/netbrush/src/drawing_parameter.hpp
+   trunk/netbrush/src/generic_brush.cpp
+   trunk/netbrush/src/generic_brush.hpp
+   trunk/netbrush/src/globals.cpp
+   trunk/netbrush/src/globals.hpp
+   trunk/netbrush/src/graphic_context.hpp
+   trunk/netbrush/src/grayscale_buffer.cpp
+   trunk/netbrush/src/grayscale_buffer.hpp
+   trunk/netbrush/src/hue_picker.cpp
+   trunk/netbrush/src/hue_picker.hpp
+   trunk/netbrush/src/input_device_xinput.cpp
+   trunk/netbrush/src/input_device_xinput.hpp
+   trunk/netbrush/src/line_tool.cpp
+   trunk/netbrush/src/line_tool.hpp
+   trunk/netbrush/src/math/rect.cpp
+   trunk/netbrush/src/math/rect.hpp
+   trunk/netbrush/src/navigation.cpp
+   trunk/netbrush/src/navigation.hpp
+   trunk/netbrush/src/paintbrush_tool.cpp
+   trunk/netbrush/src/paintbrush_tool.hpp
+   trunk/netbrush/src/rect_tool.cpp
+   trunk/netbrush/src/rect_tool.hpp
+   trunk/netbrush/src/region_tool.cpp
+   trunk/netbrush/src/region_tool.hpp
+   trunk/netbrush/src/saturation_value_picker.cpp
+   trunk/netbrush/src/saturation_value_picker.hpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/screen_buffer.hpp
+   trunk/netbrush/src/scroll_tool.cpp
+   trunk/netbrush/src/scroll_tool.hpp
+   trunk/netbrush/src/server.cpp
+   trunk/netbrush/src/server_connection.cpp
+   trunk/netbrush/src/server_connection.hpp
+   trunk/netbrush/src/stroke.cpp
+   trunk/netbrush/src/stroke.hpp
+   trunk/netbrush/src/stroke_buffer.cpp
+   trunk/netbrush/src/stroke_buffer.hpp
+   trunk/netbrush/src/surface_graphic_context.cpp
+   trunk/netbrush/src/surface_graphic_context.hpp
+   trunk/netbrush/src/text_view.cpp
+   trunk/netbrush/src/text_view.hpp
+   trunk/netbrush/src/tool.hpp
+   trunk/netbrush/src/video.cpp
+   trunk/netbrush/src/video.hpp
+   trunk/netbrush/src/widget/button.cpp
+   trunk/netbrush/src/widget/button.hpp
+   trunk/netbrush/src/widget/events.hpp
+   trunk/netbrush/src/widget/scrollbar.cpp
+   trunk/netbrush/src/widget/scrollbar.hpp
+   trunk/netbrush/src/widget/slider_widget.cpp
+   trunk/netbrush/src/widget/slider_widget.hpp
+   trunk/netbrush/src/widget/widget.cpp
+   trunk/netbrush/src/widget/widget.hpp
+   trunk/netbrush/src/widget/widget_manager.cpp
+   trunk/netbrush/src/widget/widget_manager.hpp
+Log:
+- some more fixes to the tablet support, its now mostly useable
+
+Modified: trunk/netbrush/data/fonts/8x8font.png
+===================================================================
+(Binary files differ)
+
+Modified: trunk/netbrush/src/airbrush_tool.hpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/airbrush_tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,10 +1,8 @@
+-/*   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/alpha_picker.cpp
+===================================================================
+--- trunk/netbrush/src/alpha_picker.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/alpha_picker.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/alpha_picker.hpp
+===================================================================
+--- trunk/netbrush/src/alpha_picker.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/alpha_picker.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/brush_widget.cpp
+===================================================================
+--- trunk/netbrush/src/brush_widget.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/brush_widget.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/brush_widget.hpp
+===================================================================
+--- trunk/netbrush/src/brush_widget.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/brush_widget.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/brushmask.hpp
+===================================================================
+--- trunk/netbrush/src/brushmask.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/brushmask.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/circle_tool.cpp
+===================================================================
+--- trunk/netbrush/src/circle_tool.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/circle_tool.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/circle_tool.hpp
+===================================================================
+--- trunk/netbrush/src/circle_tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/circle_tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/client.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -35,6 +35,8 @@
+ #define F_OK   0
+ #endif
+ 
++SDL_SysWMinfo syswm;
++
+ SDL_Rect* make_rect(int x, int y, int w, int h)
+ {
+   static SDL_Rect rect;
+@@ -153,8 +155,17 @@
+ 
+         case SDL_SYSWMEVENT:
+           if (xinput)
+-            xinput-&gt;on_xevent(event.syswm.msg-&gt;event.xevent);
++            {
++              syswm.info.x11.lock_func();
++              xinput-&gt;on_xevent(syswm.info.x11.display, syswm.info.x11.window, 
++                                event.syswm.msg-&gt;event.xevent);
++              syswm.info.x11.unlock_func();
++            }
+           break;
++
++        default: 
++          std::cout &lt;&lt; &quot;Unknown event&quot; &lt;&lt; std::endl;
++          break;
+         }
+     }  
+ }
+@@ -284,8 +295,6 @@
+ 
+     if (!stylus.empty()) // enable tablet support
+       {
+-        SDL_SysWMinfo syswm;
+-
+         SDL_VERSION(&amp;syswm.version); // this is important!
+         if (SDL_GetWMInfo(&amp;syswm) == -1)
+           {
+@@ -293,7 +302,7 @@
+           }
+ 
+         syswm.info.x11.lock_func();
+-        xinput = new InputDevice_XInput(syswm.info.x11.display, stylus);
++        xinput = new InputDevice_XInput(syswm.info.x11.display, syswm.info.x11.window, stylus);
+         syswm.info.x11.unlock_func();
+ 
+         SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+
+Modified: trunk/netbrush/src/client_connection.cpp
+===================================================================
+--- trunk/netbrush/src/client_connection.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/client_connection.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/client_state.cpp
+===================================================================
+--- trunk/netbrush/src/client_state.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/client_state.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/client_state.hpp
+===================================================================
+--- trunk/netbrush/src/client_state.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/client_state.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/color.cpp
+===================================================================
+--- trunk/netbrush/src/color.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/color.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/color.hpp
+===================================================================
+--- trunk/netbrush/src/color.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/color.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/color_display.cpp
+===================================================================
+--- trunk/netbrush/src/color_display.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/color_display.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/color_display.hpp
+===================================================================
+--- trunk/netbrush/src/color_display.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/color_display.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/colorpicker_tool.cpp
+===================================================================
+--- trunk/netbrush/src/colorpicker_tool.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/colorpicker_tool.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/colorpicker_tool.hpp
+===================================================================
+--- trunk/netbrush/src/colorpicker_tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/colorpicker_tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/controller.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+@@ -193,7 +190,12 @@
+   brush_widget = new BrushWidget(Rect(Point(screen-&gt;w-128, 128+24+24), Size(128, 128)));
+   widget_manager-&gt;add(brush_widget);
+ 
+-  text_view-&gt;put(&quot;netBrush Version 0.1.0\n&quot;);
++  text_view-&gt;put(&quot;          _   ___              _\n&quot;
++                 &quot; _ _  ___| |_| _ )_ _ _  _ _ _| |_\n&quot;
++                 &quot;| ' \\/ -_)  _| _ \\ '_| || (_-&lt;|   |\n&quot;
++                 &quot;|_||_\\___|\\__|___/_|  \\_,_/__/|_|_|\n&quot;
++                 &quot;netBrush 0.1.0 - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;\n&quot;);
++
+   set_generic_brush(client_draw_param-&gt;generic_brush);
+ 
+   set_color(Color(0, 0, 0));
+
+Modified: trunk/netbrush/src/controller.hpp
+===================================================================
+--- trunk/netbrush/src/controller.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/controller.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/debug.cpp
+===================================================================
+--- trunk/netbrush/src/debug.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/debug.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/debug.hpp
+===================================================================
+--- trunk/netbrush/src/debug.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/debug.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/drawing_context.cpp
+===================================================================
+--- trunk/netbrush/src/drawing_context.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/drawing_context.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/drawing_context.hpp
+===================================================================
+--- trunk/netbrush/src/drawing_context.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/drawing_context.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/drawing_parameter.cpp
+===================================================================
+--- trunk/netbrush/src/drawing_parameter.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/drawing_parameter.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/drawing_parameter.hpp
+===================================================================
+--- trunk/netbrush/src/drawing_parameter.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/drawing_parameter.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/generic_brush.cpp
+===================================================================
+--- trunk/netbrush/src/generic_brush.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/generic_brush.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/generic_brush.hpp
+===================================================================
+--- trunk/netbrush/src/generic_brush.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/generic_brush.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/globals.cpp
+===================================================================
+--- trunk/netbrush/src/globals.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/globals.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/globals.hpp
+===================================================================
+--- trunk/netbrush/src/globals.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/globals.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/graphic_context.hpp
+===================================================================
+--- trunk/netbrush/src/graphic_context.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/graphic_context.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/grayscale_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/grayscale_buffer.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/grayscale_buffer.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+@@ -101,7 +98,7 @@
+ void
+ GrayscaleBuffer::blit(GrayscaleBuffer* source, int of_x, int of_y, Uint8 alpha, BlendMode mode)
+ {
+-  std::cout &lt;&lt; &quot;alpha: &quot; &lt;&lt; mode &lt;&lt; &quot; &quot; &lt;&lt; int(alpha) &lt;&lt; std::endl;
++  //std::cout &lt;&lt; &quot;alpha: &quot; &lt;&lt; mode &lt;&lt; &quot; &quot; &lt;&lt; int(alpha) &lt;&lt; std::endl;
+   int start_x = std::max(of_x, 0);
+   int start_y = std::max(of_y, 0);
+ 
+@@ -153,7 +150,7 @@
+             Uint8&amp; p = source-&gt;buffer[(y - of_y) * source-&gt;width + (x - of_x)];
+             
+             // Works, but not exactly alpha
+-            f = std::max(std::min(f + (alpha * p/255), 255), 0);
++            f = std::max(std::min(f + (alpha * p/255)/4, 255), 0);
+             //f = alpha;
+ 
+             //f = (((255 - p) * f) + (p * p))/255; 
+
+Modified: trunk/netbrush/src/grayscale_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/grayscale_buffer.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/grayscale_buffer.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/hue_picker.cpp
+===================================================================
+--- trunk/netbrush/src/hue_picker.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/hue_picker.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/hue_picker.hpp
+===================================================================
+--- trunk/netbrush/src/hue_picker.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/hue_picker.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/input_device_xinput.cpp
+===================================================================
+--- trunk/netbrush/src/input_device_xinput.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/input_device_xinput.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -53,7 +53,7 @@
+ #define INVALID_EVENT_TYPE	-1
+ #define verbose false
+ 
+-InputDevice_XInput::InputDevice_XInput(Display* dpy, const std::string&amp; name_)
++InputDevice_XInput::InputDevice_XInput(Display* dpy, Window w, const std::string&amp; name_)
+   : name(name_),
+     absolute(false),
+     num_keys   (0),
+@@ -67,6 +67,13 @@
+     proximity_out_type (INVALID_EVENT_TYPE)
+ 
+ {
++  window_rect = get_window_rect(dpy, w);
++
++  display_width  = DisplayWidth(dpy, DefaultScreen(dpy));
++  display_height = DisplayHeight(dpy, DefaultScreen(dpy));
++
++  //std::cout &lt;&lt; &quot;WindowRect: &quot; &lt;&lt; window_rect &lt;&lt; std::endl;
++
+   XDeviceInfo* info = find_device_info(dpy, name.c_str(), True);
+   if (!info)
+     std::cout &lt;&lt; &quot;InputDeviceXInput Error: Couldn't find device: &quot; &lt;&lt; name &lt;&lt; std::endl;
+@@ -87,6 +94,51 @@
+ 	
+ }
+ 
++Rect
++InputDevice_XInput::get_window_rect(Display* dpy, Window w)
++{ // Calculate the exact positon of the window
++  Window root_win = RootWindow(dpy, DefaultScreen(dpy)); 
++  Window current_window = w;
++
++  int w_x, w_y, w_w, w_h;
++
++  int x, y;
++  unsigned int width, height;
++  unsigned int border, depth;
++  Window root;
++  XGetGeometry(dpy, w,
++               &amp;root, &amp;x, &amp;y, &amp;width, &amp;height, &amp;border, &amp;depth);
++  
++  window_x = x;
++  window_y = y;
++  w_x = x;
++  w_y = y;
++  w_w = width;
++  w_h = height;
++
++  while(current_window != root_win)
++    {
++      Window  parent;
++      Window* children;
++      unsigned int num_children;
++      XQueryTree(dpy, current_window, &amp;root, &amp;parent, &amp;children, &amp;num_children);
++
++      XGetGeometry(dpy, parent,
++                   &amp;root, &amp;x, &amp;y, &amp;width, &amp;height, &amp;border, &amp;depth);
++
++      w_x += x;
++      w_y += y;
++
++      if (children)
++        XFree(children);
++      
++      current_window = parent;
++    }
++
++  return Rect(Point(w_x, w_y),
++              Size(w_w, w_h));
++}
++
+ void
+ InputDevice_XInput::get_info(XDeviceInfo* info)
+ {
+@@ -254,7 +306,7 @@
+ }
+ 
+ void
+-InputDevice_XInput::on_xevent(XEvent &amp;event)
++InputDevice_XInput::on_xevent(Display* dpy, Window w, XEvent &amp;event)
+ {
+   if (0)
+     std::cout &lt;&lt; this &lt;&lt; &quot; event: &quot;
+@@ -268,6 +320,14 @@
+               &lt;&lt; proximity_in_type &lt;&lt; &quot; &quot;
+               &lt;&lt; std::endl;
+ 
++  if (event.type == ConfigureNotify) //Resize or Move
++    { // FIXME: Due to the way SDL works, this one is never ever reached
++      //window_x = x;
++      //window_y = y;
++      std::cout 
++        &lt;&lt; event.xconfigure.x     &lt;&lt; &quot; &quot; &lt;&lt; event.xconfigure.y &lt;&lt; &quot; &quot; 
++        &lt;&lt; event.xconfigure.width &lt;&lt; &quot; &quot; &lt;&lt; event.xconfigure.height &lt;&lt; std::endl;
++    }
+   if (event.type == motion_type)
+     {
+       on_device_motion_event((XDeviceMotionEvent *)&amp;event);
+@@ -285,11 +345,14 @@
+   else if ((event.type == proximity_out_type) ||
+            (event.type == proximity_in_type))
+     {
++      // FIXME: This shouldn't be here
++      window_rect = get_window_rect(dpy, w);
++
+       on_proximity_notify_event((XProximityNotifyEvent*)&amp;event);
+     }
+   else
+     {  // Events that aren't XInput events lang here (focus and stuff)
+-      if (verbose) printf(&quot;InputDevice_XInput: what's that %d\n&quot;, event.type);
++      printf(&quot;InputDevice_XInput: what's that %d\n&quot;, event.type);
+     }
+ }
+ 
+@@ -372,7 +435,11 @@
+ 
+   if (0) 
+     printf(&quot;x: %1.5f y: %1.5f pressure: %1.5f x_tilt: %2.5f y_tilt: %2.5f\n&quot;, x, y, pressure, x_tilt, y_tilt);
+-  widget_manager-&gt;on_pen_motion(PenEvent(x * 1152, y * 864, // FIXME: Calculate those dynamically
++
++  // translate the pen coordinates into window space and send them to
++  // the WidgetManager
++  widget_manager-&gt;on_pen_motion(PenEvent(x * display_width  - window_rect.left,
++                                         y * display_height - window_rect.top, 
+                                          pressure, 
+                                          x_tilt, y_tilt));
+ }
+
+Modified: trunk/netbrush/src/input_device_xinput.hpp
+===================================================================
+--- trunk/netbrush/src/input_device_xinput.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/input_device_xinput.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -26,6 +26,7 @@
+ 
+ #include &lt;vector&gt;
+ #include &quot;../src/math/point.hpp&quot;
++#include &quot;../src/math/rect.hpp&quot;
+ #include &lt;X11/Xlib.h&gt;
+ #include &lt;X11/Xutil.h&gt;
+ #include &lt;X11/extensions/XInput.h&gt;
+@@ -34,7 +35,7 @@
+ {
+   //!Construction:
+ public:
+-  InputDevice_XInput(Display* dpy, const std::string&amp; name);
++  InputDevice_XInput(Display* dpy, Window w, const std::string&amp; name);
+ 
+   virtual ~InputDevice_XInput();
+ 
+@@ -75,7 +76,7 @@
+ 
+   void get_info(XDeviceInfo	*info);
+ public:
+-  void on_xevent(XEvent &amp;event);
++  void on_xevent(Display* dpy, Window w, XEvent &amp;event);
+   bool in_proximity() const { return proximity; }
+ private:
+   void on_device_button_event(XDeviceButtonEvent *button);
+@@ -83,9 +84,17 @@
+   void on_device_motion_event(XDeviceMotionEvent* motion);
+   void on_proximity_notify_event(XProximityNotifyEvent* prox);
+ 
++  Rect get_window_rect(Display* dpy, Window w);
+ private:
+   void received_mouse_input(XEvent &amp;event);
+   void received_mouse_move(XEvent &amp;event);
++
++  // Window size and stuff used to translate coordinates
++  Rect window_rect;
++  // window x/y coordinates, border included!
++  int  window_x, window_y;
++  int  display_width;
++  int  display_height;
+ 	
+   std::string name;
+ 
+
+Modified: trunk/netbrush/src/line_tool.cpp
+===================================================================
+--- trunk/netbrush/src/line_tool.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/line_tool.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/line_tool.hpp
+===================================================================
+--- trunk/netbrush/src/line_tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/line_tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/math/rect.cpp
+===================================================================
+--- trunk/netbrush/src/math/rect.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/math/rect.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -29,7 +29,7 @@
+ 
+ 
+ #include &lt;cmath&gt;
+-
++#include &lt;iostream&gt;
+ #include &quot;rect.hpp&quot;
+ 
+ #define cl_min(a,b) ((a &lt; b) ? a : b)
+@@ -60,3 +60,10 @@
+ 		angle);
+ }
+ 
++std::ostream&amp; operator&lt;&lt;(std::ostream&amp; s, const Rect&amp; rect)
++{
++  return (s &lt;&lt; rect.left  &lt;&lt; &quot;, &quot; &lt;&lt; rect.top &lt;&lt; &quot;, &quot;
++          &lt;&lt; rect.right &lt;&lt; &quot;, &quot; &lt;&lt; rect.bottom);
++}
++
++/* EOF */
+
+Modified: trunk/netbrush/src/math/rect.hpp
+===================================================================
+--- trunk/netbrush/src/math/rect.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/math/rect.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -30,6 +30,7 @@
+ #ifndef __MATH_RECT_HPP__
+ #define __MATH_RECT_HPP__
+ 
++#include &lt;iosfwd&gt;
+ #include &quot;origin.hpp&quot;
+ #include &quot;vector.hpp&quot;
+ #include &quot;size.hpp&quot;
+@@ -370,5 +371,7 @@
+ 	  bottom(static_cast&lt;int&gt;(rect.bottom))
+ {}
+ 
++std::ostream&amp; operator&lt;&lt;(std::ostream&amp; s, const Rect&amp; rect);
++
+ #endif
+ 
+
+Modified: trunk/netbrush/src/navigation.cpp
+===================================================================
+--- trunk/netbrush/src/navigation.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/navigation.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/navigation.hpp
+===================================================================
+--- trunk/netbrush/src/navigation.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/navigation.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/paintbrush_tool.cpp
+===================================================================
+--- trunk/netbrush/src/paintbrush_tool.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/paintbrush_tool.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/paintbrush_tool.hpp
+===================================================================
+--- trunk/netbrush/src/paintbrush_tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/paintbrush_tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/rect_tool.cpp
+===================================================================
+--- trunk/netbrush/src/rect_tool.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/rect_tool.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/rect_tool.hpp
+===================================================================
+--- trunk/netbrush/src/rect_tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/rect_tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/region_tool.cpp
+===================================================================
+--- trunk/netbrush/src/region_tool.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/region_tool.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/region_tool.hpp
+===================================================================
+--- trunk/netbrush/src/region_tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/region_tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/saturation_value_picker.cpp
+===================================================================
+--- trunk/netbrush/src/saturation_value_picker.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/saturation_value_picker.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/saturation_value_picker.hpp
+===================================================================
+--- trunk/netbrush/src/saturation_value_picker.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/saturation_value_picker.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/screen_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/screen_buffer.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/scroll_tool.cpp
+===================================================================
+--- trunk/netbrush/src/scroll_tool.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/scroll_tool.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/scroll_tool.hpp
+===================================================================
+--- trunk/netbrush/src/scroll_tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/scroll_tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/server.cpp
+===================================================================
+--- trunk/netbrush/src/server.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/server.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,3 +1,25 @@
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
+ #include &lt;string&gt;
+ #include &lt;iostream&gt;
+ #include &lt;fstream&gt;
+
+Modified: trunk/netbrush/src/server_connection.cpp
+===================================================================
+--- trunk/netbrush/src/server_connection.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/server_connection.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/server_connection.hpp
+===================================================================
+--- trunk/netbrush/src/server_connection.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/server_connection.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/stroke.cpp
+===================================================================
+--- trunk/netbrush/src/stroke.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/stroke.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+@@ -54,18 +51,15 @@
+       // by from the InputDevice and interpolates new dabs inbetween to
+       // give them an equal spacing (ie. every dab is only 'spacing' away
+       // from the next)
+-      
+       const Dab&amp; prev_dab = dabs.back();
+       const Dab&amp; next_dab = dab;
+ 
+       Vector dist  = next_dab.pos - prev_dab.pos;
+-      float length = sqrt(dist.x * dist.x + dist.y * dist.y);
++      float length = dist.length();
+       int n = 1;
+     
+-      // Spacing is keep relative to the brush size
+-      // FIXME: This is specific to a Sprite based drawer, might not work for others
+       // FIXME: y_spacing isn't taken into account either
+-      float local_spacing = x_spacing * prev_dab.pressure;
++      float local_spacing = x_spacing;
+ 
+       while (length + overspace &gt; (local_spacing * n))
+         {
+@@ -118,7 +112,7 @@
+           // Spacing is keep relative to the brush size
+           // FIXME: This is specific to a Sprite based drawer, might not work for others
+           // FIXME: y_spacing isn't taken into account either
+-          float local_spacing = x_spacing * dabs[j].pressure;
++          float local_spacing = x_spacing;
+ 
+           while (length + overspace &gt; (local_spacing * n))
+             {
+
+Modified: trunk/netbrush/src/stroke.hpp
+===================================================================
+--- trunk/netbrush/src/stroke.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/stroke.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/stroke_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/stroke_buffer.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/stroke_buffer.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/stroke_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/stroke_buffer.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/stroke_buffer.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/surface_graphic_context.cpp
+===================================================================
+--- trunk/netbrush/src/surface_graphic_context.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/surface_graphic_context.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/surface_graphic_context.hpp
+===================================================================
+--- trunk/netbrush/src/surface_graphic_context.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/surface_graphic_context.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/text_view.cpp
+===================================================================
+--- trunk/netbrush/src/text_view.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/text_view.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+@@ -60,7 +57,8 @@
+ TextView::draw(GraphicContext&amp; gc)
+ {
+   if (1)
+-    gc.fill_rect(get_rect(), Color(64, 64, 64));
++    gc.fill_rect(Rect(0, 0, get_rect().get_width(), get_rect().get_height()),
++                 Color(64, 64, 64));
+   
+   // FIXME: move font handling in GraphicContext
+   TTY_Blit(tty, gc.get_surface(), get_rect().left, get_rect().top);
+
+Modified: trunk/netbrush/src/text_view.hpp
+===================================================================
+--- trunk/netbrush/src/text_view.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/text_view.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/tool.hpp
+===================================================================
+--- trunk/netbrush/src/tool.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/tool.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/video.cpp
+===================================================================
+--- trunk/netbrush/src/video.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/video.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/video.hpp
+===================================================================
+--- trunk/netbrush/src/video.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/video.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/widget/button.cpp
+===================================================================
+--- trunk/netbrush/src/widget/button.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/button.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/widget/button.hpp
+===================================================================
+--- trunk/netbrush/src/widget/button.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/button.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/widget/events.hpp
+===================================================================
+--- trunk/netbrush/src/widget/events.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/events.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/widget/scrollbar.cpp
+===================================================================
+--- trunk/netbrush/src/widget/scrollbar.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/scrollbar.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+@@ -49,7 +46,7 @@
+ void
+ Scrollbar::draw(GraphicContext&amp; gc)
+ {
+-  gc.fill_rect(get_rect(), Color(200, 200, 200));
++  gc.fill_rect(Rect(0, 0, get_width(), get_height()), Color(200, 200, 200));
+ 
+   if (orientation == HORIZONTAL)
+     {
+
+Modified: trunk/netbrush/src/widget/scrollbar.hpp
+===================================================================
+--- trunk/netbrush/src/widget/scrollbar.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/scrollbar.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/widget/slider_widget.cpp
+===================================================================
+--- trunk/netbrush/src/widget/slider_widget.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/slider_widget.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/widget/slider_widget.hpp
+===================================================================
+--- trunk/netbrush/src/widget/slider_widget.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/slider_widget.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/widget/widget.cpp
+===================================================================
+--- trunk/netbrush/src/widget/widget.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/widget.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+Modified: trunk/netbrush/src/widget/widget.hpp
+===================================================================
+--- trunk/netbrush/src/widget/widget.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/widget.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+@@ -46,6 +43,8 @@
+   void set_dirty(bool d) { dirty = d; }
+ 
+   const Rect&amp; get_rect() { return rect; }
++  int get_width() { return rect.get_width(); }
++  int get_height() { return rect.get_height(); }
+ 
+   virtual bool do_update() { return true; }
+   
+
+Modified: trunk/netbrush/src/widget/widget_manager.cpp
+===================================================================
+--- trunk/netbrush/src/widget/widget_manager.cpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/widget_manager.cpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+@@ -140,7 +137,10 @@
+ WidgetManager::on_pen_motion(const PenEvent&amp; pen)
+ {
+   // FIXME: Hack, should to normal widget handling instead
+-  screen_buffer-&gt;on_pen_motion(pen);
++  PenEvent new_pen = pen;
++  new_pen.x -= screen_buffer-&gt;get_rect().left;
++  new_pen.y -= screen_buffer-&gt;get_rect().top;
++  screen_buffer-&gt;on_pen_motion(new_pen);
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/widget/widget_manager.hpp
+===================================================================
+--- trunk/netbrush/src/widget/widget_manager.hpp	2006-11-05 22:21:07 UTC (rev 695)
++++ trunk/netbrush/src/widget/widget_manager.hpp	2006-11-06 02:29:37 UTC (rev 696)
+@@ -1,11 +1,8 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++/*            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  netBrush - Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+ **  This program is free software; you can redistribute it and/or
+ **  modify it under the terms of the GNU General Public License
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000188.html">[Flexlay-commit] r695 - trunk/netbrush/src
+</A></li>
+	<LI>Next message: <A HREF="000190.html">[Flexlay-commit] r697 - in trunk/netbrush: . src src/widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r694 - trunk/netbrush/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r694%20-%20trunk/netbrush/src&In-Reply-To=%3C200611051919.kA5JJr3Q008951%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000186.html">
+   <LINK REL="Next"  HREF="000188.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r694 - trunk/netbrush/src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r694%20-%20trunk/netbrush/src&In-Reply-To=%3C200611051919.kA5JJr3Q008951%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r694 - trunk/netbrush/src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov  5 20:19:53 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000186.html">[Flexlay-commit] r693 - in trunk/netbrush/src: . widget
+</A></li>
+        <LI>Next message: <A HREF="000188.html">[Flexlay-commit] r695 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-05 20:19:53 +0100 (Sun, 05 Nov 2006)
+New Revision: 694
+
+Modified:
+   trunk/netbrush/src/color_display.cpp
+Log:
+- added graphic context to widget
+
+Modified: trunk/netbrush/src/color_display.cpp
+===================================================================
+--- trunk/netbrush/src/color_display.cpp	2006-11-05 19:06:05 UTC (rev 693)
++++ trunk/netbrush/src/color_display.cpp	2006-11-05 19:19:53 UTC (rev 694)
+@@ -50,40 +50,29 @@
+ void
+ ColorDisplay::draw(GraphicContext&amp; gc)
+ {
+-#if 0
+-  SDL_Rect r;
+- 
+-  r.x = get_rect().left + get_rect().get_width()/3;
+-  r.y = get_rect().top  + get_rect().get_height()/3;
+-  r.w = 2*get_rect().get_width()/3;
+-  r.h = 2*get_rect().get_height()/3;
++  gc.fill_rect(Rect(Point(get_rect().get_width()/3,
++                          get_rect().get_height()/3),
++                    Size(2*get_rect().get_width()/3,
++                         2*get_rect().get_height()/3)),
++               Color(128, 128, 128));
+ 
+-  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 128, 128, 128));
++  gc.fill_rect(Rect(Point(get_rect().get_width()/3+1,
++                          get_rect().get_height()/3+1),
++                    Size(2*get_rect().get_width()/3-2,
++                         2*get_rect().get_height()/3-2)),
++               Color(background.r, background.g, background.b));
+ 
+-  r.x = get_rect().left;
+-  r.y = get_rect().top;
+-  r.w = 2*get_rect().get_width()/3;
+-  r.h = 2*get_rect().get_height()/3;
++  gc.fill_rect(Rect(Point(0, 0),
++                    Size(2*get_rect().get_width()/3,
++                         2*get_rect().get_height()/3)),
++               Color(128, 128, 128));
++                 
++  gc.fill_rect(Rect(Point(1, 1),
++                    Size(2*get_rect().get_width()/3-2,
++                         2*get_rect().get_height()/3-2)),
++               Color(foreground.r, foreground.g, foreground.b));
+ 
+-  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 128, 128, 128));
+-
+-  
+-  r.x = get_rect().left + get_rect().get_width()/3+1;
+-  r.y = get_rect().top  + get_rect().get_height()/3+1;
+-  r.w = 2*get_rect().get_width()/3-2;
+-  r.h = 2*get_rect().get_height()/3-2;
+-
+-  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, background.r, background.g, background.b));
+-
+-  r.x = get_rect().left+1;
+-  r.y = get_rect().top+1;
+-  r.w = 2*get_rect().get_width()/3-2;
+-  r.h = 2*get_rect().get_height()/3-2;
+-
+-  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, foreground.r, foreground.g, foreground.b));
+-
+   if (0) std::cout &lt;&lt; &quot;Color: &quot; &lt;&lt; (int)foreground.r &lt;&lt; &quot; &quot; &lt;&lt; (int)foreground.g &lt;&lt; &quot; &quot; &lt;&lt; (int)foreground.b &lt;&lt; std::endl;
+-#endif 
+ }
+ 
+ void
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000186.html">[Flexlay-commit] r693 - in trunk/netbrush/src: . widget
+</A></li>
+	<LI>Next message: <A HREF="000188.html">[Flexlay-commit] r695 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

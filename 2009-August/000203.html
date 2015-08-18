@@ -1,0 +1,3468 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r710 - in trunk/flexlay: guile lib netpanzer	python ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r710%20-%20in%20trunk/flexlay%3A%20guile%20lib%20netpanzer%0A%09python%20ruby&In-Reply-To=%3C200908011800.n71I0JQ5005134%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000202.html">
+   <LINK REL="Next"  HREF="000204.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r710 - in trunk/flexlay: guile lib netpanzer	python ruby</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r710%20-%20in%20trunk/flexlay%3A%20guile%20lib%20netpanzer%0A%09python%20ruby&In-Reply-To=%3C200908011800.n71I0JQ5005134%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r710 - in trunk/flexlay: guile lib netpanzer	python ruby">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Aug  1 20:00:19 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000202.html">[Flexlay-commit] r709 - in trunk/flexlay: guile netpanzer python	ruby
+</A></li>
+        <LI>Next message: <A HREF="000204.html">[Flexlay-commit] r711 - in trunk/flexlay: netpanzer paint pingus	ruby supertux supertux-portable windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#203">[ date ]</a>
+              <a href="thread.html#203">[ thread ]</a>
+              <a href="subject.html#203">[ subject ]</a>
+              <a href="author.html#203">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-08-01 20:00:16 +0200 (Sat, 01 Aug 2009)
+New Revision: 710
+
+Modified:
+   trunk/flexlay/guile/gui.hxx
+   trunk/flexlay/guile/scm_functor.hxx
+   trunk/flexlay/guile/scm_helper.hxx
+   trunk/flexlay/guile/scm_obj.hxx
+   trunk/flexlay/lib/bitmap_layer.hxx
+   trunk/flexlay/lib/blitter.hxx
+   trunk/flexlay/lib/box.hxx
+   trunk/flexlay/lib/brush.hxx
+   trunk/flexlay/lib/brush_impl.hxx
+   trunk/flexlay/lib/brushmask.cxx
+   trunk/flexlay/lib/brushmask.hxx
+   trunk/flexlay/lib/colorpicker.cxx
+   trunk/flexlay/lib/colorpicker.hxx
+   trunk/flexlay/lib/command.hxx
+   trunk/flexlay/lib/command_group.hxx
+   trunk/flexlay/lib/command_impl.hxx
+   trunk/flexlay/lib/console.hxx
+   trunk/flexlay/lib/directory_view.hxx
+   trunk/flexlay/lib/drawer_properties.hxx
+   trunk/flexlay/lib/editor_map.hxx
+   trunk/flexlay/lib/editor_map_component.hxx
+   trunk/flexlay/lib/editor_names.hxx
+   trunk/flexlay/lib/field.hxx
+   trunk/flexlay/lib/flexlay.hxx
+   trunk/flexlay/lib/fonts.hxx
+   trunk/flexlay/lib/generated_brush.hxx
+   trunk/flexlay/lib/globals.hxx
+   trunk/flexlay/lib/graphic_context_state.hxx
+   trunk/flexlay/lib/gui_manager.hxx
+   trunk/flexlay/lib/helper.hxx
+   trunk/flexlay/lib/icon.hxx
+   trunk/flexlay/lib/layer.hxx
+   trunk/flexlay/lib/layer_impl.hxx
+   trunk/flexlay/lib/marker_stroke_drawer.hxx
+   trunk/flexlay/lib/math.hxx
+   trunk/flexlay/lib/menu.hxx
+   trunk/flexlay/lib/menubar.hxx
+   trunk/flexlay/lib/meta_data.hxx
+   trunk/flexlay/lib/meta_data_impl.hxx
+   trunk/flexlay/lib/minimap.hxx
+   trunk/flexlay/lib/object_add_command.hxx
+   trunk/flexlay/lib/object_brush.hxx
+   trunk/flexlay/lib/object_delete_command.hxx
+   trunk/flexlay/lib/object_layer.hxx
+   trunk/flexlay/lib/object_move_command.hxx
+   trunk/flexlay/lib/object_selector.hxx
+   trunk/flexlay/lib/object_transform_command.hxx
+   trunk/flexlay/lib/objmap_control_point.cxx
+   trunk/flexlay/lib/objmap_control_point.hxx
+   trunk/flexlay/lib/objmap_object.hxx
+   trunk/flexlay/lib/objmap_object_impl.hxx
+   trunk/flexlay/lib/objmap_path_node.hxx
+   trunk/flexlay/lib/objmap_rect_object.cxx
+   trunk/flexlay/lib/objmap_rect_object.hxx
+   trunk/flexlay/lib/objmap_sprite_object.hxx
+   trunk/flexlay/lib/onion_skin_layer.cxx
+   trunk/flexlay/lib/onion_skin_layer.hxx
+   trunk/flexlay/lib/paint_command.hxx
+   trunk/flexlay/lib/paned.hxx
+   trunk/flexlay/lib/panel.hxx
+   trunk/flexlay/lib/popup_menu.hxx
+   trunk/flexlay/lib/scrollbar.hxx
+   trunk/flexlay/lib/serializer.hxx
+   trunk/flexlay/lib/sexpr_serializer.hxx
+   trunk/flexlay/lib/shared_ptr.hxx
+   trunk/flexlay/lib/shared_ptr_comp.hxx
+   trunk/flexlay/lib/sharedptrtest.hxx
+   trunk/flexlay/lib/simpleed.hxx
+   trunk/flexlay/lib/sketch_layer.hxx
+   trunk/flexlay/lib/slider.hxx
+   trunk/flexlay/lib/sprite_brush.cxx
+   trunk/flexlay/lib/sprite_brush.hxx
+   trunk/flexlay/lib/sprite_stroke_drawer.hxx
+   trunk/flexlay/lib/string_converter.hxx
+   trunk/flexlay/lib/stroke.hxx
+   trunk/flexlay/lib/stroke_drawer.hxx
+   trunk/flexlay/lib/stroke_drawer_impl.hxx
+   trunk/flexlay/lib/tile.hxx
+   trunk/flexlay/lib/tile_brush.hxx
+   trunk/flexlay/lib/tile_editor.hxx
+   trunk/flexlay/lib/tile_provider.hxx
+   trunk/flexlay/lib/tile_provider_impl.hxx
+   trunk/flexlay/lib/tile_selection.hxx
+   trunk/flexlay/lib/tile_selector.hxx
+   trunk/flexlay/lib/tilemap_layer.hxx
+   trunk/flexlay/lib/tilemap_minimap.hxx
+   trunk/flexlay/lib/tileset.hxx
+   trunk/flexlay/lib/titlebar.hxx
+   trunk/flexlay/lib/viewport.hxx
+   trunk/flexlay/lib/window.hxx
+   trunk/flexlay/lib/workspace.hxx
+   trunk/flexlay/netpanzer/netpanzer.hxx
+   trunk/flexlay/python/editor.hxx
+   trunk/flexlay/python/python_functor.hxx
+   trunk/flexlay/python/python_meta_data.hxx
+   trunk/flexlay/python/python_object.hxx
+   trunk/flexlay/python/sexpr_parser.hxx
+   trunk/flexlay/ruby/flexlay_wrap.hxx
+   trunk/flexlay/ruby/ruby_converter.cxx
+   trunk/flexlay/ruby/ruby_functor.hxx
+   trunk/flexlay/ruby/ruby_meta_data.hxx
+   trunk/flexlay/ruby/ruby_object.hxx
+   trunk/flexlay/ruby/ruby_sexpr_parser.hxx
+Log:
+Upgraded to GPLv3+
+
+Modified: trunk/flexlay/guile/gui.hxx
+===================================================================
+--- trunk/flexlay/guile/gui.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/guile/gui.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SCRIPTING_GUI_HXX
+ #define HEADER_SCRIPTING_GUI_HXX
+
+Modified: trunk/flexlay/guile/scm_functor.hxx
+===================================================================
+--- trunk/flexlay/guile/scm_functor.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/guile/scm_functor.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Feuerkraft - A Tank Battle Game
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SCM_FUNCTOR_HXX
+ #define HEADER_SCM_FUNCTOR_HXX
+
+Modified: trunk/flexlay/guile/scm_helper.hxx
+===================================================================
+--- trunk/flexlay/guile/scm_helper.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/guile/scm_helper.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Windstille - A Jump'n Shoot Game
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SCM_HELPER_HXX
+ #define HEADER_SCM_HELPER_HXX
+
+Modified: trunk/flexlay/guile/scm_obj.hxx
+===================================================================
+--- trunk/flexlay/guile/scm_obj.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/guile/scm_obj.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2000 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef SCMOBJ_HXX
+ #define SCMOBJ_HXX
+
+Modified: trunk/flexlay/lib/bitmap_layer.hxx
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/bitmap_layer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_BITMAP_LAYER_HXX
+ #define HEADER_BITMAP_LAYER_HXX
+
+Modified: trunk/flexlay/lib/blitter.hxx
+===================================================================
+--- trunk/flexlay/lib/blitter.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/blitter.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_BLITTER_HXX
+ #define HEADER_BLITTER_HXX
+
+Modified: trunk/flexlay/lib/box.hxx
+===================================================================
+--- trunk/flexlay/lib/box.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/box.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_BOX_HXX
+ #define HEADER_BOX_HXX
+
+Modified: trunk/flexlay/lib/brush.hxx
+===================================================================
+--- trunk/flexlay/lib/brush.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/brush.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_BRUSH_HXX
+ #define HEADER_BRUSH_HXX
+
+Modified: trunk/flexlay/lib/brush_impl.hxx
+===================================================================
+--- trunk/flexlay/lib/brush_impl.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/brush_impl.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_BRUSH_IMPL_HXX
+ #define HEADER_BRUSH_IMPL_HXX
+
+Modified: trunk/flexlay/lib/brushmask.cxx
+===================================================================
+--- trunk/flexlay/lib/brushmask.cxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/brushmask.cxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ /* Most of the code below is taken from Gimp2.2:
+    gimp_brush_generated module Copyright 1998 Jay Cox &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">jaycox at earthlink.net</A>&gt; 
+
+Modified: trunk/flexlay/lib/brushmask.hxx
+===================================================================
+--- trunk/flexlay/lib/brushmask.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/brushmask.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_BRUSHMASK_HXX
+ #define HEADER_BRUSHMASK_HXX
+
+Modified: trunk/flexlay/lib/colorpicker.cxx
+===================================================================
+--- trunk/flexlay/lib/colorpicker.cxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/colorpicker.cxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;vector&gt;
+ #include &lt;iostream&gt;
+
+Modified: trunk/flexlay/lib/colorpicker.hxx
+===================================================================
+--- trunk/flexlay/lib/colorpicker.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/colorpicker.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_COLORPICKER_HXX
+ #define HEADER_COLORPICKER_HXX
+
+Modified: trunk/flexlay/lib/command.hxx
+===================================================================
+--- trunk/flexlay/lib/command.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/command.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_COMMAND_HXX
+ #define HEADER_COMMAND_HXX
+
+Modified: trunk/flexlay/lib/command_group.hxx
+===================================================================
+--- trunk/flexlay/lib/command_group.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/command_group.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_COMMAND_GROUP_HXX
+ #define HEADER_COMMAND_GROUP_HXX
+
+Modified: trunk/flexlay/lib/command_impl.hxx
+===================================================================
+--- trunk/flexlay/lib/command_impl.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/command_impl.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ #ifndef HEADER_COMMAND_IMPL_HXX
+ #define HEADER_COMMAND_IMPL_HXX
+ 
+
+Modified: trunk/flexlay/lib/console.hxx
+===================================================================
+--- trunk/flexlay/lib/console.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/console.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_CONSOLE_HXX
+ #define HEADER_CONSOLE_HXX
+
+Modified: trunk/flexlay/lib/directory_view.hxx
+===================================================================
+--- trunk/flexlay/lib/directory_view.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/directory_view.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_DIRECTORY_VIEW_HXX
+ #define HEADER_DIRECTORY_VIEW_HXX
+
+Modified: trunk/flexlay/lib/drawer_properties.hxx
+===================================================================
+--- trunk/flexlay/lib/drawer_properties.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/drawer_properties.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_DRAWER_PROPERTIES_HXX
+ #define HEADER_DRAWER_PROPERTIES_HXX
+
+Modified: trunk/flexlay/lib/editor_map.hxx
+===================================================================
+--- trunk/flexlay/lib/editor_map.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/editor_map.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_EDITOR_MAP_HXX
+ #define HEADER_EDITOR_MAP_HXX
+
+Modified: trunk/flexlay/lib/editor_map_component.hxx
+===================================================================
+--- trunk/flexlay/lib/editor_map_component.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/editor_map_component.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_EDITOR_MAP_COMPONENT_HXX
+ #define HEADER_EDITOR_MAP_COMPONENT_HXX
+
+Modified: trunk/flexlay/lib/editor_names.hxx
+===================================================================
+--- trunk/flexlay/lib/editor_names.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/editor_names.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_EDITOR_NAMES_HXX
+ #define HEADER_EDITOR_NAMES_HXX
+
+Modified: trunk/flexlay/lib/field.hxx
+===================================================================
+--- trunk/flexlay/lib/field.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/field.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2000 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef FIELD_HXX
+ #define FIELD_HXX
+
+Modified: trunk/flexlay/lib/flexlay.hxx
+===================================================================
+--- trunk/flexlay/lib/flexlay.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/flexlay.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_HXX
+ #define HEADER_FLEXLAY_HXX
+
+Modified: trunk/flexlay/lib/fonts.hxx
+===================================================================
+--- trunk/flexlay/lib/fonts.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/fonts.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FONTS_HXX
+ #define HEADER_FONTS_HXX
+
+Modified: trunk/flexlay/lib/generated_brush.hxx
+===================================================================
+--- trunk/flexlay/lib/generated_brush.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/generated_brush.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_GENERATED_BRUSH_HXX
+ #define HEADER_GENERATED_BRUSH_HXX
+
+Modified: trunk/flexlay/lib/globals.hxx
+===================================================================
+--- trunk/flexlay/lib/globals.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/globals.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2000 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef GLOBALS_HXX
+ #define GLOBALS_HXX
+
+Modified: trunk/flexlay/lib/graphic_context_state.hxx
+===================================================================
+--- trunk/flexlay/lib/graphic_context_state.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/graphic_context_state.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_GRAPHIC_CONTEXT_STATE_HXX
+ #define HEADER_GRAPHIC_CONTEXT_STATE_HXX
+
+Modified: trunk/flexlay/lib/gui_manager.hxx
+===================================================================
+--- trunk/flexlay/lib/gui_manager.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/gui_manager.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_GUI_MANAGER_HXX
+ #define HEADER_GUI_MANAGER_HXX
+
+Modified: trunk/flexlay/lib/helper.hxx
+===================================================================
+--- trunk/flexlay/lib/helper.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/helper.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_HELPER_HXX
+ #define HEADER_HELPER_HXX
+
+Modified: trunk/flexlay/lib/icon.hxx
+===================================================================
+--- trunk/flexlay/lib/icon.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/icon.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_ICON_HXX
+ #define HEADER_ICON_HXX
+
+Modified: trunk/flexlay/lib/layer.hxx
+===================================================================
+--- trunk/flexlay/lib/layer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/layer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_LAYER_HXX
+ #define HEADER_LAYER_HXX
+
+Modified: trunk/flexlay/lib/layer_impl.hxx
+===================================================================
+--- trunk/flexlay/lib/layer_impl.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/layer_impl.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_LAYER_IMPL_HXX
+ #define HEADER_LAYER_IMPL_HXX
+
+Modified: trunk/flexlay/lib/marker_stroke_drawer.hxx
+===================================================================
+--- trunk/flexlay/lib/marker_stroke_drawer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/marker_stroke_drawer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_MARKER_STROKE_DRAWER_HXX
+ #define HEADER_MARKER_STROKE_DRAWER_HXX
+
+Modified: trunk/flexlay/lib/math.hxx
+===================================================================
+--- trunk/flexlay/lib/math.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/math.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_MATH_HXX
+ #define HEADER_MATH_HXX
+
+Modified: trunk/flexlay/lib/menu.hxx
+===================================================================
+--- trunk/flexlay/lib/menu.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/menu.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_MENU_HXX
+ #define HEADER_MENU_HXX
+
+Modified: trunk/flexlay/lib/menubar.hxx
+===================================================================
+--- trunk/flexlay/lib/menubar.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/menubar.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_MENUBAR_HXX
+ #define HEADER_MENUBAR_HXX
+
+Modified: trunk/flexlay/lib/meta_data.hxx
+===================================================================
+--- trunk/flexlay/lib/meta_data.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/meta_data.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_META_DATA_HXX
+ #define HEADER_META_DATA_HXX
+
+Modified: trunk/flexlay/lib/meta_data_impl.hxx
+===================================================================
+--- trunk/flexlay/lib/meta_data_impl.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/meta_data_impl.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_META_DATA_IMPL_HXX
+ #define HEADER_META_DATA_IMPL_HXX
+
+Modified: trunk/flexlay/lib/minimap.hxx
+===================================================================
+--- trunk/flexlay/lib/minimap.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/minimap.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_MINIMAP_HXX
+ #define HEADER_MINIMAP_HXX
+
+Modified: trunk/flexlay/lib/object_add_command.hxx
+===================================================================
+--- trunk/flexlay/lib/object_add_command.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/object_add_command.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJECT_ADD_COMMAND_HXX
+ #define HEADER_OBJECT_ADD_COMMAND_HXX
+
+Modified: trunk/flexlay/lib/object_brush.hxx
+===================================================================
+--- trunk/flexlay/lib/object_brush.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/object_brush.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJECT_BRUSH_HXX
+ #define HEADER_OBJECT_BRUSH_HXX
+
+Modified: trunk/flexlay/lib/object_delete_command.hxx
+===================================================================
+--- trunk/flexlay/lib/object_delete_command.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/object_delete_command.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJECT_DELETE_COMMAND_HXX
+ #define HEADER_OBJECT_DELETE_COMMAND_HXX
+
+Modified: trunk/flexlay/lib/object_layer.hxx
+===================================================================
+--- trunk/flexlay/lib/object_layer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/object_layer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJECT_LAYER_HXX
+ #define HEADER_OBJECT_LAYER_HXX
+
+Modified: trunk/flexlay/lib/object_move_command.hxx
+===================================================================
+--- trunk/flexlay/lib/object_move_command.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/object_move_command.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJECT_COMMAND_HXX
+ #define HEADER_OBJECT_COMMAND_HXX
+
+Modified: trunk/flexlay/lib/object_selector.hxx
+===================================================================
+--- trunk/flexlay/lib/object_selector.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/object_selector.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJECTSELECTOR_HXX
+ #define HEADER_OBJECTSELECTOR_HXX
+
+Modified: trunk/flexlay/lib/object_transform_command.hxx
+===================================================================
+--- trunk/flexlay/lib/object_transform_command.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/object_transform_command.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJECT_TRANSFORM_COMMAND_HXX
+ #define HEADER_OBJECT_TRANSFORM_COMMAND_HXX
+
+Modified: trunk/flexlay/lib/objmap_control_point.cxx
+===================================================================
+--- trunk/flexlay/lib/objmap_control_point.cxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/objmap_control_point.cxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;objmap_control_point.hxx&quot;
+ 
+
+Modified: trunk/flexlay/lib/objmap_control_point.hxx
+===================================================================
+--- trunk/flexlay/lib/objmap_control_point.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/objmap_control_point.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJMAP_CONTROL_POINT_HXX
+ #define HEADER_OBJMAP_CONTROL_POINT_HXX
+
+Modified: trunk/flexlay/lib/objmap_object.hxx
+===================================================================
+--- trunk/flexlay/lib/objmap_object.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/objmap_object.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJMAP_OBJECT_HXX
+ #define HEADER_OBJMAP_OBJECT_HXX
+
+Modified: trunk/flexlay/lib/objmap_object_impl.hxx
+===================================================================
+--- trunk/flexlay/lib/objmap_object_impl.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/objmap_object_impl.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJMAP_OBJECT_IMPL_HXX
+ #define HEADER_OBJMAP_OBJECT_IMPL_HXX
+
+Modified: trunk/flexlay/lib/objmap_path_node.hxx
+===================================================================
+--- trunk/flexlay/lib/objmap_path_node.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/objmap_path_node.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJMAP_PATH_NODE_HXX
+ #define HEADER_OBJMAP_PATH_NODE_HXX
+
+Modified: trunk/flexlay/lib/objmap_rect_object.cxx
+===================================================================
+--- trunk/flexlay/lib/objmap_rect_object.cxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/objmap_rect_object.cxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/Core/core_iostream.h&gt;
+
+Modified: trunk/flexlay/lib/objmap_rect_object.hxx
+===================================================================
+--- trunk/flexlay/lib/objmap_rect_object.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/objmap_rect_object.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJMAP_RECT_OBJECT_HXX
+ #define HEADER_OBJMAP_RECT_OBJECT_HXX
+
+Modified: trunk/flexlay/lib/objmap_sprite_object.hxx
+===================================================================
+--- trunk/flexlay/lib/objmap_sprite_object.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/objmap_sprite_object.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_OBJMAP_SPRITE_OBJECT_HXX
+ #define HEADER_OBJMAP_SPRITE_OBJECT_HXX
+
+Modified: trunk/flexlay/lib/onion_skin_layer.cxx
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.cxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/onion_skin_layer.cxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;iostream&gt;
+ #include &lt;vector&gt;
+
+Modified: trunk/flexlay/lib/onion_skin_layer.hxx
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/onion_skin_layer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_ONION_SKIN_LAYER_HXX
+ #define HEADER_ONION_SKIN_LAYER_HXX
+
+Modified: trunk/flexlay/lib/paint_command.hxx
+===================================================================
+--- trunk/flexlay/lib/paint_command.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/paint_command.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_PAINT_COMMAND_HXX
+ #define HEADER_PAINT_COMMAND_HXX
+
+Modified: trunk/flexlay/lib/paned.hxx
+===================================================================
+--- trunk/flexlay/lib/paned.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/paned.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_PANED_HXX
+ #define HEADER_PANED_HXX
+
+Modified: trunk/flexlay/lib/panel.hxx
+===================================================================
+--- trunk/flexlay/lib/panel.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/panel.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_PANEL_HXX
+ #define HEADER_PANEL_HXX
+
+Modified: trunk/flexlay/lib/popup_menu.hxx
+===================================================================
+--- trunk/flexlay/lib/popup_menu.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/popup_menu.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_POPUP_MENU_HXX
+ #define HEADER_POPUP_MENU_HXX
+
+Modified: trunk/flexlay/lib/scrollbar.hxx
+===================================================================
+--- trunk/flexlay/lib/scrollbar.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/scrollbar.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SCROLLBAR_HXX
+ #define HEADER_SCROLLBAR_HXX
+
+Modified: trunk/flexlay/lib/serializer.hxx
+===================================================================
+--- trunk/flexlay/lib/serializer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/serializer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SERIALIZER_HXX
+ #define HEADER_SERIALIZER_HXX
+
+Modified: trunk/flexlay/lib/sexpr_serializer.hxx
+===================================================================
+--- trunk/flexlay/lib/sexpr_serializer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/sexpr_serializer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SEXPR_SERIALIZER_HXX
+ #define HEADER_SEXPR_SERIALIZER_HXX
+
+Modified: trunk/flexlay/lib/shared_ptr.hxx
+===================================================================
+--- trunk/flexlay/lib/shared_ptr.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/shared_ptr.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SHARED_PTR_HXX
+ #define HEADER_SHARED_PTR_HXX
+
+Modified: trunk/flexlay/lib/shared_ptr_comp.hxx
+===================================================================
+--- trunk/flexlay/lib/shared_ptr_comp.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/shared_ptr_comp.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SHARED_PTR_HXX
+ #define HEADER_SHARED_PTR_HXX
+
+Modified: trunk/flexlay/lib/sharedptrtest.hxx
+===================================================================
+--- trunk/flexlay/lib/sharedptrtest.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/sharedptrtest.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SHAREDPTRTEST_HXX
+ #define HEADER_SHAREDPTRTEST_HXX
+
+Modified: trunk/flexlay/lib/simpleed.hxx
+===================================================================
+--- trunk/flexlay/lib/simpleed.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/simpleed.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SIMPLEED_HXX
+ #define HEADER_SIMPLEED_HXX
+
+Modified: trunk/flexlay/lib/sketch_layer.hxx
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/sketch_layer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SKETCH_LAYER_HXX
+ #define HEADER_SKETCH_LAYER_HXX
+
+Modified: trunk/flexlay/lib/slider.hxx
+===================================================================
+--- trunk/flexlay/lib/slider.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/slider.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SLIDER_HXX
+ #define HEADER_SLIDER_HXX
+
+Modified: trunk/flexlay/lib/sprite_brush.cxx
+===================================================================
+--- trunk/flexlay/lib/sprite_brush.cxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/sprite_brush.cxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;brush_impl.hxx&quot;
+ #include &quot;sprite_brush.hxx&quot;
+
+Modified: trunk/flexlay/lib/sprite_brush.hxx
+===================================================================
+--- trunk/flexlay/lib/sprite_brush.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/sprite_brush.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SPRITE_BRUSH_HXX
+ #define HEADER_SPRITE_BRUSH_HXX
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.hxx
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/sprite_stroke_drawer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SPRITE_STROKE_DRAWER_HXX
+ #define HEADER_SPRITE_STROKE_DRAWER_HXX
+
+Modified: trunk/flexlay/lib/string_converter.hxx
+===================================================================
+--- trunk/flexlay/lib/string_converter.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/string_converter.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2000 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef STRINGCONVERTER_HXX
+ #define STRINGCONVERTER_HXX
+
+Modified: trunk/flexlay/lib/stroke.hxx
+===================================================================
+--- trunk/flexlay/lib/stroke.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/stroke.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_STROKE_HXX
+ #define HEADER_STROKE_HXX
+
+Modified: trunk/flexlay/lib/stroke_drawer.hxx
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/stroke_drawer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_STROKE_DRAWER_HXX
+ #define HEADER_STROKE_DRAWER_HXX
+
+Modified: trunk/flexlay/lib/stroke_drawer_impl.hxx
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer_impl.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/stroke_drawer_impl.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_STROKE_DRAWER_IMPL_HXX
+ #define HEADER_STROKE_DRAWER_IMPL_HXX
+
+Modified: trunk/flexlay/lib/tile.hxx
+===================================================================
+--- trunk/flexlay/lib/tile.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tile.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_TILE_HXX
+ #define HEADER_TILE_HXX
+
+Modified: trunk/flexlay/lib/tile_brush.hxx
+===================================================================
+--- trunk/flexlay/lib/tile_brush.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tile_brush.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_EDITOR_TILE_BRUSH_HXX
+ #define HEADER_EDITOR_TILE_BRUSH_HXX
+
+Modified: trunk/flexlay/lib/tile_editor.hxx
+===================================================================
+--- trunk/flexlay/lib/tile_editor.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tile_editor.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_TILE_EDITOR_HXX
+ #define HEADER_TILE_EDITOR_HXX
+
+Modified: trunk/flexlay/lib/tile_provider.hxx
+===================================================================
+--- trunk/flexlay/lib/tile_provider.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tile_provider.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_TILE_PROVIDER_HXX
+ #define HEADER_TILE_PROVIDER_HXX
+
+Modified: trunk/flexlay/lib/tile_provider_impl.hxx
+===================================================================
+--- trunk/flexlay/lib/tile_provider_impl.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tile_provider_impl.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_TILE_PROVIDER_IMPL_HXX
+ #define HEADER_TILE_PROVIDER_IMPL_HXX
+
+Modified: trunk/flexlay/lib/tile_selection.hxx
+===================================================================
+--- trunk/flexlay/lib/tile_selection.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tile_selection.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_TILE_SELECTION_HXX
+ #define HEADER_TILE_SELECTION_HXX
+
+Modified: trunk/flexlay/lib/tile_selector.hxx
+===================================================================
+--- trunk/flexlay/lib/tile_selector.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tile_selector.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2000 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef TILESELECTOR_HXX
+ #define TILESELECTOR_HXX
+
+Modified: trunk/flexlay/lib/tilemap_layer.hxx
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tilemap_layer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_TILEMAP_LAYER_HXX
+ #define HEADER_TILEMAP_LAYER_HXX
+
+Modified: trunk/flexlay/lib/tilemap_minimap.hxx
+===================================================================
+--- trunk/flexlay/lib/tilemap_minimap.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tilemap_minimap.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_TILEMAP_MINIMAP_HXX
+ #define HEADER_TILEMAP_MINIMAP_HXX
+
+Modified: trunk/flexlay/lib/tileset.hxx
+===================================================================
+--- trunk/flexlay/lib/tileset.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/tileset.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2000 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef TILESET_HXX
+ #define TILESET_HXX
+
+Modified: trunk/flexlay/lib/titlebar.hxx
+===================================================================
+--- trunk/flexlay/lib/titlebar.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/titlebar.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_TITLEBAR_HXX
+ #define HEADER_TITLEBAR_HXX
+
+Modified: trunk/flexlay/lib/viewport.hxx
+===================================================================
+--- trunk/flexlay/lib/viewport.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/viewport.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_VIEWPORT_HXX
+ #define HEADER_VIEWPORT_HXX
+
+Modified: trunk/flexlay/lib/window.hxx
+===================================================================
+--- trunk/flexlay/lib/window.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/window.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_WINDOW_HXX
+ #define HEADER_WINDOW_HXX
+
+Modified: trunk/flexlay/lib/workspace.hxx
+===================================================================
+--- trunk/flexlay/lib/workspace.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/lib/workspace.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_WORKSPACE_HXX
+ #define HEADER_WORKSPACE_HXX
+
+Modified: trunk/flexlay/netpanzer/netpanzer.hxx
+===================================================================
+--- trunk/flexlay/netpanzer/netpanzer.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/netpanzer/netpanzer.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SCRIPTING_NETPANZER_HXX
+ #define HEADER_SCRIPTING_NETPANZER_HXX
+
+Modified: trunk/flexlay/python/editor.hxx
+===================================================================
+--- trunk/flexlay/python/editor.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/python/editor.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SCRIPTING_EDITOR_HXX
+ #define HEADER_SCRIPTING_EDITOR_HXX
+
+Modified: trunk/flexlay/python/python_functor.hxx
+===================================================================
+--- trunk/flexlay/python/python_functor.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/python/python_functor.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_PYTHON_FUNCTOR_HXX
+ #define HEADER_PYTHON_FUNCTOR_HXX
+
+Modified: trunk/flexlay/python/python_meta_data.hxx
+===================================================================
+--- trunk/flexlay/python/python_meta_data.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/python/python_meta_data.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_PYTHON_META_DATA_HXX
+ #define HEADER_PYTHON_META_DATA_HXX
+
+Modified: trunk/flexlay/python/python_object.hxx
+===================================================================
+--- trunk/flexlay/python/python_object.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/python/python_object.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_PYTHON_OBJECT_HXX
+ #define HEADER_PYTHON_OBJECT_HXX
+
+Modified: trunk/flexlay/python/sexpr_parser.hxx
+===================================================================
+--- trunk/flexlay/python/sexpr_parser.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/python/sexpr_parser.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_SEXPR_PARSER_HXX
+ #define HEADER_SEXPR_PARSER_HXX
+
+Modified: trunk/flexlay/ruby/flexlay_wrap.hxx
+===================================================================
+--- trunk/flexlay/ruby/flexlay_wrap.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/ruby/flexlay_wrap.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_FLEXLAY_WRAP_HXX
+ #define HEADER_FLEXLAY_WRAP_HXX
+
+Modified: trunk/flexlay/ruby/ruby_converter.cxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_converter.cxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/ruby/ruby_converter.cxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_RUBY_CONVERTER_HXX
+ #define HEADER_RUBY_CONVERTER_HXX
+
+Modified: trunk/flexlay/ruby/ruby_functor.hxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_functor.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/ruby/ruby_functor.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_RUBY_FUNCTOR_HXX
+ #define HEADER_RUBY_FUNCTOR_HXX
+
+Modified: trunk/flexlay/ruby/ruby_meta_data.hxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_meta_data.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/ruby/ruby_meta_data.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_RUBY_META_DATA_HXX
+ #define HEADER_RUBY_META_DATA_HXX
+
+Modified: trunk/flexlay/ruby/ruby_object.hxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_object.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/ruby/ruby_object.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_RUBY_OBJECT_HXX
+ #define HEADER_RUBY_OBJECT_HXX
+
+Modified: trunk/flexlay/ruby/ruby_sexpr_parser.hxx
+===================================================================
+--- trunk/flexlay/ruby/ruby_sexpr_parser.hxx	2009-08-01 17:59:34 UTC (rev 709)
++++ trunk/flexlay/ruby/ruby_sexpr_parser.hxx	2009-08-01 18:00:16 UTC (rev 710)
+@@ -3,19 +3,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-// 
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #ifndef HEADER_RUBY_SEXPR_PARSER_HXX
+ #define HEADER_RUBY_SEXPR_PARSER_HXX
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000202.html">[Flexlay-commit] r709 - in trunk/flexlay: guile netpanzer python	ruby
+</A></li>
+	<LI>Next message: <A HREF="000204.html">[Flexlay-commit] r711 - in trunk/flexlay: netpanzer paint pingus	ruby supertux supertux-portable windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#203">[ date ]</a>
+              <a href="thread.html#203">[ thread ]</a>
+              <a href="subject.html#203">[ subject ]</a>
+              <a href="author.html#203">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

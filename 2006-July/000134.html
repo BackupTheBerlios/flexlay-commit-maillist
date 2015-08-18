@@ -1,0 +1,347 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r637 - in trunk: lib lib/tools supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r637%20-%20in%20trunk%3A%20lib%20lib/tools%20supertux&In-Reply-To=%3C200607111412.k6BECYRL004837%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000133.html">
+   <LINK REL="Next"  HREF="000135.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r637 - in trunk: lib lib/tools supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r637%20-%20in%20trunk%3A%20lib%20lib/tools%20supertux&In-Reply-To=%3C200607111412.k6BECYRL004837%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r637 - in trunk: lib lib/tools supertux">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 16:12:34 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000133.html">[Flexlay-commit] r636 - in trunk: . clanlib lib lib/tools ruby supertux
+</A></li>
+        <LI>Next message: <A HREF="000135.html">[Flexlay-commit] r638 - in trunk: clanlib/GL/GLX lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#134">[ date ]</a>
+              <a href="thread.html#134">[ thread ]</a>
+              <a href="subject.html#134">[ subject ]</a>
+              <a href="author.html#134">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-11 16:12:31 +0200 (Tue, 11 Jul 2006)
+New Revision: 637
+
+Added:
+   trunk/lib/tools/zoom2_tool.cxx
+   trunk/lib/tools/zoom2_tool.hxx
+Modified:
+   trunk/lib/SConscript
+   trunk/lib/editor_map_component.cxx
+   trunk/lib/flexlay_wrap.i
+   trunk/supertux/gui.rb
+   trunk/supertux/supertux.rb
+Log:
+- added new zoomtool
+
+Modified: trunk/lib/SConscript
+===================================================================
+--- trunk/lib/SConscript	2006-07-11 04:04:17 UTC (rev 636)
++++ trunk/lib/SConscript	2006-07-11 14:12:31 UTC (rev 637)
+@@ -123,7 +123,8 @@
+     'tools/objmap_select_tool.cxx',
+     'tools/layer_move_tool.cxx',
+     'tools/workspace_move_tool.cxx',
+-    'tools/zoom_tool.cxx'
++    'tools/zoom_tool.cxx',
++    'tools/zoom2_tool.cxx'
+     ],
+     CPPPATH = ['.', '..'] + clanLib_env['CPPPATH'],
+     CXXFLAGS  = env['CXXFLAGS'] + clanLib_env['CCFLAGS'],
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2006-07-11 04:04:17 UTC (rev 636)
++++ trunk/lib/editor_map_component.cxx	2006-07-11 14:12:31 UTC (rev 637)
+@@ -115,20 +115,25 @@
+                              CL_Mouse::get_y() - rect.top);
+     }
+ 
+-  CL_Rect rect = parent-&gt;get_position();
+-  CL_InputEvent ev2 = event;
+-  ev2.mouse_pos = CL_Point(CL_Mouse::get_x() - rect.left,
+-                           CL_Mouse::get_y() - rect.top);
+-  workspace.key_down(ev2);
++  if (event.repeat_count == 0)
++    {
++      CL_Rect rect = parent-&gt;get_position();
++      CL_InputEvent ev2 = event;
++      ev2.mouse_pos = CL_Point(CL_Mouse::get_x() - rect.left,
++                               CL_Mouse::get_y() - rect.top);
++      workspace.key_down(ev2);
++    }
+ }
+ 
+ void
+ EditorMapComponentImpl::on_key_up(const CL_InputEvent&amp; event)
+ {
++  std::cout &lt;&lt; &quot;Key up: &quot; &lt;&lt; event.repeat_count &lt;&lt; std::endl;
++
+   CL_Rect rect = parent-&gt;get_position();
+   CL_InputEvent ev2 = event;
+   ev2.mouse_pos = CL_Point(CL_Mouse::get_x() - rect.left,
+-                          CL_Mouse::get_y() - rect.top);
++                           CL_Mouse::get_y() - rect.top);
+   workspace.key_up(ev2);
+ }
+ 
+@@ -197,7 +202,7 @@
+ EditorMapComponent::zoom_in(CL_Point pos)
+ {
+   impl-&gt;gc_state.set_zoom(CL_Pointf(pos.x, pos.y), 
+-                                          impl-&gt;gc_state.get_zoom()*1.25f);
++                          impl-&gt;gc_state.get_zoom()*1.25f);
+ }
+ 
+ void
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2006-07-11 04:04:17 UTC (rev 636)
++++ trunk/lib/flexlay_wrap.i	2006-07-11 14:12:31 UTC (rev 637)
+@@ -82,6 +82,7 @@
+ #include &quot;objmap_rect_object.hxx&quot;
+ #include &quot;objmap_object.hxx&quot;
+ #include &quot;tools/zoom_tool.hxx&quot;
++#include &quot;tools/zoom2_tool.hxx&quot;
+ #include &quot;objmap_path_node.hxx&quot;
+ 
+ // #include &quot;netpanzer.hxx&quot; 
+@@ -195,6 +196,7 @@
+ %include &quot;objmap_rect_object.hxx&quot;
+ %include &quot;objmap_object.hxx&quot;
+ %include &quot;tools/zoom_tool.hxx&quot; 
++%include &quot;tools/zoom2_tool.hxx&quot; 
+ %include &quot;graphic_context_state.hxx&quot;
+ %include &quot;objmap_path_node.hxx&quot;
+ # %include &quot;scripting/editor.hxx&quot;
+
+Added: trunk/lib/tools/zoom2_tool.cxx
+===================================================================
+--- trunk/lib/tools/zoom2_tool.cxx	2006-07-11 04:04:17 UTC (rev 636)
++++ trunk/lib/tools/zoom2_tool.cxx	2006-07-11 14:12:31 UTC (rev 637)
+@@ -0,0 +1,96 @@
++//  $Id$
++//
++//  Flexlay - A Generic 2D Game Editor
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++//
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &lt;ClanLib/Display/keys.h&gt;
++#include &lt;ClanLib/Display/display.h&gt;
++#include &quot;editor_map_component.hxx&quot;
++#include &quot;tool_impl.hxx&quot;
++#include &quot;zoom2_tool.hxx&quot;
++
++class Zoom2ToolImpl : public ToolImpl
++{
++public:
++  bool active;
++  CL_Point click_pos;
++  float old_zoom;
++  void draw();
++  
++  void on_mouse_up  (const CL_InputEvent&amp; event);
++  void on_mouse_down(const CL_InputEvent&amp; event);
++  void on_mouse_move(const CL_InputEvent&amp; event);
++};
++
++Zoom2Tool::Zoom2Tool()
++  : impl(new Zoom2ToolImpl())
++{
++  impl-&gt;active = false;
++}
++
++Zoom2Tool::~Zoom2Tool()
++{
++}
++
++void
++Zoom2ToolImpl::draw()
++{
++}
++
++void
++Zoom2ToolImpl::on_mouse_up  (const CL_InputEvent&amp; event)
++{
++  active = false;
++}
++
++void
++Zoom2ToolImpl::on_mouse_down(const CL_InputEvent&amp; event)
++{
++  active = true;
++  click_pos = event.mouse_pos;
++
++  GraphicContextState&amp; gc = EditorMapComponent::current()-&gt;get_gc_state();
++  old_zoom = gc.get_zoom();
++}
++
++void
++Zoom2ToolImpl::on_mouse_move(const CL_InputEvent&amp; event)
++{
++  if (active)
++    {
++      GraphicContextState&amp; gc = EditorMapComponent::current()-&gt;get_gc_state();
++
++      CL_Point zoom_pos(gc.get_width()/2,
++                        gc.get_height()/2);
++      
++      float factor = (event.mouse_pos.y - click_pos.y) / 20.0f;
++      if (factor &gt; 0)
++        gc.set_zoom(zoom_pos, old_zoom * pow(1.25f, factor));
++      else if (factor &lt; 0)
++        gc.set_zoom(zoom_pos, old_zoom / pow(1.25f, -factor));
++      else
++        gc.set_zoom(zoom_pos, old_zoom);
++    }
++}
++
++Tool
++Zoom2Tool::to_tool()
++{
++  return Tool(impl); 
++}  
++
++/* EOF */
+
+Added: trunk/lib/tools/zoom2_tool.hxx
+===================================================================
+--- trunk/lib/tools/zoom2_tool.hxx	2006-07-11 04:04:17 UTC (rev 636)
++++ trunk/lib/tools/zoom2_tool.hxx	2006-07-11 14:12:31 UTC (rev 637)
+@@ -0,0 +1,43 @@
++//  $Id$
++// 
++//  Flexlay - A Generic 2D Game Editor
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_ZOOM2_TOOL_HXX
++#define HEADER_ZOOM2_TOOL_HXX
++
++#include &lt;ClanLib/Core/Math/rect.h&gt;
++#include &lt;ClanLib/Display/input_event.h&gt;
++#include &quot;tool.hxx&quot;
++
++class Zoom2ToolImpl;
++
++/** */
++class Zoom2Tool
++{
++public:
++  Zoom2Tool();
++  ~Zoom2Tool();
++
++  Tool to_tool();
++private:
++  SharedPtr&lt;Zoom2ToolImpl&gt; impl;
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-07-11 04:04:17 UTC (rev 636)
++++ trunk/supertux/gui.rb	2006-07-11 14:12:31 UTC (rev 637)
+@@ -34,13 +34,16 @@
+     @workspace = @editor_map.get_workspace()
+ 
+     @workspace.set_tool(0, $tilemap_paint_tool.to_tool())
+-    @workspace.set_tool(2, WorkspaceMoveTool.new().to_tool())
++    @workspace.set_tool(2, $workspace_move_tool.to_tool())
+     @workspace.set_tool(1, $tilemap_paint_tool.to_tool())
+     # 'x' key
+     @workspace.set_tool(120, $zoom_tool.to_tool())
+     # 'u' key
+     @workspace.set_tool(117, $objmap_select_tool.to_tool())
+ 
++    @workspace.set_tool(106, $workspace_move_tool.to_tool())
++    @workspace.set_tool(107, $zoom2_tool.to_tool())
++
+     @minimap = Minimap.new(@editor_map, minimap_rect, @gui.get_component())
+ 
+     @selector_window = Panel.new(selector_rect, @gui.get_component())
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2006-07-11 04:04:17 UTC (rev 636)
++++ trunk/supertux/supertux.rb	2006-07-11 14:12:31 UTC (rev 637)
+@@ -59,6 +59,8 @@
+ $tilemap_paint_tool  = TileMapPaintTool.new()
+ $tilemap_select_tool = TileMapSelectTool.new()
+ $zoom_tool           = ZoomTool.new()
++$zoom2_tool          = Zoom2Tool.new()
++$workspace_move_tool = WorkspaceMoveTool.new()
+ $objmap_select_tool  = ObjMapSelectTool.new()
+ # $sketch_stroke_tool  = SketchStrokeTool.new()
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000133.html">[Flexlay-commit] r636 - in trunk: . clanlib lib lib/tools ruby supertux
+</A></li>
+	<LI>Next message: <A HREF="000135.html">[Flexlay-commit] r638 - in trunk: clanlib/GL/GLX lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#134">[ date ]</a>
+              <a href="thread.html#134">[ thread ]</a>
+              <a href="subject.html#134">[ subject ]</a>
+              <a href="author.html#134">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

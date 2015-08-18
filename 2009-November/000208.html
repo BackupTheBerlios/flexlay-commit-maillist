@@ -1,0 +1,1820 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r716 - in trunk/flexlay: . external	external/clanlib/GL external/clanlib/GL/GLX lib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r716%20-%20in%20trunk/flexlay%3A%20.%20external%0A%09external/clanlib/GL%20external/clanlib/GL/GLX%20lib&In-Reply-To=%3C200911220324.nAM3OYnQ022733%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000207.html">
+   <LINK REL="Next"  HREF="000209.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r716 - in trunk/flexlay: . external	external/clanlib/GL external/clanlib/GL/GLX lib</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r716%20-%20in%20trunk/flexlay%3A%20.%20external%0A%09external/clanlib/GL%20external/clanlib/GL/GLX%20lib&In-Reply-To=%3C200911220324.nAM3OYnQ022733%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r716 - in trunk/flexlay: . external	external/clanlib/GL external/clanlib/GL/GLX lib">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 04:24:34 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000207.html">[Flexlay-commit] r715 - in trunk/flexlay/lib: . tools
+</A></li>
+        <LI>Next message: <A HREF="000209.html">[Flexlay-commit] r717 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#208">[ date ]</a>
+              <a href="thread.html#208">[ thread ]</a>
+              <a href="subject.html#208">[ subject ]</a>
+              <a href="author.html#208">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 04:24:33 +0100 (Sun, 22 Nov 2009)
+New Revision: 716
+
+Added:
+   trunk/flexlay/external/
+   trunk/flexlay/external/clanlib/
+   trunk/flexlay/external/clanlib/GL/GLX/input_device_linuxevent.cpp
+   trunk/flexlay/external/clanlib/GL/GLX/input_device_xinput.cpp
+   trunk/flexlay/external/clanlib/GL/canvas_opengl.cpp
+Removed:
+   trunk/flexlay/clanlib/
+   trunk/flexlay/external/clanlib/GL/GLX/input_device_linuxevent.cpp
+   trunk/flexlay/external/clanlib/GL/GLX/input_device_xinput.cpp
+   trunk/flexlay/external/clanlib/GL/canvas_opengl.cpp
+   trunk/flexlay/lib/paned.cpp
+   trunk/flexlay/lib/paned.hpp
+   trunk/flexlay/lib/serializer.cpp
+   trunk/flexlay/lib/serializer.hpp
+   trunk/flexlay/lib/sexpr_serializer.cpp
+   trunk/flexlay/lib/sexpr_serializer.hpp
+   trunk/flexlay/lib/simpleed.hpp
+Modified:
+   trunk/flexlay/SConstruct
+   trunk/flexlay/lib/SConscript
+   trunk/flexlay/lib/simpleed.cpp
+Log:
+Use Glob pattern instead of manual list of filenames, Deleted some unused files
+
+Modified: trunk/flexlay/SConstruct
+===================================================================
+--- trunk/flexlay/SConstruct	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/SConstruct	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,29 +1,30 @@
+ # -*- python -*-
+ 
+-# FIXME: replace the X11 stuff with a proper X11 configure check and
+-# make them somehow part of the clanlib libraries themself
+-clanLib_env = Environment(CPPPATH=['../clanlib/'],
+-                          LIBPATH=['/usr/X11R6/lib/',
+-                                   '../clanlib/'],
+-                          LIBS=['clanGUIStyleSilver', 
+-                                'clanGUI',      
+-                                'clanGL',
+-                                'clanDisplay',
+-                                'clanSignals', 
+-                                'clanCore',
+-                                'X11', 'Xmu', 'GL', 'GLU', 'png', 'jpeg', 'Xxf86vm', 'Xi'])
++# Set to False to use local ClanLib instead of global one
++if True:
++    clanLib_env = Environment(LIBPATH=[])
++    clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs &quot; +
++                            &quot;clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
++else:
++    # FIXME: replace the X11 stuff with a proper X11 configure check and
++    # make them somehow part of the clanlib libraries themself
++    clanLib_env = Environment(CPPPATH=['../external/clanlib/'],
++                              LIBPATH=['/usr/X11R6/lib/',
++                                       '../external/clanlib/'],
++                              LIBS=['clanGUIStyleSilver', 
++                                    'clanGUI',      
++                                    'clanGL',
++                                    'clanDisplay',
++                                    'clanSignals', 
++                                    'clanCore',
++                                    'X11', 'Xmu', 'GL', 'GLU', 'png', 'jpeg', 'Xxf86vm', 'Xi'])
+ 
+-# Use this if you want to use your globally installed ClanLib
+-#  clanLib_env = Environment()
+-#  clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
+-
+ Export('clanLib_env')
+ 
+-SConscript(['clanlib/SConstruct'])
++SConscript(['external/clanlib/SConstruct'])
+ SConscript(['lib/SConscript'])
+ SConscript(['ruby/SConscript'])
+ SConscript(['supertux/SConstruct'])
+ SConscript(['netpanzer/SConscript'])
+ 
+ # EOF #
+-
+
+Copied: trunk/flexlay/external/clanlib (from rev 712, trunk/flexlay/clanlib)
+
+Deleted: trunk/flexlay/external/clanlib/GL/GLX/input_device_linuxevent.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/GLX/input_device_linuxevent.cpp	2009-08-01 18:25:52 UTC (rev 712)
++++ trunk/flexlay/external/clanlib/GL/GLX/input_device_linuxevent.cpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,353 +0,0 @@
+-/*
+-**  ClanLib SDK
+-**  Copyright (c) 1997-2005 The ClanLib Team
+-**
+-**  This software is provided 'as-is', without any express or implied
+-**  warranty.  In no event will the authors be held liable for any damages
+-**  arising from the use of this software.
+-**
+-**  Permission is granted to anyone to use this software for any purpose,
+-**  including commercial applications, and to alter it and redistribute it
+-**  freely, subject to the following restrictions:
+-**
+-**  1. The origin of this software must not be misrepresented; you must not
+-**     claim that you wrote the original software. If you use this software
+-**     in a product, an acknowledgment in the product documentation would be
+-**     appreciated but is not required.
+-**  2. Altered source versions must be plainly marked as such, and must not be
+-**     misrepresented as being the original software.
+-**  3. This notice may not be removed or altered from any source distribution.
+-**
+-**  Note: Some of the libraries ClanLib may link to may have additional
+-**  requirements or restrictions.
+-**
+-**  File Author(s):
+-**
+-**    Magnus Norddahl
+-**    (if your name is missing here, please add it)
+-*/
+-
+-#include &lt;assert.h&gt;
+-#include &lt;string.h&gt;
+-#include &lt;linux/input.h&gt;
+-#include &lt;sys/ioctl.h&gt;
+-#include &lt;fcntl.h&gt;
+-#include &lt;unistd.h&gt;
+-#include &lt;iostream&gt;
+-#include &lt;errno.h&gt;
+-
+-#include &quot;API/Core/System/error.h&quot;
+-#include &quot;API/Core/System/clanstring.h&quot;
+-#include &quot;API/Display/input_event.h&quot;
+-#include &quot;input_device_linuxevent.h&quot;
+-
+-// FIXME: These three should be in linux/input.h
+-#define MSC_RAW			0x03
+-#define MSC_SCAN		0x04
+-#define MSC_MAX			0x07
+-
+-
+-#ifndef EV_SYN
+-#define EV_SYN 0
+-#endif
+-
+-#define BITS_PER_LONG (sizeof(long) * 8)
+-#define NBITS(x) ((((x)-1)/BITS_PER_LONG)+1)
+-#define OFF(x)  ((x)%BITS_PER_LONG)
+-#define BIT(x)  (1UL&lt;&lt;OFF(x))
+-#define LONG(x) ((x)/BITS_PER_LONG)
+-#define test_bit(bit, array)	((array[LONG(bit)] &gt;&gt; OFF(bit)) &amp; 1)
+-
+-static char *events[EV_MAX + 1] = { NULL };
+-static char **names[EV_MAX + 1] = { NULL }; 
+-
+-CL_InputDevice_LinuxEvent::CL_InputDevice_LinuxEvent(CL_DisplayWindow_Generic* parent_, 
+-																	  const std::string&amp; device_)
+-  : parent(parent_),
+-	 device(device_) 
+-{
+-	fd = open(device.c_str(), O_RDONLY | O_NONBLOCK);
+-
+-	if (fd == -1)
+-	{
+-		throw CL_Error(strerror(errno));
+-	}
+-
+-	if (ioctl(fd, EVIOCGVERSION, &amp;version)) 
+-	{
+-		throw CL_Error(&quot;CL_InputDevice_LinuxEvent: can't get version&quot;);
+-	}
+-
+-#if 0
+-	if (0)
+-	{ // FIXME: Some versions of linux don't have these structs, use arrays there
+-		struct input_id id;
+-		ioctl(fd, EVIOCGID, &amp;id);
+-		printf(&quot;Input device ID: bus 0x%x vendor 0x%x product 0x%x version 0x%x\n&quot;,
+-				 id.bustype, id.vendor, id.product, id.vendor);
+-	}
+-#endif
+-
+-	{  // Get the human readable name
+-		char c_name[256] = &quot;Unknown&quot;;
+-		ioctl(fd, EVIOCGNAME(sizeof(c_name)), c_name);
+-		name = c_name;
+-	}
+-
+-	{
+-		unsigned long bit[EV_MAX][NBITS(KEY_MAX)];
+-		memset(bit, 0, sizeof(bit));
+-		ioctl(fd, EVIOCGBIT(0, EV_MAX), bit[0]);
+-
+-		for (int i = 0; i &lt; EV_MAX; i++)
+-		{
+-			if (test_bit(i, bit[0])) 
+-			{
+-				//printf(&quot;  Event type %d (%s)\n&quot;, i, events[i] ? events[i] : &quot;?&quot;);
+-				
+-				if (!i) continue;
+-
+-				ioctl(fd, EVIOCGBIT(i, KEY_MAX), bit[i]);
+-				for (int j = 0; j &lt; KEY_MAX; j++) 
+-				{
+-					if (test_bit(j, bit[i])) 
+-					{
+-						if (i == EV_KEY) 
+-						{ // Found something that might be a button
+-							buttons.push_back(Button(j));
+-						} 
+-						else if (i == EV_ABS) 
+-						{ // Found something that might be an axis
+-#if 0
+-							// FIXME: Some Linuxes don't have these struct
+-							struct input_absinfo absinfo;
+-							ioctl(fd, EVIOCGABS(j), &amp;absinfo);
+-							// FIXME: we are ignoring absinfo.fuzz and absinfo.flat, not sure what they are good for
+-							axes.push_back(Axis(j, absinfo.minimum, absinfo.maximum, absinfo.value));
+-#else
+-							int absinfo[5];
+-							ioctl(fd, EVIOCGABS(j), &amp;absinfo);
+-							// FIXME: we are ignoring absinfo.fuzz and absinfo.flat, not sure what they are good for
+-							axes.push_back(Axis(j, absinfo[1], absinfo[2], absinfo[0]));
+-#endif
+-						}
+-						else if (i == EV_REL) 
+-						{ // Found something mouse/ball like
+-							balls.push_back(Ball(j));
+-						}
+-					}
+-				}
+-			}
+-		}
+-	}
+-}
+-
+-int
+-CL_InputDevice_LinuxEvent::get_ball_index_by_code(int code)
+-{
+-	for(std::vector&lt;Ball&gt;::size_type i = 0; i != balls.size(); ++i)
+-	{
+-		if (balls[i].code == code)
+-		{
+-			return i;
+-		}
+-	}
+-	return -1;
+-}
+-
+-int
+-CL_InputDevice_LinuxEvent::get_button_index_by_code(int code)
+-{
+-	for(std::vector&lt;Button&gt;::size_type i = 0; i != buttons.size(); ++i)
+-	{
+-		if (buttons[i].code == code)
+-		{
+-			return i;
+-		}
+-	}
+-	return -1;
+-}
+-
+-int
+-CL_InputDevice_LinuxEvent::get_axis_index_by_code(int code)
+-{
+-	for(std::vector&lt;Axis&gt;::size_type i = 0; i != axes.size(); ++i)
+-	{
+-		if (axes[i].code == code)
+-		{
+-			return i;
+-		}
+-	}
+-	return -1;
+-}
+-
+-void
+-CL_InputDevice_LinuxEvent::keep_alive()
+-{
+-	struct input_event ev[64];
+-	
+-	int rd = read(fd, ev, sizeof(struct input_event) * 64);
+-
+-	if (rd &gt;= (int) sizeof(struct input_event))
+-	{
+-		for (int i = 0; i &lt; rd / (int)sizeof(struct input_event); ++i)
+-		{
+-			switch (ev[i].type)
+-			{
+-			case EV_ABS:
+-			{
+-				int axis_index = get_axis_index_by_code(ev[i].code);
+-				if (axis_index != -1)
+-				{
+-					axes[axis_index].pos = ev[i].value;
+-
+-					CL_InputEvent e; 
+-					
+-					e.device   = CL_InputDevice(this);
+-					e.type     = CL_InputEvent::axis_moved;
+-					e.id       = axis_index;
+-					e.axis_pos = axes[axis_index].get_posf();
+-					e.repeat_count = 0;
+-
+-					sig_axis_move(e);
+-				}
+-			}
+-			break;
+-
+-			case EV_REL:
+-			{
+-				int ball_index = get_ball_index_by_code(ev[i].code);
+-
+-				balls[ball_index].pos += ev[i].value;
+-
+-				CL_InputEvent e; 
+-				
+-				e.device       = CL_InputDevice(this);
+-				e.type         = CL_InputEvent::ball_moved;
+-				e.id           = ball_index;
+-				e.mouse_pos.x  = ev[i].value;
+-				e.mouse_pos.y  = 0;
+-				e.axis_pos     = 0;
+-				e.repeat_count = 0;
+-
+-				sig_ball_move(e);
+-			}
+-			break;
+-
+-			case EV_KEY:
+-			{
+-				int button_index = get_button_index_by_code(ev[i].code);
+-
+-				buttons[button_index].pressed = ev[i].value;
+-
+-				CL_InputEvent e; 
+-			
+-				e.device = CL_InputDevice(this);
+-				e.id     = button_index;
+-				e.repeat_count = 0;
+-
+-				if (ev[i].value)
+-				{
+-					e.type = CL_InputEvent::pressed;
+-					sig_key_down(e);
+-				}
+-				else
+-				{
+-					e.type = CL_InputEvent::released;
+-					sig_key_up(e);
+-				}
+-			}
+-			break;
+-
+-			default:
+-				if (0) 
+-				{
+-					if (ev[i].type == EV_SYN) 
+-					{
+-						printf(&quot;Event: time %ld.%06ld, -------------- %s ------------\n&quot;,
+-								 ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].code ? &quot;Config Sync&quot; : &quot;Report Sync&quot; );
+-					}
+-					else if (ev[i].type == EV_MSC &amp;&amp; (ev[i].code == MSC_RAW || ev[i].code == MSC_SCAN)) 
+-					{
+-						printf(&quot;Event: time %ld.%06ld, type %d (%s), code %d (%s), value %02x\n&quot;,
+-								 ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].type,
+-								 events[ev[i].type] ? events[ev[i].type] : &quot;?&quot;,
+-								 ev[i].code,
+-								 names[ev[i].type] ? (names[ev[i].type][ev[i].code] ? names[ev[i].type][ev[i].code] : &quot;?&quot;) : &quot;?&quot;,
+-								 ev[i].value);
+-					} 
+-					else 
+-					{
+-						printf(&quot;Event: time %ld.%06ld, type %d (%s), code %d (%s), value %d\n&quot;,
+-								 ev[i].time.tv_sec, ev[i].time.tv_usec, ev[i].type,
+-								 events[ev[i].type] ? events[ev[i].type] : &quot;?&quot;,
+-								 ev[i].code,
+-								 names[ev[i].type] ? (names[ev[i].type][ev[i].code] ? names[ev[i].type][ev[i].code] : &quot;?&quot;) : &quot;?&quot;,
+-								 ev[i].value);
+-					}	
+-				}
+-				break;
+-			}
+-		}
+-	}
+-}
+-
+-CL_InputDevice_LinuxEvent::~CL_InputDevice_LinuxEvent()
+-{
+-	close(fd);
+-}
+-
+-std::string
+-CL_InputDevice_LinuxEvent::get_key_name(int num) const
+-{
+-	// FIXME: copy enum2string code from evtest here
+-	return CL_String::from_int(num);
+-}
+-
+-float
+-CL_InputDevice_LinuxEvent::get_axis(int num)   const
+-{
+-	assert(num &gt;= 0 &amp;&amp; num &lt; int(axes.size()));
+-	return axes[num].pos;
+-}
+-
+-bool
+-CL_InputDevice_LinuxEvent::get_keycode(int num) const
+-{
+-	if (num &gt;= 0 &amp;&amp; num &lt; int(buttons.size()) )
+-	{
+-		return buttons[num].pressed;
+-	} 
+-	else 
+-	{
+-		return false;
+-	}
+-}
+-
+-int
+-CL_InputDevice_LinuxEvent::get_axis_count() const
+-{
+-	return axes.size();
+-}
+-
+-int
+-CL_InputDevice_LinuxEvent::get_button_count() const
+-{
+-	return buttons.size();
+-}
+-
+-std::string
+-CL_InputDevice_LinuxEvent::get_name() const 
+-{
+-	return name; 
+-}
+-
+-std::string
+-CL_InputDevice_LinuxEvent::get_device_name() const 
+-{ 
+-	return &quot;linuxevent:&quot; + device; 
+-}
+-
+-// Local Variables: ***
+-// mode: clanlib ***
+-// End: ***
+
+Copied: trunk/flexlay/external/clanlib/GL/GLX/input_device_linuxevent.cpp (from rev 713, trunk/flexlay/clanlib/GL/GLX/input_device_linuxevent.cpp)
+
+Deleted: trunk/flexlay/external/clanlib/GL/GLX/input_device_xinput.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/GLX/input_device_xinput.cpp	2009-08-01 18:25:52 UTC (rev 712)
++++ trunk/flexlay/external/clanlib/GL/GLX/input_device_xinput.cpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,428 +0,0 @@
+-/*
+-**  ClanLib SDK
+-**  Copyright (c) 1997-2005 The ClanLib Team
+-**
+-**  This software is provided 'as-is', without any express or implied
+-**  warranty.  In no event will the authors be held liable for any damages
+-**  arising from the use of this software.
+-**
+-**  Permission is granted to anyone to use this software for any purpose,
+-**  including commercial applications, and to alter it and redistribute it
+-**  freely, subject to the following restrictions:
+-**
+-**  1. The origin of this software must not be misrepresented; you must not
+-**     claim that you wrote the original software. If you use this software
+-**     in a product, an acknowledgment in the product documentation would be
+-**     appreciated but is not required.
+-**  2. Altered source versions must be plainly marked as such, and must not be
+-**     misrepresented as being the original software.
+-**  3. This notice may not be removed or altered from any source distribution.
+-**
+-**  Note: Some of the libraries ClanLib may link to may have additional
+-**  requirements or restrictions.
+-**
+-**  File Author(s):
+-**
+-**    Magnus Norddahl
+-**    (if your name is missing here, please add it)
+-*/
+-
+-#include &lt;iostream&gt;
+-#include &lt;string.h&gt;
+-#include &quot;API/Core/System/log.h&quot;
+-#include &quot;API/Display/input_device.h&quot;
+-#include &quot;API/Display/input_event.h&quot;
+-#include &quot;API/Core/System/clanstring.h&quot;
+-#include &quot;API/Core/System/error.h&quot;
+-#include &quot;input_device_xinput.h&quot;
+-#include &quot;display_window_opengl.h&quot;
+-
+-#define INVALID_EVENT_TYPE	-1
+-
+-CL_InputDevice_XInput::CL_InputDevice_XInput(CL_DisplayWindow_OpenGL *owner_, 
+-															XDeviceInfo* info)
+-	: owner(owner_),
+-	  name(info-&gt;name),
+-	  absolute(false),
+-	  num_keys   (0),
+-	  motion_type        (INVALID_EVENT_TYPE),
+-	  button_press_type  (INVALID_EVENT_TYPE),
+-	  button_release_type(INVALID_EVENT_TYPE),
+-	  key_press_type     (INVALID_EVENT_TYPE),
+-	  key_release_type   (INVALID_EVENT_TYPE),
+-	  proximity_in_type  (INVALID_EVENT_TYPE),
+-	  proximity_out_type (INVALID_EVENT_TYPE)
+-
+-{
+-  type = CL_InputDevice::tablet;  
+-
+-  //info = find_device_info(owner-&gt;get_display(), name.c_str(), True);
+-  //if (!info)
+-  // throw CL_Error(&quot;CL_InputDeviceXInput Error: Couldn't find device: &quot; + name);
+-
+-  get_info(info);
+-
+-  if (!register_events(owner-&gt;get_display(), info, name.c_str(), True))
+-  {
+-	  CL_Log::log(&quot;debug&quot;, &quot;CL_InputDeviceXInput: Couldn't find device: &quot; + name);
+-  }
+-  else
+-  {
+-	  slot_xevent = owner-&gt;sig_unknown_xevent.connect(this, &amp;CL_InputDevice_XInput::on_xevent);
+-  }
+-}
+-
+-CL_InputDevice_XInput::~CL_InputDevice_XInput()
+-{
+-	
+-}
+-
+-void
+-CL_InputDevice_XInput::get_info(XDeviceInfo	*info)
+-{
+-	int			i,j;
+-	XAnyClassPtr	any;
+-	XKeyInfoPtr		k;
+-	XButtonInfoPtr	b;
+-	XValuatorInfoPtr	v;
+-	XAxisInfoPtr	a;
+-
+-	//printf(&quot;\&quot;%s\&quot;\tid=%ld\t[%s]\n&quot;, info-&gt;name, info-&gt;id,
+-	//		 (info-&gt;use == IsXExtensionDevice) ? &quot;XExtensionDevice&quot; :
+-//			 ((info-&gt;use == IsXPointer) ? &quot;XPointer&quot; : &quot;XKeyboard&quot;));
+-
+-	if (info-&gt;num_classes &gt; 0) {
+-		any = (XAnyClassPtr) (info-&gt;inputclassinfo);
+-		for (i=0; i&lt;info-&gt;num_classes; i++) {
+-			switch (any-&gt;c_class) {
+-			case KeyClass:
+-				k = (XKeyInfoPtr) any;
+-				//printf(&quot;\tNum_keys is %d\n&quot;, k-&gt;num_keys);
+-				//printf(&quot;\tMin_keycode is %d\n&quot;, k-&gt;min_keycode);
+-				//printf(&quot;\tMax_keycode is %d\n&quot;, k-&gt;max_keycode);
+-
+-				num_keys = k-&gt;num_keys;
+-				break;
+-
+-			case ButtonClass:
+-				b = (XButtonInfoPtr) any;
+-				//printf(&quot;\tNum_buttons is %d\n&quot;, b-&gt;num_buttons);
+-
+-				buttons.resize(b-&gt;num_buttons, false);
+-				break;
+-
+-			case ValuatorClass:
+-				v = (XValuatorInfoPtr) any;
+-				a = (XAxisInfoPtr) ((char *) v + 
+-										  sizeof (XValuatorInfo));
+-
+-				//printf(&quot;\tNum_axes is %d\n&quot;, v-&gt;num_axes);
+-				//printf(&quot;\tMode is %s\n&quot;, (v-&gt;mode == Absolute) ? &quot;Absolute&quot; : &quot;Relative&quot;);
+-				//printf(&quot;\tMotion_buffer is %ld\n&quot;, v-&gt;motion_buffer);
+-
+-				absolute = (v-&gt;mode == Absolute);
+-
+-				for (j=0; j&lt;v-&gt;num_axes; j++, a++) 
+-				{
+-					//printf(&quot;\tAxis %d :\n&quot;, j);
+-					//printf(&quot;\t\tMin_value is %d\n&quot;, a-&gt;min_value);
+-					//printf(&quot;\t\tMax_value is %d\n&quot;, a-&gt;max_value);
+-					//printf (&quot;\t\tResolution is %d\n&quot;, a-&gt;resolution);
+-					
+-					axis.push_back(AxisInfo(a-&gt;min_value, a-&gt;max_value, a-&gt;resolution));
+-				}
+-
+-				break;
+-		
+-			default:
+-				printf (&quot;unknown class\n&quot;);
+-			}
+-			any = (XAnyClassPtr) ((char *) any + any-&gt;length);
+-		}
+-	}
+-}
+-
+-XDeviceInfo*
+-CL_InputDevice_XInput::find_device_info(Display	*display,
+-													 const char		*name,
+-													 Bool		only_extended)
+-{
+-	// FIXME: Not really needed could simply pass XDeviceInfo to the
+-	// constructor, might however make a nicer interface
+-	XDeviceInfo	*devices;
+-	int		loop;
+-	int		num_devices;
+-	int		len = strlen(name);
+-	Bool     is_id = True;
+-	XID		id = 0;
+-    
+-	for(loop=0; loop&lt;len; loop++) {
+-		if (!isdigit(name[loop])) {
+-			is_id = False;
+-			break;
+-		}
+-	}
+-
+-	if (is_id) {
+-		id = atoi(name);
+-	}
+-    
+-	devices = XListInputDevices(display, &amp;num_devices);
+-
+-	for(loop=0; loop&lt;num_devices; loop++) {
+-		if ((!only_extended || (devices[loop].use == IsXExtensionDevice)) &amp;&amp;
+-			 ((!is_id &amp;&amp; strcmp(devices[loop].name, name) == 0) ||
+-			  (is_id &amp;&amp; devices[loop].id == id))) {
+-			return &amp;devices[loop];
+-		}
+-	}
+-	return NULL;
+-}
+-
+-int
+-CL_InputDevice_XInput::register_events(Display		*dpy,
+-													XDeviceInfo	*info,
+-													const char		*dev_name,
+-													Bool		handle_proximity)
+-{
+-	int             number = 0;	/* number of events registered */
+-	XEventClass     event_list[7];
+-	int             i;
+-	XDevice         *device;
+-	Window          root_win;
+-	unsigned long   screen;
+-	XInputClassInfo *ip;
+-
+-	screen   = DefaultScreen(dpy);
+-	root_win = RootWindow(dpy, screen);
+-
+-	device = XOpenDevice(dpy, info-&gt;id);
+-
+-	if (!device) {
+-		fprintf(stderr, &quot;unable to open device %s\n&quot;, dev_name);
+-		return 0;
+-	}
+-    
+-	if (device-&gt;num_classes &gt; 0) {
+-		for (ip = device-&gt;classes, i=0; i&lt;info-&gt;num_classes; ip++, i++) {
+-			switch (ip-&gt;input_class) {
+-			case KeyClass:
+-				DeviceKeyPress  (device, key_press_type,   event_list[number]); number++;
+-				DeviceKeyRelease(device, key_release_type, event_list[number]); number++;
+-				break;
+-
+-			case ButtonClass:
+-				DeviceButtonPress  (device, button_press_type,   event_list[number]); number++;
+-				DeviceButtonRelease(device, button_release_type, event_list[number]); number++;
+-				break;
+-
+-			case ValuatorClass:
+-				DeviceMotionNotify(device, motion_type, event_list[number]); number++;
+-				if (handle_proximity) {
+-					ProximityIn (device, proximity_in_type,  event_list[number]); number++;
+-					ProximityOut(device, proximity_out_type, event_list[number]); number++;
+-				}
+-				break;
+-		
+-			default:
+-				fprintf(stderr, &quot;unknown class\n&quot;);
+-				break;
+-			}
+-		}
+-
+-		if (XSelectExtensionEvent(dpy, root_win, event_list, number)) {
+-			fprintf(stderr, &quot;error selecting extended events\n&quot;);
+-			return 0;
+-		}
+-	}
+-
+-	//std::cout &lt;&lt; &quot;### Registered events: &quot; &lt;&lt; number &lt;&lt; std::endl;
+-	return number;
+-}
+-
+-void
+-CL_InputDevice_XInput::on_xevent(XEvent &amp;event)
+-{
+-	if (0)
+-		std::cout &lt;&lt; this &lt;&lt; &quot; event: &quot; 
+-					 &lt;&lt; event.type &lt;&lt; &quot; Defs: &quot;
+-					 &lt;&lt; motion_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; button_press_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; button_release_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; key_press_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; key_release_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; proximity_out_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; proximity_in_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; std::endl;
+-
+-	std::vector&lt;AxisInfo&gt; old_axis = axis;
+-	std::vector&lt;bool&gt;     old_buttons = buttons;
+-
+-  	if (event.type == motion_type) 
+-	{
+-		XDeviceMotionEvent *motion = (XDeviceMotionEvent *) &event;
+-
+-		//printf(&quot;motion &quot;);
+-	    
+-		for(int loop=0; loop&lt;motion-&gt;axes_count; loop++) {
+-			//printf(&quot;a[%d]=%d &quot;, motion-&gt;first_axis + loop, motion-&gt;axis_data[loop]);
+-			axis[loop + motion-&gt;first_axis].pos = motion-&gt;axis_data[loop];
+-		}
+-		//printf(&quot;\n&quot;);
+-	} 
+-	else if ((event.type == button_press_type) ||
+-				(event.type == button_release_type)) 
+-	{
+-		int	loop;
+-		XDeviceButtonEvent *button = (XDeviceButtonEvent *) &event;
+-	    
+-		//printf(&quot;button %s %d &quot;, (event.type == button_release_type) ? &quot;release&quot; : &quot;press  &quot;, button-&gt;button);
+-
+-		buttons[button-&gt;button] = (event.type == button_press_type);
+-	    
+-		for(loop=0; loop&lt;button-&gt;axes_count; loop++) {
+-			//printf(&quot;a[%d]=%d &quot;, button-&gt;first_axis + loop, button-&gt;axis_data[loop]);
+-			axis[loop + button-&gt;first_axis].pos = button-&gt;axis_data[loop];
+-		}
+-		//printf(&quot;\n&quot;);
+-	} 
+-	else if ((event.type == key_press_type) ||
+-				(event.type == key_release_type)) 
+-	{
+-		int	loop;
+-		XDeviceKeyEvent *key = (XDeviceKeyEvent *) &event;
+-	    
+-		//printf(&quot;key %s %d &quot;, (event.type == key_release_type) ? &quot;release&quot; : &quot;press  &quot;, key-&gt;keycode);
+-	    
+-		for(loop=0; loop&lt;key-&gt;axes_count; loop++) {
+-			//printf(&quot;a[%d]=%d &quot;, key-&gt;first_axis + loop, key-&gt;axis_data[loop]);
+-			axis[loop + key-&gt;first_axis].pos = key-&gt;axis_data[loop];
+-		}
+-		//printf(&quot;\n&quot;);
+-	}
+-	else if ((event.type == proximity_out_type) ||
+-				(event.type == proximity_in_type))
+-	{
+-		int	loop;
+-		XProximityNotifyEvent *prox = (XProximityNotifyEvent *) &event;
+-	    
+-		//printf(&quot;proximity %s &quot;, (event.type == proximity_in_type) ? &quot;in &quot; : &quot;out&quot;);
+-	    
+-		for(loop=0; loop&lt;prox-&gt;axes_count; loop++) {
+-			//printf(&quot;a[%d]=%d &quot;, prox-&gt;first_axis + loop, prox-&gt;axis_data[loop]);
+-			axis[loop + prox-&gt;first_axis].pos = prox-&gt;axis_data[loop];
+-		}
+-		//printf(&quot;\n&quot;);
+-	}
+-	else 
+-	{
+-		//printf(&quot;CL_InputDevice_XInput: what's that %d\n&quot;, event.type);
+-	}
+-
+-
+-	for (std::vector&lt;bool&gt;::size_type i = 0; i &lt; buttons.size(); ++i)
+-	{
+-		if (buttons[i] != old_buttons[i])
+-		{
+-			CL_InputEvent ie;
+-			
+-			ie.id           = i;
+-			ie.type         = CL_InputEvent::pressed;
+-			ie.device       = CL_InputDevice(this);
+-			ie.mouse_pos    = CL_Point(0, 0);
+-			ie.axis_pos     = 0;
+-			ie.repeat_count = false;
+-
+-			sig_axis_move(ie);
+-		}
+-	}
+-
+-	for (std::vector&lt;AxisInfo&gt;::size_type i = 0; i &lt; axis.size(); ++i)
+-	{
+-		if (axis[i].pos != old_axis[i].pos)
+-		{
+-			CL_InputEvent ie;
+-			
+-			ie.id           = i;
+-			ie.type         = CL_InputEvent::axis_moved;
+-			ie.device       = CL_InputDevice(this);
+-			ie.mouse_pos    = CL_Point(0, 0);
+-			ie.axis_pos     = get_axis(i);
+-			ie.repeat_count = false;
+-
+-			sig_axis_move(ie);
+-		}
+-	}
+-}
+-
+-int
+-CL_InputDevice_XInput::get_x() const
+-{
+-	return 0;
+-}
+-
+-int
+-CL_InputDevice_XInput::get_y() const
+-{
+-	return 0;
+-}
+-
+-bool
+-CL_InputDevice_XInput::get_keycode(int keycode) const
+-{
+-	if (keycode &gt;=0 &amp;&amp; keycode &lt; int(buttons.size()))
+-	{
+-		return buttons[keycode];
+-	}
+-	else
+-	{
+-		return false;
+-	}
+-}
+-
+-std::string
+-CL_InputDevice_XInput::get_key_name(int id) const
+-{
+-	return &quot;button&quot; + CL_String::from_int(id);
+-}
+-
+-float
+-CL_InputDevice_XInput::get_axis(int index) const
+-{
+-	if (index &gt;= 0 &amp;&amp; index &lt; get_axis_count())
+-	{
+-		return float(axis[index].pos)/(axis[index].max_value - axis[index].min_value);
+-	}
+-	else
+-	{
+-		return 0.0f;
+-	}
+-}
+-
+-int
+-CL_InputDevice_XInput::get_axis_count() const
+-{
+-	return axis.size();
+-}
+-
+-std::string
+-CL_InputDevice_XInput::get_name() const
+-{
+-	return name;
+-}
+-
+-std::string
+-CL_InputDevice_XInput::get_device_name() const
+-{
+-	return &quot;xinput:&quot; + name;
+-}
+-
+-int
+-CL_InputDevice_XInput::get_button_count() const
+-{
+-	return buttons.size();
+-}
+-
+-// Local Variables: ***
+-// mode: clanlib ***
+-// End: ***
+
+Copied: trunk/flexlay/external/clanlib/GL/GLX/input_device_xinput.cpp (from rev 713, trunk/flexlay/clanlib/GL/GLX/input_device_xinput.cpp)
+
+Deleted: trunk/flexlay/external/clanlib/GL/canvas_opengl.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/canvas_opengl.cpp	2009-08-01 18:25:52 UTC (rev 712)
++++ trunk/flexlay/external/clanlib/GL/canvas_opengl.cpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,433 +0,0 @@
+-/*
+-**  ClanLib SDK
+-**  Copyright (c) 1997-2005 The ClanLib Team
+-**
+-**  This software is provided 'as-is', without any express or implied
+-**  warranty.  In no event will the authors be held liable for any damages
+-**  arising from the use of this software.
+-**
+-**  Permission is granted to anyone to use this software for any purpose,
+-**  including commercial applications, and to alter it and redistribute it
+-**  freely, subject to the following restrictions:
+-**
+-**  1. The origin of this software must not be misrepresented; you must not
+-**     claim that you wrote the original software. If you use this software
+-**     in a product, an acknowledgment in the product documentation would be
+-**     appreciated but is not required.
+-**  2. Altered source versions must be plainly marked as such, and must not be
+-**     misrepresented as being the original software.
+-**  3. This notice may not be removed or altered from any source distribution.
+-**
+-**  Note: Some of the libraries ClanLib may link to may have additional
+-**  requirements or restrictions.
+-**
+-**  File Author(s):
+-**
+-**    Magnus Norddahl
+-**    (if your name is missing here, please add it)
+-*/
+-
+-#include &lt;string.h&gt;
+-#include &quot;Display/display_precomp.h&quot;
+-#include &quot;canvas_opengl.h&quot;
+-#include &quot;API/Core/System/error.h&quot;
+-#include &quot;API/Display/pixel_buffer.h&quot;
+-#include &quot;API/Display/display.h&quot;
+-#include &quot;API/Display/display_window.h&quot;
+-#include &quot;API/Display/graphic_context.h&quot;
+-#include &quot;API/GL/opengl_state.h&quot;
+-#include &quot;API/GL/opengl_wrap.h&quot;
+-#ifdef WIN32
+-#include &quot;WGL/display_window_opengl.h&quot;
+-#else
+-#ifdef __APPLE__
+-#include &quot;AGL/display_window_opengl.h&quot;
+-#else
+-#include &quot;GLX/display_window_opengl.h&quot;
+-#endif
+-#endif
+-#include &quot;graphic_context_opengl.h&quot;
+-#include &quot;surface_target_opengl.h&quot;
+-
+-/////////////////////////////////////////////////////////////////////////////
+-// CL_Canvas_OpenGL construction:
+-
+-CL_Canvas_OpenGL::CL_Canvas_OpenGL()
+-{
+-	CL_OpenGLState state(CL_Display::get_current_window()-&gt;get_gc());
+-	state.set_active();
+-
+-	selected_surface = 0;
+-	gc = 0;
+-	pbuffer = 0;
+-	pbuffer_context = 0;
+-
+-#ifdef WIN32
+-	pbuffer_dc = 0;
+-
+-	if (wglCreatePbufferARB == 0)
+-	{
+-		wglCreatePbufferARB = (ptr_wglCreatePbufferARB) wglGetProcAddress(&quot;wglCreatePbufferARB&quot;);
+-		wglCreatePbufferARB = (ptr_wglCreatePbufferARB) wglGetProcAddress(&quot;wglCreatePbufferARB&quot;);
+-		wglGetPbufferDCARB = (ptr_wglGetPbufferDCARB) wglGetProcAddress(&quot;wglGetPbufferDCARB&quot;);
+-		wglReleasePbufferDCARB = (ptr_wglReleasePbufferDCARB) wglGetProcAddress(&quot;wglReleasePbufferDCARB&quot;);
+-		wglDestroyPbufferARB = (ptr_wglDestroyPbufferARB) wglGetProcAddress(&quot;wglDestroyPbufferARB&quot;);
+-		wglQueryPbufferARB = (ptr_wglQueryPbufferARB) wglGetProcAddress(&quot;wglQueryPbufferARB&quot;);
+-	}
+-#else
+-#ifndef __APPLE__
+-	if (glXCreateGLXPbufferSGIX == 0)
+-	{
+-		glXCreateGLXPbufferSGIX = (ptr_glXCreateGLXPbufferSGIX) CL_OpenGL::get_proc_address(&quot;glXCreateGLXPbufferSGIX&quot;);
+-		glXDestroyGLXPbufferSGIX = (ptr_glXDestroyGLXPbufferSGIX) CL_OpenGL::get_proc_address(&quot;glXDestroyGLXPbufferSGIX&quot;);
+-		glXQueryGLXPbufferSGIX = (ptr_glXQueryGLXPbufferSGIX) CL_OpenGL::get_proc_address(&quot;glXQueryGLXPbufferSGIX&quot;);
+-		glXSelectEventSGIX = (ptr_glXSelectEventSGIX) CL_OpenGL::get_proc_address(&quot;glXSelectEventSGIX&quot;);
+-		glXGetSelectedEventSGIX = (ptr_glXGetSelectedEventSGIX) CL_OpenGL::get_proc_address(&quot;glXGetSelectedEventSGIX&quot;);
+-
+-		glXChooseFBConfigSGIX = (ptr_glXChooseFBConfigSGIX) CL_OpenGL::get_proc_address(&quot;glXChooseFBConfigSGIX&quot;);
+-		glXCreateContextWithConfigSGIX = (ptr_glXCreateContextWithConfigSGIX) CL_OpenGL::get_proc_address(&quot;glXCreateContextWithConfigSGIX&quot;);
+-	}
+-#endif
+-#endif
+-
+-	pbuffer_changed = false;
+-	texture_changed = true;
+-}
+-
+-CL_Canvas_OpenGL::~CL_Canvas_OpenGL()
+-{
+-	delete gc;
+-
+-	CL_OpenGLState state(CL_Display::get_current_window()-&gt;get_gc());
+-	state.set_active();
+-#ifdef WIN32
+-	if (pbuffer_context) wglDeleteContext(pbuffer_context);
+-	if (pbuffer_dc) wglReleasePbufferDCARB(pbuffer, pbuffer_dc);
+-	if (pbuffer) wglDestroyPbufferARB(pbuffer);
+-#else
+-#ifdef __APPLE__
+-	if (pbuffer) aglDestroyPBuffer(pbuffer);
+-	if (pbuffer_context) aglDestroyContext(pbuffer_context);
+-#else
+-	if (pbuffer_context) glXDestroyContext(CL_DisplayWindow_OpenGL::get_display(), pbuffer_context);
+-	if (pbuffer) glXDestroyGLXPbufferSGIX(CL_DisplayWindow_OpenGL::get_display(), pbuffer);
+-#endif
+-#endif
+-}
+-
+-/////////////////////////////////////////////////////////////////////////////
+-// CL_Canvas_OpenGL attributes:
+-
+-CL_GraphicContext *CL_Canvas_OpenGL::get_gc()
+-{
+-	if (selected_surface == 0) return 0;
+-
+-	if (gc == 0)
+-	{
+-		// Create working pbuffer:
+-#ifdef WIN32
+-		if (wglCreatePbufferARB == 0)
+-		{
+-			throw CL_Error(&quot;WGL_ARB_pbuffer OpenGL extension not supported by this card&quot;);
+-		}
+-
+-		int attribList[1] = { 0 };
+-
+-		PIXELFORMATDESCRIPTOR pfd =
+-		{
+-			sizeof(PIXELFORMATDESCRIPTOR),  // size of this pfd 
+-			1,                              // version number
+-			// PFD_DRAW_TO_WINDOW |            // support window
+-			PFD_SUPPORT_OPENGL //|            // support OpenGL
+-			//PFD_DOUBLEBUFFER |              // double buffered
+-			//PFD_DEPTH_DONTCARE
+-			,             // do you care about a zbuffer?
+-			PFD_TYPE_RGBA,                  // RGBA type
+-			24,                             // 24-bit color depth
+-			0, 0, 0, 0, 0, 0,               // color bits ignored
+-			8,                              // no alpha buffer
+-			0,                              // shift bit ignored
+-			0,                              // no accumulation buffer
+-			0, 0, 0, 0,                     // accum bits ignored
+-			0,                              // z-buffer
+-			0,                              // no stencil buffer
+-			0,                              // no auxiliary buffer
+-			PFD_MAIN_PLANE,                 // main layer
+-			0,                              // reserved
+-			0, 0, 0                         // layer masks ignored
+-		};
+-
+-		int pixelformat = ChoosePixelFormat(wglGetCurrentDC(), &amp;pfd);
+-
+-//		int pixelformat = GetPixelFormat(wglGetCurrentDC());
+-
+-		pbuffer = wglCreatePbufferARB(
+-			wglGetCurrentDC(),
+-			pixelformat,
+-			selected_surface-&gt;surface_size.width,
+-			selected_surface-&gt;surface_size.height,
+-			attribList);
+-		pbuffer_dc = wglGetPbufferDCARB(pbuffer);
+-		pbuffer_context = wglCreateContext(pbuffer_dc);
+-
+-		if (!CL_DisplayWindow_OpenGL::opengl_contexts.empty())
+-		{
+-			wglShareLists(CL_DisplayWindow_OpenGL::opengl_contexts.back(), pbuffer_context);
+-		}
+-#else
+-#ifdef __APPLE__
+-		GLint attrib[] = { AGL_RGBA, AGL_NO_RECOVERY, AGL_DEPTH_SIZE, 24, AGL_CLOSEST_POLICY, AGL_NONE };
+-		AGLPixelFormat pixelformat = aglChoosePixelFormat(NULL, 0, attrib);
+-		if (AGL_NO_ERROR != aglGetError())
+-			throw CL_Error(&quot;Could not choose canvas pixel format: &quot; + std::string((const char*)aglErrorString(aglGetError())));
+-
+-		pbuffer_context = aglCreateContext(pixelformat, CL_DisplayWindow_OpenGL::share_context);
+-		if (AGL_NO_ERROR != aglGetError())
+-			throw CL_Error(&quot;Could not create canvas gl context: &quot; + std::string((const char*)aglErrorString(aglGetError())));
+-
+-		if (GL_FALSE==aglCreatePBuffer(
+-				selected_surface-&gt;surface_size.width,
+-				selected_surface-&gt;surface_size.height,
+-				GL_TEXTURE_RECTANGLE_EXT, //GL_TEXTURE_2D,
+-				GL_RGBA,
+-				0,
+-				&amp;pbuffer)
+-			) throw CL_Error(&quot;Could not create canvas PBuffer: &quot; + std::string((const char*)aglErrorString(aglGetError())));
+-
+-		aglSetPBuffer(pbuffer_context, pbuffer, 0, 0, aglGetVirtualScreen(CL_DisplayWindow_OpenGL::share_context));
+-		if (AGL_NO_ERROR != aglGetError())
+-			throw CL_Error(&quot;Could not set up canvas PBuffer: &quot; + std::string((const char*)aglErrorString(aglGetError())));
+-#else
+-   int scrnum;
+-   GLXFBConfig *fbconfig;
+-   XVisualInfo *visinfo;
+-   int nitems;
+-
+-   int attrib[] = {
+-      GLX_DOUBLEBUFFER,  False,
+-      GLX_RED_SIZE,      1,
+-      GLX_GREEN_SIZE,    1,
+-      GLX_BLUE_SIZE,     1,
+-      GLX_DEPTH_SIZE,    1,
+-      GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+-      GLX_DRAWABLE_TYPE, GLX_PBUFFER_BIT | GLX_WINDOW_BIT,
+-      None
+-   };
+-   int pbufAttrib[] = {
+-     GLX_PBUFFER_WIDTH,   selected_surface-&gt;surface_size.width,
+-     GLX_PBUFFER_HEIGHT,  selected_surface-&gt;surface_size.height,
+-     GLX_LARGEST_PBUFFER, False,
+-     None
+-   };
+-
+-
+-   scrnum   = DefaultScreen( CL_DisplayWindow_OpenGL::get_display() );
+-
+-   fbconfig = glXChooseFBConfig(CL_DisplayWindow_OpenGL::get_display(),
+-                                scrnum,
+-                                attrib,
+-                                &amp;nitems);
+-   if (NULL == fbconfig) {
+-      fprintf(stderr,&quot;Error: couldn't get fbconfig\n&quot;);
+-      exit(1);
+-   }
+-
+-   pbuffer = glXCreatePbuffer(CL_DisplayWindow_OpenGL::get_display(), fbconfig[0], pbufAttrib);
+-
+-   visinfo = glXGetVisualFromFBConfig(CL_DisplayWindow_OpenGL::get_display(), fbconfig[0]);
+-   if (!visinfo) {
+-      fprintf(stderr, &quot;Error: couldn't get an RGBA, double-buffered visual\n&quot;);
+-      exit(1);
+-   }
+-
+-   pbuffer_context = glXCreateContext( CL_DisplayWindow_OpenGL::get_display(), visinfo, 
+-                                       dynamic_cast&lt;CL_GraphicContext_OpenGL*&gt;(CL_Display::get_current_window()-&gt;get_gc()-&gt;impl)-&gt;get_context(), GL_TRUE );
+-   if (!pbuffer_context) {
+-      fprintf(stderr, &quot;Error: glXCreateContext failed\n&quot;);
+-      exit(1);
+-   }
+-
+-   XFree(fbconfig);
+-   XFree(visinfo);
+-
+-#endif
+-#endif
+-
+-		// Create GC interface for it:
+-		gc = new CL_GraphicContext(new CL_GraphicContext_OpenGL(this));
+-		gc-&gt;set_cliprect(CL_Rect(0, 0, selected_surface-&gt;surface_size.width, selected_surface-&gt;surface_size.height));
+-
+-		// Download surface to pbuffer:
+-		pbuffer_changed = false;
+-		texture_changed = true;
+-		sync_pbuffer();
+-	}
+-
+-	return gc;
+-}
+-
+-CL_PixelBuffer CL_Canvas_OpenGL::get_pixeldata(const CL_Rect &amp;area)
+-{
+-	if (selected_surface)
+-		return selected_surface-&gt;get_pixeldata ();
+-	else
+-		return CL_PixelBuffer();
+-}
+-
+-int CL_Canvas_OpenGL::get_width() const
+-{
+-	if (selected_surface) return selected_surface-&gt;get_width();
+-	return 0;
+-}
+-	
+-int CL_Canvas_OpenGL::get_height() const
+-{
+-	if (selected_surface) return selected_surface-&gt;get_height();
+-	return 0;
+-}
+-	
+-/////////////////////////////////////////////////////////////////////////////
+-// CL_Canvas_OpenGL operations:
+-
+-void CL_Canvas_OpenGL::set_pixeldata(const CL_Point &amp;dest, const CL_Rect &amp;src, const CL_PixelBuffer &amp;data)
+-{
+-}
+-
+-void CL_Canvas_OpenGL::select_surface(CL_Surface_Generic *surface)
+-{
+-	if (selected_surface)
+-	{
+-		sync_texture();
+-		selected_surface-&gt;selected_canvas = 0;
+-	}
+-	if (surface == 0)
+-	{
+-		selected_surface = 0;
+-		pbuffer_changed = false;
+-		texture_changed = false;
+-	}
+-	else
+-	{
+-		selected_surface = (CL_Surface_Target_OpenGL *) surface-&gt;target;
+-		selected_surface-&gt;selected_canvas = this;
+-		pbuffer_changed = false;
+-		texture_changed = true;
+-		// alloc_pbuffer();
+-	}
+-}
+-	
+-void CL_Canvas_OpenGL::sync_surface()
+-{
+-	sync_texture();
+-}
+-
+-void CL_Canvas_OpenGL::sync_pbuffer()
+-{
+-	if (texture_changed &amp;&amp; gc != 0)
+-	{
+-		CL_OpenGLState state(gc);
+-		state.set_active();
+-
+-		// Setup down/up 2d projection matrix:
+-		clMatrixMode(CL_PROJECTION);
+-		clLoadIdentity();
+-
+-		CLdouble viewport[4];
+-		clGetDoublev(CL_VIEWPORT, viewport);
+-
+-		CLdouble width = viewport[2];
+-		CLdouble height = viewport[3];
+-		gluOrtho2D(0.0, width, 0.0, height);
+-
+-		clMatrixMode(CL_MODELVIEW);
+-		clLoadIdentity();
+-
+-		// Copy texture to pbuffer:
+-		clEnable(CL_TEXTURE_2D);
+-		clBindTexture(CL_TEXTURE_2D, selected_surface-&gt;handle);
+-		clMatrixMode(CL_TEXTURE);
+-		CLdouble scale_matrix[16];
+-		memset(scale_matrix, 0, sizeof(CLdouble)*16);
+-		scale_matrix[0] = 1.0f/float(selected_surface-&gt;texture_size.width);
+-		scale_matrix[5] = 1.0f/float(selected_surface-&gt;texture_size.height);
+-		scale_matrix[10] = 1.0f;
+-		scale_matrix[15] = 1.0f;
+-		clLoadMatrixd(scale_matrix);
+-		clMatrixMode(CL_MODELVIEW);
+-
+-		clBegin(CL_QUADS);
+-		clColor3f(1.0f, 1.0f, 1.0f);
+-		clTexCoord2f(float(selected_surface-&gt;surface_size.width), 0.0f);
+-		clVertex2f(float(selected_surface-&gt;surface_size.width), 0.0f);
+-		clTexCoord2f(float(selected_surface-&gt;surface_size.width), float(selected_surface-&gt;surface_size.height));
+-		clVertex2f(float(selected_surface-&gt;surface_size.width), float(selected_surface-&gt;surface_size.height));
+-		clTexCoord2f(0.0f, float(selected_surface-&gt;surface_size.height));
+-		clVertex2f(0.0f, float(selected_surface-&gt;surface_size.height));
+-		clTexCoord2f(0.0f, 0.0f);
+-		clVertex2f(0.0f, 0.0f);
+-		clEnd();
+-#ifdef __APPLE__
+-		clFlush();
+-#endif
+-	}
+-	texture_changed = false;
+-}
+-
+-void CL_Canvas_OpenGL::sync_texture()
+-{
+-	if (pbuffer_changed &amp;&amp; gc != 0)
+-	{
+-		CL_OpenGLState state(gc);
+-		state.set_active();
+-
+-		// Copy pbuffer to texture:
+-		clEnable(CL_TEXTURE_2D);
+-		clBindTexture(CL_TEXTURE_2D, selected_surface-&gt;handle);
+-		clCopyTexSubImage2D(
+-			CL_TEXTURE_2D,
+-			0,
+-			0, 0,
+-			0, 0,
+-			selected_surface-&gt;surface_size.width, selected_surface-&gt;surface_size.height);
+-#ifdef __APPLE__
+-		clFlush();
+-#endif
+-	}
+-	pbuffer_changed = false;
+-}
+-
+-void CL_Canvas_OpenGL::set_pbuffer_modified()
+-{
+-	pbuffer_changed = true;
+-}
+-
+-/////////////////////////////////////////////////////////////////////////////
+-// CL_Canvas_OpenGL implementation:
+-
+-#ifdef WIN32
+-CL_Canvas_OpenGL::ptr_wglCreatePbufferARB CL_Canvas_OpenGL::wglCreatePbufferARB = 0;
+-
+-CL_Canvas_OpenGL::ptr_wglGetPbufferDCARB CL_Canvas_OpenGL::wglGetPbufferDCARB = 0;
+-
+-CL_Canvas_OpenGL::ptr_wglReleasePbufferDCARB CL_Canvas_OpenGL::wglReleasePbufferDCARB = 0;
+-
+-CL_Canvas_OpenGL::ptr_wglDestroyPbufferARB CL_Canvas_OpenGL::wglDestroyPbufferARB = 0;
+-
+-CL_Canvas_OpenGL::ptr_wglQueryPbufferARB CL_Canvas_OpenGL::wglQueryPbufferARB = 0;
+-#else
+-#ifndef __APPLE__
+-CL_Canvas_OpenGL::ptr_glXCreateGLXPbufferSGIX CL_Canvas_OpenGL::glXCreateGLXPbufferSGIX = 0;
+-
+-CL_Canvas_OpenGL::ptr_glXDestroyGLXPbufferSGIX CL_Canvas_OpenGL::glXDestroyGLXPbufferSGIX = 0;
+-
+-CL_Canvas_OpenGL::ptr_glXQueryGLXPbufferSGIX CL_Canvas_OpenGL::glXQueryGLXPbufferSGIX = 0;
+-
+-CL_Canvas_OpenGL::ptr_glXSelectEventSGIX CL_Canvas_OpenGL::glXSelectEventSGIX = 0;
+-
+-CL_Canvas_OpenGL::ptr_glXGetSelectedEventSGIX CL_Canvas_OpenGL::glXGetSelectedEventSGIX = 0;
+-
+-CL_Canvas_OpenGL::ptr_glXChooseFBConfigSGIX CL_Canvas_OpenGL::glXChooseFBConfigSGIX = 0;
+-	
+-CL_Canvas_OpenGL::ptr_glXCreateContextWithConfigSGIX CL_Canvas_OpenGL::glXCreateContextWithConfigSGIX = 0;
+-#endif
+-#endif
+
+Copied: trunk/flexlay/external/clanlib/GL/canvas_opengl.cpp (from rev 713, trunk/flexlay/clanlib/GL/canvas_opengl.cpp)
+
+Modified: trunk/flexlay/lib/SConscript
+===================================================================
+--- trunk/flexlay/lib/SConscript	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/SConscript	2009-11-22 03:24:33 UTC (rev 716)
+@@ -50,82 +50,7 @@
+ libflexlay_env = env.Clone()
+ flexlay_lib = libflexlay_env.StaticLibrary(
+     target = 'libflexlay.a',
+-    source = [
+-    'blitter.cpp',
+-    'box.cpp',
+-    'brush.cpp',
+-    'generated_brush.cpp',
+-    'brushmask.cpp',
+-    'command_group.cpp',
+-    'command.cpp',
+-    'console.cpp',
+-    'colorpicker.cpp',
+-    'drawer_properties.cpp',
+-    'editor_map.cpp',
+-    'editor_map_component.cpp',
+-    'flexlay.cpp',
+-    'globals.cpp',
+-    'layer.cpp',
+-    'helper.cpp', 
+-    'graphic_context_state.cpp',
+-    'gui_manager.cpp',
+-    'icon.cpp',
+-    'directory_view.cpp',
+-    'fonts.cpp',
+-    'minimap.cpp',
+-    'meta_data.cpp',
+-    'onion_skin_layer.cpp',
+-    'object_layer.cpp',
+-    'object_add_command.cpp',
+-    'object_brush.cpp',
+-    'object_delete_command.cpp',
+-    'object_move_command.cpp',
+-    'object_selector.cpp',
+-    'object_transform_command.cpp',
+-    'objmap_object.cpp',
+-    'objmap_path_node.cpp',
+-    'objmap_object_impl.cpp',
+-    'objmap_sprite_object.cpp',
+-    'objmap_control_point.cpp',
+-    'objmap_rect_object.cpp',
+-    'paint_command.cpp',
+-    'panel.cpp',
+-    'menu.cpp',
+-    'menubar.cpp',
+-    'popup_menu.cpp',
+-    'lispreader.cpp',
+-    'bitmap_layer.cpp',
+-    'sketch_layer.cpp',
+-    'stroke.cpp',
+-    'stroke_drawer.cpp',
+-    'sprite_stroke_drawer.cpp',
+-    'sprite_brush.cpp',
+-    'marker_stroke_drawer.cpp',
+-    'slider.cpp', 
+-    'scrollbar.cpp',
+-    'tile.cpp',
+-    'titlebar.cpp',
+-    'tile_brush.cpp',
+-    'tile_provider.cpp',
+-    'tile_editor.cpp',
+-    'tile_selection.cpp',
+-    'tile_selector.cpp',
+-    'tilemap_layer.cpp',
+-    'tileset.cpp',
+-    'workspace.cpp',
+-    'window.cpp',
+-    'viewport.cpp',
+-
+-    'tools/tool.cpp',
+-    'tools/tilemap_paint_tool.cpp',
+-    'tools/tilemap_select_tool.cpp',
+-    'tools/sketch_stroke_tool.cpp',
+-    'tools/objmap_select_tool.cpp',
+-    'tools/layer_move_tool.cpp',
+-    'tools/workspace_move_tool.cpp',
+-    'tools/zoom_tool.cpp',
+-    'tools/zoom2_tool.cpp'
+-    ],
++    source = Glob('*.cpp') + Glob('*/*.cpp'),
+     CPPPATH = ['.', '..'] + clanLib_env['CPPPATH'],
+     CXXFLAGS  = env['CXXFLAGS'] + clanLib_env['CCFLAGS'],
+     LINKFLAGS = clanLib_env['LINKFLAGS'],
+
+Deleted: trunk/flexlay/lib/paned.cpp
+===================================================================
+--- trunk/flexlay/lib/paned.cpp	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/paned.cpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,45 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &quot;paned.hpp&quot;
+-
+-class PanedImpl
+-{
+-public:
+-  CL_Component* first;
+-  CL_Component* second;
+-};
+-
+-Paned::Paned(CL_Component* parent)
+-  : impl(new PanedImpl())
+-{
+-  impl-&gt;first  = 0;
+-  impl-&gt;second = 0;
+-}
+-
+-void
+-Paned::set_first(CL_Component* first)
+-{
+-  impl-&gt;first = first;
+-}
+-
+-void
+-Paned::set_second(CL_Component* second)
+-{
+-  impl-&gt;second = second;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/paned.hpp
+===================================================================
+--- trunk/flexlay/lib/paned.hpp	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/paned.hpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,38 +0,0 @@
+-//  $Id$
+-// 
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_PANED_HXX
+-#define HEADER_PANED_HXX
+-
+-/** */
+-class Paned : public CL_Component
+-{
+-protected:
+-  virtual Paned() {}
+-public:
+-  Paned(CL_Component* parent);
+-  
+-  void set_first(CL_Component* );
+-  void set_second(CL_Component* );
+-private:
+-  SharedPtr&lt;PanedImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/serializer.cpp
+===================================================================
+--- trunk/flexlay/lib/serializer.cpp	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/serializer.cpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,39 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &quot;serializer.hpp&quot;
+-
+-Serializer
+-Serializer::register_group (const char* name)
+-{
+-}
+-
+-void
+-Serializer::register_float (const char* name, float&amp; value)
+-{
+-}
+-
+-void
+-Serializer::register_int   (const char* name, int&amp; value)
+-{
+-}
+-
+-void
+-Serializer::register_string(const char* name, std::string&amp; value)
+-{
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/serializer.hpp
+===================================================================
+--- trunk/flexlay/lib/serializer.hpp	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/serializer.hpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,43 +0,0 @@
+-//  $Id$
+-// 
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_SERIALIZER_HXX
+-#define HEADER_SERIALIZER_HXX
+-
+-/** */
+-class Serializer
+-{
+-private:
+-public:
+-  Serializer() {}
+-  
+-  voi  register_group_start (const char* name) =0;
+-  voi  register_group_end   () =0;
+-
+-  void register_float (const char* name, float&amp; value) =0;
+-  void register_int   (const char* name, int&amp; value)   =0;
+-  void register_string(const char* name, std::string&amp; value) =0;
+-
+-private:
+-  Serializer (const Serializer&amp;);
+-  Serializer&amp; operator= (const Serializer&amp;);
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/sexpr_serializer.cpp
+===================================================================
+--- trunk/flexlay/lib/sexpr_serializer.cpp	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/sexpr_serializer.cpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,50 +0,0 @@
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &quot;sexpr_serializer.hpp&quot;
+-
+-SexprSerializer::SexprSerializer() 
+-{
+-}
+-  
+-void
+-SexprSerializer::register_group_start (const char* name)
+-{
+-  
+-}
+-
+-void
+-SexprSerializer::register_group_end   ()
+-{
+-}
+-
+-void
+-SexprSerializer::register_float (const char* name, float&amp; value)
+-{
+-  
+-}
+-
+-void
+-SexprSerializer::register_int   (const char* name, int&amp; value)
+-{
+-}
+-
+-void
+-SexprSerializer::register_string(const char* name, std::string&amp; value)
+-{
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/sexpr_serializer.hpp
+===================================================================
+--- trunk/flexlay/lib/sexpr_serializer.hpp	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/sexpr_serializer.hpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,43 +0,0 @@
+-//  $Id$
+-// 
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_SEXPR_SERIALIZER_HXX
+-#define HEADER_SEXPR_SERIALIZER_HXX
+-
+-/** */
+-class SexprSerializer
+-{
+-private:
+-  
+-public:
+-  SexprSerializer() {}
+-  
+-  voi  register_group_start (const char* name);
+-  voi  register_group_end   ();
+-
+-  void register_float (const char* name, float&amp; value);
+-  void register_int   (const char* name, int&amp; value);
+-  void register_string(const char* name, std::string&amp; value);
+-
+-  /** Return a string representing the serialized objects */
+-  std::string get_string();
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/simpleed.cpp
+===================================================================
+--- trunk/flexlay/lib/simpleed.cpp	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/simpleed.cpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -14,6 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++#if 0
++
+ #include &lt;iostream&gt;
+ #include &lt;string&gt;
+ #include &lt;ClanLib/core.h&gt;
+@@ -62,4 +64,6 @@
+   flexlay.deinit();
+ }
+ 
++#endif
++
+ /* EOF */
+
+Deleted: trunk/flexlay/lib/simpleed.hpp
+===================================================================
+--- trunk/flexlay/lib/simpleed.hpp	2009-11-22 03:07:59 UTC (rev 715)
++++ trunk/flexlay/lib/simpleed.hpp	2009-11-22 03:24:33 UTC (rev 716)
+@@ -1,26 +0,0 @@
+-//  $Id$
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_SIMPLEED_HXX
+-#define HEADER_SIMPLEED_HXX
+-
+-
+-
+-#endif
+-
+-/* EOF */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000207.html">[Flexlay-commit] r715 - in trunk/flexlay/lib: . tools
+</A></li>
+	<LI>Next message: <A HREF="000209.html">[Flexlay-commit] r717 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#208">[ date ]</a>
+              <a href="thread.html#208">[ thread ]</a>
+              <a href="subject.html#208">[ subject ]</a>
+              <a href="author.html#208">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

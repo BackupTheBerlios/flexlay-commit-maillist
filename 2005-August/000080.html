@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r585 - trunk/windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r585%20-%20trunk/windstille&In-Reply-To=%3C200508071639.j77Gdoi5014340%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000079.html">
+   <LINK REL="Next"  HREF="000081.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r585 - trunk/windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r585%20-%20trunk/windstille&In-Reply-To=%3C200508071639.j77Gdoi5014340%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r585 - trunk/windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Sun Aug  7 18:39:50 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000079.html">[Flexlay-commit] r584 - trunk/windstille
+</A></li>
+        <LI>Next message: <A HREF="000081.html">[Flexlay-commit] r586 - in trunk: ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#80">[ date ]</a>
+              <a href="thread.html#80">[ thread ]</a>
+              <a href="subject.html#80">[ subject ]</a>
+              <a href="author.html#80">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-07 18:39:37 +0200 (Sun, 07 Aug 2005)
+New Revision: 585
+
+Modified:
+   trunk/windstille/gui.rb
+Log:
+- made foreground/background/interactive buttons change state
+
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-07 16:17:49 UTC (rev 584)
++++ trunk/windstille/gui.rb	2005-08-07 16:39:37 UTC (rev 585)
+@@ -66,9 +66,9 @@
+     @grid_icon = @button_panel.add_icon(&quot;../data/images/icons24/grid.png&quot;, proc{ toggle_grid() })
+     @button_panel.add_separator()
+ 
+-    @background_icon = @button_panel.add_icon(&quot;../data/images/icons24/background.png&quot;)
++    @background_icon  = @button_panel.add_icon(&quot;../data/images/icons24/background.png&quot;)
+     @interactive_icon = @button_panel.add_icon(&quot;../data/images/icons24/interactive.png&quot;)
+-    @foreground_icon = @button_panel.add_icon(&quot;../data/images/icons24/foreground.png&quot;)
++    @foreground_icon  = @button_panel.add_icon(&quot;../data/images/icons24/foreground.png&quot;)
+     @eye_icon = @button_panel.add_icon(&quot;../data/images/icons24/eye.png&quot;)
+ 
+     @button_panel.add_icon(&quot;../data/images/icons24/eye.png&quot;, proc{ @tilegroup_menu.run() })
+@@ -177,14 +177,23 @@
+   end
+ 
+   def show_background()
++    @background_icon.set_down();
++    @interactive_icon.set_up();
++    @foreground_icon.set_up();
+     TilemapLayer.set_current(@workspace.get_map().get_metadata().background)
+   end
+ 
+   def show_interactive()
++    @background_icon.set_up();
++    @interactive_icon.set_down();
++    @foreground_icon.set_up();
+     TilemapLayer.set_current(@workspace.get_map().get_metadata().interactive)
+   end
+ 
+   def show_foreground()
++    @background_icon.set_up();
++    @interactive_icon.set_up();
++    @foreground_icon.set_down();
+     TilemapLayer.set_current(@workspace.get_map().get_metadata().foreground)
+   end
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000079.html">[Flexlay-commit] r584 - trunk/windstille
+</A></li>
+	<LI>Next message: <A HREF="000081.html">[Flexlay-commit] r586 - in trunk: ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#80">[ date ]</a>
+              <a href="thread.html#80">[ thread ]</a>
+              <a href="subject.html#80">[ subject ]</a>
+              <a href="author.html#80">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

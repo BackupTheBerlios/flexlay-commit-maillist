@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r511 - trunk/netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r511%20-%20trunk/netpanzer&In-Reply-To=%3C200503292200.j2TM0acP027354%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000020.html">
+   <LINK REL="Next"  HREF="000022.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r511 - trunk/netpanzer</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r511%20-%20trunk/netpanzer&In-Reply-To=%3C200503292200.j2TM0acP027354%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r511 - trunk/netpanzer">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Wed Mar 30 00:00:36 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000020.html">[Flexlay-commit] r510 - trunk/netpanzer
+</A></li>
+        <LI>Next message: <A HREF="000022.html">[Flexlay-commit] r512 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-30 00:00:31 +0200 (Wed, 30 Mar 2005)
+New Revision: 511
+
+Modified:
+   trunk/netpanzer/gameobjects.rb
+   trunk/netpanzer/level.rb
+   trunk/netpanzer/netpanzer.rb
+Log:
+- added load support
+
+Modified: trunk/netpanzer/gameobjects.rb
+===================================================================
+--- trunk/netpanzer/gameobjects.rb	2005-03-29 21:19:49 UTC (rev 510)
++++ trunk/netpanzer/gameobjects.rb	2005-03-29 22:00:31 UTC (rev 511)
+@@ -52,6 +52,17 @@
+     def Outpost.get_sprite()
+       return make_sprite_from_resource(&quot;sprites/outpost&quot;, $resources)
+     end
++
++    def Outpost.create(objmap, name, x, y)
++      obj = Outpost.new()
++      obj.name = name
++      sprite_obj = ObjMapSpriteObject.new(get_sprite(), CL_Pointf.new(x*32, y*32),
++                                          make_metadata(obj))
++      obj.data = sprite_obj
++      objmap.add_object(sprite_obj.to_object)
++      
++      return obj
++    end
+   end
+   
+   class SpawnPoint &lt; GameObject
+@@ -63,6 +74,16 @@
+       return (@data.to_object.get_pos.y()/32).to_i
+     end
+ 
++    def SpawnPoint.create(objmap, x, y)
++      obj = SpawnPoint.new()
++      sprite_obj = ObjMapSpriteObject.new(get_sprite(), CL_Pointf.new(x*32, y*32),
++                                          make_metadata(obj))
++      obj.data = sprite_obj
++      objmap.add_object(sprite_obj.to_object)
++      
++      return obj
++    end
++
+     def SpawnPoint.get_sprite()
+       return make_sprite_from_resource(&quot;sprites/spawnpoint&quot;, $resources)
+     end
+
+Modified: trunk/netpanzer/level.rb
+===================================================================
+--- trunk/netpanzer/level.rb	2005-03-29 21:19:49 UTC (rev 510)
++++ trunk/netpanzer/level.rb	2005-03-29 22:00:31 UTC (rev 511)
+@@ -30,9 +30,6 @@
+     elsif params.length == 1 then
+       (@filename,) = params
+       @data = NetPanzerFileStruct.new($tileset, @filename)
+-
+-      load_optfile(@filename[0..-5] + &quot;.opt&quot;)
+-      load_spnfile(@filename[0..-5] + &quot;.spn&quot;)
+     end      
+ 
+     @objects   = ObjectLayer.new()
+@@ -40,29 +37,38 @@
+     @editormap.add_layer(@data.get_tilemap().to_layer())
+     @editormap.add_layer(@objects.to_layer())
+ 
++    if @filename then
++      load_optfile(@filename[0..-5] + &quot;.opt&quot;)
++      load_spnfile(@filename[0..-5] + &quot;.spn&quot;)
++    end
++
+     # FIXME: Data might not get freed since its 'recursively' refcounted
+-    @editormap.set_metadata(make_metadata(self))
++    @editormap.set_data(self)
+   end
+ 
+   def load_optfile(filename)
+     f = File.new(filename)
+-    count = /ObjectiveCount: ([0-9]+)/.match(f.readline())[1].to_i
++    count = /ObjectiveCount: ([0-9]+)/.match(f.readline().chop)[1].to_i
+     f.readline() # Skip empty line
+     count.times{|i|
+-      name = /Name: (.+)/.match(f.readline())
+-      loc  = /Location: ([0-9]+) ([0-9]+)/.match(f.readline())
++      name = /Name: (.+)/.match(f.readline().chop)
++      loc  = /Location: ([0-9]+) ([0-9]+)/.match(f.readline().chop)
+       f.readline() # Skip empty line
++      GameObjects::Outpost.create(@objects,
++                                  name,
++                                  loc[1].to_i, loc[2].to_i)
+     }
+     f.close()
+   end
+ 
+   def load_spnfile(filename)
+     f = File.new(filename)
+-    count = /SpawnCount: ([0-9]+)/.match(f.readline())[1].to_i
++    count = /SpawnCount: ([0-9]+)/.match(f.readline().chop)[1].to_i
+     f.readline() # Skip empty line
+     count.times{|i|
+-      loc  = /Location: ([0-9]+) ([0-9]+)/.match(f.readline())
+-      puts &quot;Location: #{loc[1].to_i} #{loc[2].to_i}&quot;
++      loc  = /Location: ([0-9]+) ([0-9]+)/.match(f.readline().chop)
++      GameObjects::SpawnPoint.create(@objects,
++                                     loc[1].to_i, loc[2].to_i)
+     }
+     f.close()
+   end
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-03-29 21:19:49 UTC (rev 510)
++++ trunk/netpanzer/netpanzer.rb	2005-03-29 22:00:31 UTC (rev 511)
+@@ -67,7 +67,7 @@
+   sprite_obj = ObjMapSpriteObject.new(obj.class.get_sprite(), pos, make_metadata(obj))
+   obj.data = sprite_obj
+   
+-  cmd = ObjectAddCommand.new(get_ruby_object($workspace.get_map().get_metadata()).objects)
++  cmd = ObjectAddCommand.new($workspace.get_map().get_data().objects)
+   cmd.add_object(sprite_obj.to_object)
+   $workspace.get_map().execute(cmd.to_command())
+ end
+@@ -247,7 +247,7 @@
+ end
+ 
+ def netpanzer_save_level(filename)
+-  get_ruby_object($workspace.get_map().get_metadata()).save(filename)
++  $workspace.get_map().get_data().save(filename)
+ end
+ 
+ recent_files_menu = Menu.new(CL_Point.new(32*2, 54), $gui.get_component())
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000020.html">[Flexlay-commit] r510 - trunk/netpanzer
+</A></li>
+	<LI>Next message: <A HREF="000022.html">[Flexlay-commit] r512 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

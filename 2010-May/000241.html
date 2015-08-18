@@ -1,0 +1,442 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r748 - in trunk/flexlay: . netpanzer paint
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r748%20-%20in%20trunk/flexlay%3A%20.%20netpanzer%20paint&In-Reply-To=%3C201005150452.o4F4qNpZ000408%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000240.html">
+   <LINK REL="Next"  HREF="000242.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r748 - in trunk/flexlay: . netpanzer paint</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r748%20-%20in%20trunk/flexlay%3A%20.%20netpanzer%20paint&In-Reply-To=%3C201005150452.o4F4qNpZ000408%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r748 - in trunk/flexlay: . netpanzer paint">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat May 15 06:52:23 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000240.html">[Flexlay-commit] r747 - trunk/flexlay
+</A></li>
+        <LI>Next message: <A HREF="000242.html">[Flexlay-commit] r749 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#241">[ date ]</a>
+              <a href="thread.html#241">[ thread ]</a>
+              <a href="subject.html#241">[ subject ]</a>
+              <a href="author.html#241">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2010-05-15 06:52:21 +0200 (Sat, 15 May 2010)
+New Revision: 748
+
+Modified:
+   trunk/flexlay/Makefile
+   trunk/flexlay/netpanzer/SConscript
+   trunk/flexlay/netpanzer/gui.rb
+   trunk/flexlay/netpanzer/netpanzer.rb
+   trunk/flexlay/paint/gui.rb
+   trunk/flexlay/paint/paint.rb
+Log:
+Extended Makefile to flexlay-paint, split installation into proper directories
+
+Modified: trunk/flexlay/Makefile
+===================================================================
+--- trunk/flexlay/Makefile	2010-05-14 23:05:59 UTC (rev 747)
++++ trunk/flexlay/Makefile	2010-05-15 04:52:21 UTC (rev 748)
+@@ -1,14 +1,15 @@
+ DESTDIR = 
+ PREFIX  = &quot;/usr/local&quot;
+-DATADIR = &quot;${PREFIX}/share/netpanzer-editor&quot;
++DATADIR = &quot;${PREFIX}/share&quot;
+ MANDIR  = &quot;${PREFIX}/share/man&quot;
+ LIBDIR  = &quot;${PREFIX}/lib/flexlay&quot;
+ BINDIR  = &quot;${PREFIX}/bin&quot;
+ 
++FLEXLAY_DATADIR          = ${DATADIR}/flexlay
++NETPANZER_EDITOR_DATADIR = ${DATADIR}/netpanzer-editor
++FLEXLAY_PAINT_DATADIR    = ${DATADIR}/flexlay-paint
+ 
+-build: ruby/flexlay_wrap.so netpanzer/netpanzer_wrap.so
+-
+-ruby/flexlay_wrap.so netpanzer/netpanzer_wrap.so:
++build:
+ 	scons
+ 
+ clean:
+@@ -17,58 +18,100 @@
+ 	rm -f .sconsign.dblite
+ 	rm -f config.log
+ 
+-install: install-exec install-data install-man
++install: build install-exec install-data
++
++install-exec: install-flexlay-exec install-flexlay-paint-exec install-netpanzer-editor-exec
++install-data: install-flexlay-data install-flexlay-paint-data install-netpanzer-editor-data
++
++install-flexlay: install-flexlay-exec install-flexlay-data
++install-flexlay-paint: install-flexlay-paint-exec install-flexlay-paint-data
++install-netpanzer-editor: install-netpanzer-editor-exec install-netpanzer-editor-data
++
++install-flexlay-exec:
++	install -D ruby/flexlay_wrap.so ${DESTDIR}${LIBDIR}/flexlay_wrap.so
++
++install-flexlay-data:
++	cd data/; \
++	find -type f \( \
++	-name &quot;*.rb&quot; -o \
++	-name &quot;*.png&quot; -o \
++	-name &quot;*.tga&quot; -o \
++	-name &quot;*.xml&quot; \) \
++	-exec install -m 644 -D {} ${DESTDIR}${FLEXLAY_DATADIR}/{} \;
++
++	cd ruby/; \
++	find -type f \( \
++	-name &quot;*.rb&quot; -o \
++	-name &quot;*.png&quot; -o \
++	-name &quot;*.xml&quot; \) \
++	-exec install -m 644 -D {} ${DESTDIR}${FLEXLAY_DATADIR}/{} \;
++
++install-netpanzer-editor-exec:
++	install -D netpanzer/netpanzer_wrap.so ${DESTDIR}${LIBDIR}/netpanzer_wrap.so 
++
+ 	install -d ${DESTDIR}${BINDIR}
+ 	echo \
+ 	'#!/bin/sh\n'\
+ 	'\n'\
+-	'FLEXLAY_DATADIR=&quot;'${DATADIR}'&quot;\n'\
++	'FLEXLAY_DATADIR=&quot;'${FLEXLAY_DATADIR}'&quot;\n'\
+ 	'export FLEXLAY_DATADIR\n'\
+ 	'\n'\
+-	'NETPANZER_DATADIR=&quot;/usr/share/games/netpanzer/\n&quot;\
++	'NETPANZER_DATADIR=&quot;/usr/share/games/netpanzer/&quot;\n'\
+ 	'export NETPANZER_DATADIR\n'\
+ 	'\n'\
+-	'NETPANZER_EDITOR_DATADIR=&quot;'${DATADIR}'&quot;\n'\
++	'NETPANZER_EDITOR_DATADIR=&quot;'${NETPANZER_EDITOR_DATADIR}'&quot;\n'\
+ 	'export NETPANZER_EDITOR_DATADIR\n'\
+ 	'\n'\
+ 	'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'${LIBDIR}'\n'\
+ 	'export LD_LIBRARY_PATH\n'\
+ 	'\n'\
+-	'RUBYLIB=$$RUBYLIB:${DATADIR}:${LIBDIR}\nexport RUBYLIB\n'\
++	'RUBYLIB=&quot;$$RUBYLIB:'${FLEXLAY_DATADIR}':'${LIBDIR}':'${NETPANZER_EDITOR_DATADIR}'&quot;\nexport RUBYLIB\n'\
+ 	'\n'\
+-	'exec ruby -w '${DATADIR}/netpanzer.rb' &quot;$$@&quot;\n\n'\
++	'exec ruby -w '${NETPANZER_EDITOR_DATADIR}/netpanzer.rb' &quot;$$@&quot;\n\n'\
+ 	'# EOF #' &gt; ${DESTDIR}${BINDIR}/netpanzer-editor
+ 	chmod 755 ${DESTDIR}${BINDIR}/netpanzer-editor
+ 
+-install-data:
+-	cd data/; \
++install-netpanzer-editor-data:
++	cd netpanzer/; \
+ 	find -type f \( \
+ 	-name &quot;*.rb&quot; -o \
+ 	-name &quot;*.png&quot; -o \
+-	-name &quot;*.tga&quot; -o \
+ 	-name &quot;*.xml&quot; \) \
+-	-exec install -D {} ${DESTDIR}${DATADIR}/{} \;
++	-exec install -m 644 -D {} ${DESTDIR}${NETPANZER_EDITOR_DATADIR}/{} \;
+ 
+-	cd ruby/; \
+-	find -type f \( \
+-	-name &quot;*.rb&quot; -o \
+-	-name &quot;*.png&quot; -o \
+-	-name &quot;*.xml&quot; \) \
+-	-exec install -D {} ${DESTDIR}${DATADIR}/{} \;
++install-flexlay-paint-exec:
++	install -d ${DESTDIR}${BINDIR}
++	echo \
++	'#!/bin/sh\n'\
++	'\n'\
++	'FLEXLAY_DATADIR=&quot;'${FLEXLAY_DATADIR}'&quot;\n'\
++	'export FLEXLAY_DATADIR\n'\
++	'\n'\
++	'FLEXLAY_PAINT_DATADIR=&quot;'${FLEXLAY_PAINT_DATADIR}'&quot;\n'\
++	'export FLEXLAY_PAINT_DATADIR\n'\
++	'\n'\
++	'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:'${LIBDIR}'\n'\
++	'export LD_LIBRARY_PATH\n'\
++	'\n'\
++	'RUBYLIB=&quot;$$RUBYLIB:'${FLEXLAY_DATADIR}':'${LIBDIR}':'${FLEXLAY_PAINT_DATADIR}'&quot;\nexport RUBYLIB\n'\
++	'\n'\
++	'exec ruby -w '${FLEXLAY_PAINT_DATADIR}/paint.rb' &quot;$$@&quot;\n\n'\
++	'# EOF #' &gt; ${DESTDIR}${BINDIR}/flexlay-paint
++	chmod 755 ${DESTDIR}${BINDIR}/flexlay-paint
+ 
+-	cd netpanzer/; \
++install-flexlay-paint-data:
++	cd paint/; \
+ 	find -type f \( \
+-	-name &quot;*.rb&quot; -o \
+-	-name &quot;*.png&quot; -o \
+-	-name &quot;*.xml&quot; \) \
+-	-exec install -D {} ${DESTDIR}${DATADIR}/{} \;
++	-name &quot;*.rb&quot; \) \
++	-exec install -m 644 -D {} ${DESTDIR}${FLEXLAY_PAINT_DATADIR}/{} \;
+ 
+-install-exec: build
+-	install -D netpanzer/netpanzer_wrap.so ${DESTDIR}${LIBDIR}/netpanzer_wrap.so 
+-	install -D ruby/flexlay_wrap.so ${DESTDIR}${LIBDIR}/flexlay_wrap.so
++.PHONY : build clean \
++ install install-exec install-data \
++ install-flexlay \
++ install-flexlay-paint \
++ install-netpanzer-editor \
++ install-flexlay-exec          install-flexlay-data \
++ install-netpanzer-editor-exec install-netpanzer-editor-data \
++ install-flexlay-paint-exec    install-flexlay-paint-data
+ 
+-install-man:
+-
+-.PHONY : build clean install install-exec install-data install-man
+-
+ # EOF #
+
+Modified: trunk/flexlay/netpanzer/SConscript
+===================================================================
+--- trunk/flexlay/netpanzer/SConscript	2010-05-14 23:05:59 UTC (rev 747)
++++ trunk/flexlay/netpanzer/SConscript	2010-05-15 04:52:21 UTC (rev 748)
+@@ -39,8 +39,11 @@
+ Help(opts.GenerateHelpText(env))
+ 
+ Depends('netpanzer.i', ['netpanzer.hpp'])
+-env.Command('netpanzer_wrap.cpp', 'netpanzer.i',
++env.Command('netpanzer_wrap.tmp.cpp', 'netpanzer.i',
+             &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
++# FIXME: Temporary ugly workaround for missing definition of GC_VALUE
++env.Command('netpanzer_wrap.cpp', 'netpanzer_wrap.tmp.cpp',
++            'sed &quot;s/GC_VALUE/VALUE/&quot; $SOURCE &gt; $TARGET')
+ 
+ libflexlay_ruby_env = env.Clone()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+
+Modified: trunk/flexlay/netpanzer/gui.rb
+===================================================================
+--- trunk/flexlay/netpanzer/gui.rb	2010-05-14 23:05:59 UTC (rev 747)
++++ trunk/flexlay/netpanzer/gui.rb	2010-05-15 04:52:21 UTC (rev 748)
+@@ -90,34 +90,34 @@
+ 
+     @button_panel = components.get('buttonpanel').component
+ 
+-    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_new.png&quot;,
++    @button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_new.png&quot;,
+                            proc{ gui_level_new() })
+-    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_open.png&quot;, 
++    @button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_open.png&quot;, 
+                            proc{ gui_level_load() })
+-    @button_panel.add_small_icon($config.datadir + &quot;/images/icons24/downarrow.png&quot;, 
++    @button_panel.add_small_icon($flexlay_datadir + &quot;/images/icons24/downarrow.png&quot;, 
+                                  proc{ gui_level_load() })
+-    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_save.png&quot;,
++    @button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_save.png&quot;,
+                            proc{ gui_level_save() })
+-    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_save_as.png&quot;, 
++    @button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_save_as.png&quot;, 
+                            proc{ gui_level_save_as() })
+ 
+     @button_panel.add_separator()
+-    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_copy.png&quot;, proc{})
+-    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_paste.png&quot;, proc{})
++    @button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_copy.png&quot;, proc{})
++    @button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_paste.png&quot;, proc{})
+     @button_panel.add_separator()
+-    @undo_icon = @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_undo.png&quot;, proc{@workspace.get_map().undo()})
+-    @redo_icon = @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_redo.png&quot;, proc{@workspace.get_map().redo()})
++    @undo_icon = @button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_undo.png&quot;, proc{@workspace.get_map().undo()})
++    @redo_icon = @button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_redo.png&quot;, proc{@workspace.get_map().redo()})
+     @button_panel.add_separator()
+ 
+ 
+     @tool_button_panel = ButtonPanel.new(320, 23, $screen.width, 33, true, @gui.get_component)
+     @tool_button_panel.add_separator()
+-    @tool_button_panel.add_icon($config.datadir + &quot;/images/icons24/object_raise.png&quot;, proc{
++    @tool_button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/object_raise.png&quot;, proc{
+                                   $objmap_select_tool.get_selection().each {|obj|
+                                     @workspace.get_map().get_data().objects.raise(obj)
+                                   }
+                                 })
+-    @tool_button_panel.add_icon($config.datadir + &quot;/images/icons24/object_lower.png&quot;, proc{
++    @tool_button_panel.add_icon($flexlay_datadir + &quot;/images/icons24/object_lower.png&quot;, proc{
+                                   $objmap_select_tool.get_selection().each {|obj|
+                                     @workspace.get_map().get_data().objects.lower(obj)
+                                   }
+@@ -126,13 +126,13 @@
+ 
+ 
+     @toolbar = ButtonPanel.new(0, 23+33, 33, 32*4+2, false, @gui.get_component())
+-    @paint = @toolbar.add_icon($config.datadir + &quot;/images/tools/stock-tool-pencil-22.png&quot;,
++    @paint = @toolbar.add_icon($flexlay_datadir + &quot;/images/tools/stock-tool-pencil-22.png&quot;,
+                                method(:set_tilemap_paint_tool))
+-    @select = @toolbar.add_icon($config.datadir + &quot;/images/tools/stock-tool-rect-select-22.png&quot;,
++    @select = @toolbar.add_icon($flexlay_datadir + &quot;/images/tools/stock-tool-rect-select-22.png&quot;,
+                                 method(:set_tilemap_select_tool))
+-    @zoom = @toolbar.add_icon($config.datadir + &quot;/images/tools/stock-tool-zoom-22.png&quot;,
++    @zoom = @toolbar.add_icon($flexlay_datadir + &quot;/images/tools/stock-tool-zoom-22.png&quot;,
+                               method(:set_zoom_tool))
+-    @object = @toolbar.add_icon($config.datadir + &quot;/images/tools/stock-tool-clone-22.png&quot;,
++    @object = @toolbar.add_icon($flexlay_datadir + &quot;/images/tools/stock-tool-clone-22.png&quot;,
+                                 method(:set_objmap_select_tool))
+ 
+     $brushes.each {|i|
+@@ -194,13 +194,13 @@
+                                  $objmap_select_tool.clear_selection()
+                                })
+                  menu.add_separator()
+-                 menu.add_item(make_sprite($config.datadir + &quot;/images/icons16/object_raise.png&quot;), 
++                 menu.add_item(make_sprite($flexlay_datadir + &quot;/images/icons16/object_raise.png&quot;), 
+                                &quot;Raise Selection&quot;, proc{
+                                  $objmap_select_tool.get_selection().each {|obj|
+                                    @workspace.get_map().get_data().objects.raise(obj)
+                                  }
+                                })
+-                 menu.add_item(make_sprite($config.datadir + &quot;/images/icons16/object_lower.png&quot;), 
++                 menu.add_item(make_sprite($flexlay_datadir + &quot;/images/icons16/object_lower.png&quot;), 
+                                &quot;Lower Selection&quot;, proc{
+                                  $objmap_select_tool.get_selection().each {|obj|
+                                    @workspace.get_map().get_data().objects.lower(obj)
+@@ -333,7 +333,7 @@
+       grid_icon.set_up()
+       
+       grid_icon = Icon(CL_Rect(CL_Point(p.inc(48), 2), CL_Size(32, 32)),
+-                       make_sprite($config.datadir + &quot;/images/icons24/grid.png&quot;), &quot;Some tooltip&quot;, button_panel);
++                       make_sprite($flexlay_datadir + &quot;/images/icons24/grid.png&quot;), &quot;Some tooltip&quot;, button_panel);
+       grid_icon.set_callback(proc{gui_toggle_grid})
+ 
+       layer_menu = Menu(CL_Point(32*11+2, 54), $gui.get_component())
+
+Modified: trunk/flexlay/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/flexlay/netpanzer/netpanzer.rb	2010-05-14 23:05:59 UTC (rev 747)
++++ trunk/flexlay/netpanzer/netpanzer.rb	2010-05-15 04:52:21 UTC (rev 748)
+@@ -48,6 +48,7 @@
+ 
+   def initialize()
+     @datadir      = &quot;.&quot;
++    @flexlay_datadir = &quot;.&quot;
+     @recent_files = []
+   end
+ end
+
+Modified: trunk/flexlay/paint/gui.rb
+===================================================================
+--- trunk/flexlay/paint/gui.rb	2010-05-14 23:05:59 UTC (rev 747)
++++ trunk/flexlay/paint/gui.rb	2010-05-15 04:52:21 UTC (rev 748)
+@@ -163,37 +163,37 @@
+             })
+ 
+     button_panel = ButtonPanel.new(0, 0, 33, 33*4, false, @gui.get_component)
+-    button_panel.add_icon(&quot;../data/images/tools/stock-tool-pencil-22.png&quot;, proc{ 
++    button_panel.add_icon($flexlay_datadir + &quot;/images/tools/stock-tool-pencil-22.png&quot;, proc{ 
+                             @workspace.set_tool($sketch_stroke_tool.to_tool())
+                           })
+-    button_panel.add_icon(&quot;../data/images/tools/stock-tool-zoom-22.png&quot;, proc{ 
++    button_panel.add_icon($flexlay_datadir + &quot;/images/tools/stock-tool-zoom-22.png&quot;, proc{ 
+                             @workspace.set_tool($zoom_tool.to_tool())
+                           })
+-    button_panel.add_icon(&quot;../data/images/tools/stock-tool-move-22.png&quot;, proc{ 
++    button_panel.add_icon($flexlay_datadir + &quot;/images/tools/stock-tool-move-22.png&quot;, proc{ 
+                             @workspace.set_tool($layer_move_tool.to_tool())
+                           })
+ 
+-    button_panel.add_icon(&quot;../data/images/tools/stock-tool-clone-22.png&quot;, proc{ 
++    button_panel.add_icon($flexlay_datadir + &quot;/images/tools/stock-tool-clone-22.png&quot;, proc{ 
+                             @workspace.set_tool($objmap_select_tool.to_tool())
+                           })
+ 
+     anim_panel = ButtonPanel.new($screen_rect.get_width()/2 - (32*3)/2-16-32, 0, 32*3+1+16, 33,
+                                  true, @gui.get_component)
+-    anim_panel.add_icon(&quot;../data/images/icons24/stock_new.png&quot;,
++    anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/stock_new.png&quot;,
+                         proc{ $animation.add_frame() })
+     anim_panel.add_separator()
+-    #anim_panel.add_icon(&quot;../data/images/icons24/anim_skipbackward.png&quot;)
+-    #anim_panel.add_icon(&quot;../data/images/icons24/anim_fastbackward.png&quot;)
+-    #anim_panel.add_icon(&quot;../data/images/icons24/anim_playbackward.png&quot;)
+-    #anim_panel.add_icon(&quot;../data/images/icons24/anim_slowmotionbackward.png&quot;)
+-    anim_panel.add_icon(&quot;../data/images/icons24/anim_previous.png&quot;,
++    #anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_skipbackward.png&quot;)
++    #anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_fastbackward.png&quot;)
++    #anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_playbackward.png&quot;)
++    #anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_slowmotionbackward.png&quot;)
++    anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_previous.png&quot;,
+                         proc{ $animation.previous_frame()})
+-    anim_panel.add_icon(&quot;../data/images/icons24/anim_next.png&quot;,
++    anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_next.png&quot;,
+                         proc{ $animation.next_frame()})
+-    #anim_panel.add_icon(&quot;../data/images/icons24/anim_slowmotion.png&quot;)
+-    #anim_panel.add_icon(&quot;../data/images/icons24/anim_play.png&quot;)
+-    #anim_panel.add_icon(&quot;../data/images/icons24/anim_fastforward.png&quot;)
+-    #anim_panel.add_icon(&quot;../data/images/icons24/anim_skipforward.png&quot;)
++    #anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_slowmotion.png&quot;)
++    #anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_play.png&quot;)
++    #anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_fastforward.png&quot;)
++    #anim_panel.add_icon($flexlay_datadir + &quot;/images/icons24/anim_skipforward.png&quot;)
+   end
+ 
+   def quit()
+
+Modified: trunk/flexlay/paint/paint.rb
+===================================================================
+--- trunk/flexlay/paint/paint.rb	2010-05-14 23:05:59 UTC (rev 747)
++++ trunk/flexlay/paint/paint.rb	2010-05-15 04:52:21 UTC (rev 748)
+@@ -26,8 +26,15 @@
+ require &quot;image.rb&quot;
+ require &quot;gui.rb&quot;
+ 
++$flexlay_datadir = &quot;../data&quot;
++
+ flexlay = Flexlay.new()
+ 
++if ENV[&quot;FLEXLAY_DATADIR&quot;] then
++  $flexlay_datadir = ENV[&quot;FLEXLAY_DATADIR&quot;]
++  flexlay.set_datadir($flexlay_datadir)
++end
++
+ # $screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(800, 600))
+ $screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(1024, 768))
+ 
+@@ -61,7 +68,7 @@
+                                                           1.0, # aspect
+                                                           0).to_brush()) # angle
+ else
+-  DrawerProperties.current().set_brush(SpriteBrush.new(make_sprite(&quot;../data/images/brush/brush8.png&quot;)).to_brush)
++  DrawerProperties.current().set_brush(SpriteBrush.new(make_sprite($flexlay_datadir + &quot;/images/brush/brush8.png&quot;)).to_brush)
+ end
+ 
+ $image.layers_count.times {|i|
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000240.html">[Flexlay-commit] r747 - trunk/flexlay
+</A></li>
+	<LI>Next message: <A HREF="000242.html">[Flexlay-commit] r749 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#241">[ date ]</a>
+              <a href="thread.html#241">[ thread ]</a>
+              <a href="subject.html#241">[ subject ]</a>
+              <a href="author.html#241">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

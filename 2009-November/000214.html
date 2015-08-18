@@ -1,0 +1,2110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r722 - in trunk/flexlay/lib: . tools
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r722%20-%20in%20trunk/flexlay/lib%3A%20.%20tools&In-Reply-To=%3C200911220348.nAM3m2jO027015%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000213.html">
+   <LINK REL="Next"  HREF="000215.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r722 - in trunk/flexlay/lib: . tools</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r722%20-%20in%20trunk/flexlay/lib%3A%20.%20tools&In-Reply-To=%3C200911220348.nAM3m2jO027015%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r722 - in trunk/flexlay/lib: . tools">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 04:48:02 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000213.html">[Flexlay-commit] r721 - in trunk/flexlay: . supertux
+</A></li>
+        <LI>Next message: <A HREF="000215.html">[Flexlay-commit] r723 - in trunk/flexlay/lib: . tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#214">[ date ]</a>
+              <a href="thread.html#214">[ thread ]</a>
+              <a href="subject.html#214">[ subject ]</a>
+              <a href="author.html#214">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 04:48:00 +0100 (Sun, 22 Nov 2009)
+New Revision: 722
+
+Modified:
+   trunk/flexlay/lib/bitmap_layer.hpp
+   trunk/flexlay/lib/blitter.hpp
+   trunk/flexlay/lib/box.hpp
+   trunk/flexlay/lib/brush.hpp
+   trunk/flexlay/lib/brush_impl.hpp
+   trunk/flexlay/lib/brushmask.cpp
+   trunk/flexlay/lib/brushmask.hpp
+   trunk/flexlay/lib/colorpicker.cpp
+   trunk/flexlay/lib/colorpicker.hpp
+   trunk/flexlay/lib/command.hpp
+   trunk/flexlay/lib/command_group.hpp
+   trunk/flexlay/lib/command_impl.hpp
+   trunk/flexlay/lib/console.hpp
+   trunk/flexlay/lib/directory_view.hpp
+   trunk/flexlay/lib/drawer_properties.hpp
+   trunk/flexlay/lib/editor_map.hpp
+   trunk/flexlay/lib/editor_map_component.hpp
+   trunk/flexlay/lib/editor_names.hpp
+   trunk/flexlay/lib/field.hpp
+   trunk/flexlay/lib/flexlay.hpp
+   trunk/flexlay/lib/fonts.hpp
+   trunk/flexlay/lib/generated_brush.hpp
+   trunk/flexlay/lib/globals.hpp
+   trunk/flexlay/lib/graphic_context_state.hpp
+   trunk/flexlay/lib/gui_manager.hpp
+   trunk/flexlay/lib/helper.hpp
+   trunk/flexlay/lib/icon.hpp
+   trunk/flexlay/lib/layer.hpp
+   trunk/flexlay/lib/layer_impl.hpp
+   trunk/flexlay/lib/marker_stroke_drawer.hpp
+   trunk/flexlay/lib/math.hpp
+   trunk/flexlay/lib/menu.hpp
+   trunk/flexlay/lib/menubar.hpp
+   trunk/flexlay/lib/meta_data.hpp
+   trunk/flexlay/lib/meta_data_impl.hpp
+   trunk/flexlay/lib/minimap.hpp
+   trunk/flexlay/lib/object_add_command.hpp
+   trunk/flexlay/lib/object_brush.hpp
+   trunk/flexlay/lib/object_delete_command.hpp
+   trunk/flexlay/lib/object_layer.hpp
+   trunk/flexlay/lib/object_move_command.hpp
+   trunk/flexlay/lib/object_selector.hpp
+   trunk/flexlay/lib/object_transform_command.hpp
+   trunk/flexlay/lib/objmap_control_point.cpp
+   trunk/flexlay/lib/objmap_control_point.hpp
+   trunk/flexlay/lib/objmap_object.hpp
+   trunk/flexlay/lib/objmap_object_impl.hpp
+   trunk/flexlay/lib/objmap_path_node.hpp
+   trunk/flexlay/lib/objmap_rect_object.cpp
+   trunk/flexlay/lib/objmap_rect_object.hpp
+   trunk/flexlay/lib/objmap_sprite_object.hpp
+   trunk/flexlay/lib/onion_skin_layer.cpp
+   trunk/flexlay/lib/onion_skin_layer.hpp
+   trunk/flexlay/lib/paint_command.hpp
+   trunk/flexlay/lib/panel.hpp
+   trunk/flexlay/lib/popup_menu.hpp
+   trunk/flexlay/lib/scrollbar.hpp
+   trunk/flexlay/lib/shared_ptr.hpp
+   trunk/flexlay/lib/shared_ptr_comp.hpp
+   trunk/flexlay/lib/sharedptrtest.hpp
+   trunk/flexlay/lib/sketch_layer.hpp
+   trunk/flexlay/lib/slider.hpp
+   trunk/flexlay/lib/sprite_brush.cpp
+   trunk/flexlay/lib/sprite_brush.hpp
+   trunk/flexlay/lib/sprite_stroke_drawer.hpp
+   trunk/flexlay/lib/string_converter.hpp
+   trunk/flexlay/lib/stroke.hpp
+   trunk/flexlay/lib/stroke_drawer.hpp
+   trunk/flexlay/lib/stroke_drawer_impl.hpp
+   trunk/flexlay/lib/tile.hpp
+   trunk/flexlay/lib/tile_brush.hpp
+   trunk/flexlay/lib/tile_editor.hpp
+   trunk/flexlay/lib/tile_provider.hpp
+   trunk/flexlay/lib/tile_provider_impl.hpp
+   trunk/flexlay/lib/tile_selection.hpp
+   trunk/flexlay/lib/tile_selector.hpp
+   trunk/flexlay/lib/tilemap_layer.hpp
+   trunk/flexlay/lib/tilemap_minimap.hpp
+   trunk/flexlay/lib/tileset.hpp
+   trunk/flexlay/lib/titlebar.hpp
+   trunk/flexlay/lib/tools/layer_move_tool.cpp
+   trunk/flexlay/lib/tools/layer_move_tool.hpp
+   trunk/flexlay/lib/tools/objmap_select_tool.hpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.cpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_paint_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+   trunk/flexlay/lib/tools/tool.hpp
+   trunk/flexlay/lib/tools/tool_impl.hpp
+   trunk/flexlay/lib/tools/workspace_move_tool.cpp
+   trunk/flexlay/lib/tools/workspace_move_tool.hpp
+   trunk/flexlay/lib/tools/zoom2_tool.hpp
+   trunk/flexlay/lib/tools/zoom_tool.hpp
+   trunk/flexlay/lib/viewport.hpp
+   trunk/flexlay/lib/window.hpp
+   trunk/flexlay/lib/workspace.hpp
+Log:
+Header and include guard cleanup
+
+Modified: trunk/flexlay/lib/bitmap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/bitmap_layer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_BITMAP_LAYER_HXX
+-#define HEADER_BITMAP_LAYER_HXX
++#ifndef HEADER_FLEXLAY_BITMAP_LAYER_HPP
++#define HEADER_FLEXLAY_BITMAP_LAYER_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+
+Modified: trunk/flexlay/lib/blitter.hpp
+===================================================================
+--- trunk/flexlay/lib/blitter.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/blitter.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_BLITTER_HXX
+-#define HEADER_BLITTER_HXX
++#ifndef HEADER_FLEXLAY_BLITTER_HPP
++#define HEADER_FLEXLAY_BLITTER_HPP
+ 
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ 
+
+Modified: trunk/flexlay/lib/box.hpp
+===================================================================
+--- trunk/flexlay/lib/box.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/box.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_BOX_HXX
+-#define HEADER_BOX_HXX
++#ifndef HEADER_FLEXLAY_BOX_HPP
++#define HEADER_FLEXLAY_BOX_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ 
+
+Modified: trunk/flexlay/lib/brush.hpp
+===================================================================
+--- trunk/flexlay/lib/brush.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/brush.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_BRUSH_HXX
+-#define HEADER_BRUSH_HXX
++#ifndef HEADER_FLEXLAY_BRUSH_HPP
++#define HEADER_FLEXLAY_BRUSH_HPP
+ 
+ #include &quot;brush_impl.hpp&quot;
+ #include &quot;shared_ptr.hpp&quot;
+
+Modified: trunk/flexlay/lib/brush_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/brush_impl.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/brush_impl.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_BRUSH_IMPL_HXX
+-#define HEADER_BRUSH_IMPL_HXX
++#ifndef HEADER_FLEXLAY_BRUSH_IMPL_HPP
++#define HEADER_FLEXLAY_BRUSH_IMPL_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ 
+
+Modified: trunk/flexlay/lib/brushmask.cpp
+===================================================================
+--- trunk/flexlay/lib/brushmask.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/brushmask.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/brushmask.hpp
+===================================================================
+--- trunk/flexlay/lib/brushmask.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/brushmask.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_BRUSHMASK_HXX
+-#define HEADER_BRUSHMASK_HXX
++#ifndef HEADER_FLEXLAY_BRUSHMASK_HPP
++#define HEADER_FLEXLAY_BRUSHMASK_HPP
+ 
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ 
+
+Modified: trunk/flexlay/lib/colorpicker.cpp
+===================================================================
+--- trunk/flexlay/lib/colorpicker.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/colorpicker.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/colorpicker.hpp
+===================================================================
+--- trunk/flexlay/lib/colorpicker.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/colorpicker.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_COLORPICKER_HXX
+-#define HEADER_COLORPICKER_HXX
++#ifndef HEADER_FLEXLAY_COLORPICKER_HPP
++#define HEADER_FLEXLAY_COLORPICKER_HPP
+ 
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;ClanLib/Display/color.h&gt;
+
+Modified: trunk/flexlay/lib/command.hpp
+===================================================================
+--- trunk/flexlay/lib/command.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/command.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_COMMAND_HXX
+-#define HEADER_COMMAND_HXX
++#ifndef HEADER_FLEXLAY_COMMAND_HPP
++#define HEADER_FLEXLAY_COMMAND_HPP
+ 
+ #include &lt;iosfwd&gt;
+ #include &quot;shared_ptr.hpp&quot;
+
+Modified: trunk/flexlay/lib/command_group.hpp
+===================================================================
+--- trunk/flexlay/lib/command_group.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/command_group.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_COMMAND_GROUP_HXX
+-#define HEADER_COMMAND_GROUP_HXX
++#ifndef HEADER_FLEXLAY_COMMAND_GROUP_HPP
++#define HEADER_FLEXLAY_COMMAND_GROUP_HPP
+ 
+ #include &lt;vector&gt;
+ #include &quot;command.hpp&quot;
+
+Modified: trunk/flexlay/lib/command_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/command_impl.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/command_impl.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -15,8 +13,8 @@
+ //  
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-#ifndef HEADER_COMMAND_IMPL_HXX
+-#define HEADER_COMMAND_IMPL_HXX
++#ifndef HEADER_FLEXLAY_COMMAND_IMPL_HPP
++#define HEADER_FLEXLAY_COMMAND_IMPL_HPP
+ 
+ /** */
+ class CommandImpl
+
+Modified: trunk/flexlay/lib/console.hpp
+===================================================================
+--- trunk/flexlay/lib/console.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/console.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_CONSOLE_HXX
+-#define HEADER_CONSOLE_HXX
++#ifndef HEADER_FLEXLAY_CONSOLE_HPP
++#define HEADER_FLEXLAY_CONSOLE_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &quot;shared_ptr.hpp&quot;
+
+Modified: trunk/flexlay/lib/directory_view.hpp
+===================================================================
+--- trunk/flexlay/lib/directory_view.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/directory_view.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_DIRECTORY_VIEW_HXX
+-#define HEADER_DIRECTORY_VIEW_HXX
++#ifndef HEADER_FLEXLAY_DIRECTORY_VIEW_HPP
++#define HEADER_FLEXLAY_DIRECTORY_VIEW_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &quot;shared_ptr.hpp&quot;
+
+Modified: trunk/flexlay/lib/drawer_properties.hpp
+===================================================================
+--- trunk/flexlay/lib/drawer_properties.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/drawer_properties.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_DRAWER_PROPERTIES_HXX
+-#define HEADER_DRAWER_PROPERTIES_HXX
++#ifndef HEADER_FLEXLAY_DRAWER_PROPERTIES_HPP
++#define HEADER_FLEXLAY_DRAWER_PROPERTIES_HPP
+ 
+ #include &lt;ClanLib/Display/color.h&gt;
+ #include &quot;brush.hpp&quot;
+
+Modified: trunk/flexlay/lib/editor_map.hpp
+===================================================================
+--- trunk/flexlay/lib/editor_map.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/editor_map.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_EDITOR_MAP_HXX
+-#define HEADER_EDITOR_MAP_HXX
++#ifndef HEADER_FLEXLAY_EDITOR_MAP_HPP
++#define HEADER_FLEXLAY_EDITOR_MAP_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+
+Modified: trunk/flexlay/lib/editor_map_component.hpp
+===================================================================
+--- trunk/flexlay/lib/editor_map_component.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/editor_map_component.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_EDITOR_MAP_COMPONENT_HXX
+-#define HEADER_EDITOR_MAP_COMPONENT_HXX
++#ifndef HEADER_FLEXLAY_EDITOR_MAP_COMPONENT_HPP
++#define HEADER_FLEXLAY_EDITOR_MAP_COMPONENT_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+
+Modified: trunk/flexlay/lib/editor_names.hpp
+===================================================================
+--- trunk/flexlay/lib/editor_names.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/editor_names.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_EDITOR_NAMES_HXX
+-#define HEADER_EDITOR_NAMES_HXX
++#ifndef HEADER_FLEXLAY_EDITOR_NAMES_HPP
++#define HEADER_FLEXLAY_EDITOR_NAMES_HPP
+ 
+ enum { TILEMAP_NAME = 0, OBJECTMAP_NAME = 1 };
+ enum { PAINT_TOOL_NAME = 0, SELECT_TOOL_NAME = 1, DIAMOND_TOOL = 2, OBJECT_TOOL_NAME = 3 }; 
+
+Modified: trunk/flexlay/lib/field.hpp
+===================================================================
+--- trunk/flexlay/lib/field.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/field.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -16,8 +16,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef FIELD_HXX
+-#define FIELD_HXX
++#ifndef HEADER_FLEXLAY_FIELD_HPP
++#define HEADER_FLEXLAY_FIELD_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;assert.h&gt;
+
+Modified: trunk/flexlay/lib/flexlay.hpp
+===================================================================
+--- trunk/flexlay/lib/flexlay.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/flexlay.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_FLEXLAY_HXX
+-#define HEADER_FLEXLAY_HXX
++#ifndef HEADER_FLEXLAY_FLEXLAY_HPP
++#define HEADER_FLEXLAY_FLEXLAY_HPP
+ 
+ #include &lt;ClanLib/Display/display_window.h&gt;
+ #include &lt;ClanLib/Core/Resources/resource_manager.h&gt;
+
+Modified: trunk/flexlay/lib/fonts.hpp
+===================================================================
+--- trunk/flexlay/lib/fonts.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/fonts.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_FONTS_HXX
+-#define HEADER_FONTS_HXX
++#ifndef HEADER_FLEXLAY_FONTS_HPP
++#define HEADER_FLEXLAY_FONTS_HPP
+ 
+ #include &lt;ClanLib/Display/font.h&gt;
+ 
+
+Modified: trunk/flexlay/lib/generated_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/generated_brush.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/generated_brush.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_GENERATED_BRUSH_HXX
+-#define HEADER_GENERATED_BRUSH_HXX
++#ifndef HEADER_FLEXLAY_GENERATED_BRUSH_HPP
++#define HEADER_FLEXLAY_GENERATED_BRUSH_HPP
+ 
+ #include &quot;shared_ptr.hpp&quot;
+ #include &quot;brushmask.hpp&quot;
+
+Modified: trunk/flexlay/lib/globals.hpp
+===================================================================
+--- trunk/flexlay/lib/globals.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/globals.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -16,8 +16,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef GLOBALS_HXX
+-#define GLOBALS_HXX
++#ifndef HEADER_FLEXLAY_GLOBALS_HPP
++#define HEADER_FLEXLAY_GLOBALS_HPP
+ 
+ #include &lt;string&gt;
+ #include &lt;ClanLib/Core/Resources/resource_manager.h&gt;
+
+Modified: trunk/flexlay/lib/graphic_context_state.hpp
+===================================================================
+--- trunk/flexlay/lib/graphic_context_state.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/graphic_context_state.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_GRAPHIC_CONTEXT_STATE_HXX
+-#define HEADER_GRAPHIC_CONTEXT_STATE_HXX
++#ifndef HEADER_FLEXLAY_GRAPHIC_CONTEXT_STATE_HPP
++#define HEADER_FLEXLAY_GRAPHIC_CONTEXT_STATE_HPP
+ 
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+
+Modified: trunk/flexlay/lib/gui_manager.hpp
+===================================================================
+--- trunk/flexlay/lib/gui_manager.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/gui_manager.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -16,8 +16,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_GUI_MANAGER_HXX
+-#define HEADER_GUI_MANAGER_HXX
++#ifndef HEADER_FLEXLAY_GUI_MANAGER_HPP
++#define HEADER_FLEXLAY_GUI_MANAGER_HPP
+ 
+ #include &quot;shared_ptr.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/helper.hpp
+===================================================================
+--- trunk/flexlay/lib/helper.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/helper.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_HELPER_HXX
+-#define HEADER_HELPER_HXX
++#ifndef HEADER_FLEXLAY_HELPER_HPP
++#define HEADER_FLEXLAY_HELPER_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+
+Modified: trunk/flexlay/lib/icon.hpp
+===================================================================
+--- trunk/flexlay/lib/icon.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/icon.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_ICON_HXX
+-#define HEADER_ICON_HXX
++#ifndef HEADER_FLEXLAY_ICON_HPP
++#define HEADER_FLEXLAY_ICON_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+
+Modified: trunk/flexlay/lib/layer.hpp
+===================================================================
+--- trunk/flexlay/lib/layer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/layer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_LAYER_HXX
+-#define HEADER_LAYER_HXX
++#ifndef HEADER_FLEXLAY_LAYER_HPP
++#define HEADER_FLEXLAY_LAYER_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+
+Modified: trunk/flexlay/lib/layer_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/layer_impl.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/layer_impl.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_LAYER_IMPL_HXX
+-#define HEADER_LAYER_IMPL_HXX
++#ifndef HEADER_FLEXLAY_LAYER_IMPL_HPP
++#define HEADER_FLEXLAY_LAYER_IMPL_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+
+Modified: trunk/flexlay/lib/marker_stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/marker_stroke_drawer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/marker_stroke_drawer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_MARKER_STROKE_DRAWER_HXX
+-#define HEADER_MARKER_STROKE_DRAWER_HXX
++#ifndef HEADER_FLEXLAY_MARKER_STROKE_DRAWER_HPP
++#define HEADER_FLEXLAY_MARKER_STROKE_DRAWER_HPP
+ 
+ #include &quot;stroke_drawer.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/math.hpp
+===================================================================
+--- trunk/flexlay/lib/math.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/math.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_MATH_HXX
+-#define HEADER_MATH_HXX
++#ifndef HEADER_FLEXLAY_MATH_HPP
++#define HEADER_FLEXLAY_MATH_HPP
+ 
+ namespace Math {
+ 
+
+Modified: trunk/flexlay/lib/menu.hpp
+===================================================================
+--- trunk/flexlay/lib/menu.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/menu.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_MENU_HXX
+-#define HEADER_MENU_HXX
++#ifndef HEADER_FLEXLAY_MENU_HPP
++#define HEADER_FLEXLAY_MENU_HPP
+ 
+ #include &lt;string&gt;
+ #include &lt;ClanLib/GUI/component.h&gt;
+
+Modified: trunk/flexlay/lib/menubar.hpp
+===================================================================
+--- trunk/flexlay/lib/menubar.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/menubar.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_MENUBAR_HXX
+-#define HEADER_MENUBAR_HXX
++#ifndef HEADER_FLEXLAY_MENUBAR_HPP
++#define HEADER_FLEXLAY_MENUBAR_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+
+Modified: trunk/flexlay/lib/meta_data.hpp
+===================================================================
+--- trunk/flexlay/lib/meta_data.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/meta_data.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_META_DATA_HXX
+-#define HEADER_META_DATA_HXX
++#ifndef HEADER_FLEXLAY_META_DATA_HPP
++#define HEADER_FLEXLAY_META_DATA_HPP
+ 
+ #include &quot;shared_ptr.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/meta_data_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/meta_data_impl.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/meta_data_impl.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_META_DATA_IMPL_HXX
+-#define HEADER_META_DATA_IMPL_HXX
++#ifndef HEADER_FLEXLAY_META_DATA_IMPL_HPP
++#define HEADER_FLEXLAY_META_DATA_IMPL_HPP
+ 
+ /** */
+ class MetaDataImpl
+
+Modified: trunk/flexlay/lib/minimap.hpp
+===================================================================
+--- trunk/flexlay/lib/minimap.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/minimap.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_MINIMAP_HXX
+-#define HEADER_MINIMAP_HXX
++#ifndef HEADER_FLEXLAY_MINIMAP_HPP
++#define HEADER_FLEXLAY_MINIMAP_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ 
+
+Modified: trunk/flexlay/lib/object_add_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_add_command.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/object_add_command.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJECT_ADD_COMMAND_HXX
+-#define HEADER_OBJECT_ADD_COMMAND_HXX
++#ifndef HEADER_FLEXLAY_OBJECT_ADD_COMMAND_HPP
++#define HEADER_FLEXLAY_OBJECT_ADD_COMMAND_HPP
+ 
+ #include &quot;objmap_object.hpp&quot;
+ #include &quot;command.hpp&quot;
+
+Modified: trunk/flexlay/lib/object_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/object_brush.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/object_brush.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJECT_BRUSH_HXX
+-#define HEADER_OBJECT_BRUSH_HXX
++#ifndef HEADER_FLEXLAY_OBJECT_BRUSH_HPP
++#define HEADER_FLEXLAY_OBJECT_BRUSH_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+
+Modified: trunk/flexlay/lib/object_delete_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_delete_command.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/object_delete_command.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJECT_DELETE_COMMAND_HXX
+-#define HEADER_OBJECT_DELETE_COMMAND_HXX
++#ifndef HEADER_FLEXLAY_OBJECT_DELETE_COMMAND_HPP
++#define HEADER_FLEXLAY_OBJECT_DELETE_COMMAND_HPP
+ 
+ #include &lt;vector&gt;
+ #include &quot;objmap_object.hpp&quot;
+
+Modified: trunk/flexlay/lib/object_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/object_layer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/object_layer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJECT_LAYER_HXX
+-#define HEADER_OBJECT_LAYER_HXX
++#ifndef HEADER_FLEXLAY_OBJECT_LAYER_HPP
++#define HEADER_FLEXLAY_OBJECT_LAYER_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+
+Modified: trunk/flexlay/lib/object_move_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_move_command.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/object_move_command.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJECT_COMMAND_HXX
+-#define HEADER_OBJECT_COMMAND_HXX
++#ifndef HEADER_FLEXLAY_OBJECT_MOVE_COMMAND_HPP
++#define HEADER_FLEXLAY_OBJECT_MOVE_COMMAND_HPP
+ 
+ #include &quot;command.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/object_selector.hpp
+===================================================================
+--- trunk/flexlay/lib/object_selector.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/object_selector.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJECTSELECTOR_HXX
+-#define HEADER_OBJECTSELECTOR_HXX
++#ifndef HEADER_FLEXLAY_OBJECT_SELECTOR_HPP
++#define HEADER_FLEXLAY_OBJECT_SELECTOR_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/GUI/component.h&gt;
+
+Modified: trunk/flexlay/lib/object_transform_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_transform_command.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/object_transform_command.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJECT_TRANSFORM_COMMAND_HXX
+-#define HEADER_OBJECT_TRANSFORM_COMMAND_HXX
++#ifndef HEADER_FLEXLAY_OBJECT_TRANSFORM_COMMAND_HPP
++#define HEADER_FLEXLAY_OBJECT_TRANSFORM_COMMAND_HPP
+ 
+ #include &lt;vector&gt;
+ #include &quot;command.hpp&quot;
+
+Modified: trunk/flexlay/lib/objmap_control_point.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_control_point.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/objmap_control_point.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/objmap_control_point.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_control_point.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/objmap_control_point.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJMAP_CONTROL_POINT_HXX
+-#define HEADER_OBJMAP_CONTROL_POINT_HXX
++#ifndef HEADER_FLEXLAY_OBJMAP_CONTROL_POINT_HPP
++#define HEADER_FLEXLAY_OBJMAP_CONTROL_POINT_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+
+Modified: trunk/flexlay/lib/objmap_object.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/objmap_object.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJMAP_OBJECT_HXX
+-#define HEADER_OBJMAP_OBJECT_HXX
++#ifndef HEADER_FLEXLAY_OBJMAP_OBJECT_HPP
++#define HEADER_FLEXLAY_OBJMAP_OBJECT_HPP
+ 
+ #include &lt;ClanLib/signals.h&gt;
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+
+Modified: trunk/flexlay/lib/objmap_object_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object_impl.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/objmap_object_impl.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJMAP_OBJECT_IMPL_HXX
+-#define HEADER_OBJMAP_OBJECT_IMPL_HXX
++#ifndef HEADER_FLEXLAY_OBJMAP_OBJECT_IMPL_HPP
++#define HEADER_FLEXLAY_OBJMAP_OBJECT_IMPL_HPP
+ 
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+
+Modified: trunk/flexlay/lib/objmap_path_node.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_path_node.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/objmap_path_node.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJMAP_PATH_NODE_HXX
+-#define HEADER_OBJMAP_PATH_NODE_HXX
++#ifndef HEADER_FLEXLAY_OBJMAP_PATH_NODE_HPP
++#define HEADER_FLEXLAY_OBJMAP_PATH_NODE_HPP
+ 
+ #include &quot;objmap_object.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/objmap_rect_object.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_rect_object.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/objmap_rect_object.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/objmap_rect_object.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_rect_object.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/objmap_rect_object.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJMAP_RECT_OBJECT_HXX
+-#define HEADER_OBJMAP_RECT_OBJECT_HXX
++#ifndef HEADER_FLEXLAY_OBJMAP_RECT_OBJECT_HPP
++#define HEADER_FLEXLAY_OBJMAP_RECT_OBJECT_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Display/color.h&gt;
+
+Modified: trunk/flexlay/lib/objmap_sprite_object.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_sprite_object.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/objmap_sprite_object.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_OBJMAP_SPRITE_OBJECT_HXX
+-#define HEADER_OBJMAP_SPRITE_OBJECT_HXX
++#ifndef HEADER_FLEXLAY_OBJMAP_SPRITE_OBJECT_HPP
++#define HEADER_FLEXLAY_OBJMAP_SPRITE_OBJECT_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+
+Modified: trunk/flexlay/lib/onion_skin_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/onion_skin_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/onion_skin_layer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_ONION_SKIN_LAYER_HXX
+-#define HEADER_ONION_SKIN_LAYER_HXX
++#ifndef HEADER_FLEXLAY_ONION_SKIN_LAYER_HPP
++#define HEADER_FLEXLAY_ONION_SKIN_LAYER_HPP
+ 
+ #include &quot;editor_map.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/paint_command.hpp
+===================================================================
+--- trunk/flexlay/lib/paint_command.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/paint_command.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_PAINT_COMMAND_HXX
+-#define HEADER_PAINT_COMMAND_HXX
++#ifndef HEADER_FLEXLAY_PAINT_COMMAND_HPP
++#define HEADER_FLEXLAY_PAINT_COMMAND_HPP
+ 
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &quot;tile_brush.hpp&quot;
+
+Modified: trunk/flexlay/lib/panel.hpp
+===================================================================
+--- trunk/flexlay/lib/panel.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/panel.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_PANEL_HXX
+-#define HEADER_PANEL_HXX
++#ifndef HEADER_FLEXLAY_PANEL_HPP
++#define HEADER_FLEXLAY_PANEL_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+
+Modified: trunk/flexlay/lib/popup_menu.hpp
+===================================================================
+--- trunk/flexlay/lib/popup_menu.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/popup_menu.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_POPUP_MENU_HXX
+-#define HEADER_POPUP_MENU_HXX
++#ifndef HEADER_FLEXLAY_POPUP_MENU_HPP
++#define HEADER_FLEXLAY_POPUP_MENU_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Signals/slot.h&gt;
+
+Modified: trunk/flexlay/lib/scrollbar.hpp
+===================================================================
+--- trunk/flexlay/lib/scrollbar.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/scrollbar.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_SCROLLBAR_HXX
+-#define HEADER_SCROLLBAR_HXX
++#ifndef HEADER_FLEXLAY_SCROLLBAR_HPP
++#define HEADER_FLEXLAY_SCROLLBAR_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+
+Modified: trunk/flexlay/lib/shared_ptr.hpp
+===================================================================
+--- trunk/flexlay/lib/shared_ptr.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/shared_ptr.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_SHARED_PTR_HXX
+-#define HEADER_SHARED_PTR_HXX
++#ifndef HEADER_FLEXLAY_SHARED_PTR_HPP
++#define HEADER_FLEXLAY_SHARED_PTR_HPP
+ 
+ #include &lt;assert.h&gt;
+ 
+
+Modified: trunk/flexlay/lib/shared_ptr_comp.hpp
+===================================================================
+--- trunk/flexlay/lib/shared_ptr_comp.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/shared_ptr_comp.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_SHARED_PTR_HXX
+-#define HEADER_SHARED_PTR_HXX
++#ifndef HEADER_FLEXLAY_SHARED_PTR_COMP_HPP
++#define HEADER_FLEXLAY_SHARED_PTR_COMP_HPP
+ 
+ #include &lt;iostream&gt;
+ #include &lt;typeinfo&gt;
+
+Modified: trunk/flexlay/lib/sharedptrtest.hpp
+===================================================================
+--- trunk/flexlay/lib/sharedptrtest.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/sharedptrtest.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_SHAREDPTRTEST_HXX
+-#define HEADER_SHAREDPTRTEST_HXX
++#ifndef HEADER_FLEXLAY_SHAREDPTRTEST_HPP
++#define HEADER_FLEXLAY_SHAREDPTRTEST_HPP
+ 
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/sketch_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/sketch_layer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_SKETCH_LAYER_HXX
+-#define HEADER_SKETCH_LAYER_HXX
++#ifndef HEADER_FLEXLAY_SKETCH_LAYER_HPP
++#define HEADER_FLEXLAY_SKETCH_LAYER_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+
+Modified: trunk/flexlay/lib/slider.hpp
+===================================================================
+--- trunk/flexlay/lib/slider.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/slider.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_SLIDER_HXX
+-#define HEADER_SLIDER_HXX
++#ifndef HEADER_FLEXLAY_SLIDER_HPP
++#define HEADER_FLEXLAY_SLIDER_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/GUI/component.h&gt;
+
+Modified: trunk/flexlay/lib/sprite_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/sprite_brush.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/sprite_brush.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/sprite_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/sprite_brush.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/sprite_brush.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_SPRITE_BRUSH_HXX
+-#define HEADER_SPRITE_BRUSH_HXX
++#ifndef HEADER_FLEXLAY_SPRITE_BRUSH_HPP
++#define HEADER_FLEXLAY_SPRITE_BRUSH_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &quot;brush.hpp&quot;
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/sprite_stroke_drawer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_SPRITE_STROKE_DRAWER_HXX
+-#define HEADER_SPRITE_STROKE_DRAWER_HXX
++#ifndef HEADER_FLEXLAY_SPRITE_STROKE_DRAWER_HPP
++#define HEADER_FLEXLAY_SPRITE_STROKE_DRAWER_HPP
+ 
+ #include &lt;ClanLib/Display/color.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+
+Modified: trunk/flexlay/lib/string_converter.hpp
+===================================================================
+--- trunk/flexlay/lib/string_converter.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/string_converter.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -16,8 +16,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef STRINGCONVERTER_HXX
+-#define STRINGCONVERTER_HXX
++#ifndef HEADER_FLEXLAY_STRING_CONVERTER_HPP
++#define HEADER_FLEXLAY_STRING_CONVERTER_HPP
+ 
+ #include &lt;stdexcept&gt;
+ #include &lt;sstream&gt;
+
+Modified: trunk/flexlay/lib/stroke.hpp
+===================================================================
+--- trunk/flexlay/lib/stroke.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/stroke.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_STROKE_HXX
+-#define HEADER_STROKE_HXX
++#ifndef HEADER_FLEXLAY_STROKE_HPP
++#define HEADER_FLEXLAY_STROKE_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+
+Modified: trunk/flexlay/lib/stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/stroke_drawer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_STROKE_DRAWER_HXX
+-#define HEADER_STROKE_DRAWER_HXX
++#ifndef HEADER_FLEXLAY_STROKE_DRAWER_HPP
++#define HEADER_FLEXLAY_STROKE_DRAWER_HPP
+ 
+ #include &quot;shared_ptr.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/stroke_drawer_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer_impl.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/stroke_drawer_impl.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_STROKE_DRAWER_IMPL_HXX
+-#define HEADER_STROKE_DRAWER_IMPL_HXX
++#ifndef HEADER_FLEXLAY_STROKE_DRAWER_IMPL_HPP
++#define HEADER_FLEXLAY_STROKE_DRAWER_IMPL_HPP
+ 
+ class CL_GraphicContext;
+ class Stroke;
+
+Modified: trunk/flexlay/lib/tile.hpp
+===================================================================
+--- trunk/flexlay/lib/tile.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tile.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -16,8 +16,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_TILE_HXX
+-#define HEADER_TILE_HXX
++#ifndef HEADER_FLEXLAY_TILE_HPP
++#define HEADER_FLEXLAY_TILE_HPP
+ 
+ #include &lt;assert.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+
+Modified: trunk/flexlay/lib/tile_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_brush.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tile_brush.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_EDITOR_TILE_BRUSH_HXX
+-#define HEADER_EDITOR_TILE_BRUSH_HXX
++#ifndef HEADER_FLEXLAY_TILE_BRUSH_HPP
++#define HEADER_FLEXLAY_TILE_BRUSH_HPP
+ 
+ #include &quot;field.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tile_editor.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_editor.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tile_editor.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -16,8 +16,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_TILE_EDITOR_HXX
+-#define HEADER_TILE_EDITOR_HXX
++#ifndef HEADER_FLEXLAY_TILE_EDITOR_HPP
++#define HEADER_FLEXLAY_TILE_EDITOR_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Signals/slot_container.h&gt;
+
+Modified: trunk/flexlay/lib/tile_provider.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_provider.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tile_provider.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_TILE_PROVIDER_HXX
+-#define HEADER_TILE_PROVIDER_HXX
++#ifndef HEADER_FLEXLAY_TILE_PROVIDER_HPP
++#define HEADER_FLEXLAY_TILE_PROVIDER_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+
+Modified: trunk/flexlay/lib/tile_provider_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_provider_impl.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tile_provider_impl.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_TILE_PROVIDER_IMPL_HXX
+-#define HEADER_TILE_PROVIDER_IMPL_HXX
++#ifndef HEADER_FLEXLAY_TILE_PROVIDER_IMPL_HPP
++#define HEADER_FLEXLAY_TILE_PROVIDER_IMPL_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+
+Modified: trunk/flexlay/lib/tile_selection.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_selection.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tile_selection.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_TILE_SELECTION_HXX
+-#define HEADER_TILE_SELECTION_HXX
++#ifndef HEADER_FLEXLAY_TILE_SELECTION_HPP
++#define HEADER_FLEXLAY_TILE_SELECTION_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Display/color.h&gt;
+
+Modified: trunk/flexlay/lib/tile_selector.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_selector.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tile_selector.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -16,8 +16,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef TILESELECTOR_HXX
+-#define TILESELECTOR_HXX
++#ifndef HEADER_FLEXLAY_TILE_SELECTOR_HPP
++#define HEADER_FLEXLAY_TILE_SELECTOR_HPP
+ 
+ #include &lt;ClanLib/gui.h&gt;
+ #include &quot;tileset.hpp&quot;
+
+Modified: trunk/flexlay/lib/tilemap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tilemap_layer.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_TILEMAP_LAYER_HXX
+-#define HEADER_TILEMAP_LAYER_HXX
++#ifndef HEADER_FLEXLAY_TILEMAP_LAYER_HPP
++#define HEADER_FLEXLAY_TILEMAP_LAYER_HPP
+ 
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &quot;field.hpp&quot;
+
+Modified: trunk/flexlay/lib/tilemap_minimap.hpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_minimap.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tilemap_minimap.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_TILEMAP_MINIMAP_HXX
+-#define HEADER_TILEMAP_MINIMAP_HXX
++#ifndef HEADER_FLEXLAY_TILEMAP_MINIMAP_HPP
++#define HEADER_FLEXLAY_TILEMAP_MINIMAP_HPP
+ 
+ /** */
+ class TilemapMinimap
+
+Modified: trunk/flexlay/lib/tileset.hpp
+===================================================================
+--- trunk/flexlay/lib/tileset.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tileset.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -16,8 +16,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef TILESET_HXX
+-#define TILESET_HXX
++#ifndef HEADER_FLEXLAY_TILESET_HPP
++#define HEADER_FLEXLAY_TILESET_HPP
+ 
+ #include &lt;vector&gt;
+ #include &lt;string&gt;
+
+Modified: trunk/flexlay/lib/titlebar.hpp
+===================================================================
+--- trunk/flexlay/lib/titlebar.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/titlebar.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_TITLEBAR_HXX
+-#define HEADER_TITLEBAR_HXX
++#ifndef HEADER_FLEXLAY_TITLEBAR_HPP
++#define HEADER_FLEXLAY_TITLEBAR_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+
+Modified: trunk/flexlay/lib/tools/layer_move_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/layer_move_tool.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/layer_move_tool.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tools/layer_move_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/layer_move_tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/layer_move_tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -17,8 +15,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_LAYER_MOVE_TOOL_HXX
+-#define HEADER_LAYER_MOVE_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_LAYER_MOVE_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_LAYER_MOVE_TOOL_HPP
+ 
+ #include &quot;tool.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tools/objmap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/objmap_select_tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/objmap_select_tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -17,8 +17,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_OBJMAP_SELECT_TOOL_HXX
+-#define HEADER_OBJMAP_SELECT_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_OBJMAP_SELECT_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_OBJMAP_SELECT_TOOL_HPP
+ 
+ #include &quot;object_layer.hpp&quot;
+ #include &quot;object_brush.hpp&quot;
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software; you can redistribute it and/or
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,6 +1,4 @@
+-//  $Id$
+-// 
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software; you can redistribute it and/or
+@@ -17,8 +15,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_SKETCH_STROKE_TOOL_HXX
+-#define HEADER_SKETCH_STROKE_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_SKETCH_STROKE_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_SKETCH_STROKE_TOOL_HPP
+ 
+ #include &quot;tool_impl.hpp&quot;
+ #include &quot;stroke_drawer.hpp&quot;
+
+Modified: trunk/flexlay/lib/tools/tilemap_paint_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_paint_tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/tilemap_paint_tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -17,8 +17,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_TILEMAP_PAINT_TOOL_HXX
+-#define HEADER_TILEMAP_PAINT_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_TILEMAP_PAINT_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_TILEMAP_PAINT_TOOL_HPP
+ 
+ #include &quot;tool.hpp&quot;
+ #include &quot;tile_brush.hpp&quot;
+
+Modified: trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id: tilemap_select_tool.hpp,v 1.1 2003/09/23 22:10:40 grumbel Exp $
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -17,8 +15,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_TILEMAP_SELECT_TOOL_HXX
+-#define HEADER_TILEMAP_SELECT_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_TILEMAP_SELECT_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_TILEMAP_SELECT_TOOL_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+
+Modified: trunk/flexlay/lib/tools/tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -17,8 +17,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_TILEMAP_TOOL_HXX
+-#define HEADER_TILEMAP_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_TOOL_HPP
+ 
+ class EditorMapComponent;
+ class CL_InputEvent;
+
+Modified: trunk/flexlay/lib/tools/tool_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool_impl.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/tool_impl.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -17,8 +17,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_TOOL_IMPL_HXX
+-#define HEADER_TOOL_IMPL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_TOOL_IMPL_HPP
++#define HEADER_FLEXLAY_TOOLS_TOOL_IMPL_HPP
+ 
+ class CL_InputEvent;
+ 
+
+Modified: trunk/flexlay/lib/tools/workspace_move_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/workspace_move_tool.cpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/workspace_move_tool.cpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software; you can redistribute it and/or
+
+Modified: trunk/flexlay/lib/tools/workspace_move_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/workspace_move_tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/workspace_move_tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,6 +1,4 @@
+-//  $Id$
+-// 
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software; you can redistribute it and/or
+@@ -17,8 +15,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_WORKSPACE_MOVE_TOOL_HXX
+-#define HEADER_WORKSPACE_MOVE_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_WORKSPACE_MOVE_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_WORKSPACE_MOVE_TOOL_HPP
+ 
+ #include &quot;tool.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tools/zoom2_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom2_tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/zoom2_tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -17,8 +15,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_ZOOM2_TOOL_HXX
+-#define HEADER_ZOOM2_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_ZOOM2_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_ZOOM2_TOOL_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Display/input_event.h&gt;
+
+Modified: trunk/flexlay/lib/tools/zoom_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom_tool.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/tools/zoom_tool.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -17,8 +15,8 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_ZOOM_TOOL_HXX
+-#define HEADER_ZOOM_TOOL_HXX
++#ifndef HEADER_FLEXLAY_TOOLS_ZOOM_TOOL_HPP
++#define HEADER_FLEXLAY_TOOLS_ZOOM_TOOL_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Display/input_event.h&gt;
+
+Modified: trunk/flexlay/lib/viewport.hpp
+===================================================================
+--- trunk/flexlay/lib/viewport.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/viewport.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_VIEWPORT_HXX
+-#define HEADER_VIEWPORT_HXX
++#ifndef HEADER_FLEXLAY_VIEWPORT_HPP
++#define HEADER_FLEXLAY_VIEWPORT_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+
+Modified: trunk/flexlay/lib/window.hpp
+===================================================================
+--- trunk/flexlay/lib/window.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/window.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_WINDOW_HXX
+-#define HEADER_WINDOW_HXX
++#ifndef HEADER_FLEXLAY_WINDOW_HPP
++#define HEADER_FLEXLAY_WINDOW_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+
+Modified: trunk/flexlay/lib/workspace.hpp
+===================================================================
+--- trunk/flexlay/lib/workspace.hpp	2009-11-22 03:35:03 UTC (rev 721)
++++ trunk/flexlay/lib/workspace.hpp	2009-11-22 03:48:00 UTC (rev 722)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-// 
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -16,8 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#ifndef HEADER_WORKSPACE_HXX
+-#define HEADER_WORKSPACE_HXX
++#ifndef HEADER_FLEXLAY_WORKSPACE_HPP
++#define HEADER_FLEXLAY_WORKSPACE_HPP
+ 
+ #include &lt;ClanLib/Core/System/sharedptr.h&gt;
+ #include &lt;ClanLib/Display/input_event.h&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000213.html">[Flexlay-commit] r721 - in trunk/flexlay: . supertux
+</A></li>
+	<LI>Next message: <A HREF="000215.html">[Flexlay-commit] r723 - in trunk/flexlay/lib: . tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#214">[ date ]</a>
+              <a href="thread.html#214">[ thread ]</a>
+              <a href="subject.html#214">[ subject ]</a>
+              <a href="author.html#214">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

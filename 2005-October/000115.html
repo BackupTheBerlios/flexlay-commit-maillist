@@ -1,0 +1,299 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r618 - trunk/supertux-portable
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r618%20-%20trunk/supertux-portable&In-Reply-To=%3C200510101355.j9ADtus6014073%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000114.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r618 - trunk/supertux-portable</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r618%20-%20trunk/supertux-portable&In-Reply-To=%3C200510101355.j9ADtus6014073%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r618 - trunk/supertux-portable">grumbel at berlios.de
+       </A><BR>
+    <I>Mon Oct 10 15:55:56 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000114.html">[Flexlay-commit] r617 - in trunk: . lib netpanzer paint ruby supertux supertux-portable windstille
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#115">[ date ]</a>
+              <a href="thread.html#115">[ thread ]</a>
+              <a href="subject.html#115">[ subject ]</a>
+              <a href="author.html#115">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-10-10 15:55:49 +0200 (Mon, 10 Oct 2005)
+New Revision: 618
+
+Added:
+   trunk/supertux-portable/controller.rb
+   trunk/supertux-portable/supertux-portable-editor-gdb
+   trunk/supertux-portable/tileset.rb
+Modified:
+   trunk/supertux-portable/gui.rb
+   trunk/supertux-portable/supertux-portable.rb
+Log:
+- editor now basically working, except load/save
+
+Added: trunk/supertux-portable/controller.rb
+===================================================================
+--- trunk/supertux-portable/controller.rb	2005-10-10 12:36:33 UTC (rev 617)
++++ trunk/supertux-portable/controller.rb	2005-10-10 13:55:49 UTC (rev 618)
+@@ -0,0 +1,41 @@
++class Controller
++  attr_reader :tilemap_paint_tool, :tilemap_select_tool, :zoom_tool, :objmap_select_tool, :recent_files
++
++  def initialize()
++    @tilemap_paint_tool  = TileMapPaintTool.new()
++    @tilemap_select_tool = TileMapSelectTool.new()
++    @zoom_tool           = ZoomTool.new()
++    @objmap_select_tool  = ObjMapSelectTool.new()
++  end
++    
++  def set_tilemap_paint_tool()
++    $gui.workspace.set_tool(@tilemap_paint_tool.to_tool())
++    $gui.set_tool_icon(:tilemap_paint)
++  end
++
++  def set_tilemap_select_tool()
++    $gui.workspace.set_tool(@tilemap_select_tool.to_tool())
++    $gui.set_tool_icon(:tilemap_select)
++  end
++
++  def set_zoom_tool()
++    $gui.workspace.set_tool(@zoom_tool.to_tool())
++    $gui.set_tool_icon(:zoom)
++  end
++
++  def set_objmap_select_tool()
++    $gui.workspace.set_tool(@objmap_select_tool.to_tool())
++    $gui.set_tool_icon(:object_select)
++  end  
++
++  def load_level(filename)
++    $startlevel = Sector.new(filename)
++    $startlevel.activate($workspace)
++  end
++
++  def save_level(filename)
++    $startlevel.save(filename)
++  end
++end
++
++# EOF #
+
+Modified: trunk/supertux-portable/gui.rb
+===================================================================
+--- trunk/supertux-portable/gui.rb	2005-10-10 12:36:33 UTC (rev 617)
++++ trunk/supertux-portable/gui.rb	2005-10-10 13:55:49 UTC (rev 618)
+@@ -63,7 +63,7 @@
+ 
+     @tileselector = @components.get('tileselector').component
+     @tileselector.set_tileset($tileset)
+-    @tileselector.set_scale(0.75)
++    @tileselector.set_scale(1)
+     @tileselector.set_tiles($tileset.get_tiles)
+     @tileselector.show(true)
+     
+@@ -102,6 +102,28 @@
+     end
+   end
+ 
++  def set_zoom(zoom)
++    gc = @editor_map.get_gc_state()
++    pos = gc.get_pos()
++    gc.set_zoom(zoom)
++    gc.set_pos(pos)
++  end
++
++
++  def set_tool_icon(tool)
++    if tool == :tilemap_paint  then  @toolbar.items[&quot;paint&quot;].set_down()  else @toolbar.items[&quot;paint&quot;].set_up()  end
++    if tool == :tilemap_select then  @toolbar.items[&quot;select&quot;].set_down() else @toolbar.items[&quot;select&quot;].set_up() end
++    if tool == :zoom           then  @toolbar.items[&quot;zoom&quot;].set_down()   else @toolbar.items[&quot;zoom&quot;].set_up()   end
++    if tool == :object_select  then  @toolbar.items[&quot;object&quot;].set_down() else @toolbar.items[&quot;object&quot;].set_up() end
++
++    if tool == :tilemap_paint then
++      @objectselector.show(false)
++      @tileselector.show(true)
++    elsif tool == :object_select then
++      @objectselector.show(true)
++      @tileselector.show(false)
++    end
++  end
+ end
+ 
+ # EOF #
+
+Added: trunk/supertux-portable/supertux-portable-editor-gdb
+===================================================================
+--- trunk/supertux-portable/supertux-portable-editor-gdb	2005-10-10 12:36:33 UTC (rev 617)
++++ trunk/supertux-portable/supertux-portable-editor-gdb	2005-10-10 13:55:49 UTC (rev 618)
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../lib:../ruby
++export LD_LIBRARY_PATH
++
++RUBYLIB=.:$RUBYLIB:../ruby
++export RUBYLIB
++
++exec gdb --args ruby -w ./main.rb &quot;$@&quot;
++
++# EOF #
+
+
+Property changes on: trunk/supertux-portable/supertux-portable-editor-gdb
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Modified: trunk/supertux-portable/supertux-portable.rb
+===================================================================
+--- trunk/supertux-portable/supertux-portable.rb	2005-10-10 12:36:33 UTC (rev 617)
++++ trunk/supertux-portable/supertux-portable.rb	2005-10-10 13:55:49 UTC (rev 618)
+@@ -21,8 +21,10 @@
+ include Flexlay_wrap
+ 
+ require &quot;flexlay.rb&quot;
++require &quot;tileset.rb&quot;
+ require &quot;gui.rb&quot;
+ require &quot;level.rb&quot;
++require &quot;controller.rb&quot;
+ 
+ class SuperTuxPortableEditor
+   def initialize(args)
+@@ -40,9 +42,12 @@
+     $flexlay = Flexlay.new()
+     $flexlay.init(&quot;SuperTux Portable Editor V0.1&quot;, $screen_width, $screen_height, $fullscreen, true)
+ 
+-    $tileset = Tileset.new(8)
++    $controller = Controller.new()
+ 
+-    $datadir = &quot;/home/ingo/projects/supertux/trunk/supertux-portable/&quot;
++    $datadir = &quot;/home/ingo/projects/supertux/trunk/supertux-portable/data/&quot;
++    $tileset = Tileset.new(16)
++    $tileset.load($datadir + &quot;antarctica.stpts&quot;)
++
+     $gui = GUI.new()
+ 
+     Level.new(100, 30).activate($gui.workspace)
+
+Added: trunk/supertux-portable/tileset.rb
+===================================================================
+--- trunk/supertux-portable/tileset.rb	2005-10-10 12:36:33 UTC (rev 617)
++++ trunk/supertux-portable/tileset.rb	2005-10-10 13:55:49 UTC (rev 618)
+@@ -0,0 +1,76 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++class TileGroup
++  attr_accessor :name, :tiles
++  
++  def initialize(name, tiles)
++    @name  = name
++    @tiles = tiles
++  end 
++end
++
++class Tileset
++  attr_accessor :tilegroups
++
++  def load(filename)
++    puts &quot;Loading Tileset: #{filename}&quot;
++    tree = sexpr_read_from_file(filename)
++
++    if tree == nil then
++      puts &quot;Error; Couldn't load: &quot;, filename
++      return 
++    end
++
++    tree = tree[1..-1]
++    counter = 0
++    
++    tree.each do |i|
++      case i[0]       
++      when :tiles
++        data   = i[1..-1]
++        colmap = get_value_from_tree(['colmap'], data, [])
++        ids    = get_value_from_tree(['ids'], data, [])
++        image  = get_value_from_tree(['image', '_'], data, &quot;&quot;)
++        
++        width  = get_value_from_tree(['width', '_'], data, 0)
++        height = get_value_from_tree(['height', '_'], data, 0)
++
++        puts &quot;Loading: Size: #{width}x#{height} Filename: #{$datadir + image}&quot;
++
++        pixelbuffer = make_pixelbuffer($datadir + image);
++
++        (0..height-1).each {|y|
++          (0..width-1).each {|x|
++            if (y*width + x &lt; ids.length) then
++              $tileset.add_tile(ids[y*width + x],
++                                Tile.new(make_region_pixelbuffer(pixelbuffer,
++                                                                 16*x, 16*y, 16, 16)))
++            else
++              puts &quot;Id out of range: #{y*width + x} &gt;= #{ids.length} for image #{$datadir + image}&quot;
++            end
++          }
++        }
++      end
++    end
++    puts &quot;&quot;
++  end
++end
++
++# EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000114.html">[Flexlay-commit] r617 - in trunk: . lib netpanzer paint ruby supertux supertux-portable windstille
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#115">[ date ]</a>
+              <a href="thread.html#115">[ thread ]</a>
+              <a href="subject.html#115">[ subject ]</a>
+              <a href="author.html#115">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

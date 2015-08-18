@@ -1,0 +1,399 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r493 - in trunk: lib paint pingus
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r493%20-%20in%20trunk%3A%20lib%20paint%20pingus&In-Reply-To=%3C200503151331.j2FDVeBc027787%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000003.html">
+   <LINK REL="Next"  HREF="000005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r493 - in trunk: lib paint pingus</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r493%20-%20in%20trunk%3A%20lib%20paint%20pingus&In-Reply-To=%3C200503151331.j2FDVeBc027787%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r493 - in trunk: lib paint pingus">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 15 14:31:40 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000003.html">[Flexlay-commit] r492 - in trunk: lib pingus
+</A></li>
+        <LI>Next message: <A HREF="000005.html">[Flexlay-commit] r494 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-15 14:31:38 +0100 (Tue, 15 Mar 2005)
+New Revision: 493
+
+Modified:
+   trunk/lib/editor_map_component.cxx
+   trunk/lib/editor_map_component.hxx
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/graphic_context_state.cxx
+   trunk/lib/graphic_context_state.hxx
+   trunk/lib/minimap.cxx
+   trunk/lib/sketch_layer.cxx
+   trunk/lib/sketch_stroke_tool.cxx
+   trunk/lib/sprite_stroke_drawer.cxx
+   trunk/lib/stroke.cxx
+   trunk/lib/stroke.hxx
+   trunk/lib/tilemap_layer.cxx
+   trunk/paint/paint.rb
+   trunk/pingus/gui.rb
+   trunk/pingus/worldobjs.rb
+Log:
+- added clipping of strokes that are outside of the screen
+- disabled shader based brushes
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/editor_map_component.cxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -177,7 +177,7 @@
+   impl-&gt;workspace.get_gc_state().zoom_to(rect);
+ }
+ 
+-CL_Rect
++CL_Rectf
+ EditorMapComponent::get_clip_rect()
+ {
+   return impl-&gt;workspace.get_gc_state().get_clip_rect();
+
+Modified: trunk/lib/editor_map_component.hxx
+===================================================================
+--- trunk/lib/editor_map_component.hxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/editor_map_component.hxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -61,7 +61,7 @@
+ 
+   CL_Pointf screen2world(const CL_Point&amp; pos);
+ 
+-  CL_Rect get_clip_rect();
++  CL_Rectf get_clip_rect();
+ 
+ private:
+   SharedPtr&lt;EditorMapComponentImpl&gt; impl;
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/flexlay_wrap.i	2005-03-15 13:31:38 UTC (rev 493)
+@@ -205,4 +205,5 @@
+ 
+ #endif
+ 
++
+ /* EOF */
+
+Modified: trunk/lib/graphic_context_state.cxx
+===================================================================
+--- trunk/lib/graphic_context_state.cxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/graphic_context_state.cxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -87,13 +87,13 @@
+   gc-&gt;pop_modelview();
+ }
+ 
+-CL_Rect
++CL_Rectf
+ GraphicContextState::get_clip_rect()
+ {
+-  return CL_Rect(CL_Point(int(-impl-&gt;offset.x),
+-                          int(-impl-&gt;offset.y)),
+-                 CL_Size(int(get_width()  / impl-&gt;zoom),
+-                         int(get_height() / impl-&gt;zoom)));
++  return CL_Rectf(CL_Pointf(-impl-&gt;offset.x,
++                            -impl-&gt;offset.y),
++                  CL_Sizef(get_width()  / impl-&gt;zoom,
++                           get_height() / impl-&gt;zoom));
+ }
+ 
+ void
+
+Modified: trunk/lib/graphic_context_state.hxx
+===================================================================
+--- trunk/lib/graphic_context_state.hxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/graphic_context_state.hxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -44,7 +44,7 @@
+ 
+   /** Return a rectangle in world coordinates that represents the area
+       visible on the screen */
+-  CL_Rect get_clip_rect();
++  CL_Rectf get_clip_rect();
+ 
+   int get_width()  const;
+   int get_height() const;
+
+Modified: trunk/lib/minimap.cxx
+===================================================================
+--- trunk/lib/minimap.cxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/minimap.cxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -120,7 +120,7 @@
+                                    CL_Size(get_width(), get_height())));
+ 
+       // Draw cursor
+-      CL_Rect rect = impl-&gt;parent-&gt;get_clip_rect();
++      CL_Rect rect(impl-&gt;parent-&gt;get_clip_rect());
+       CL_Rect screen_rect(CL_Point(rect.left  * get_width()  / map_width,
+                                    rect.top   * get_height() / map_height),
+                           CL_Size(rect.get_width() * get_width() /map_width,
+
+Modified: trunk/lib/sketch_layer.cxx
+===================================================================
+--- trunk/lib/sketch_layer.cxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/sketch_layer.cxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -103,9 +103,18 @@
+             parent-&gt;get_workspace().get_gc_state().push(canvas-&gt;get_gc());
+             canvas-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
+             //canvas-&gt;get_gc()-&gt;clear(CL_Color::white);
++
++            CL_Rectf visible_area = parent-&gt;get_clip_rect();
++
+             for(Strokes::iterator i = strokes.begin(); i != strokes.end(); ++i)
+               {
+-                i-&gt;draw(canvas-&gt;get_gc());
++                // canvas-&gt;get_gc()-&gt;draw_rect(i-&gt;get_bounding_rect(), CL_Color(0, 255, 0));
++                // canvas-&gt;get_gc()-&gt;flush();
++
++                if (visible_area.is_overlapped(i-&gt;get_bounding_rect()))
++                  {
++                    i-&gt;draw(canvas-&gt;get_gc());
++                  }
+               }
+             parent-&gt;get_workspace().get_gc_state().pop(canvas-&gt;get_gc());
+ 
+
+Modified: trunk/lib/sketch_stroke_tool.cxx
+===================================================================
+--- trunk/lib/sketch_stroke_tool.cxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/sketch_stroke_tool.cxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -105,7 +105,7 @@
+ 
+     if (CL_Display::get_current_window()-&gt;get_ic()-&gt;get_mouse_count() &gt;= 4)
+       {
+-        CL_InputDevice tablet = CL_Display::get_current_window()-&gt;get_ic()-&gt;get_mouse(3);
++        CL_InputDevice tablet = CL_Display::get_current_window()-&gt;get_ic()-&gt;get_mouse(5);
+ 
+         if (0)
+           {
+
+Modified: trunk/lib/sprite_stroke_drawer.cxx
+===================================================================
+--- trunk/lib/sprite_stroke_drawer.cxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/sprite_stroke_drawer.cxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -129,6 +129,7 @@
+ 
+         case SpriteStrokeDrawer::DM_SHADER:
+           {
++#if 0 
+             CL_OpenGLState state(gc);
+             state.set_active();
+             state.setup_2d();
+@@ -186,6 +187,7 @@
+             
+             state.set_active();
+             clUseProgram(0);
++#endif
+           }
+           break;
+               
+
+Modified: trunk/lib/stroke.cxx
+===================================================================
+--- trunk/lib/stroke.cxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/stroke.cxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -31,6 +31,37 @@
+   // its for caching only and can be generated
+   //typedef std::vector&lt;CL_Pointf&gt; Normals;
+   //Normals normals;
++
++  mutable bool bounding_rect_needs_recalc;
++  mutable CL_Rectf bounding_rect;
++
++  CL_Rectf calc_bounding_rect() const
++  {
++    CL_Rectf rect;
++
++    // FIXME: Keep the drawer into account (ie. brushsize)
++    if (dabs.size() &gt; 0)
++      {
++        rect.left = rect.right  = dabs.front().pos.x;
++        rect.top  = rect.bottom = dabs.front().pos.y;
++
++        for(Stroke::Dabs::const_iterator i = dabs.begin()+1; i != dabs.end(); ++i)
++          {
++            rect.left = std::min(i-&gt;pos.x, rect.left);
++            rect.top  = std::min(i-&gt;pos.y, rect.top);
++
++            rect.right  = std::max(i-&gt;pos.x, rect.right);
++            rect.bottom = std::max(i-&gt;pos.y, rect.bottom);
++          }
++      }
++    
++    return rect;
++  }
++
++  StrokeImpl() 
++    : bounding_rect_needs_recalc(true)
++  {
++  }
+ };
+ 
+ Stroke::Stroke() 
+@@ -135,4 +166,16 @@
+     }
+ */
+ 
++CL_Rectf
++Stroke::get_bounding_rect() const
++{
++  if (impl-&gt;bounding_rect_needs_recalc)
++    {
++      impl-&gt;bounding_rect = impl-&gt;calc_bounding_rect();
++      impl-&gt;bounding_rect_needs_recalc = false;
++    }
++  
++  return impl-&gt;bounding_rect;
++}
++
+ /* EOF */
+
+Modified: trunk/lib/stroke.hxx
+===================================================================
+--- trunk/lib/stroke.hxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/stroke.hxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -22,6 +22,7 @@
+ 
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Core/Math/point.h&gt;
++#include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Core/System/system.h&gt;
+ #include &quot;shared_ptr.hxx&quot;
+ 
+@@ -29,6 +30,9 @@
+ class StrokeDrawer;
+ class CL_GraphicContext;
+ 
++/** A dab is basically an event send from the mouse to the drawing
++    canvas, it consists of time, position, tilt, pressure and possible
++    additional information that is needed */
+ class Dab
+ {
+ public:
+@@ -58,11 +62,12 @@
+   {}
+ };
+ 
++/** A Stroke is a series of Dabs */
+ class Stroke
+ {
+ public:
+   typedef std::vector&lt;Dab&gt; Dabs;
+-
++  
+   Stroke();
+ 
+   void draw(CL_GraphicContext* gc) const;
+@@ -73,6 +78,8 @@
+   Dabs  get_dabs()  const;
+ 
+   int get_dab_count() const;
++
++  CL_Rectf get_bounding_rect() const;
+ private:
+   SharedPtr&lt;StrokeImpl&gt; impl;
+ };
+
+Modified: trunk/lib/tilemap_layer.cxx
+===================================================================
+--- trunk/lib/tilemap_layer.cxx	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/lib/tilemap_layer.cxx	2005-03-15 13:31:38 UTC (rev 493)
+@@ -153,7 +153,7 @@
+                           this-&gt;background_color);
+   CL_Display::flush();
+ 
+-  CL_Rect rect = parent-&gt;get_clip_rect();
++  CL_Rect rect(parent-&gt;get_clip_rect());
+ 
+   int start_x = std::max(0, rect.left / tile_size);
+   int start_y = std::max(0, rect.top  / tile_size);
+
+Modified: trunk/paint/paint.rb
+===================================================================
+--- trunk/paint/paint.rb	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/paint/paint.rb	2005-03-15 13:31:38 UTC (rev 493)
+@@ -26,7 +26,7 @@
+ 
+ flexlay = Flexlay.new()
+ 
+-$screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(1152, 864))
++$screen_rect = CL_Rect.new(CL_Point.new(0, 0), CL_Size.new(800, 600))
+ 
+ flexlay.init($screen_rect.get_width(), $screen_rect.get_height(), false)
+ 
+
+Modified: trunk/pingus/gui.rb
+===================================================================
+--- trunk/pingus/gui.rb	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/pingus/gui.rb	2005-03-15 13:31:38 UTC (rev 493)
+@@ -107,7 +107,8 @@
+     (type, sprite) = get_ruby_object(brush.get_data()) # object type 'groundpiece'
+     
+     worldobj = WorldObj.new(type, sprite)
+-    
++
++    puts &quot;String: #{worldobj.get_image()}&quot;
+     obj = ObjMapSpriteObject.new(CL_Sprite.new(worldobj.get_image(), $resources), 
+                                  pos, 
+                                  make_metadata(worldobj))
+
+Modified: trunk/pingus/worldobjs.rb
+===================================================================
+--- trunk/pingus/worldobjs.rb	2005-03-01 12:48:16 UTC (rev 492)
++++ trunk/pingus/worldobjs.rb	2005-03-15 13:31:38 UTC (rev 493)
+@@ -154,6 +154,8 @@
+         
+       when &quot;ROT90&quot;
+       when &quot;ROT180&quot;
++        @data.flip_vertical()
++        @data.flip_horizontal()
+       when &quot;ROT270&quot;
+       when &quot;ROT0FLIP&quot;
+         @data.flip_horizontal()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000003.html">[Flexlay-commit] r492 - in trunk: lib pingus
+</A></li>
+	<LI>Next message: <A HREF="000005.html">[Flexlay-commit] r494 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#4">[ date ]</a>
+              <a href="thread.html#4">[ thread ]</a>
+              <a href="subject.html#4">[ subject ]</a>
+              <a href="author.html#4">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

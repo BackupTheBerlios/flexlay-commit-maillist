@@ -1,0 +1,918 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r714 - in trunk/flexlay/lib: . tools
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r714%20-%20in%20trunk/flexlay/lib%3A%20.%20tools&In-Reply-To=%3C200911220306.nAM36T6B021286%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000220.html">
+   <LINK REL="Next"  HREF="000207.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r714 - in trunk/flexlay/lib: . tools</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r714%20-%20in%20trunk/flexlay/lib%3A%20.%20tools&In-Reply-To=%3C200911220306.nAM36T6B021286%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r714 - in trunk/flexlay/lib: . tools">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 04:06:29 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000220.html">[Flexlay-commit] r713 - in trunk/flexlay: clanlib/GL clanlib/GL/GLX	lib lib/tools netpanzer ruby
+</A></li>
+        <LI>Next message: <A HREF="000207.html">[Flexlay-commit] r715 - in trunk/flexlay/lib: . tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#206">[ date ]</a>
+              <a href="thread.html#206">[ thread ]</a>
+              <a href="subject.html#206">[ subject ]</a>
+              <a href="author.html#206">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 04:06:27 +0100 (Sun, 22 Nov 2009)
+New Revision: 714
+
+Modified:
+   trunk/flexlay/lib/bitmap_layer.cpp
+   trunk/flexlay/lib/blitter.cpp
+   trunk/flexlay/lib/box.cpp
+   trunk/flexlay/lib/brush.cpp
+   trunk/flexlay/lib/command.cpp
+   trunk/flexlay/lib/command_group.cpp
+   trunk/flexlay/lib/console.cpp
+   trunk/flexlay/lib/directory_view.cpp
+   trunk/flexlay/lib/drawer_properties.cpp
+   trunk/flexlay/lib/editor_map.cpp
+   trunk/flexlay/lib/editor_map_component.cpp
+   trunk/flexlay/lib/flexlay.cpp
+   trunk/flexlay/lib/fonts.cpp
+   trunk/flexlay/lib/generated_brush.cpp
+   trunk/flexlay/lib/globals.cpp
+   trunk/flexlay/lib/graphic_context_state.cpp
+   trunk/flexlay/lib/gui_manager.cpp
+   trunk/flexlay/lib/helper.cpp
+   trunk/flexlay/lib/icon.cpp
+   trunk/flexlay/lib/layer.cpp
+   trunk/flexlay/lib/marker_stroke_drawer.cpp
+   trunk/flexlay/lib/menu.cpp
+   trunk/flexlay/lib/menubar.cpp
+   trunk/flexlay/lib/meta_data.cpp
+   trunk/flexlay/lib/minimap.cpp
+   trunk/flexlay/lib/object_add_command.cpp
+   trunk/flexlay/lib/object_brush.cpp
+   trunk/flexlay/lib/object_delete_command.cpp
+   trunk/flexlay/lib/object_layer.cpp
+   trunk/flexlay/lib/object_move_command.cpp
+   trunk/flexlay/lib/object_selector.cpp
+   trunk/flexlay/lib/object_transform_command.cpp
+   trunk/flexlay/lib/objmap_object.cpp
+   trunk/flexlay/lib/objmap_object_impl.cpp
+   trunk/flexlay/lib/objmap_path_node.cpp
+   trunk/flexlay/lib/objmap_sprite_object.cpp
+   trunk/flexlay/lib/paint_command.cpp
+   trunk/flexlay/lib/paned.cpp
+   trunk/flexlay/lib/panel.cpp
+   trunk/flexlay/lib/popup_menu.cpp
+   trunk/flexlay/lib/scrollbar.cpp
+   trunk/flexlay/lib/serializer.cpp
+   trunk/flexlay/lib/sexpr_serializer.cpp
+   trunk/flexlay/lib/sharedptrtest.cpp
+   trunk/flexlay/lib/simpleed.cpp
+   trunk/flexlay/lib/sketch_layer.cpp
+   trunk/flexlay/lib/slider.cpp
+   trunk/flexlay/lib/sprite_stroke_drawer.cpp
+   trunk/flexlay/lib/stroke.cpp
+   trunk/flexlay/lib/stroke_drawer.cpp
+   trunk/flexlay/lib/tile.cpp
+   trunk/flexlay/lib/tile_brush.cpp
+   trunk/flexlay/lib/tile_editor.cpp
+   trunk/flexlay/lib/tile_provider.cpp
+   trunk/flexlay/lib/tile_selection.cpp
+   trunk/flexlay/lib/tile_selector.cpp
+   trunk/flexlay/lib/tilemap_layer.cpp
+   trunk/flexlay/lib/tileset.cpp
+   trunk/flexlay/lib/titlebar.cpp
+   trunk/flexlay/lib/tools/objmap_select_tool.cpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.cpp
+   trunk/flexlay/lib/tools/tilemap_paint_tool.cpp
+   trunk/flexlay/lib/tools/tilemap_select_tool.cpp
+   trunk/flexlay/lib/tools/tool.cpp
+   trunk/flexlay/lib/tools/workspace_move_tool.cpp
+   trunk/flexlay/lib/tools/zoom2_tool.cpp
+   trunk/flexlay/lib/tools/zoom_tool.cpp
+   trunk/flexlay/lib/viewport.cpp
+   trunk/flexlay/lib/window.cpp
+   trunk/flexlay/lib/workspace.cpp
+Log:
+Removed $Id$ keywords
+
+Modified: trunk/flexlay/lib/bitmap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/bitmap_layer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/blitter.cpp
+===================================================================
+--- trunk/flexlay/lib/blitter.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/blitter.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/box.cpp
+===================================================================
+--- trunk/flexlay/lib/box.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/box.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/brush.cpp
+===================================================================
+--- trunk/flexlay/lib/brush.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/brush.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/command.cpp
+===================================================================
+--- trunk/flexlay/lib/command.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/command.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/command_group.cpp
+===================================================================
+--- trunk/flexlay/lib/command_group.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/command_group.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/console.cpp
+===================================================================
+--- trunk/flexlay/lib/console.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/console.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/directory_view.cpp
+===================================================================
+--- trunk/flexlay/lib/directory_view.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/directory_view.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/drawer_properties.cpp
+===================================================================
+--- trunk/flexlay/lib/drawer_properties.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/drawer_properties.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/editor_map.cpp
+===================================================================
+--- trunk/flexlay/lib/editor_map.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/editor_map.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/editor_map_component.cpp
+===================================================================
+--- trunk/flexlay/lib/editor_map_component.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/editor_map_component.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/flexlay.cpp
+===================================================================
+--- trunk/flexlay/lib/flexlay.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/flexlay.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/fonts.cpp
+===================================================================
+--- trunk/flexlay/lib/fonts.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/fonts.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/generated_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/generated_brush.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/generated_brush.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/globals.cpp
+===================================================================
+--- trunk/flexlay/lib/globals.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/globals.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: globals.cxx,v 1.6 2003/11/07 22:41:18 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/graphic_context_state.cpp
+===================================================================
+--- trunk/flexlay/lib/graphic_context_state.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/graphic_context_state.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/gui_manager.cpp
+===================================================================
+--- trunk/flexlay/lib/gui_manager.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/gui_manager.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: gui_manager.cxx,v 1.3 2003/11/05 12:41:37 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/helper.cpp
+===================================================================
+--- trunk/flexlay/lib/helper.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/helper.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/icon.cpp
+===================================================================
+--- trunk/flexlay/lib/icon.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/icon.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/layer.cpp
+===================================================================
+--- trunk/flexlay/lib/layer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/layer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/marker_stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/marker_stroke_drawer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/marker_stroke_drawer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/menu.cpp
+===================================================================
+--- trunk/flexlay/lib/menu.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/menu.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/menubar.cpp
+===================================================================
+--- trunk/flexlay/lib/menubar.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/menubar.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/meta_data.cpp
+===================================================================
+--- trunk/flexlay/lib/meta_data.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/meta_data.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/minimap.cpp
+===================================================================
+--- trunk/flexlay/lib/minimap.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/minimap.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/object_add_command.cpp
+===================================================================
+--- trunk/flexlay/lib/object_add_command.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/object_add_command.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/object_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/object_brush.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/object_brush.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/object_delete_command.cpp
+===================================================================
+--- trunk/flexlay/lib/object_delete_command.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/object_delete_command.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/object_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/object_layer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/object_layer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/object_move_command.cpp
+===================================================================
+--- trunk/flexlay/lib/object_move_command.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/object_move_command.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/object_selector.cpp
+===================================================================
+--- trunk/flexlay/lib/object_selector.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/object_selector.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/object_transform_command.cpp
+===================================================================
+--- trunk/flexlay/lib/object_transform_command.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/object_transform_command.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/objmap_object.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/objmap_object.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/objmap_object_impl.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object_impl.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/objmap_object_impl.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/objmap_path_node.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_path_node.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/objmap_path_node.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/objmap_sprite_object.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_sprite_object.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/objmap_sprite_object.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/paint_command.cpp
+===================================================================
+--- trunk/flexlay/lib/paint_command.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/paint_command.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/paned.cpp
+===================================================================
+--- trunk/flexlay/lib/paned.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/paned.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/panel.cpp
+===================================================================
+--- trunk/flexlay/lib/panel.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/panel.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/popup_menu.cpp
+===================================================================
+--- trunk/flexlay/lib/popup_menu.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/popup_menu.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/scrollbar.cpp
+===================================================================
+--- trunk/flexlay/lib/scrollbar.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/scrollbar.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/serializer.cpp
+===================================================================
+--- trunk/flexlay/lib/serializer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/serializer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/sexpr_serializer.cpp
+===================================================================
+--- trunk/flexlay/lib/sexpr_serializer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/sexpr_serializer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/sharedptrtest.cpp
+===================================================================
+--- trunk/flexlay/lib/sharedptrtest.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/sharedptrtest.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/simpleed.cpp
+===================================================================
+--- trunk/flexlay/lib/simpleed.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/simpleed.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/sketch_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/sketch_layer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/slider.cpp
+===================================================================
+--- trunk/flexlay/lib/slider.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/slider.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/sprite_stroke_drawer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/stroke.cpp
+===================================================================
+--- trunk/flexlay/lib/stroke.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/stroke.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/stroke_drawer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tile.cpp
+===================================================================
+--- trunk/flexlay/lib/tile.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tile.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: tile.cxx,v 1.4 2003/09/22 18:37:05 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tile_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_brush.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tile_brush.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tile_editor.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_editor.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tile_editor.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: tile_editor.cxx,v 1.1 2003/09/22 18:37:05 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tile_provider.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_provider.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tile_provider.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tile_selection.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_selection.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tile_selection.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tile_selector.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_selector.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tile_selector.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: tile_selector.cxx,v 1.7 2003/09/23 19:10:05 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tilemap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tileset.cpp
+===================================================================
+--- trunk/flexlay/lib/tileset.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tileset.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: tile_factory.cxx,v 1.10 2003/09/22 18:37:05 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2000 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/titlebar.cpp
+===================================================================
+--- trunk/flexlay/lib/titlebar.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/titlebar.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tools/objmap_select_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/objmap_select_tool.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tools/objmap_select_tool.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: tilemap_object_tool.cxx,v 1.1 2003/09/23 22:10:40 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tools/tilemap_paint_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_paint_tool.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tools/tilemap_paint_tool.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: tilemap_paint_tool.cxx,v 1.2 2003/09/23 22:07:32 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+@@ -193,7 +191,7 @@
+         {
+         case PAINTING:
+           if (CL_Keyboard::get_keycode(CL_KEY_LSHIFT) ||
+-              (current_tile.x % brush.get_width()) == (last_draw.x % brush.get_width()) &amp;&amp;
++              (current_tile.x % brush.get_width())  == (last_draw.x % brush.get_width()) &amp;&amp;
+               (current_tile.y % brush.get_height() == (last_draw.y % brush.get_height())))
+             {
+               command-&gt;add_point(current_tile);
+
+Modified: trunk/flexlay/lib/tools/tilemap_select_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_select_tool.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tools/tilemap_select_tool.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: tilemap_select_tool.cxx,v 1.1 2003/09/23 22:10:40 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tools/tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tools/tool.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id: tilemap_tool.cxx,v 1.1 2003/09/23 19:10:05 grumbel Exp $
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tools/workspace_move_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/workspace_move_tool.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tools/workspace_move_tool.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Pingus - A free Lemmings clone
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tools/zoom2_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom2_tool.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tools/zoom2_tool.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/tools/zoom_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom_tool.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/tools/zoom_tool.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/viewport.cpp
+===================================================================
+--- trunk/flexlay/lib/viewport.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/viewport.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/window.cpp
+===================================================================
+--- trunk/flexlay/lib/window.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/window.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+Modified: trunk/flexlay/lib/workspace.cpp
+===================================================================
+--- trunk/flexlay/lib/workspace.cpp	2009-11-22 03:02:03 UTC (rev 713)
++++ trunk/flexlay/lib/workspace.cpp	2009-11-22 03:06:27 UTC (rev 714)
+@@ -1,5 +1,3 @@
+-//  $Id$
+-//
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000220.html">[Flexlay-commit] r713 - in trunk/flexlay: clanlib/GL clanlib/GL/GLX	lib lib/tools netpanzer ruby
+</A></li>
+	<LI>Next message: <A HREF="000207.html">[Flexlay-commit] r715 - in trunk/flexlay/lib: . tools
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#206">[ date ]</a>
+              <a href="thread.html#206">[ thread ]</a>
+              <a href="subject.html#206">[ subject ]</a>
+              <a href="author.html#206">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

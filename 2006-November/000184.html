@@ -1,0 +1,1106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r691 - in trunk/netbrush: . src src/widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r691%20-%20in%20trunk/netbrush%3A%20.%20src%20src/widget&In-Reply-To=%3C200611041951.kA4JpTeo004534%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000183.html">
+   <LINK REL="Next"  HREF="000185.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r691 - in trunk/netbrush: . src src/widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r691%20-%20in%20trunk/netbrush%3A%20.%20src%20src/widget&In-Reply-To=%3C200611041951.kA4JpTeo004534%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r691 - in trunk/netbrush: . src src/widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Nov  4 20:51:29 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000183.html">[Flexlay-commit] r690 - trunk/netbrush/experimental
+</A></li>
+        <LI>Next message: <A HREF="000185.html">[Flexlay-commit] r692 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#184">[ date ]</a>
+              <a href="thread.html#184">[ thread ]</a>
+              <a href="subject.html#184">[ subject ]</a>
+              <a href="author.html#184">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-04 20:51:28 +0100 (Sat, 04 Nov 2006)
+New Revision: 691
+
+Added:
+   trunk/netbrush/src/input_device_xinput.cpp
+   trunk/netbrush/src/input_device_xinput.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/client_connection.cpp
+   trunk/netbrush/src/client_state.cpp
+   trunk/netbrush/src/client_state.hpp
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/globals.cpp
+   trunk/netbrush/src/globals.hpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/screen_buffer.hpp
+   trunk/netbrush/src/server_connection.cpp
+   trunk/netbrush/src/tool.hpp
+   trunk/netbrush/src/widget/events.hpp
+   trunk/netbrush/src/widget/widget.hpp
+   trunk/netbrush/src/widget/widget_manager.cpp
+   trunk/netbrush/src/widget/widget_manager.hpp
+Log:
+- some pen handling
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/SConstruct	2006-11-04 19:51:28 UTC (rev 691)
+@@ -26,7 +26,7 @@
+ client_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
+ client_env['CPPPATH'] += ['src/']
+ client_env['LIBPATH'] += ['.']
+-client_env['LIBS'] += ['SDL_image', 'SDL_net'] + libcommon
++client_env['LIBS'] += ['SDL_image', 'SDL_net', 'Xi'] + libcommon
+ client_env.Program('netbrush-client', [
+         'src/alpha_picker.cpp',
+         'src/brush_widget.cpp',
+@@ -70,7 +70,9 @@
+         'src/text_view.cpp',
+         'src/rect_tool.cpp',
+         'src/circle_tool.cpp',
++        'src/line_tool.cpp',
+         'src/SDL_gfx/SDL_gfxPrimitives.c',
++        'src/input_device_xinput.cpp'
+ #        'src/widget/events.cpp',
+ ])
+ 
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/client.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -8,6 +8,8 @@
+ #include &quot;SDL_main.h&quot;
+ #include &quot;SDL_image.h&quot;
+ #include &quot;SDL_net.h&quot;
++#include &quot;SDL_syswm.h&quot;
++#include &quot;input_device_xinput.hpp&quot;
+ #include &quot;drawing_context.hpp&quot;
+ #include &quot;drawing_parameter.hpp&quot;
+ #include &quot;debug.hpp&quot;
+@@ -24,6 +26,7 @@
+ #include &quot;command_line.hpp&quot;
+ #include &quot;text_view.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
++#include &quot;input_device_xinput.hpp&quot;
+ #include &quot;controller.hpp&quot;
+ 
+ #ifdef WIN32
+@@ -134,16 +137,24 @@
+           break;
+ 
+         case SDL_MOUSEBUTTONDOWN:
+-          widget_manager-&gt;on_mouse_button(event.button);
++          if (!(xinput &amp;&amp; xinput-&gt;in_proximity()))
++            widget_manager-&gt;on_mouse_button(event.button);
+           break;
+ 
+         case SDL_MOUSEBUTTONUP:
+-          widget_manager-&gt;on_mouse_button(event.button);
++          if (!(xinput &amp;&amp; xinput-&gt;in_proximity()))
++            widget_manager-&gt;on_mouse_button(event.button);
+           break;
+ 
+         case SDL_MOUSEMOTION:
+-          widget_manager-&gt;on_mouse_motion(event.motion);
++          if (!(xinput &amp;&amp; xinput-&gt;in_proximity()))
++            widget_manager-&gt;on_mouse_motion(event.motion);
+           break;
++
++        case SDL_SYSWMEVENT:
++          if (xinput)
++            xinput-&gt;on_xevent(event.syswm.msg-&gt;event.xevent);
++          break;
+         }
+     }  
+ }
+@@ -263,6 +274,23 @@
+       printf(&quot;SDL_SetVideoMode: %s\n&quot;, SDL_GetError());
+     SDL_WM_SetCaption(&quot;netBrush&quot;, &quot;netBrush&quot;);
+ 
++    if (1) // enable tablet support
++      {
++        SDL_SysWMinfo syswm;
++
++        SDL_VERSION(&amp;syswm.version); // this is important!
++        if (SDL_GetWMInfo(&amp;syswm) == -1)
++          {
++            std::cout &lt;&lt; &quot;Couldn't get WM info &quot; &lt;&lt; std::endl;
++          }
++
++        syswm.info.x11.lock_func();
++        xinput = new InputDevice_XInput(syswm.info.x11.display, &quot;gstylus&quot;);
++        syswm.info.x11.unlock_func();
++
++        SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
++      }
++
+     // 18 is scrollbar
+     screen_buffer = new ScreenBuffer(Rect(38, 2, screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 16 - 4 - 38)); 
+     draw_ctx      = new DrawingContext(canvas_width, canvas_height);
+
+Modified: trunk/netbrush/src/client_connection.cpp
+===================================================================
+--- trunk/netbrush/src/client_connection.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/client_connection.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -224,6 +224,7 @@
+             tokens[0] == &quot;copy_region&quot;  ||
+             tokens[0] == &quot;fill_rect&quot;    ||
+             tokens[0] == &quot;fill_circle&quot;  ||
++            tokens[0] == &quot;draw_line&quot;    ||
+             tokens[0] == &quot;set_opacity&quot; 
+             ))
+     {
+
+Modified: trunk/netbrush/src/client_state.cpp
+===================================================================
+--- trunk/netbrush/src/client_state.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/client_state.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -152,4 +152,15 @@
+                                  pos.x + radius+1, pos.y + radius+1));  
+ }
+ 
++void
++ClientState::draw_line(const Point&amp; p1, const Point&amp; p2)
++{
++  aalineRGBA(draw_ctx-&gt;get_surface(),
++             p1.x, p1.y, p2.x, p2.y,
++             draw_param-&gt;color.r, draw_param-&gt;color.g, draw_param-&gt;color.b, 
++             draw_param-&gt;opacity);
++  screen_buffer-&gt;mark_dirty(Rect(p1.x, p1.y,
++                                 p2.x, p2.y));
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/client_state.hpp
+===================================================================
+--- trunk/netbrush/src/client_state.hpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/client_state.hpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -63,6 +63,7 @@
+   void copy_region(const Rect&amp; rect, const Point&amp; target);
+   void fill_rect(const Rect&amp; rect);
+   void fill_circle(const Point&amp; pos, int radius);
++  void draw_line(const Point&amp; p1, const Point&amp; p2);
+ 
+   void dab(unsigned int time, int x, int y);
+ };
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/controller.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -148,8 +148,11 @@
+     widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-circle-22.png&quot;), 
+                                    Rect(Point(2, 2+4*34), Size(34, 34)),
+                                    new ToolButtonCallback(CIRCLE_TOOL)));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-line-22.png&quot;), 
++                                   Rect(Point(2, 2+5*34), Size(34, 34)),
++                                   new ToolButtonCallback(LINE_TOOL)));
+     widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-rect-select-22.png&quot;), 
+-                                   Rect(Point(2, 2+5*34), Size(34, 34)),
++                                   Rect(Point(2, 2+6*34), Size(34, 34)),
+                                    new ToolButtonCallback(REGION_TOOL)));
+     widget_manager-&gt;add(text_view = new TextView(Rect(38, screen-&gt;h - 38,
+                                                       screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h)));
+
+Modified: trunk/netbrush/src/globals.cpp
+===================================================================
+--- trunk/netbrush/src/globals.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/globals.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -42,4 +42,6 @@
+ 
+ Controller* controller = 0;
+ 
++InputDevice_XInput* xinput = 0;
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/globals.hpp
+===================================================================
+--- trunk/netbrush/src/globals.hpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/globals.hpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -43,6 +43,7 @@
+ class ServerConnection;
+ class Scrollbar;
+ class Navigation;
++class InputDevice_XInput;
+ 
+ extern SDLNet_SocketSet socketset;
+ 
+@@ -59,6 +60,7 @@
+ 
+ extern Navigation* navigation;
+ extern Controller* controller;
++extern InputDevice_XInput* xinput;
+ 
+ #endif
+ 
+
+Copied: trunk/netbrush/src/input_device_xinput.cpp (from rev 690, trunk/netbrush/experimental/input_device_xinput.cpp)
+===================================================================
+--- trunk/netbrush/experimental/input_device_xinput.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/input_device_xinput.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -0,0 +1,448 @@
++/*  $Id$
++**            _   ___              _
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++**
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;iostream&gt;
++#include &quot;input_device_xinput.hpp&quot;
++#include &quot;SDL.h&quot;
++#include &quot;SDL_syswm.h&quot;
++#include &quot;widget/events.hpp&quot;
++#include &quot;widget/widget_manager.hpp&quot;
++#include &quot;globals.hpp&quot;
++
++/*
++  static void print_bits(unsigned int n)
++  {
++  int i;
++  for(i = 31; i &gt;= 0; --i)
++  {
++  if (i == 29)
++  putchar(' ');
++
++  if (i == 21)
++  putchar(' ');
++
++  if (n &amp; (1 &lt;&lt; i))
++  putchar('1');
++  else
++  putchar('0');
++  }
++  putchar(' ');
++  }
++*/
++
++#define INVALID_EVENT_TYPE	-1
++#define verbose false
++
++InputDevice_XInput::InputDevice_XInput(Display* dpy, const std::string&amp; name_)
++  : name(name_),
++    absolute(false),
++    num_keys   (0),
++    proximity(false),
++    motion_type        (INVALID_EVENT_TYPE),
++    button_press_type  (INVALID_EVENT_TYPE),
++    button_release_type(INVALID_EVENT_TYPE),
++    key_press_type     (INVALID_EVENT_TYPE),
++    key_release_type   (INVALID_EVENT_TYPE),
++    proximity_in_type  (INVALID_EVENT_TYPE),
++    proximity_out_type (INVALID_EVENT_TYPE)
++
++{
++  XDeviceInfo* info = find_device_info(dpy, name.c_str(), True);
++  if (!info)
++    std::cout &lt;&lt; &quot;InputDeviceXInput Error: Couldn't find device: &quot; &lt;&lt; name &lt;&lt; std::endl;
++  get_info(info);
++
++  if (!register_events(dpy, info, name.c_str(), True))
++    {
++      std::cout &lt;&lt; &quot;debug&quot; &lt;&lt; &quot;InputDeviceXInput: Couldn't find device: &quot; &lt;&lt; name &lt;&lt; std::endl;
++    }
++  else
++    {
++      //slot_xevent = owner-&gt;sig_unknown_xevent.connect(this, &amp;InputDevice_XInput::on_xevent);
++    }
++}
++
++InputDevice_XInput::~InputDevice_XInput()
++{
++	
++}
++
++void
++InputDevice_XInput::get_info(XDeviceInfo* info)
++{
++  printf(&quot;\&quot;%s\&quot;\tid=%ld\t[%s]\n&quot;, info-&gt;name, info-&gt;id,
++         (info-&gt;use == IsXExtensionDevice) ? &quot;XExtensionDevice&quot; :
++         ((info-&gt;use == IsXPointer) ? &quot;XPointer&quot; : &quot;XKeyboard&quot;));
++
++  if (info-&gt;num_classes &gt; 0)
++    {
++      XAnyClassPtr any = (XAnyClassPtr) (info-&gt;inputclassinfo);
++      for (int i = 0; i &lt; info-&gt;num_classes; ++i) 
++        {
++          switch (any-&gt;c_class) {
++          case KeyClass:
++            {
++              XKeyInfoPtr k = (XKeyInfoPtr) any;
++              printf(&quot;\tNum_keys is %d\n&quot;,    k-&gt;num_keys);
++              printf(&quot;\tMin_keycode is %d\n&quot;, k-&gt;min_keycode);
++              printf(&quot;\tMax_keycode is %d\n&quot;, k-&gt;max_keycode);
++
++              num_keys = k-&gt;num_keys;
++            }
++            break;
++
++          case ButtonClass:
++            {
++              XButtonInfoPtr   b = (XButtonInfoPtr) any;
++              printf(&quot;\tNum_buttons is %d\n&quot;, b-&gt;num_buttons);
++
++              buttons.resize(b-&gt;num_buttons, false);
++            }
++            break;
++
++          case ValuatorClass:
++            {
++              XValuatorInfoPtr v = (XValuatorInfoPtr) any;
++              XAxisInfoPtr     a = (XAxisInfoPtr) ((char *) v +
++                                                   sizeof (XValuatorInfo));
++
++              printf(&quot;\tNum_axes is %d\n&quot;, v-&gt;num_axes);
++              printf(&quot;\tMode is %s\n&quot;, (v-&gt;mode == Absolute) ? &quot;Absolute&quot; : &quot;Relative&quot;);
++              printf(&quot;\tMotion_buffer is %ld\n&quot;, v-&gt;motion_buffer);
++
++              absolute = (v-&gt;mode == Absolute);
++
++              for (int j = 0; j &lt; v-&gt;num_axes; j++, a++)
++                {
++                  printf(&quot;\tAxis %d :\n&quot;, j);
++                  printf(&quot;\t\tMin_value is %d\n&quot;,   a-&gt;min_value);
++                  printf(&quot;\t\tMax_value is %d\n&quot;,   a-&gt;max_value);
++                  printf (&quot;\t\tResolution is %d\n&quot;, a-&gt;resolution);
++					
++                  axis.push_back(AxisInfo(a-&gt;min_value, a-&gt;max_value, a-&gt;resolution));
++                }
++            }
++            break;
++		
++          default:
++            printf (&quot;unknown class\n&quot;);
++          }
++          any = (XAnyClassPtr) ((char *) any + any-&gt;length);
++        }
++    }
++}
++
++XDeviceInfo*
++InputDevice_XInput::find_device_info(Display	*display,
++                                     const char	*name,
++                                     Bool	only_extended)
++{
++  // FIXME: Not really needed could simply pass XDeviceInfo to the
++  // constructor, might however make a nicer interface
++  XDeviceInfo	*devices;
++  int		loop;
++  int		num_devices;
++  int		len = strlen(name);
++  Bool     is_id = True;
++  XID		id = 0;
++
++  for(loop=0; loop&lt;len; loop++) {
++    if (!isdigit(name[loop])) {
++      is_id = False;
++      break;
++    }
++  }
++
++  if (is_id) {
++    id = atoi(name);
++  }
++
++  devices = XListInputDevices(display, &amp;num_devices);
++
++  for(loop=0; loop&lt;num_devices; loop++) {
++    if ((!only_extended || (devices[loop].use == IsXExtensionDevice)) &amp;&amp;
++        ((!is_id &amp;&amp; strcmp(devices[loop].name, name) == 0) ||
++         (is_id &amp;&amp; devices[loop].id == id))) {
++      return &amp;devices[loop];
++    }
++  }
++  return NULL;
++}
++
++int
++InputDevice_XInput::register_events(Display		*dpy,
++                                    XDeviceInfo	*info,
++                                    const char		*dev_name,
++                                    Bool		handle_proximity)
++{
++  int             number = 0;	/* number of events registered */
++  XEventClass     event_list[7];
++  int             i;
++  XDevice         *device;
++  Window          root_win;
++  unsigned long   screen;
++  XInputClassInfo *ip;
++
++  screen   = DefaultScreen(dpy);
++  root_win = RootWindow(dpy, screen);
++
++  device = XOpenDevice(dpy, info-&gt;id);
++
++  if (!device) {
++    fprintf(stderr, &quot;unable to open device %s\n&quot;, dev_name);
++    return 0;
++  }
++
++  if (device-&gt;num_classes &gt; 0)
++    {
++      for (ip = device-&gt;classes, i = 0; i&lt;info-&gt;num_classes; ip++, ++i)
++        {
++          switch (ip-&gt;input_class) {
++          case KeyClass:
++            DeviceKeyPress  (device, key_press_type,   event_list[number]); number++;
++            DeviceKeyRelease(device, key_release_type, event_list[number]); number++;
++            break;
++
++          case ButtonClass:
++            DeviceButtonPress  (device, button_press_type,   event_list[number]); number++;
++            DeviceButtonRelease(device, button_release_type, event_list[number]); number++;
++            break;
++
++          case ValuatorClass:
++            DeviceMotionNotify(device, motion_type, event_list[number]); number++;
++            if (handle_proximity) {
++              ProximityIn (device, proximity_in_type,  event_list[number]); number++;
++              ProximityOut(device, proximity_out_type, event_list[number]); number++;
++            }
++            break;
++		
++          default:
++            fprintf(stderr, &quot;unknown class\n&quot;);
++            break;
++          }
++        }
++
++      if (XSelectExtensionEvent(dpy, root_win, event_list, number))
++        {
++          fprintf(stderr, &quot;error selecting extended events\n&quot;);
++          return 0;
++        }
++    }
++
++  //std::cout &lt;&lt; &quot;### Registered events: &quot; &lt;&lt; number &lt;&lt; std::endl;
++  return number;
++}
++
++void
++InputDevice_XInput::on_xevent(XEvent &amp;event)
++{
++  if (0)
++    std::cout &lt;&lt; this &lt;&lt; &quot; event: &quot;
++              &lt;&lt; event.type &lt;&lt; &quot; Defs: &quot;
++              &lt;&lt; motion_type &lt;&lt; &quot; &quot;
++              &lt;&lt; button_press_type &lt;&lt; &quot; &quot;
++              &lt;&lt; button_release_type &lt;&lt; &quot; &quot;
++              &lt;&lt; key_press_type &lt;&lt; &quot; &quot;
++              &lt;&lt; key_release_type &lt;&lt; &quot; &quot;
++              &lt;&lt; proximity_out_type &lt;&lt; &quot; &quot;
++              &lt;&lt; proximity_in_type &lt;&lt; &quot; &quot;
++              &lt;&lt; std::endl;
++
++  if (event.type == motion_type)
++    {
++      on_device_motion_event((XDeviceMotionEvent *)&amp;event);
++    }
++  else if ((event.type == button_press_type) ||
++           (event.type == button_release_type))
++    {
++      on_device_button_event((XDeviceButtonEvent *)&amp;event);
++    }
++  else if ((event.type == key_press_type) ||
++           (event.type == key_release_type))
++    {
++      on_device_key_event((XDeviceKeyEvent*)&amp;event);
++    }
++  else if ((event.type == proximity_out_type) ||
++           (event.type == proximity_in_type))
++    {
++      on_proximity_notify_event((XProximityNotifyEvent*)&amp;event);
++    }
++  else
++    {  // Events that aren't XInput events lang here (focus and stuff)
++      if (verbose) printf(&quot;InputDevice_XInput: what's that %d\n&quot;, event.type);
++    }
++}
++
++void
++InputDevice_XInput::on_device_button_event(XDeviceButtonEvent *button)
++{
++  if (verbose) printf(&quot;button %s %d &quot;, (button-&gt;type == button_release_type) ? &quot;release&quot; : &quot;press  &quot;, button-&gt;button);
++
++  buttons[button-&gt;button] = (button-&gt;type == button_press_type);
++	
++  for(int i = 0; i &lt; button-&gt;axes_count; ++i)
++    {
++      if (verbose)  printf(&quot;a[%d]=%d &quot;, button-&gt;first_axis + i, button-&gt;axis_data[i]);
++      axis[i + button-&gt;first_axis].pos = button-&gt;axis_data[i];
++    }
++  if (verbose) printf(&quot;\n&quot;);
++}
++
++void
++InputDevice_XInput::on_device_key_event(XDeviceKeyEvent* key)
++{
++  if (verbose) printf(&quot;key %s %d &quot;, (key-&gt;type == key_release_type) ? &quot;release&quot; : &quot;press  &quot;, key-&gt;keycode);
++	
++  for(int i = 0; i &lt; key-&gt;axes_count; ++i)
++    {
++      if (verbose) printf(&quot;a[%d]=%d &quot;, key-&gt;first_axis + i, key-&gt;axis_data[i]);
++      axis[i + key-&gt;first_axis].pos = key-&gt;axis_data[i];
++    }
++  if (verbose) printf(&quot;\n&quot;);
++}
++
++void
++InputDevice_XInput::on_device_motion_event(XDeviceMotionEvent* motion)
++{
++  if (verbose) printf(&quot;motion &quot;);
++  float x;
++  float y;
++  float pressure;
++  float x_tilt;
++  float y_tilt;
++
++  for(int i = 0; i&lt;motion-&gt;axes_count; ++i) 
++    {
++      if (i == 0)
++        {
++          x = float(motion-&gt;axis_data[i])/(axis[i].max_value - axis[i].min_value);
++        }
++      else if (i == 1)
++        {
++          y = float(motion-&gt;axis_data[i])/(axis[i].max_value - axis[i].min_value);
++        }
++      else if (i == 2)
++        {
++          pressure = float(motion-&gt;axis_data[i])/(axis[i].max_value - axis[i].min_value);
++        }
++      else if (i == 3)
++        {
++          x_tilt = float(*((short*)&amp;(motion-&gt;axis_data[i])))/(axis[i].max_value - axis[i].min_value);
++        }
++      else if (i == 4)
++        {
++          y_tilt = float(*((short*)&amp;(motion-&gt;axis_data[i])))/(axis[i].max_value - axis[i].min_value);
++        }
++
++      if (i &gt;= 3)
++        {
++          //printf(&quot;a[%d] = &quot;, motion-&gt;first_axis + i);
++          //print_bits(*((unsigned int*)&amp;(motion-&gt;axis_data[i])));
++
++          if (verbose) printf(&quot;a[%d] = %5d &quot;, motion-&gt;first_axis + i,
++                              *((short*)&amp;(motion-&gt;axis_data[i]))); // workaround for buggy driver
++        }
++      else
++        {
++          if (verbose) printf(&quot;a[%d] = %5d &quot;, motion-&gt;first_axis + i, motion-&gt;axis_data[i]);
++        }
++      axis[i + motion-&gt;first_axis].pos = motion-&gt;axis_data[i];
++    }
++  if (verbose) printf(&quot;\n&quot;);
++
++  if (0) 
++    printf(&quot;x: %1.5f y: %1.5f pressure: %1.5f x_tilt: %2.5f y_tilt: %2.5f\n&quot;, x, y, pressure, x_tilt, y_tilt);
++  widget_manager-&gt;on_pen_motion(PenEvent(x * 1152, y * 864, // FIXME: Calculate those dynamically
++                                         pressure, 
++                                         x_tilt, y_tilt));
++}
++
++void
++InputDevice_XInput::on_proximity_notify_event(XProximityNotifyEvent* prox)
++{
++  if (verbose) printf(&quot;proximity %s &quot;, (prox-&gt;type == proximity_in_type) ? &quot;in &quot; : &quot;out&quot;);
++		
++  if (prox-&gt;type == proximity_in_type)
++    proximity = true;
++  else 
++    proximity = false;
++
++  for(int i = 0; i &lt; prox-&gt;axes_count; ++i)
++    {
++      if (verbose) printf(&quot;a[%d]=%d &quot;, prox-&gt;first_axis + i, prox-&gt;axis_data[i]);
++      axis[i + prox-&gt;first_axis].pos = prox-&gt;axis_data[i];
++    }
++  if (verbose) printf(&quot;\n&quot;);
++}
++
++bool
++InputDevice_XInput::get_keycode(int keycode) const
++{
++  if (keycode &gt;=0 &amp;&amp; keycode &lt; int(buttons.size()))
++    {
++      return buttons[keycode];
++    }
++  else
++    {
++      return false;
++    }
++}
++
++float
++InputDevice_XInput::get_axis(int index) const
++{
++  if (index &gt;= 0 &amp;&amp; index &lt; get_axis_count())
++    {
++      return float(axis[index].pos)/(axis[index].max_value - axis[index].min_value);
++    }
++  else
++    {
++      return 0.0f;
++    }
++}
++
++int
++InputDevice_XInput::get_axis_count() const
++{
++  return axis.size();
++}
++
++std::string
++InputDevice_XInput::get_name() const
++{
++  return name;
++}
++
++std::string
++InputDevice_XInput::get_device_name() const
++{
++  return &quot;xinput:&quot; + name;
++}
++
++int
++InputDevice_XInput::get_button_count() const
++{
++  return buttons.size();
++}
++
++/* EOF */
+
+Copied: trunk/netbrush/src/input_device_xinput.hpp (from rev 688, trunk/netbrush/experimental/input_device_xinput.hpp)
+===================================================================
+--- trunk/netbrush/experimental/input_device_xinput.hpp	2006-11-04 18:03:46 UTC (rev 688)
++++ trunk/netbrush/src/input_device_xinput.hpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -0,0 +1,130 @@
++/*  $Id$
++**            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_INPUT_DEVICE_XINPUT_HPP
++#define HEADER_INPUT_DEVICE_XINPUT_HPP
++
++#include &lt;vector&gt;
++#include &quot;../src/math/point.hpp&quot;
++#include &lt;X11/Xlib.h&gt;
++#include &lt;X11/Xutil.h&gt;
++#include &lt;X11/extensions/XInput.h&gt;
++
++class InputDevice_XInput
++{
++  //!Construction:
++public:
++  InputDevice_XInput(Display* dpy, const std::string&amp; name);
++
++  virtual ~InputDevice_XInput();
++
++  //!Attributes:
++public:
++  //: Returns true if the passed key code is down for this device.
++  virtual bool get_keycode(int keycode) const;
++
++  //: Returns the the current position of a joystick axis.
++  virtual float get_axis(int index) const;
++
++  //: Returns the number of axes available on this device.
++  virtual int get_axis_count() const;
++
++  //: Returns the name of the device (i.e. 'Microsoft Sidewinder 3D').
++  virtual std::string get_name() const;
++
++  //: Return the hardware id/device for this device (i.e. '/dev/input/js0')
++  virtual std::string get_device_name() const;
++
++  //: Returns the number of buttons available on this device.
++  //- &lt;p&gt;If used on a keyboard, this function returns -1.&lt;/p&gt;
++  virtual int get_button_count() const;
++
++  //!Operations:
++public:
++
++  //!Implementation:
++private:
++  int register_events(Display		*dpy,
++                      XDeviceInfo	*info,
++                      const char		*dev_name,
++                      Bool		handle_proximity);
++
++  XDeviceInfo* find_device_info(Display	*display,
++                                const char		*name,
++                                Bool		only_extended);
++
++  void get_info(XDeviceInfo	*info);
++public:
++  void on_xevent(XEvent &amp;event);
++  bool in_proximity() const { return proximity; }
++private:
++  void on_device_button_event(XDeviceButtonEvent *button);
++  void on_device_key_event(XDeviceKeyEvent* key);
++  void on_device_motion_event(XDeviceMotionEvent* motion);
++  void on_proximity_notify_event(XProximityNotifyEvent* prox);
++
++private:
++  void received_mouse_input(XEvent &amp;event);
++  void received_mouse_move(XEvent &amp;event);
++	
++  std::string name;
++
++  struct AxisInfo
++  {
++    int min_value;
++    int max_value;
++    int resolution;
++    int pos;
++
++    AxisInfo(int min_value_, int max_value_, int resolution_)
++      : min_value(min_value_), max_value(max_value_), resolution(resolution_), pos(0)
++    {}
++  };
++
++  std::vector&lt;bool&gt; buttons;
++
++  std::vector&lt;AxisInfo&gt; axis;
++
++  bool absolute;
++  int num_keys;	
++
++  bool proximity;
++	
++  Point mouse_pos;
++  Time time_at_last_press;
++  int last_press_id;
++
++  bool key_states[5];
++
++  int           motion_type;
++  int           button_press_type;
++  int           button_release_type;
++  int           key_press_type;
++  int           key_release_type;
++  int           proximity_in_type;
++  int           proximity_out_type;
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -40,13 +40,15 @@
+ #include &quot;region_tool.hpp&quot;
+ #include &quot;rect_tool.hpp&quot;
+ #include &quot;circle_tool.hpp&quot;
++#include &quot;line_tool.hpp&quot;
+ #include &quot;screen_buffer.hpp&quot;
+ 
+ ScreenBuffer::ScreenBuffer(const Rect&amp; rect)
+   : Widget(rect),
+     complete_refresh(false),
+     scroll_offset_x(0),
+-    scroll_offset_y(0)
++    scroll_offset_y(0),
++    pen_active(false)
+ {
+   tools.push_back(airbrush_tool    = new AirbrushTool());
+   tools.push_back(scroll_tool      = new ScrollTool());
+@@ -54,6 +56,7 @@
+   tools.push_back(rect_tool        = new RectTool());
+   tools.push_back(region_tool      = new RegionTool());
+   tools.push_back(circle_tool      = new CircleTool());
++  tools.push_back(line_tool        = new LineTool());
+ }
+ 
+ ScreenBuffer::~ScreenBuffer()
+@@ -64,6 +67,7 @@
+   delete scroll_tool;
+   delete airbrush_tool;
+   delete circle_tool;
++  delete line_tool;
+ }
+ 
+ void
+@@ -221,6 +225,21 @@
+ }
+ 
+ void
++ScreenBuffer::on_pen_motion(const PenEvent&amp; pen)
++{
++  printf(&quot;x: %1.5f y: %1.5f pressure: %1.5f x_tilt: %2.5f y_tilt: %2.5f\n&quot;,
++         pen.x, pen.y, pen.pressure, pen.x_tilt, pen.y_tilt);
++  if (pen.pressure &gt; 0)
++    {
++      pen_active = true;
++    }
++  else
++    {
++      
++    }
++}
++
++void
+ ScreenBuffer::on_mouse_motion(const MouseMotionEvent&amp; motion)
+ {
+   ToolMotionEvent tool_motion;
+@@ -287,6 +306,10 @@
+ {
+   switch(tool)
+     {
++    case LINE_TOOL:
++      tools[0] = line_tool;
++      break;
++
+     case PAINTBRUSH_TOOL:
+       tools[0] = airbrush_tool;
+       break;
+
+Modified: trunk/netbrush/src/screen_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.hpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/screen_buffer.hpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -37,6 +37,7 @@
+ class RegionTool;
+ class RectTool;
+ class CircleTool;
++class LineTool;
+ class AirbrushTool;
+ 
+ /** */
+@@ -57,7 +58,10 @@
+   CircleTool*      circle_tool;
+   ScrollTool*      scroll_tool;
+   AirbrushTool*    airbrush_tool;
++  LineTool*    line_tool;
+ 
++  bool pen_active;
++
+   typedef std::vector&lt;Tool*&gt; Tools;
+   Tools tools;
+ public:
+@@ -73,6 +77,7 @@
+ 
+   void on_mouse_motion(const MouseMotionEvent&amp; motion);
+   void on_mouse_button(const MouseButtonEvent&amp; button);
++  void on_pen_motion(const PenEvent&amp; pen);
+   
+   void on_enter() {}
+   void on_leave() {}
+
+Modified: trunk/netbrush/src/server_connection.cpp
+===================================================================
+--- trunk/netbrush/src/server_connection.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/server_connection.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -227,12 +227,19 @@
+                                                   atoi(tokens[8].c_str())));
+                 }
+               else if (tokens.size() == 7 &amp;&amp; tokens[2] == &quot;fill_rect&quot;)
+-                { // fill_rect X1 Y2 X2 Y2
++                { // fill_rect X1 Y1 X2 Y2
+                   client_state-&gt;fill_rect(Rect(atoi(tokens[3].c_str()),
+                                                atoi(tokens[4].c_str()),
+                                                atoi(tokens[5].c_str()),
+                                                atoi(tokens[6].c_str())));
+                 }
++              else if (tokens.size() == 7 &amp;&amp; tokens[2] == &quot;draw_line&quot;)
++                { // draw_line X1 Y1 X2 Y2
++                  client_state-&gt;draw_line(Point(atoi(tokens[3].c_str()),
++                                                atoi(tokens[4].c_str())),
++                                          Point(atoi(tokens[5].c_str()),
++                                                atoi(tokens[6].c_str())));
++                }
+               else if (tokens.size() == 6 &amp;&amp; tokens[2] == &quot;fill_circle&quot;)
+                 { // fill_circle X Y RADIUS
+                   client_state-&gt;fill_circle(Point(atoi(tokens[3].c_str()),
+
+Modified: trunk/netbrush/src/tool.hpp
+===================================================================
+--- trunk/netbrush/src/tool.hpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/tool.hpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -31,7 +31,7 @@
+ #include &quot;math/rect.hpp&quot;
+ #include &quot;widget/events.hpp&quot;
+ 
+-enum ToolName { PAINTBRUSH_TOOL, RECT_TOOL, REGION_TOOL, COLOR_PICKER_TOOL, CIRCLE_TOOL };
++enum ToolName { PAINTBRUSH_TOOL, RECT_TOOL, REGION_TOOL, COLOR_PICKER_TOOL, CIRCLE_TOOL, LINE_TOOL };
+ 
+ struct ToolMotionEvent
+ {
+
+Modified: trunk/netbrush/src/widget/events.hpp
+===================================================================
+--- trunk/netbrush/src/widget/events.hpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/widget/events.hpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -28,6 +28,20 @@
+ 
+ #include &quot;SDL.h&quot;
+ 
++class PenEvent
++{
++public:
++  float x;
++  float y;
++  float pressure;
++  float x_tilt;
++  float y_tilt;
++
++  PenEvent(float x, float y, float pressure, float x_tilt, float y_tilt)
++    : x(x), y(y), pressure(pressure), x_tilt(x_tilt), y_tilt(y_tilt)
++  {}
++};
++
+ class MouseButtonEvent
+ {
+ public:
+
+Modified: trunk/netbrush/src/widget/widget.hpp
+===================================================================
+--- trunk/netbrush/src/widget/widget.hpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/widget/widget.hpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -51,6 +51,8 @@
+   virtual void on_mouse_motion(const MouseMotionEvent&amp; motion) =0;
+   virtual void on_mouse_button(const MouseButtonEvent&amp; button) =0;
+ 
++  virtual void on_pen_motion(const PenEvent&amp; button) {}
++
+   virtual void on_enter() = 0;
+   virtual void on_leave() = 0;
+ 
+
+Modified: trunk/netbrush/src/widget/widget_manager.cpp
+===================================================================
+--- trunk/netbrush/src/widget/widget_manager.cpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/widget/widget_manager.cpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -28,6 +28,8 @@
+ #include &quot;../video.hpp&quot;
+ #include &quot;widget.hpp&quot;
+ #include &quot;events.hpp&quot;
++#include &quot;../globals.hpp&quot;
++#include &quot;../screen_buffer.hpp&quot;
+ #include &quot;widget_manager.hpp&quot;
+ 
+ WidgetManager::WidgetManager()
+@@ -134,6 +136,13 @@
+ }
+ 
+ void
++WidgetManager::on_pen_motion(const PenEvent&amp; pen)
++{
++  // FIXME: Hack, should to normal widget handling instead
++  screen_buffer-&gt;on_pen_motion(pen);
++}
++
++void
+ WidgetManager::update()
+ {
+   for(Widgets::reverse_iterator i = widgets.rbegin(); i != widgets.rend(); ++i)
+
+Modified: trunk/netbrush/src/widget/widget_manager.hpp
+===================================================================
+--- trunk/netbrush/src/widget/widget_manager.hpp	2006-11-04 18:29:44 UTC (rev 690)
++++ trunk/netbrush/src/widget/widget_manager.hpp	2006-11-04 19:51:28 UTC (rev 691)
+@@ -31,6 +31,7 @@
+ 
+ class MouseMotionEvent;
+ class MouseButtonEvent;
++class PenEvent;
+ 
+ class Widget;
+ 
+@@ -48,6 +49,7 @@
+   
+   void on_mouse_motion(const MouseMotionEvent&amp; motion);
+   void on_mouse_button(const MouseButtonEvent&amp; button);
++  void on_pen_motion(const PenEvent&amp; pen);
+ 
+   void grab(Widget* widget);
+   void ungrab(Widget* widget);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000183.html">[Flexlay-commit] r690 - trunk/netbrush/experimental
+</A></li>
+	<LI>Next message: <A HREF="000185.html">[Flexlay-commit] r692 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#184">[ date ]</a>
+              <a href="thread.html#184">[ thread ]</a>
+              <a href="subject.html#184">[ subject ]</a>
+              <a href="author.html#184">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

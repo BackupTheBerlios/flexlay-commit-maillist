@@ -1,0 +1,435 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r672 - in trunk/netbrush: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r672%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610232136.k9NLaEZ6031425%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000166.html">
+   <LINK REL="Next"  HREF="000168.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r672 - in trunk/netbrush: . src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r672%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610232136.k9NLaEZ6031425%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r672 - in trunk/netbrush: . src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Oct 23 23:36:14 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000166.html">[Flexlay-commit] r671 - in trunk/netbrush: . data/icons sessions	src src/widget
+</A></li>
+        <LI>Next message: <A HREF="000168.html">[Flexlay-commit] r673 - in trunk/netbrush: . data data/fonts src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#167">[ date ]</a>
+              <a href="thread.html#167">[ thread ]</a>
+              <a href="subject.html#167">[ subject ]</a>
+              <a href="author.html#167">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-23 23:36:13 +0200 (Mon, 23 Oct 2006)
+New Revision: 672
+
+Added:
+   trunk/netbrush/src/color_display.cpp
+   trunk/netbrush/src/color_display.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/src/colorpicker_tool.cpp
+   trunk/netbrush/src/colorpicker_tool.hpp
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/controller.hpp
+   trunk/netbrush/src/drawing_context.cpp
+   trunk/netbrush/src/drawing_context.hpp
+   trunk/netbrush/src/screen_buffer.cpp
+Log:
+- added color picker
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/SConstruct	2006-10-23 21:36:13 UTC (rev 672)
+@@ -61,6 +61,7 @@
+         'src/paintbrush_tool.cpp',
+         'src/scroll_tool.cpp',
+         'src/colorpicker_tool.cpp',
++        'src/color_display.cpp',
+         'src/color.cpp',
+ #        'src/widget/events.cpp',
+ ])
+
+Added: trunk/netbrush/src/color_display.cpp
+===================================================================
+--- trunk/netbrush/src/color_display.cpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/color_display.cpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -0,0 +1,54 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;iostream&gt;
++#include &quot;color_display.hpp&quot;
++
++ColorDisplay::ColorDisplay(const Rect&amp; rect)
++  : Widget(rect), m_color(255, 0, 255)
++{
++}
++
++void
++ColorDisplay::draw(SDL_Surface* target)
++{
++  SDL_Rect r;
++  r.x = get_rect().left;
++  r.y = get_rect().top;
++  r.w = get_rect().get_width();
++  r.h = get_rect().get_height();
++
++  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, m_color.r, m_color.g, m_color.b));
++  if (0) std::cout &lt;&lt; &quot;Color: &quot; &lt;&lt; (int)m_color.r &lt;&lt; &quot; &quot; &lt;&lt; (int)m_color.g &lt;&lt; &quot; &quot; &lt;&lt; (int)m_color.b &lt;&lt; std::endl;
++}
++
++void
++ColorDisplay::set_color(const Color&amp; color)
++{
++  m_color = color;
++  set_dirty(true);
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/color_display.hpp
+===================================================================
+--- trunk/netbrush/src/color_display.hpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/color_display.hpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -0,0 +1,56 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_COLOR_DISPLAY_HPP
++#define HEADER_COLOR_DISPLAY_HPP
++
++#include &quot;color.hpp&quot;
++#include &quot;widget/widget.hpp&quot;
++
++/** */
++class ColorDisplay : public Widget
++{
++private:
++  Color m_color;
++
++public:
++  ColorDisplay(const Rect&amp; rect);
++  
++  void on_mouse_motion(const MouseMotionEvent&amp; motion) {}
++  void on_mouse_button(const MouseButtonEvent&amp; button) {}
++
++  void on_enter() {}
++  void on_leave() {}
++  
++  void draw(SDL_Surface* target);
++  void set_color(const Color&amp; color);
++private:
++  ColorDisplay (const ColorDisplay&amp;);
++  ColorDisplay&amp; operator= (const ColorDisplay&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/colorpicker_tool.cpp
+===================================================================
+--- trunk/netbrush/src/colorpicker_tool.cpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/colorpicker_tool.cpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -23,9 +23,15 @@
+ **  02111-1307, USA.
+ */
+ 
++#include &lt;iostream&gt;
++#include &quot;drawing_context.hpp&quot;
++#include &quot;globals.hpp&quot;
++#include &quot;controller.hpp&quot;
++#include &quot;color.hpp&quot;
+ #include &quot;colorpicker_tool.hpp&quot;
+ 
+ ColorpickerTool::ColorpickerTool()
++  : dragging(false)
+ {
+ }
+ 
+@@ -36,16 +42,32 @@
+ void
+ ColorpickerTool::on_motion(const ToolMotionEvent&amp; ev)
+ {
++  if (dragging)
++    {
++      pick_color(ev.x, ev.y);
++    }
+ }
+ 
+ void
+ ColorpickerTool::on_button_press(const ToolButtonEvent&amp; ev)
+ {
++  pick_color(ev.x, ev.y);
++  dragging = true;
+ }
+ 
+ void
+ ColorpickerTool::on_button_release(const ToolButtonEvent&amp; ev)
+ {
++  pick_color(ev.x, ev.y);
++  dragging = false;
+ }
+ 
++void
++ColorpickerTool::pick_color(int x, int y)
++{
++  Color color;
++  if (draw_ctx-&gt;get_color(x, y, color))
++    controller-&gt;set_color(color);
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/colorpicker_tool.hpp
+===================================================================
+--- trunk/netbrush/src/colorpicker_tool.hpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/colorpicker_tool.hpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -32,6 +32,8 @@
+ class ColorpickerTool : public Tool
+ {
+ private:
++  bool dragging;
++
+ public:
+   ColorpickerTool();
+   ~ColorpickerTool();
+@@ -39,6 +41,9 @@
+   void on_motion(const ToolMotionEvent&amp; ev);
+   void on_button_press(const ToolButtonEvent&amp; ev);
+   void on_button_release(const ToolButtonEvent&amp; ev);
++
++  void pick_color(int x, int y);
++
+ private:
+   ColorpickerTool (const ColorpickerTool&amp;);
+   ColorpickerTool&amp; operator= (const ColorpickerTool&amp;);
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/controller.cpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -121,10 +121,12 @@
+   alpha_picker            = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
+   saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
+   hue_picker              = new HuePicker(Rect(Point(screen-&gt;w-128, 128), Size(128, 24)));
++  color_display           = new ColorDisplay(Rect(Point(0, screen-&gt;h - 34), Size(34, 34)));
+ 
+   widget_manager-&gt;add(saturation_value_picker);
+   widget_manager-&gt;add(hue_picker);
+   widget_manager-&gt;add(alpha_picker);
++  widget_manager-&gt;add(color_display);
+ 
+   // Brush Slider
+   radius_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(0)), Size(128, 24)),
+@@ -149,7 +151,15 @@
+ 
+ }
+ 
++
+ void
++Controller::set_color(const Color&amp; color)
++{
++  client_draw_param-&gt;color = color;
++  color_display-&gt;set_color(color);
++}
++
++void
+ Controller::set_color_hue(Uint8 hue_)
+ {
+   hue = hue_;
+
+Modified: trunk/netbrush/src/controller.hpp
+===================================================================
+--- trunk/netbrush/src/controller.hpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/controller.hpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -28,6 +28,7 @@
+ 
+ #include &quot;saturation_value_picker.hpp&quot;
+ #include &quot;alpha_picker.hpp&quot;
++#include &quot;color_display.hpp&quot;
+ #include &quot;hue_picker.hpp&quot;
+ #include &quot;generic_brush.hpp&quot;
+ 
+@@ -40,6 +41,7 @@
+   SaturationValuePicker* saturation_value_picker;
+   HuePicker*             hue_picker;
+   AlphaPicker*           alpha_picker;
++  ColorDisplay*          color_display;
+ 
+   SliderWidget* radius_slider;
+   SliderWidget* spike_slider;
+@@ -55,6 +57,7 @@
+   Controller();
+   ~Controller();
+ 
++  void set_color(const Color&amp; color);
+   void set_color_hue(Uint8 hue);
+   void set_color_value_saturation(Uint8 value, Uint8 saturation);
+ 
+
+Modified: trunk/netbrush/src/drawing_context.cpp
+===================================================================
+--- trunk/netbrush/src/drawing_context.cpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/drawing_context.cpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -159,4 +159,29 @@
+     }
+ }
+ 
++bool
++DrawingContext::get_color(int x, int y, Color&amp; color)
++{
++  if ((x &gt;= 0 &amp;&amp; x &lt; drawable-&gt;w) &amp;&amp;
++      (y &gt;= 0 &amp;&amp; y &lt; drawable-&gt;h))
++    {
++      SDL_LockSurface(drawable);
++      Uint8* source = static_cast&lt;Uint8*&gt;(drawable-&gt;pixels);
++
++      SDL_GetRGB(*((Uint32*)(source+(y * drawable-&gt;pitch + drawable-&gt;format-&gt;BytesPerPixel * x))),
++                 drawable-&gt;format,
++                 &amp;color.r,
++                 &amp;color.g,
++                 &amp;color.b);
++
++  
++      SDL_UnlockSurface(drawable);
++      return true;
++    }
++  else
++    {
++      return false;
++    }
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/drawing_context.hpp
+===================================================================
+--- trunk/netbrush/src/drawing_context.hpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/drawing_context.hpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -30,6 +30,7 @@
+ #include &quot;math/rect.hpp&quot;
+ #include &quot;stroke.hpp&quot;
+ 
++class Color;
+ class GrayscaleBuffer;
+ class DrawingParameter;
+ class StrokeBuffer;
+@@ -52,7 +53,7 @@
+ 
+   int get_width()  const { return drawable-&gt;w; }
+   int get_height() const { return drawable-&gt;h; }
+-
++  bool get_color(int x, int y, Color&amp; color);
+   SDL_Surface* get_surface() { return drawable; }
+ };
+ 
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-23 20:57:09 UTC (rev 671)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-23 21:36:13 UTC (rev 672)
+@@ -36,6 +36,7 @@
+ #include &quot;tool.hpp&quot;
+ #include &quot;airbrush_tool.hpp&quot;
+ #include &quot;scroll_tool.hpp&quot;
++#include &quot;colorpicker_tool.hpp&quot;
+ #include &quot;screen_buffer.hpp&quot;
+ 
+ ScreenBuffer::ScreenBuffer(const Rect&amp; rect)
+@@ -46,7 +47,7 @@
+ {
+   tools.push_back(new AirbrushTool());
+   tools.push_back(new ScrollTool());
+-  tools.push_back(new AirbrushTool());
++  tools.push_back(new ColorpickerTool());
+ }
+ 
+ ScreenBuffer::~ScreenBuffer()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000166.html">[Flexlay-commit] r671 - in trunk/netbrush: . data/icons sessions	src src/widget
+</A></li>
+	<LI>Next message: <A HREF="000168.html">[Flexlay-commit] r673 - in trunk/netbrush: . data data/fonts src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#167">[ date ]</a>
+              <a href="thread.html#167">[ thread ]</a>
+              <a href="subject.html#167">[ subject ]</a>
+              <a href="author.html#167">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

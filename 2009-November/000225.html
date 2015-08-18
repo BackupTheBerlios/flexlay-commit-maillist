@@ -1,0 +1,1464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r732 - in trunk/flexlay/lib: . gui tools
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r732%20-%20in%20trunk/flexlay/lib%3A%20.%20gui%20tools&In-Reply-To=%3C200911221837.nAMIbQmn009513%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000224.html">
+   <LINK REL="Next"  HREF="000226.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r732 - in trunk/flexlay/lib: . gui tools</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r732%20-%20in%20trunk/flexlay/lib%3A%20.%20gui%20tools&In-Reply-To=%3C200911221837.nAMIbQmn009513%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r732 - in trunk/flexlay/lib: . gui tools">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 19:37:26 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000224.html">[Flexlay-commit] r731 - in trunk/flexlay/lib: . tools
+</A></li>
+        <LI>Next message: <A HREF="000226.html">[Flexlay-commit] r733 - in trunk/flexlay/lib: . gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#225">[ date ]</a>
+              <a href="thread.html#225">[ thread ]</a>
+              <a href="subject.html#225">[ subject ]</a>
+              <a href="author.html#225">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 19:37:23 +0100 (Sun, 22 Nov 2009)
+New Revision: 732
+
+Modified:
+   trunk/flexlay/lib/bitmap_layer.cpp
+   trunk/flexlay/lib/bitmap_layer.hpp
+   trunk/flexlay/lib/box.cpp
+   trunk/flexlay/lib/box.hpp
+   trunk/flexlay/lib/brush_impl.hpp
+   trunk/flexlay/lib/command.cpp
+   trunk/flexlay/lib/command_group.hpp
+   trunk/flexlay/lib/drawer_properties.hpp
+   trunk/flexlay/lib/editor_map.cpp
+   trunk/flexlay/lib/editor_map.hpp
+   trunk/flexlay/lib/fonts.hpp
+   trunk/flexlay/lib/generated_brush.cpp
+   trunk/flexlay/lib/generated_brush.hpp
+   trunk/flexlay/lib/graphic_context_state.hpp
+   trunk/flexlay/lib/gui/colorpicker.hpp
+   trunk/flexlay/lib/gui/console.hpp
+   trunk/flexlay/lib/gui/directory_view.hpp
+   trunk/flexlay/lib/gui/icon.hpp
+   trunk/flexlay/lib/gui/menu.hpp
+   trunk/flexlay/lib/gui/menubar.hpp
+   trunk/flexlay/lib/gui/minimap.hpp
+   trunk/flexlay/lib/gui/object_selector.cpp
+   trunk/flexlay/lib/gui/object_selector.hpp
+   trunk/flexlay/lib/gui/panel.hpp
+   trunk/flexlay/lib/gui/scrollbar.hpp
+   trunk/flexlay/lib/gui/tile_editor.hpp
+   trunk/flexlay/lib/gui/tile_selection.cpp
+   trunk/flexlay/lib/gui/tile_selector.cpp
+   trunk/flexlay/lib/gui/tile_selector.hpp
+   trunk/flexlay/lib/gui/titlebar.hpp
+   trunk/flexlay/lib/gui/viewport.hpp
+   trunk/flexlay/lib/gui/window.hpp
+   trunk/flexlay/lib/gui_manager.hpp
+   trunk/flexlay/lib/layer.cpp
+   trunk/flexlay/lib/layer.hpp
+   trunk/flexlay/lib/lispreader.hpp
+   trunk/flexlay/lib/marker_stroke_drawer.hpp
+   trunk/flexlay/lib/meta_data.hpp
+   trunk/flexlay/lib/meta_data_impl.hpp
+   trunk/flexlay/lib/object_brush.cpp
+   trunk/flexlay/lib/object_layer.hpp
+   trunk/flexlay/lib/object_move_command.hpp
+   trunk/flexlay/lib/object_transform_command.hpp
+   trunk/flexlay/lib/objmap_control_point.hpp
+   trunk/flexlay/lib/objmap_object.hpp
+   trunk/flexlay/lib/objmap_path_node.hpp
+   trunk/flexlay/lib/objmap_rect_object.cpp
+   trunk/flexlay/lib/objmap_sprite_object.hpp
+   trunk/flexlay/lib/popup_menu.hpp
+   trunk/flexlay/lib/sprite_stroke_drawer.cpp
+   trunk/flexlay/lib/sprite_stroke_drawer.hpp
+   trunk/flexlay/lib/tile.cpp
+   trunk/flexlay/lib/tile_brush.hpp
+   trunk/flexlay/lib/tilemap_layer.cpp
+   trunk/flexlay/lib/tilemap_layer.hpp
+   trunk/flexlay/lib/tilemap_minimap.hpp
+   trunk/flexlay/lib/tools/layer_move_tool.hpp
+   trunk/flexlay/lib/tools/objmap_select_tool.cpp
+   trunk/flexlay/lib/tools/objmap_select_tool.hpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.cpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_paint_tool.cpp
+   trunk/flexlay/lib/tools/tilemap_paint_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_select_tool.cpp
+   trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+   trunk/flexlay/lib/tools/tool.cpp
+   trunk/flexlay/lib/tools/tool.hpp
+   trunk/flexlay/lib/tools/tool_impl.hpp
+   trunk/flexlay/lib/tools/workspace_move_tool.cpp
+   trunk/flexlay/lib/tools/workspace_move_tool.hpp
+   trunk/flexlay/lib/tools/zoom2_tool.cpp
+   trunk/flexlay/lib/tools/zoom2_tool.hpp
+   trunk/flexlay/lib/tools/zoom_tool.cpp
+   trunk/flexlay/lib/tools/zoom_tool.hpp
+   trunk/flexlay/lib/workspace.hpp
+Log:
+Further include and Copyright cleanup
+
+
+Modified: trunk/flexlay/lib/bitmap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/bitmap_layer.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,24 +14,13 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &lt;iostream&gt;
+-#include &lt;assert.h&gt;
++#include &quot;bitmap_layer.hpp&quot;
++
+ #include &lt;ClanLib/gl.h&gt;
+-#include &lt;ClanLib/Core/core_iostream.h&gt;
+ #include &lt;ClanLib/Core/System/error.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/sprite.h&gt;
+-#include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &lt;ClanLib/Display/canvas.h&gt;
+-#include &lt;ClanLib/Display/blend_func.h&gt;
+-#include &lt;ClanLib/Display/graphic_context.h&gt;
+-#include &lt;ClanLib/Display/display_window.h&gt;
+ 
+-#include &quot;flexlay.hpp&quot;
+-#include &quot;layer_impl.hpp&quot;
+-#include &quot;bitmap_layer.hpp&quot;
+ #include &quot;objmap_object_impl.hpp&quot;
+-#include &quot;math.hpp&quot;
+ 
+ BitmapLayer* BitmapLayer::current_ = 0;
+ 
+
+Modified: trunk/flexlay/lib/bitmap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/bitmap_layer.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,14 +17,11 @@
+ #ifndef HEADER_FLEXLAY_BITMAP_LAYER_HPP
+ #define HEADER_FLEXLAY_BITMAP_LAYER_HPP
+ 
+-#include &lt;vector&gt;
+-#include &lt;ClanLib/Core/Math/point.h&gt;
+-#include &lt;ClanLib/Display/color.h&gt;
+ #include &quot;objmap_object.hpp&quot;
+-#include &quot;layer.hpp&quot;
+ #include &quot;stroke.hpp&quot;
+ 
+ class BitmapLayerImpl;
++class CL_Canvas;
+ 
+ /** This layer holds a simple bitmap, size and color format are
+     configurable, it works similar to the SketchLayer, however it
+
+Modified: trunk/flexlay/lib/box.cpp
+===================================================================
+--- trunk/flexlay/lib/box.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/box.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,9 +14,10 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &lt;ClanLib/Display/display.h&gt;
+ #include &quot;box.hpp&quot;
+ 
++#include &lt;ClanLib/Display/display.h&gt;
++
+ CL_Color background   (210, 210, 210);
+ CL_Color background_hl(240, 240, 240);
+ CL_Color background_sw(200, 200, 200);
+
+Modified: trunk/flexlay/lib/box.hpp
+===================================================================
+--- trunk/flexlay/lib/box.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/box.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,6 +17,7 @@
+ #ifndef HEADER_FLEXLAY_BOX_HPP
+ #define HEADER_FLEXLAY_BOX_HPP
+ 
++class CL_Rect;
+ 
+ /** Little helper class to draw boxes and stuff in the GUI */
+ class Box
+
+Modified: trunk/flexlay/lib/brush_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/brush_impl.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/brush_impl.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -19,7 +19,6 @@
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ 
+-/** */
+ class BrushImpl
+ {
+ public:
+
+Modified: trunk/flexlay/lib/command.cpp
+===================================================================
+--- trunk/flexlay/lib/command.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/command.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,7 +14,6 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &lt;string&gt;
+ #include &quot;command.hpp&quot;
+ 
+ Command::Command()
+
+Modified: trunk/flexlay/lib/command_group.hpp
+===================================================================
+--- trunk/flexlay/lib/command_group.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/command_group.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -20,7 +20,6 @@
+ #include &lt;vector&gt;
+ #include &quot;command.hpp&quot;
+ 
+-/** */
+ class CommandGroup
+ {
+ private:
+
+Modified: trunk/flexlay/lib/drawer_properties.hpp
+===================================================================
+--- trunk/flexlay/lib/drawer_properties.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/drawer_properties.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -21,7 +21,6 @@
+ 
+ class DrawerPropertiesImpl;
+ 
+-/** */
+ class DrawerProperties
+ {
+ private:
+
+Modified: trunk/flexlay/lib/editor_map.cpp
+===================================================================
+--- trunk/flexlay/lib/editor_map.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/editor_map.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,10 +17,10 @@
+ #include &quot;editor_map.hpp&quot;
+ 
+ #include &lt;iostream&gt;
+-#include &lt;ClanLib/Display/color.h&gt;
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+-#include &lt;ClanLib/signals.h&gt;
+ 
++#include &quot;meta_data.hpp&quot;
++
+ class EditorMapImpl
+ {
+ public:
+
+Modified: trunk/flexlay/lib/editor_map.hpp
+===================================================================
+--- trunk/flexlay/lib/editor_map.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/editor_map.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -18,11 +18,9 @@
+ #define HEADER_FLEXLAY_EDITOR_MAP_HPP
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &lt;ClanLib/Core/System/sharedptr.h&gt;
+ #include &lt;ClanLib/Display/color.h&gt;
+ 
+ #include &quot;layer.hpp&quot;
+-#include &quot;meta_data.hpp&quot;
+ #include &quot;command.hpp&quot;
+ 
+ class CL_GraphicContext;
+
+Modified: trunk/flexlay/lib/fonts.hpp
+===================================================================
+--- trunk/flexlay/lib/fonts.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/fonts.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -19,7 +19,6 @@
+ 
+ #include &lt;ClanLib/Display/font.h&gt;
+ 
+-/** */
+ class Fonts
+ {
+ public:
+
+Modified: trunk/flexlay/lib/generated_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/generated_brush.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/generated_brush.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,9 +14,10 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &lt;ClanLib/Display/sprite_description.h&gt;
+ #include &quot;generated_brush.hpp&quot;
+ 
++#include &lt;ClanLib/Display/sprite_description.h&gt;
++
+ class GeneratedBrushImpl : public BrushImpl
+ {
+ public:
+
+Modified: trunk/flexlay/lib/generated_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/generated_brush.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/generated_brush.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -22,7 +22,6 @@
+ 
+ class GeneratedBrushImpl;
+ 
+-/** */
+ class GeneratedBrush
+ {
+ private:
+
+Modified: trunk/flexlay/lib/graphic_context_state.hpp
+===================================================================
+--- trunk/flexlay/lib/graphic_context_state.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/graphic_context_state.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,7 +17,6 @@
+ #ifndef HEADER_FLEXLAY_GRAPHIC_CONTEXT_STATE_HPP
+ #define HEADER_FLEXLAY_GRAPHIC_CONTEXT_STATE_HPP
+ 
+-#include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;boost/shared_ptr.hpp&gt;
+ 
+
+Modified: trunk/flexlay/lib/gui/colorpicker.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/colorpicker.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/colorpicker.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -23,7 +23,6 @@
+ class ColorPickerAlpha;
+ class ColorPickerBrightness;
+ 
+-/** */
+ class ColorPicker : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/console.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/console.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/console.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -24,7 +24,6 @@
+ class CL_Size;
+ class ConsoleImpl;
+ 
+-/** */
+ class Console : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/directory_view.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/directory_view.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/directory_view.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -22,7 +22,6 @@
+ 
+ class DirectoryViewImpl;
+ 
+-/** */
+ class DirectoryView : public CL_Component
+ {
+ private:
+
+Modified: trunk/flexlay/lib/gui/icon.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/icon.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/icon.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -23,7 +23,6 @@
+ 
+ class IconImpl;
+ 
+-/** */
+ class Icon : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/menu.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/menu.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/menu.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -25,7 +25,6 @@
+ 
+ typedef int MenuItemHandle;
+ 
+-/** */
+ class Menu : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/menubar.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/menubar.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/menubar.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -23,7 +23,6 @@
+ class Menu;
+ class MenubarImpl;
+ 
+-/** */
+ class Menubar : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/minimap.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/minimap.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/minimap.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -25,7 +25,6 @@
+ class MinimapImpl;
+ class EditorMapComponent;
+ 
+-/** */
+ class Minimap : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/object_selector.cpp
+===================================================================
+--- trunk/flexlay/lib/gui/object_selector.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/object_selector.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,7 +17,7 @@
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/Core/core_iostream.h&gt;
+ #include &lt;ClanLib/display.h&gt;
+-#include &quot;editor_map.hpp&quot;
++//#include &quot;editor_map.hpp&quot;
+ #include &quot;editor_map_component.hpp&quot;
+ #include &quot;object_selector.hpp&quot;
+ #include &quot;object_add_command.hpp&quot;
+
+Modified: trunk/flexlay/lib/gui/object_selector.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/object_selector.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/object_selector.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,11 +17,8 @@
+ #ifndef HEADER_FLEXLAY_OBJECT_SELECTOR_HPP
+ #define HEADER_FLEXLAY_OBJECT_SELECTOR_HPP
+ 
+-#include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;ClanLib/GUI/component.h&gt;
+ #include &quot;object_brush.hpp&quot;
+ 
+-/** */
+ class ObjectSelector : public CL_Component
+ {
+ private:
+
+Modified: trunk/flexlay/lib/gui/panel.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/panel.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/panel.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -22,7 +22,6 @@
+ 
+ class PanelImpl;
+ 
+-/** */
+ class Panel : public CL_Component
+ {
+ public:
+
+Modified: trunk/flexlay/lib/gui/scrollbar.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/scrollbar.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/scrollbar.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -22,7 +22,6 @@
+ 
+ class ScrollbarImpl;
+ 
+-/** */
+ class Scrollbar : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/tile_editor.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/tile_editor.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/tile_editor.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -21,7 +21,6 @@
+ 
+ class Tile;
+ 
+-/** */
+ class TileEditor : public CL_Component
+ {
+ private:
+
+Modified: trunk/flexlay/lib/gui/tile_selection.cpp
+===================================================================
+--- trunk/flexlay/lib/gui/tile_selection.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/tile_selection.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,11 +14,13 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++#include &quot;tile_selection.hpp&quot;
++
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;iostream&gt;
++
+ #include &quot;math.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+-#include &quot;tile_selection.hpp&quot;
+ 
+ class TileSelectionImpl
+ {
+
+Modified: trunk/flexlay/lib/gui/tile_selector.cpp
+===================================================================
+--- trunk/flexlay/lib/gui/tile_selector.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/tile_selector.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -18,11 +18,10 @@
+ 
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/display.h&gt;
+-#include &lt;ClanLib/core.h&gt;
+ 
+ #include &quot;math.hpp&quot;
+-#include &quot;tileset.hpp&quot;
+ #include &quot;tile.hpp&quot;
++#include &quot;tile_brush.hpp&quot;
+ #include &quot;tools/tilemap_paint_tool.hpp&quot;
+ 
+ TileSelector::TileSelector(const CL_Rect&amp; rect, CL_Component* parent) :
+
+Modified: trunk/flexlay/lib/gui/tile_selector.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/tile_selector.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/tile_selector.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -18,6 +18,7 @@
+ #define HEADER_FLEXLAY_TILE_SELECTOR_HPP
+ 
+ #include &lt;ClanLib/gui.h&gt;
++
+ #include &quot;tileset.hpp&quot;
+ 
+ class Tileset;
+
+Modified: trunk/flexlay/lib/gui/titlebar.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/titlebar.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/titlebar.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -22,7 +22,6 @@
+ 
+ class TitlebarImpl;
+ 
+-/** */
+ class Titlebar : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/viewport.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/viewport.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/viewport.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -18,12 +18,9 @@
+ #define HEADER_FLEXLAY_VIEWPORT_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+-#include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class ViewportImpl;
+ 
+-/** */
+ class Viewport : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui/window.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/window.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui/window.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -20,7 +20,6 @@
+ 
+ class WindowImpl;
+ 
+-/** */
+ class Window : public CL_Component
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/gui_manager.hpp
+===================================================================
+--- trunk/flexlay/lib/gui_manager.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/gui_manager.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -21,7 +21,6 @@
+ 
+ class GUIManagerImpl;
+ 
+-/** */
+ class GUIManager
+ {
+ private:
+
+Modified: trunk/flexlay/lib/layer.cpp
+===================================================================
+--- trunk/flexlay/lib/layer.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/layer.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,9 +14,10 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &quot;layer_impl.hpp&quot;
+ #include &quot;layer.hpp&quot;
+ 
++#include &quot;layer_impl.hpp&quot;
++
+ Layer::Layer() :
+   impl()
+ {
+
+Modified: trunk/flexlay/lib/layer.hpp
+===================================================================
+--- trunk/flexlay/lib/layer.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/layer.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -24,6 +24,7 @@
+ class CL_Rect;
+ class EditorMapComponent;
+ class LayerImpl;
++class CL_Pointf;
+ class CL_GraphicContext;
+ 
+ /** Each \a EditorMap consists out of one or more \a Layer,
+
+Modified: trunk/flexlay/lib/lispreader.hpp
+===================================================================
+--- trunk/flexlay/lib/lispreader.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/lispreader.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -175,7 +175,6 @@
+ #define lisp_cons_p(obj)     (lisp_type((obj)) == LISP_TYPE_CONS)
+ #define lisp_boolean_p(obj)  (lisp_type((obj)) == LISP_TYPE_BOOLEAN)
+ 
+-/** */
+ class LispReader
+ {
+ private:
+@@ -196,7 +195,6 @@
+   bool read_lisp (const char* name, lisp_object_t** b);
+ };
+ 
+-/** */
+ class LispWriter
+ {
+ private:
+
+Modified: trunk/flexlay/lib/marker_stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/marker_stroke_drawer.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/marker_stroke_drawer.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -21,7 +21,6 @@
+ 
+ class MarkerStrokeDrawerImpl;
+ 
+-/** */
+ class MarkerStrokeDrawer
+ {
+ private:
+
+Modified: trunk/flexlay/lib/meta_data.hpp
+===================================================================
+--- trunk/flexlay/lib/meta_data.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/meta_data.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -21,7 +21,6 @@
+ 
+ class MetaDataImpl;
+ 
+-/** */
+ class MetaData
+ {
+ private:
+
+Modified: trunk/flexlay/lib/meta_data_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/meta_data_impl.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/meta_data_impl.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,7 +17,6 @@
+ #ifndef HEADER_FLEXLAY_META_DATA_IMPL_HPP
+ #define HEADER_FLEXLAY_META_DATA_IMPL_HPP
+ 
+-/** */
+ class MetaDataImpl
+ {
+ private:
+
+Modified: trunk/flexlay/lib/object_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/object_brush.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/object_brush.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,7 +14,6 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &quot;objmap_sprite_object.hpp&quot;
+ #include &quot;object_brush.hpp&quot;
+ 
+ class ObjectBrushImpl
+
+Modified: trunk/flexlay/lib/object_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/object_layer.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/object_layer.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,8 +17,6 @@
+ #ifndef HEADER_FLEXLAY_OBJECT_LAYER_HPP
+ #define HEADER_FLEXLAY_OBJECT_LAYER_HPP
+ 
+-#include &lt;ClanLib/Display/sprite.h&gt;
+-#include &lt;ClanLib/GUI/component.h&gt;
+ #include &quot;meta_data.hpp&quot;
+ #include &quot;layer.hpp&quot;
+ #include &quot;objmap_object.hpp&quot;
+
+Modified: trunk/flexlay/lib/object_move_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_move_command.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/object_move_command.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -24,7 +24,6 @@
+ 
+ class ObjectMoveCommandImpl;
+ 
+-/** */
+ class ObjectMoveCommand
+ {
+ public:
+
+Modified: trunk/flexlay/lib/object_transform_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_transform_command.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/object_transform_command.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -22,7 +22,6 @@
+ 
+ class ObjMapObject;
+ 
+-/** */
+ class ObjectTransformCommand
+ {
+ public:
+
+Modified: trunk/flexlay/lib/objmap_control_point.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_control_point.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/objmap_control_point.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -18,7 +18,6 @@
+ #define HEADER_FLEXLAY_OBJMAP_CONTROL_POINT_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ #include &quot;meta_data.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/objmap_object.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/objmap_object.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -22,7 +22,6 @@
+ 
+ class ObjMapObjectImpl;
+ 
+-/** */
+ class ObjMapObject
+ {
+ public:
+
+Modified: trunk/flexlay/lib/objmap_path_node.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_path_node.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/objmap_path_node.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -20,7 +20,6 @@
+ 
+ class ObjMapPathNodeImpl;
+ 
+-/** */
+ class ObjMapPathNode
+ {
+ public:
+
+Modified: trunk/flexlay/lib/objmap_rect_object.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_rect_object.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/objmap_rect_object.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,12 +14,7 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &lt;iostream&gt;
+-#include &lt;ClanLib/Core/core_iostream.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/sprite.h&gt;
+ #include &quot;object_layer.hpp&quot;
+-#include &quot;objmap_control_point.hpp&quot;
+ #include &quot;objmap_rect_object.hpp&quot;
+ #include &quot;flexlay.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/objmap_sprite_object.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_sprite_object.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/objmap_sprite_object.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -20,11 +20,9 @@
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &quot;objmap_object.hpp&quot;
+ 
+-#include &quot;meta_data.hpp&quot;
+ 
+ class ObjMapSpriteObjectImpl;
+ 
+-/** */
+ class ObjMapSpriteObject
+ {
+ public:
+
+Modified: trunk/flexlay/lib/popup_menu.hpp
+===================================================================
+--- trunk/flexlay/lib/popup_menu.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/popup_menu.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -19,7 +19,6 @@
+ 
+ #include &lt;ClanLib/GUI/menu.h&gt;
+ 
+-/** */
+ class PopupMenu
+ {
+ private:
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/sprite_stroke_drawer.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,18 +14,12 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &lt;iostream&gt;
+-#include &lt;assert.h&gt;
+-#include &lt;ClanLib/Display/blend_func.h&gt;
+ #include &lt;ClanLib/Display/canvas.h&gt;
+ #include &lt;ClanLib/gl.h&gt;
+-#include &lt;ClanLib/GL/opengl_wrap.h&gt;
+-#include &quot;stroke.hpp&quot;
+ #include &quot;stroke_drawer_impl.hpp&quot;
+ #include &quot;sprite_stroke_drawer.hpp&quot;
+ #include &quot;drawer_properties.hpp&quot;
+ #include &quot;bitmap_layer.hpp&quot;
+-#include &quot;sketch_layer.hpp&quot;
+ 
+ CL_ProgramObject* program = 0;
+ 
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/sprite_stroke_drawer.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -22,7 +22,6 @@
+ class Stroke;
+ class SpriteStrokeDrawerImpl;
+ 
+-/** */
+ class SpriteStrokeDrawer
+ {
+ public:
+
+Modified: trunk/flexlay/lib/tile.cpp
+===================================================================
+--- trunk/flexlay/lib/tile.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tile.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -14,6 +14,8 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++#include &quot;tile.hpp&quot;
++
+ #include &lt;ClanLib/Core/System/error.h&gt;
+ #include &lt;ClanLib/Display/sprite_description.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+@@ -21,9 +23,9 @@
+ #include &lt;ClanLib/Display/palette.h&gt;
+ #include &lt;ClanLib/Display/Providers/provider_factory.h&gt;
+ #include &lt;iostream&gt;
++
+ #include &quot;string_converter.hpp&quot;
+ #include &quot;tile_provider.hpp&quot;
+-#include &quot;tile.hpp&quot;
+ 
+ class TileImpl
+ {
+
+Modified: trunk/flexlay/lib/tile_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_brush.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tile_brush.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -19,7 +19,6 @@
+ 
+ #include &quot;field.hpp&quot;
+ 
+-/** */
+ class TileBrush
+ {
+ private:
+
+Modified: trunk/flexlay/lib/tilemap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -16,17 +16,12 @@
+ 
+ #include &quot;tilemap_layer.hpp&quot;
+ 
+-#include &lt;math.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &lt;ClanLib/Display/pixel_format.h&gt;
+-#include &lt;ClanLib/Display/palette.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+-#include &lt;ClanLib/gl.h&gt;
+ 
+ #include &quot;tile.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+-#include &quot;editor_map.hpp&quot;
+ #include &quot;tile_brush.hpp&quot;
+ #include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;blitter.hpp&quot;
+
+Modified: trunk/flexlay/lib/tilemap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tilemap_layer.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -28,7 +28,6 @@
+ class TilemapLayerImpl;
+ class EditorMapComponent;
+ 
+-/** */
+ class TilemapLayer
+ {
+ private:
+
+Modified: trunk/flexlay/lib/tilemap_minimap.hpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_minimap.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tilemap_minimap.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,7 +17,6 @@
+ #ifndef HEADER_FLEXLAY_TILEMAP_MINIMAP_HPP
+ #define HEADER_FLEXLAY_TILEMAP_MINIMAP_HPP
+ 
+-/** */
+ class TilemapMinimap
+ {
+ private:
+
+Modified: trunk/flexlay/lib/tools/layer_move_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/layer_move_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/layer_move_tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -21,7 +21,6 @@
+ 
+ class LayerMoveToolImpl;
+ 
+-/** */
+ class LayerMoveTool : public Tool
+ {
+ public:
+
+Modified: trunk/flexlay/lib/tools/objmap_select_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/objmap_select_tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/objmap_select_tool.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;objmap_select_tool.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tools/objmap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/objmap_select_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/objmap_select_tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -24,7 +24,6 @@
+ class CL_Menu;
+ class ObjMapSelectToolImpl;
+ 
+-/** */
+ class ObjMapSelectTool
+ {
+ public:
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -1,40 +1,39 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;sketch_stroke_tool.hpp&quot;
+ 
+-#include &lt;iostream&gt;
+-#include &lt;assert.h&gt;
++//#include &lt;iostream&gt;
++//#include &lt;assert.h&gt;
+ #include &lt;ClanLib/gl.h&gt;
+-#include &lt;ClanLib/Display/input_event.h&gt;
++//#include &lt;ClanLib/Display/input_event.h&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &lt;ClanLib/Display/mouse.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;ClanLib/Display/input_context.h&gt;
+ 
+ #include &quot;gui/editor_map_component.hpp&quot;
+-#include &quot;tool.hpp&quot;
++//#include &quot;tool.hpp&quot;
+ #include &quot;bitmap_layer.hpp&quot;
+ #include &quot;sprite_stroke_drawer.hpp&quot;
+-#include &quot;marker_stroke_drawer.hpp&quot;
+-#include &quot;stroke.hpp&quot;
+-#include &quot;stroke_drawer.hpp&quot;
++//#include &quot;marker_stroke_drawer.hpp&quot;
++//#include &quot;stroke.hpp&quot;
++//#include &quot;stroke_drawer.hpp&quot;
+ #include &quot;drawer_properties.hpp&quot;
+-#include &quot;flexlay.hpp&quot;
++//#include &quot;flexlay.hpp&quot;
+ 
+ class SketchStrokeToolImpl : public ToolImpl
+ {
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -23,7 +23,6 @@
+ 
+ class SketchStrokeToolImpl;
+ 
+-/** */
+ class SketchStrokeTool
+ {
+ private:
+
+Modified: trunk/flexlay/lib/tools/tilemap_paint_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_paint_tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/tilemap_paint_tool.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -13,27 +13,23 @@
+ //
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program; if not, write to the Free Software
++
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++#include &quot;tilemap_paint_tool.hpp&quot;
+ 
+-#include &lt;iostream&gt;
+-#include &lt;ClanLib/Display/mouse.h&gt;
+ #include &lt;ClanLib/Display/keyboard.h&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ 
+-#include &quot;globals.hpp&quot;
+ #include &quot;tilemap_layer.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+ #include &quot;editor_map.hpp&quot;
+ #include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;tile.hpp&quot;
+-#include &quot;workspace.hpp&quot;
+ #include &quot;paint_command.hpp&quot;
+-#include &quot;editor_names.hpp&quot;
+ #include &quot;gui/tile_selection.hpp&quot;
+ #include &quot;tool_impl.hpp&quot;
+-#include &quot;tilemap_paint_tool.hpp&quot;
+ 
+ TileMapPaintTool TileMapPaintTool::current_;
+ 
+
+Modified: trunk/flexlay/lib/tools/tilemap_paint_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_paint_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/tilemap_paint_tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -18,12 +18,10 @@
+ #define HEADER_FLEXLAY_TOOLS_TILEMAP_PAINT_TOOL_HPP
+ 
+ #include &quot;tool.hpp&quot;
+-#include &quot;tile_brush.hpp&quot;
+-#include &quot;tilemap_layer.hpp&quot;
+ 
+ class TileMapPaintToolImpl;
++class TileBrush;
+ 
+-/** */
+ class TileMapPaintTool
+ {
+ private:
+
+Modified: trunk/flexlay/lib/tools/tilemap_select_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_select_tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/tilemap_select_tool.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;tilemap_select_tool.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -25,7 +25,6 @@
+ 
+ class TileMapSelectToolImpl;
+ 
+-/** */
+ class TileMapSelectTool
+ {
+ public:
+
+Modified: trunk/flexlay/lib/tools/tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/tool.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;tool_impl.hpp&quot;
+ #include &quot;tool.hpp&quot;
+
+Modified: trunk/flexlay/lib/tools/tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -24,7 +24,6 @@
+ 
+ class ToolImpl;
+ 
+-/** */
+ class Tool
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/tools/tool_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool_impl.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/tool_impl.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -19,7 +19,6 @@
+ 
+ class CL_InputEvent;
+ 
+-/** */
+ class ToolImpl
+ {
+ protected:
+
+Modified: trunk/flexlay/lib/tools/workspace_move_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/workspace_move_tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/workspace_move_tool.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -1,28 +1,27 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &quot;workspace_move_tool.hpp&quot;
+ 
+-#include &lt;ClanLib/Core/Math/point.h&gt;
+-#include &lt;ClanLib/Core/Math/rect.h&gt;
++//#include &lt;ClanLib/Core/Math/point.h&gt;
++//#include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &quot;tool_impl.hpp&quot;
+ 
+ #include &quot;gui/editor_map_component.hpp&quot;
+-#include &quot;workspace.hpp&quot;
++//#include &quot;workspace.hpp&quot;
+ 
+ class WorkspaceMoveToolImpl : public ToolImpl
+ {
+
+Modified: trunk/flexlay/lib/tools/workspace_move_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/workspace_move_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/workspace_move_tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -21,7 +21,6 @@
+ 
+ class WorkspaceMoveToolImpl;
+ 
+-/** */
+ class WorkspaceMoveTool
+ {
+ public:
+
+Modified: trunk/flexlay/lib/tools/zoom2_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom2_tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/zoom2_tool.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -1,22 +1,21 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
++//#include &lt;ClanLib/Display/keys.h&gt;
++//#include &lt;ClanLib/Display/display.h&gt;
+ 
+ #include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;tool_impl.hpp&quot;
+
+Modified: trunk/flexlay/lib/tools/zoom2_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom2_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/zoom2_tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,13 +17,12 @@
+ #ifndef HEADER_FLEXLAY_TOOLS_ZOOM2_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_ZOOM2_TOOL_HPP
+ 
+-#include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &lt;ClanLib/Display/input_event.h&gt;
++//#include &lt;ClanLib/Core/Math/rect.h&gt;
++//#include &lt;ClanLib/Display/input_event.h&gt;
+ #include &quot;tool.hpp&quot;
+ 
+ class Zoom2ToolImpl;
+ 
+-/** */
+ class Zoom2Tool
+ {
+ public:
+
+Modified: trunk/flexlay/lib/tools/zoom_tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom_tool.cpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/zoom_tool.cpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -1,19 +1,18 @@
+ //  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
++//  This program is free software: you can redistribute it and/or modify
++//  it under the terms of the GNU General Public License as published by
++//  the Free Software Foundation, either version 3 of the License, or
++//  (at your option) any later version.
++//  
+ //  This program is distributed in the hope that it will be useful,
+ //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ //  GNU General Public License for more details.
+-//
++//  
+ //  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+
+Modified: trunk/flexlay/lib/tools/zoom_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom_tool.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/tools/zoom_tool.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -17,13 +17,12 @@
+ #ifndef HEADER_FLEXLAY_TOOLS_ZOOM_TOOL_HPP
+ #define HEADER_FLEXLAY_TOOLS_ZOOM_TOOL_HPP
+ 
+-#include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &lt;ClanLib/Display/input_event.h&gt;
++//#include &lt;ClanLib/Core/Math/rect.h&gt;
++//#include &lt;ClanLib/Display/input_event.h&gt;
+ #include &quot;tool.hpp&quot;
+ 
+ class ZoomToolImpl;
+ 
+-/** */
+ class ZoomTool
+ {
+ public:
+
+Modified: trunk/flexlay/lib/workspace.hpp
+===================================================================
+--- trunk/flexlay/lib/workspace.hpp	2009-11-22 15:06:30 UTC (rev 731)
++++ trunk/flexlay/lib/workspace.hpp	2009-11-22 18:37:23 UTC (rev 732)
+@@ -25,7 +25,6 @@
+ class EditorMap;
+ class Tool;
+ 
+-/** */
+ class Workspace
+ {
+ private:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000224.html">[Flexlay-commit] r731 - in trunk/flexlay/lib: . tools
+</A></li>
+	<LI>Next message: <A HREF="000226.html">[Flexlay-commit] r733 - in trunk/flexlay/lib: . gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#225">[ date ]</a>
+              <a href="thread.html#225">[ thread ]</a>
+              <a href="subject.html#225">[ subject ]</a>
+              <a href="author.html#225">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

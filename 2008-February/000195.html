@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r702 - trunk/flexlay/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2008-February/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r702%20-%20trunk/flexlay/supertux&In-Reply-To=%3C200802082016.m18KGpf3024593%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r702 - trunk/flexlay/supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r702%20-%20trunk/flexlay/supertux&In-Reply-To=%3C200802082016.m18KGpf3024593%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r702 - trunk/flexlay/supertux">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Fri Feb  8 21:16:51 CET 2008</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#195">[ date ]</a>
+              <a href="thread.html#195">[ thread ]</a>
+              <a href="subject.html#195">[ subject ]</a>
+              <a href="author.html#195">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2008-02-08 21:16:51 +0100 (Fri, 08 Feb 2008)
+New Revision: 702
+
+Modified:
+   trunk/flexlay/supertux/tileset.rb
+Log:
+- disabled region handling, since it causes crash
+
+Modified: trunk/flexlay/supertux/tileset.rb
+===================================================================
+--- trunk/flexlay/supertux/tileset.rb	2007-02-26 16:53:10 UTC (rev 701)
++++ trunk/flexlay/supertux/tileset.rb	2008-02-08 20:16:51 UTC (rev 702)
+@@ -63,13 +63,15 @@
+           pixelbuffer = make_pixelbuffer($datadir + 'images/' + image)
+         elsif image.is_a?(Array) then
+           if image[0] == :region then
+-            pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image[1],
+-                                                  image[2], image[3], image[4], image[5])
++            # FIXME: Doesn't work, causes memory corruption
++            # pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image[1],
++            #                                       image[2], image[3], image[4], image[5])
++            pixelbuffer = nil
+           end
+         end
+         
+         if not hidden then
+-          if id == 0 then
++          if id == 0 or not(pixelbuffer) then
+             add_tile(id, nil)
+           else
+             add_tile(id, Tile.new(pixelbuffer))
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#195">[ date ]</a>
+              <a href="thread.html#195">[ thread ]</a>
+              <a href="subject.html#195">[ subject ]</a>
+              <a href="author.html#195">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

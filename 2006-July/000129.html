@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r633 - in trunk: . lib netpanzer python ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r633%20-%20in%20trunk%3A%20.%20lib%20netpanzer%20python%20ruby&In-Reply-To=%3C200607050515.k655FEp8032252%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000128.html">
+   <LINK REL="Next"  HREF="000130.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r633 - in trunk: . lib netpanzer python ruby</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r633%20-%20in%20trunk%3A%20.%20lib%20netpanzer%20python%20ruby&In-Reply-To=%3C200607050515.k655FEp8032252%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r633 - in trunk: . lib netpanzer python ruby">grumbel at berlios.de
+       </A><BR>
+    <I>Wed Jul  5 07:15:14 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000128.html">[Flexlay-commit] r632 - trunk/ruby
+</A></li>
+        <LI>Next message: <A HREF="000130.html">[Flexlay-commit] r634 - trunk/clanlib/Core/IOData/Generic
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#129">[ date ]</a>
+              <a href="thread.html#129">[ thread ]</a>
+              <a href="subject.html#129">[ subject ]</a>
+              <a href="author.html#129">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-05 07:15:07 +0200 (Wed, 05 Jul 2006)
+New Revision: 633
+
+Modified:
+   trunk/SConstruct
+   trunk/lib/SConstruct
+   trunk/netpanzer/SConstruct
+   trunk/python/SConstruct
+   trunk/ruby/SConstruct
+Log:
+- some build script fixes
+
+Modified: trunk/SConstruct
+===================================================================
+--- trunk/SConstruct	2006-07-05 04:36:12 UTC (rev 632)
++++ trunk/SConstruct	2006-07-05 05:15:07 UTC (rev 633)
+@@ -1,3 +1,24 @@
++# -*- python -*-
++
++# FIXME: replace the X11 stuff with a proper X11 configure check and
++# make them somehow part of the clanlib libraries themself
++clanLib_env = Environment(CPPPATH=['../clanlib/'],
++                          LIBPATH=['/usr/X11R6/lib/',
++                                   '../clanlib/'],
++                          LIBS=['clanGUIStyleSilver', 
++                                'clanGUI',      
++                                'clanGL',
++                                'clanDisplay',
++                                'clanSignals', 
++                                'clanCore',
++                                'X11', 'Xmu', 'GL', 'GLU', 'png', 'jpeg', 'Xxf86vm', 'Xi'])
++
++# Use this if you want to use your globally installed ClanLib
++#  clanLib_env = Environment()
++#  clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
++
++Export('clanLib_env')
++
+ SConscript(['clanlib/SConstruct'])
+ SConscript(['lib/SConstruct'])
+ SConscript(['ruby/SConstruct'])
+
+Modified: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2006-07-05 04:36:12 UTC (rev 632)
++++ trunk/lib/SConstruct	2006-07-05 05:15:07 UTC (rev 633)
+@@ -21,6 +21,8 @@
+ import os
+ import glob
+ 
++Import('clanLib_env')
++
+ opts = Options('custom.py')
+ opts.Add('CXX', 'The C++ compiler.', 'g++')
+ opts.Add('CXXFLAGS', 'The C++ compiler flags.', ['-g3', '-O0', '-Wall', '-fPIC'])
+@@ -45,15 +47,6 @@
+ #            LIBPATH=['.', '/home/ingo/run/ClanLib-0.8-current//lib/'],
+ #            LIBS=['flexlay'])
+ 
+-
+-clanLib_env = Environment(CPPPATH=['../clanlib/'],
+-                          LIBPATH=['../clanlib/'],
+-                          LIBS=['clanCore', 'clanDisplay', 'clanGL', 'clanSignals', 'clanGUI', 'clanGUIStyleSilver'],
+-                          )
+-# Use this if you want to use your globally installed ClanLib
+-#  clanLib_env = Environment()
+-#  clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
+-
+ libflexlay_env = env.Copy()
+ flexlay_lib = libflexlay_env.StaticLibrary(
+     target = 'libflexlay.a',
+
+Modified: trunk/netpanzer/SConstruct
+===================================================================
+--- trunk/netpanzer/SConstruct	2006-07-05 04:36:12 UTC (rev 632)
++++ trunk/netpanzer/SConstruct	2006-07-05 05:15:07 UTC (rev 633)
+@@ -21,6 +21,8 @@
+ import os
+ import glob
+ 
++Import('clanLib_env')
++
+ opts = Options('custom.py')
+ opts.Add('CXX', 'The C++ compiler.', 'g++')
+ opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall -fPIC')
+@@ -40,9 +42,6 @@
+ env.Command('netpanzer_wrap.cxx', 'netpanzer.i',
+             &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+ 
+-clanLib_env = Environment()
+-clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
+-
+ libflexlay_ruby_env = env.Copy()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+     target = 'netpanzer_wrap.so',
+
+Modified: trunk/python/SConstruct
+===================================================================
+--- trunk/python/SConstruct	2006-07-05 04:36:12 UTC (rev 632)
++++ trunk/python/SConstruct	2006-07-05 05:15:07 UTC (rev 633)
+@@ -21,6 +21,8 @@
+ import os
+ import glob
+ 
++Import('clanLib_env')
++
+ opts = Options('custom.py')
+ opts.Add('CXX', 'The C++ compiler.', 'g++')
+ opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall')
+@@ -50,9 +52,6 @@
+ #            LIBPATH=['.', '/home/ingo/run/ClanLib-0.7-current//lib/'],
+ #            LIBS=['flexlay'])
+ 
+-clanLib_env = Environment()
+-clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7&quot;)
+-
+ libflexlay_env = env.Copy()
+ flexlay_lib = libflexlay_env.SharedLibrary(
+     target = 'libflexlay.so',
+
+Modified: trunk/ruby/SConstruct
+===================================================================
+--- trunk/ruby/SConstruct	2006-07-05 04:36:12 UTC (rev 632)
++++ trunk/ruby/SConstruct	2006-07-05 05:15:07 UTC (rev 633)
+@@ -22,6 +22,8 @@
+ import re
+ import glob
+ 
++Import('clanLib_env')
++
+ opts = Options('custom.py')
+ opts.Add('CXX', 'The C++ compiler.', 'g++')
+ opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall -fPIC')
+@@ -53,14 +55,6 @@
+ #env.Command('flexlay_ruby_wrap.cxx', '../lib/flexlay_wrap.i',
+ #            &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+ 
+-clanLib_env = Environment(CPPPATH=['../clanlib/'],
+-                          LIBPATH=['../clanlib/'],
+-                          LIBS=['clanCore', 'clanDisplay', 'clanGL', 'clanSignals', 'clanGUI', 'clanGUIStyleSilver'],
+-                          )
+-# Use this if you want to use your globally installed ClanLib
+-#  clanLib_env = Environment()
+-#  clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
+-
+ libflexlay_ruby_env = env.Copy()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+     target = 'flexlay_wrap.so',
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000128.html">[Flexlay-commit] r632 - trunk/ruby
+</A></li>
+	<LI>Next message: <A HREF="000130.html">[Flexlay-commit] r634 - trunk/clanlib/Core/IOData/Generic
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#129">[ date ]</a>
+              <a href="thread.html#129">[ thread ]</a>
+              <a href="subject.html#129">[ subject ]</a>
+              <a href="author.html#129">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

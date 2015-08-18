@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r620 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r620%20-%20trunk/supertux&In-Reply-To=%3C200601211153.k0LBrCA6017416%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000116.html">
+   <LINK REL="Next"  HREF="000118.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r620 - trunk/supertux</H1>
+    <B>matzebraun at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r620%20-%20trunk/supertux&In-Reply-To=%3C200601211153.k0LBrCA6017416%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r620 - trunk/supertux">matzebraun at berlios.de
+       </A><BR>
+    <I>Sat Jan 21 12:53:12 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000116.html">[Flexlay-commit] r619 - trunk/supertux
+</A></li>
+        <LI>Next message: <A HREF="000118.html">[Flexlay-commit] r621 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#117">[ date ]</a>
+              <a href="thread.html#117">[ thread ]</a>
+              <a href="subject.html#117">[ subject ]</a>
+              <a href="author.html#117">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: matzebraun
+Date: 2006-01-21 12:53:09 +0100 (Sat, 21 Jan 2006)
+New Revision: 620
+
+Added:
+   trunk/supertux/sprite.rb
+   trunk/supertux/util.rb
+Modified:
+   trunk/supertux/WorldMap.rb
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/gui.rb
+   trunk/supertux/level.rb
+   trunk/supertux/supertux.rb
+   trunk/supertux/tileset.rb
+Log:
+Support for loading supertux sprites, new scripted object GameObject
+
+Modified: trunk/supertux/WorldMap.rb
+===================================================================
+--- trunk/supertux/WorldMap.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/WorldMap.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -26,10 +26,7 @@
+       # Load Level from file
+       (@filename,) = params
+       
+-      tree = sexpr_read_from_file(@filename)
+-      if tree == nil
+-        raise(&quot;Couldn't load worldmap: %s&quot; % filename)
+-      end
++      tree = load_lisp(@filename, :&quot;supertux-worldmap&quot;)
+       
+       data = tree[1..-1]
+       parse(data)
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/data.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -43,7 +43,7 @@
+     proc{|data, sexpr| Door.new(&quot;hatch&quot;, data, sexpr)}],
+   [&quot;trampoline&quot;, &quot;images/objects/trampoline/trampoline1-0.png&quot;, :sprite,
+     proc{|data, sexpr| BadGuy.new(&quot;trampoline&quot;)}],
+-  [&quot;bell&quot;, &quot;images/objects/bell/bell-m.png&quot;, :sprite,
++  [&quot;bell&quot;, &quot;images/objects/bell/bell.sprite&quot;, :sprite,
+     proc{|data, sexpr| SimpleObject.new(&quot;bell&quot;)}],
+   [&quot;rock&quot;, &quot;images/tiles/blocks/block11.png&quot;, :sprite,
+     proc{|data, sexpr| SimpleObject.new(&quot;rock&quot;)}],
+@@ -93,23 +93,26 @@
+ end
+ 
+ def create_gameobject(objmap, data, pos, sexpr = [])
++  (name, spritefile, type, func) = data
++  
+   # Creates a gameobject the given position, data is the entry in the $game_objects table
+-  case data[2] 
++  case type
++    when :sprite
++      sprite = load_cl_sprite($datadir + spritefile)
++      
++      obj = ObjMapSpriteObject.new(sprite, pos, make_metadata(nil))
++      gobj = func.call(obj, sexpr)
++      obj.to_object.set_metadata(make_metadata(gobj))
+     
+-  when :sprite
+-    obj = ObjMapSpriteObject.new(make_sprite($datadir + data[1]), pos, make_metadata(nil))
+-    gobj = data[3].call(obj, sexpr)
+-    obj.to_object.set_metadata(make_metadata(gobj))
+-    
+-  when :rect
+-	print &quot;NewRect&quot;, pos.x, &quot; -&quot;, pos.y, &quot;\n&quot;
+-    obj = ObjMapRectObject.new(CL_Rect.new(CL_Point.new(pos.x.to_i, pos.y.to_i), CL_Size.new(64, 64)),
+-                               CL_Color.new(0, 0, 255, 128), make_metadata(nil))
+-    gobj = data[3].call(obj, sexpr)
+-    obj.to_object.set_metadata(make_metadata(gobj))
+-
+-  else
+-    raise &quot;Error: Unknown object type dropped: '#{data.inspect}'&quot;
++    when :rect
++      print &quot;NewRect&quot;, pos.x, &quot; -&quot;, pos.y, &quot;\n&quot;
++      obj = ObjMapRectObject.new(CL_Rect.new(CL_Point.new(pos.x.to_i, pos.y.to_i), CL_Size.new(64, 64)),
++                                 CL_Color.new(0, 0, 255, 128),
++                                 make_metadata(nil))
++      gobj = data[3].call(obj, sexpr)
++      obj.to_object.set_metadata(make_metadata(gobj))
++    else
++      raise &quot;Error: Unknown object type dropped: '#{data.inspect}'&quot;
+   end
+   
+   cmd = ObjectAddCommand.new(objmap)
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/gameobj.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -505,14 +505,15 @@
+ end
+ 
+ class ScriptedObject&lt;GameObj
+-  def initialize(data, sexpr = [])
+-    @data = data
++  def initialize(object, sexpr = [])
++    @object = object
+     @name = get_value_from_tree([&quot;name&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
+     @sprite = get_value_from_tree([&quot;sprite&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
+     @visible = get_value_from_tree([&quot;visible&quot;, &quot;_&quot;], sexpr, true)
+     @physic_enabled = get_value_from_tree([&quot;physic-enabled&quot;, &quot;_&quot;], sexpr, false)
+     @solid = get_value_from_tree([&quot;solid&quot;, &quot;_&quot;], sexpr, false)
+     @layer = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], sexpr, 100) 
++    load_sprite()
+   end
+ 
+   def save(f, obj)
+@@ -540,6 +541,17 @@
+     f.write(&quot;      )\n&quot;);
+   end
+ 
++  def load_sprite()
++    begin
++      sprite = load_cl_sprite($datadir + @sprite)
++      @object.set_sprite(sprite)
++
++    rescue
++      sprite = load_cl_sprite($datadir + &quot;images/engine/editor/scriptedobject.png&quot;)
++    end
++    @object.set_sprite(sprite)
++  end
++
+   def property_dialog()
+     dialog = GenericDialog.new(&quot;Scripted Object Property Dialog&quot;,
+                                $gui.get_component())
+@@ -556,6 +568,7 @@
+                           @visible = visible
+                           @physic_enabled = physic_enabled
+                           @solid = solid
++                          load_sprite()
+                         })
+   end
+ end
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/gui.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -50,9 +50,10 @@
+ 
+     connect_v2_ObjectBrush_Point(@objectselector.sig_drop(), method(:on_object_drop))
+ 
+-    $game_objects.each { |object|
+-      @objectselector.add_brush(ObjectBrush.new(make_sprite($datadir + object[1]),
+-                                                make_metadata(object)))
++    $game_objects.each { |objectdata|
++      sprite = load_cl_sprite($datadir + objectdata[1])
++      @objectselector.add_brush(ObjectBrush.new(sprite,
++                                                make_metadata(objectdata)))
+     }
+ 
+     @worldmapobjectselector = ObjectSelector.new(CL_Rect.new(CL_Point.new(3, 3),
+
+Modified: trunk/supertux/level.rb
+===================================================================
+--- trunk/supertux/level.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/level.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -26,11 +26,8 @@
+       # Load Level from file
+       (@filename,) = params
+       
+-      tree = sexpr_read_from_file(@filename)
+-      if tree == nil
+-        raise(&quot;Couldn't load level: %s&quot; % filename)
+-      end
+-      
++      tree = load_lisp(@filename, :&quot;supertux-level&quot;)
++
+       data = tree[1..-1]
+       
+       @version = get_value_from_tree([&quot;version&quot;, &quot;_&quot;], data, 0)
+
+Added: trunk/supertux/sprite.rb
+===================================================================
+--- trunk/supertux/sprite.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/sprite.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -0,0 +1,46 @@
++class Sprite
++  def initialize(filename)
++    @actions = Hash.new()
++  
++    tree = sexpr_read_from_file(filename)
++    if tree == nil then
++      raise &quot;Error: Couldn't load: '#{filename}'&quot;
++    end
++
++    @basedir = File.dirname(filename) + &quot;/&quot;
++    
++    tree[1..-1].each do |i|
++      case i[0]
++        when :action
++          action = Action.new()
++          action.parse(i[1..-1])
++          @actions[action.name] = action
++          if @actions.default == nil || action.name == &quot;default&quot;:
++            @actions.default = action
++          end
++        else
++          print &quot;Unknown symbol '#{i[0]}' in sprite '#{filename}'&quot;
++      end
++    end
++  end
++
++  class Action
++    attr_accessor :name, :image, :x_offset, :y_offset
++  
++    def parse(sexpr)
++      @name = get_value_from_tree([&quot;name&quot;, &quot;_&quot;], sexpr, &quot;default&quot;)
++      @x_offset = get_value_from_tree([&quot;x-offset&quot;, &quot;_&quot;], sexpr, 0)
++      @y_offset = get_value_from_tree([&quot;y-offset&quot;, &quot;_&quot;], sexpr, 0)
++      # we only parse the first image for now as we don't have support for
++      # animation in flexlay anyway
++      @image = get_value_from_tree([&quot;images&quot;, &quot;_&quot;], sexpr, 0)
++    end
++  end
++
++  def get_cl_sprite(action = &quot;default&quot;)
++    action = @actions[action]
++    sprite = make_sprite(@basedir + action.image)
++    sprite.set_frame_offset(0, CL_Point.new(action.x_offset, action.y_offset))
++    return sprite
++  end
++end
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/supertux.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -105,6 +105,8 @@
+ require &quot;tileset.rb&quot;
+ require &quot;level.rb&quot;
+ require &quot;sector.rb&quot;
++require &quot;sprite.rb&quot;
++require &quot;util.rb&quot;
+ 
+ $tileset = Tileset.new(32)
+ $tileset.load($datadir + &quot;images/tiles.strf&quot;)
+
+Modified: trunk/supertux/tileset.rb
+===================================================================
+--- trunk/supertux/tileset.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/tileset.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -21,11 +21,7 @@
+ 
+   def load(filename)
+     puts &quot;Loading Tileset: #{filename}&quot;
+-    tree = sexpr_read_from_file(filename)
+-    if tree == nil then
+-      puts &quot;Error; Couldn't load: &quot;, filename
+-      return 
+-    end
++    tree = load_lisp(filename, :&quot;supertux-tiles&quot;)
+ 
+     tree = tree[1..-1]
+     counter = 0
+
+Added: trunk/supertux/util.rb
+===================================================================
+--- trunk/supertux/util.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/util.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -0,0 +1,27 @@
++# Convenience function that loads a lisp file from disk and checks for a
++# root symbol
++def load_lisp(filename, root_symbol)
++  tree = sexpr_read_from_file(filename)
++  if tree == nil then
++    raise &quot;Error: Couldn't load '#{filename}'&quot;
++  end
++
++  if tree[0] != root_symbol then
++    raise &quot;Error: '#{filename}' is not a '#{root_symbol}' file&quot;
++  end
++
++  return tree
++end
++
++def load_cl_sprite(filename)
++  if filename[-4..-1] == &quot;.png&quot;
++    sprite = make_sprite(filename)
++  elsif filename[-7..-1] == &quot;.sprite&quot;
++    supertux_sprite = Sprite.new(filename)
++    sprite = supertux_sprite.get_cl_sprite()
++  else
++    raise &quot;Unsupported sprite format '#{spritefile}'&quot;
++  end
++  
++  return sprite
++end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000116.html">[Flexlay-commit] r619 - trunk/supertux
+</A></li>
+	<LI>Next message: <A HREF="000118.html">[Flexlay-commit] r621 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#117">[ date ]</a>
+              <a href="thread.html#117">[ thread ]</a>
+              <a href="subject.html#117">[ subject ]</a>
+              <a href="author.html#117">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

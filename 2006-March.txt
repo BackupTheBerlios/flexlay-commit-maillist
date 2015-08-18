@@ -1,0 +1,134 @@
+From grumbel at berlios.de  Sat Mar 11 19:59:04 2006
+From: grumbel at berlios.de (grumbel at BerliOS)
+Date: Sat, 11 Mar 2006 19:59:04 +0100
+Subject: [Flexlay-commit] r626 - in trunk: lib netpanzer ruby
+Message-ID: <200603111859.k2BIx4OY001520@sheep.berlios.de>
+
+Author: grumbel
+Date: 2006-03-11 19:58:58 +0100 (Sat, 11 Mar 2006)
+New Revision: 626
+
+Modified:
+   trunk/lib/SConstruct
+   trunk/netpanzer/SConstruct
+   trunk/ruby/SConstruct
+Log:
+- switched to ClanLib-0.8
+
+Modified: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2006-02-12 17:55:26 UTC (rev 625)
++++ trunk/lib/SConstruct	2006-03-11 18:58:58 UTC (rev 626)
+@@ -36,17 +36,17 @@
+ Help(opts.GenerateHelpText(env))
+ 
+ #env.Program('sharedptrtest', 'sharedptrtest.cxx',
+-#            CPPPATH=['/home/ingo/run/ClanLib-0.7-current/include/ClanLib-0.7/'])
++#            CPPPATH=['/home/ingo/run/ClanLib-0.8-current/include/ClanLib-0.8/'])
+ 
+ # env.Program('simpleed',
+ #             ['simpleed.cxx'],
+ #             CPPPATH=['.', 
+-#                     '/home/ingo/run/ClanLib-0.7-current//include/ClanLib-0.7/'],
+-#            LIBPATH=['.', '/home/ingo/run/ClanLib-0.7-current//lib/'],
++#                     '/home/ingo/run/ClanLib-0.8-current//include/ClanLib-0.8/'],
++#            LIBPATH=['.', '/home/ingo/run/ClanLib-0.8-current//lib/'],
+ #            LIBS=['flexlay'])
+ 
+ clanLib_env = Environment()
+-clanLib_env.ParseConfig("pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7")
++clanLib_env.ParseConfig("pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8")
+ 
+ libflexlay_env = env.Copy()
+ flexlay_lib = libflexlay_env.StaticLibrary(
+
+Modified: trunk/netpanzer/SConstruct
+===================================================================
+--- trunk/netpanzer/SConstruct	2006-02-12 17:55:26 UTC (rev 625)
++++ trunk/netpanzer/SConstruct	2006-03-11 18:58:58 UTC (rev 626)
+@@ -41,7 +41,7 @@
+             "swig -c++ -ruby -o $TARGET $SOURCE")
+ 
+ clanLib_env = Environment()
+-clanLib_env.ParseConfig("pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7")
++clanLib_env.ParseConfig("pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8")
+ 
+ libflexlay_ruby_env = env.Copy()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+
+Modified: trunk/ruby/SConstruct
+===================================================================
+--- trunk/ruby/SConstruct	2006-02-12 17:55:26 UTC (rev 625)
++++ trunk/ruby/SConstruct	2006-03-11 18:58:58 UTC (rev 626)
+@@ -54,7 +54,7 @@
+ #            "swig -c++ -ruby -o $TARGET $SOURCE")
+ 
+ clanLib_env = Environment()
+-clanLib_env.ParseConfig("pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7")
++clanLib_env.ParseConfig("pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8")
+ 
+ libflexlay_ruby_env = env.Copy()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+
+
+
+From matzebraun at berlios.de  Wed Mar 15 20:44:17 2006
+From: matzebraun at berlios.de (matzebraun at BerliOS)
+Date: Wed, 15 Mar 2006 20:44:17 +0100
+Subject: [Flexlay-commit] r627 - trunk/supertux
+Message-ID: <200603151944.k2FJiHqx031405@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2006-03-15 20:43:39 +0100 (Wed, 15 Mar 2006)
+New Revision: 627
+
+Modified:
+   trunk/supertux/data.rb
+Log:
+Mrtree walk left-0 has gone
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-03-11 18:58:58 UTC (rev 626)
++++ trunk/supertux/data.rb	2006-03-15 19:43:39 UTC (rev 627)
+@@ -19,7 +19,7 @@
+     proc{|data, sexpr| BadGuy.new("bouncingsnowball")}],
+   ["spiky", "images/creatures/spiky/left-0.png", :sprite,
+     proc{|data, sexpr| BadGuy.new("spiky")}],
+-  ["mrtree", "images/creatures/mr_tree/walk-left-0.png", :sprite,
++  ["mrtree", "images/creatures/mr_tree/walk-left-1.png", :sprite,
+     proc{|data, sexpr| BadGuy.new("mrtree")}],
+   ["poisonivy", "images/creatures/poison_ivy/left-0.png", :sprite,
+     proc{|data, sexpr| BadGuy.new("poisonivy")}],
+
+
+
+From matzebraun at berlios.de  Wed Mar 15 23:37:19 2006
+From: matzebraun at berlios.de (matzebraun at BerliOS)
+Date: Wed, 15 Mar 2006 23:37:19 +0100
+Subject: [Flexlay-commit] r628 - trunk/supertux
+Message-ID: <200603152237.k2FMbJaT001486@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2006-03-15 23:37:18 +0100 (Wed, 15 Mar 2006)
+New Revision: 628
+
+Modified:
+   trunk/supertux/data.rb
+Log:
+angrystone
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-03-15 19:43:39 UTC (rev 627)
++++ trunk/supertux/data.rb	2006-03-15 22:37:18 UTC (rev 628)
+@@ -1,4 +1,6 @@
+ $game_objects = [
++  ["angrystone", "images/creatures/angrystone/angrystone.sprite", :sprite,
++    proc{|data, sexpr| BadGuy.new("angrystone")}],
+   ["jumpy", "images/creatures/jumpy/left-middle.png", :sprite,
+     proc{|data, sexpr| BadGuy.new("jumpy")}],
+   ["snowball", "images/creatures/snowball/left-0.png", :sprite,
+
+
+

@@ -1,0 +1,399 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r685 - trunk/netbrush/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r685%20-%20trunk/netbrush/src&In-Reply-To=%3C200610302151.k9ULp5nv015609%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000177.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r685 - trunk/netbrush/src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r685%20-%20trunk/netbrush/src&In-Reply-To=%3C200610302151.k9ULp5nv015609%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r685 - trunk/netbrush/src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Oct 30 22:51:05 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000177.html">[Flexlay-commit] r684 - in trunk/netbrush: . data/icons src
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#178">[ date ]</a>
+              <a href="thread.html#178">[ thread ]</a>
+              <a href="subject.html#178">[ subject ]</a>
+              <a href="author.html#178">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-30 22:51:04 +0100 (Mon, 30 Oct 2006)
+New Revision: 685
+
+Modified:
+   trunk/netbrush/src/airbrush_tool.hpp
+   trunk/netbrush/src/circle_tool.cpp
+   trunk/netbrush/src/circle_tool.hpp
+   trunk/netbrush/src/colorpicker_tool.hpp
+   trunk/netbrush/src/rect_tool.cpp
+   trunk/netbrush/src/rect_tool.hpp
+   trunk/netbrush/src/region_tool.hpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/scroll_tool.hpp
+   trunk/netbrush/src/tool.hpp
+Log:
+- added visible dragging for rect and circle tools
+
+Modified: trunk/netbrush/src/airbrush_tool.hpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/airbrush_tool.hpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -41,7 +41,7 @@
+   void on_motion(const ToolMotionEvent&amp; ev);
+   void on_button_press(const ToolButtonEvent&amp; ev);
+   void on_button_release(const ToolButtonEvent&amp; ev);
+-
++  void draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of) {}
+ private:
+   AirbrushTool (const AirbrushTool&amp;);
+   AirbrushTool&amp; operator= (const AirbrushTool&amp;);
+
+Modified: trunk/netbrush/src/circle_tool.cpp
+===================================================================
+--- trunk/netbrush/src/circle_tool.cpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/circle_tool.cpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -24,23 +24,36 @@
+ */
+ 
+ #include &lt;sstream&gt;
++#include &lt;iostream&gt;
++#include &quot;SDL_gfx/SDL_gfxPrimitives.h&quot;
+ #include &quot;globals.hpp&quot;
++#include &quot;screen_buffer.hpp&quot;
+ #include &quot;drawing_parameter.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+ #include &quot;circle_tool.hpp&quot;
+ 
+ CircleTool::CircleTool()
++  : radius(0.0f), dragging(false)
+ {
+ }
+ 
+ void
+ CircleTool::on_motion(const ToolMotionEvent&amp; ev)
+ {
++  Vector pos(ev.x, ev.y);
++  radius = (click_pos - pos).length();
++
++  if (dragging)
++    screen_buffer-&gt;force_full_refresh();
++  
++  //std::cout &lt;&lt; &quot;drawing: &quot; &lt;&lt; click_pos.x &lt;&lt; &quot; &quot; &lt;&lt; click_pos.y &lt;&lt; &quot; &quot; &lt;&lt; radius &lt;&lt; std::endl;
+ }
+ 
+ void
+ CircleTool::on_button_press(const ToolButtonEvent&amp; ev)
+ {
++  dragging = true;
++
+   click_pos.x = ev.x;
+   click_pos.y = ev.y;
+ }
+@@ -48,8 +61,10 @@
+ void
+ CircleTool::on_button_release(const ToolButtonEvent&amp; ev)
+ {
++  dragging = false;
++
+   Vector pos(ev.x, ev.y);
+-  float radius = (click_pos - pos).length();
++  radius = (click_pos - pos).length();
+ 
+   std::ostringstream str;
+   str &lt;&lt; &quot;set_color &quot;
+@@ -67,4 +82,18 @@
+   server-&gt;send(str.str());
+ }
+ 
++void
++CircleTool::draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of)
++{
++  if (dragging)
++    filledCircleRGBA(target,
++                     int(click_pos.x + x_of), 
++                     int(click_pos.y + y_of),
++                     int(radius),
++                     client_draw_param-&gt;color.r,
++                     client_draw_param-&gt;color.g,
++                     client_draw_param-&gt;color.b,
++                     client_draw_param-&gt;opacity);
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/circle_tool.hpp
+===================================================================
+--- trunk/netbrush/src/circle_tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/circle_tool.hpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -33,7 +33,8 @@
+ {
+ private:
+   Vector click_pos;
+-
++  float  radius;
++  bool   dragging;
+ public:
+   CircleTool();
+   virtual ~CircleTool() {}
+@@ -41,7 +42,7 @@
+   void on_motion(const ToolMotionEvent&amp; ev);
+   void on_button_press(const ToolButtonEvent&amp; ev);
+   void on_button_release(const ToolButtonEvent&amp; ev);
+-
++  void draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of);
+ private:
+   CircleTool (const CircleTool&amp;);
+   CircleTool&amp; operator= (const CircleTool&amp;);
+
+Modified: trunk/netbrush/src/colorpicker_tool.hpp
+===================================================================
+--- trunk/netbrush/src/colorpicker_tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/colorpicker_tool.hpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -41,7 +41,7 @@
+   void on_motion(const ToolMotionEvent&amp; ev);
+   void on_button_press(const ToolButtonEvent&amp; ev);
+   void on_button_release(const ToolButtonEvent&amp; ev);
+-
++  void draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of) {}
+   void pick_color(int x, int y);
+ 
+ private:
+
+Modified: trunk/netbrush/src/rect_tool.cpp
+===================================================================
+--- trunk/netbrush/src/rect_tool.cpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/rect_tool.cpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -24,13 +24,16 @@
+ */
+ 
+ #include &lt;sstream&gt;
++#include &quot;SDL_gfx/SDL_gfxPrimitives.h&quot;
+ #include &quot;globals.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+ #include &quot;controller.hpp&quot;
++#include &quot;screen_buffer.hpp&quot;
+ #include &quot;drawing_parameter.hpp&quot;
+ #include &quot;rect_tool.hpp&quot;
+ 
+ RectTool::RectTool()
++  : dragging(false)
+ {
+ }
+ 
+@@ -42,27 +45,32 @@
+ void
+ RectTool::on_motion(const ToolMotionEvent&amp; ev)
+ {
++  if (dragging)
++    {
++      rect.right  = ev.x;
++      rect.bottom = ev.y;
++     
++      screen_buffer-&gt;force_full_refresh();
++    }
+ }
+ 
+ void
+ RectTool::on_button_press(const ToolButtonEvent&amp; ev)
+ {
++  dragging = true;
+   rect.left = ev.x;
+   rect.top  = ev.y;
+-  controller-&gt;puts(&quot;RectTool: press&quot;);
+ }
+ 
+ void
+ RectTool::on_button_release(const ToolButtonEvent&amp; ev)
+ {
+-  controller-&gt;puts(&quot;RectTool: release&quot;);
+-
++  dragging = false;
+   rect.right  = ev.x;
+   rect.bottom = ev.y;
+   
+   rect.normalize();
+   
+-  controller-&gt;puts(&quot;rect dropped&quot;);     
+   std::ostringstream str;
+   str &lt;&lt; &quot;set_color &quot;
+       &lt;&lt; int(client_draw_param-&gt;color.r) &lt;&lt; &quot; &quot; 
+@@ -78,4 +86,23 @@
+   server-&gt;send(str.str());
+ }
+ 
++void
++RectTool::draw(SDL_Surface* target, const Rect&amp; rect__, int x_of, int y_of)
++{
++  Rect rect_ = rect;
++  rect_.normalize();
++  if (dragging)
++    boxRGBA(target,
++            int(rect_.left   + x_of), 
++            int(rect_.top    + y_of), 
++            int(rect_.right  + x_of), 
++            int(rect_.bottom + y_of), 
++                   
++            client_draw_param-&gt;color.r,
++            client_draw_param-&gt;color.g,
++            client_draw_param-&gt;color.b,
++            client_draw_param-&gt;opacity);
++
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/rect_tool.hpp
+===================================================================
+--- trunk/netbrush/src/rect_tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/rect_tool.hpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -33,7 +33,7 @@
+ {
+ private:
+   Rect rect;
+-
++  bool dragging;
+ public:
+   RectTool();
+   ~RectTool();
+@@ -41,7 +41,7 @@
+   void on_motion(const ToolMotionEvent&amp; ev);
+   void on_button_press(const ToolButtonEvent&amp; ev);
+   void on_button_release(const ToolButtonEvent&amp; ev);
+-  
++  void draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of);
+ private:
+   RectTool (const RectTool&amp;);
+   RectTool&amp; operator= (const RectTool&amp;);
+
+Modified: trunk/netbrush/src/region_tool.hpp
+===================================================================
+--- trunk/netbrush/src/region_tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/region_tool.hpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -42,7 +42,7 @@
+   void on_motion(const ToolMotionEvent&amp; ev);
+   void on_button_press(const ToolButtonEvent&amp; ev);
+   void on_button_release(const ToolButtonEvent&amp; ev);
+-  
++  void draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of) {} 
+ private:
+   RegionTool (const RegionTool&amp;);
+   RegionTool&amp; operator= (const RegionTool&amp;);
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -101,7 +101,7 @@
+   vertical_scrollbar-&gt;set_pos(-scroll_offset_y);
+ 
+   if (complete_refresh)
+-    { 
++    { // draw checkboard pattern for the background
+       Uint32 black = SDL_MapRGB(target-&gt;format, 200, 200, 200);
+       Uint32 white = SDL_MapRGB(target-&gt;format, 100, 100, 100);
+ 
+@@ -138,6 +138,9 @@
+           r.w = get_rect().get_width();
+           r.h = get_rect().get_height();
+             
++          // FIXME: Dirty
++          tools[0]-&gt;draw(target, get_rect(), trans_x, trans_y);
++
+           SDL_UpdateRect(target, r.x, r.y, r.w, r.h);
+         }
+       else
+@@ -157,6 +160,9 @@
+           r.w = get_rect().get_width();
+           r.h = get_rect().get_height();
+             
++          // FIXME: Dirty
++          tools[0]-&gt;draw(target, get_rect(), trans_x, trans_y);
++
+           SDL_UpdateRect(target, r.x, r.y, r.w, r.h);
+         }
+     }
+
+Modified: trunk/netbrush/src/scroll_tool.hpp
+===================================================================
+--- trunk/netbrush/src/scroll_tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/scroll_tool.hpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -44,7 +44,7 @@
+   void on_motion(const ToolMotionEvent&amp; ev);
+   void on_button_press(const ToolButtonEvent&amp; ev);
+   void on_button_release(const ToolButtonEvent&amp; ev);
+-  
++  void draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of) {}  
+ private:
+   ScrollTool (const ScrollTool&amp;);
+   ScrollTool&amp; operator= (const ScrollTool&amp;);
+
+Modified: trunk/netbrush/src/tool.hpp
+===================================================================
+--- trunk/netbrush/src/tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
++++ trunk/netbrush/src/tool.hpp	2006-10-30 21:51:04 UTC (rev 685)
+@@ -26,7 +26,9 @@
+ #ifndef HEADER_TOOL_HPP
+ #define HEADER_TOOL_HPP
+ 
++#include &quot;SDL.h&quot;
+ #include &quot;math/point.hpp&quot;
++#include &quot;math/rect.hpp&quot;
+ #include &quot;widget/events.hpp&quot;
+ 
+ enum ToolName { PAINTBRUSH_TOOL, RECT_TOOL, REGION_TOOL, COLOR_PICKER_TOOL, CIRCLE_TOOL };
+@@ -59,6 +61,13 @@
+   virtual void on_button_press(const ToolButtonEvent&amp; ev) =0;
+   virtual void on_button_release(const ToolButtonEvent&amp; ev) =0;
+ 
++  /** @param target SDL_Surface to which should be drawn 
++      @param rect   rectangle in screenspace which should be redrawn
++      @param x_of   scroll factor used to translate from screenspace to worldspace
++      @param y_of   scroll factor used to translate from screenspace to worldspace
++   */
++  virtual void draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of) =0;
++
+ private:
+   Tool (const Tool&amp;);
+   Tool&amp; operator= (const Tool&amp;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000177.html">[Flexlay-commit] r684 - in trunk/netbrush: . data/icons src
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#178">[ date ]</a>
+              <a href="thread.html#178">[ thread ]</a>
+              <a href="subject.html#178">[ subject ]</a>
+              <a href="author.html#178">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

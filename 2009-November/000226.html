@@ -1,0 +1,574 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r733 - in trunk/flexlay/lib: . gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r733%20-%20in%20trunk/flexlay/lib%3A%20.%20gui&In-Reply-To=%3C200911221934.nAMJYEKR018983%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000225.html">
+   <LINK REL="Next"  HREF="000227.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r733 - in trunk/flexlay/lib: . gui</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r733%20-%20in%20trunk/flexlay/lib%3A%20.%20gui&In-Reply-To=%3C200911221934.nAMJYEKR018983%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r733 - in trunk/flexlay/lib: . gui">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 20:34:14 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000225.html">[Flexlay-commit] r732 - in trunk/flexlay/lib: . gui tools
+</A></li>
+        <LI>Next message: <A HREF="000227.html">[Flexlay-commit] r734 - trunk/flexlay/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#226">[ date ]</a>
+              <a href="thread.html#226">[ thread ]</a>
+              <a href="subject.html#226">[ subject ]</a>
+              <a href="author.html#226">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 20:34:12 +0100 (Sun, 22 Nov 2009)
+New Revision: 733
+
+Modified:
+   trunk/flexlay/lib/bitmap_layer.cpp
+   trunk/flexlay/lib/bitmap_layer.hpp
+   trunk/flexlay/lib/brush.cpp
+   trunk/flexlay/lib/brush.hpp
+   trunk/flexlay/lib/brush_impl.hpp
+   trunk/flexlay/lib/brushmask.hpp
+   trunk/flexlay/lib/drawer_properties.cpp
+   trunk/flexlay/lib/drawer_properties.hpp
+   trunk/flexlay/lib/generated_brush.cpp
+   trunk/flexlay/lib/generated_brush.hpp
+   trunk/flexlay/lib/gui/colorpicker.cpp
+   trunk/flexlay/lib/gui/colorpicker.hpp
+   trunk/flexlay/lib/gui/console.cpp
+   trunk/flexlay/lib/gui/console.hpp
+   trunk/flexlay/lib/gui/slider.cpp
+   trunk/flexlay/lib/gui/slider.hpp
+   trunk/flexlay/lib/helper.cpp
+   trunk/flexlay/lib/helper.hpp
+   trunk/flexlay/lib/marker_stroke_drawer.cpp
+   trunk/flexlay/lib/marker_stroke_drawer.hpp
+   trunk/flexlay/lib/objmap_control_point.cpp
+   trunk/flexlay/lib/objmap_control_point.hpp
+   trunk/flexlay/lib/objmap_object_impl.cpp
+   trunk/flexlay/lib/objmap_object_impl.hpp
+   trunk/flexlay/lib/objmap_path_node.cpp
+   trunk/flexlay/lib/objmap_path_node.hpp
+   trunk/flexlay/lib/onion_skin_layer.cpp
+   trunk/flexlay/lib/onion_skin_layer.hpp
+   trunk/flexlay/lib/sketch_layer.cpp
+   trunk/flexlay/lib/sketch_layer.hpp
+   trunk/flexlay/lib/sprite_brush.cpp
+   trunk/flexlay/lib/sprite_brush.hpp
+   trunk/flexlay/lib/sprite_stroke_drawer.cpp
+   trunk/flexlay/lib/sprite_stroke_drawer.hpp
+   trunk/flexlay/lib/stroke.cpp
+   trunk/flexlay/lib/stroke.hpp
+   trunk/flexlay/lib/stroke_drawer.cpp
+   trunk/flexlay/lib/stroke_drawer.hpp
+   trunk/flexlay/lib/stroke_drawer_impl.hpp
+   trunk/flexlay/lib/tile_provider.cpp
+   trunk/flexlay/lib/tile_provider.hpp
+   trunk/flexlay/lib/tile_provider_impl.hpp
+Log:
+More Copyright header cleanup
+
+
+Modified: trunk/flexlay/lib/bitmap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/bitmap_layer.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/bitmap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/bitmap_layer.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/brush.cpp
+===================================================================
+--- trunk/flexlay/lib/brush.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/brush.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/brush.hpp
+===================================================================
+--- trunk/flexlay/lib/brush.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/brush.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/brush_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/brush_impl.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/brush_impl.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/brushmask.hpp
+===================================================================
+--- trunk/flexlay/lib/brushmask.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/brushmask.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/drawer_properties.cpp
+===================================================================
+--- trunk/flexlay/lib/drawer_properties.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/drawer_properties.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/drawer_properties.hpp
+===================================================================
+--- trunk/flexlay/lib/drawer_properties.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/drawer_properties.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/generated_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/generated_brush.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/generated_brush.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/generated_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/generated_brush.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/generated_brush.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/gui/colorpicker.cpp
+===================================================================
+--- trunk/flexlay/lib/gui/colorpicker.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/gui/colorpicker.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/gui/colorpicker.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/colorpicker.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/gui/colorpicker.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/gui/console.cpp
+===================================================================
+--- trunk/flexlay/lib/gui/console.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/gui/console.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/gui/console.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/console.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/gui/console.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/gui/slider.cpp
+===================================================================
+--- trunk/flexlay/lib/gui/slider.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/gui/slider.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/gui/slider.hpp
+===================================================================
+--- trunk/flexlay/lib/gui/slider.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/gui/slider.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/helper.cpp
+===================================================================
+--- trunk/flexlay/lib/helper.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/helper.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/helper.hpp
+===================================================================
+--- trunk/flexlay/lib/helper.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/helper.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/marker_stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/marker_stroke_drawer.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/marker_stroke_drawer.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/marker_stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/marker_stroke_drawer.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/marker_stroke_drawer.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/objmap_control_point.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_control_point.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/objmap_control_point.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/objmap_control_point.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_control_point.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/objmap_control_point.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/objmap_object_impl.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object_impl.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/objmap_object_impl.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/objmap_object_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object_impl.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/objmap_object_impl.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/objmap_path_node.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_path_node.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/objmap_path_node.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/objmap_path_node.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_path_node.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/objmap_path_node.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/onion_skin_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/onion_skin_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/onion_skin_layer.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/sketch_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/sketch_layer.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/sketch_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/sketch_layer.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/sprite_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/sprite_brush.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/sprite_brush.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/sprite_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/sprite_brush.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/sprite_brush.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/sprite_stroke_drawer.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/sprite_stroke_drawer.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/stroke.cpp
+===================================================================
+--- trunk/flexlay/lib/stroke.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/stroke.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/stroke.hpp
+===================================================================
+--- trunk/flexlay/lib/stroke.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/stroke.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/stroke_drawer.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/stroke_drawer.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/stroke_drawer_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer_impl.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/stroke_drawer_impl.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editoryy
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/tile_provider.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_provider.cpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/tile_provider.cpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/tile_provider.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_provider.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/tile_provider.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+Modified: trunk/flexlay/lib/tile_provider_impl.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_provider_impl.hpp	2009-11-22 18:37:23 UTC (rev 732)
++++ trunk/flexlay/lib/tile_provider_impl.hpp	2009-11-22 19:34:12 UTC (rev 733)
+@@ -1,4 +1,4 @@
+-//  Pingus - A free Lemmings clone
++//  Flexlay - A Generic 2D Game Editor
+ //  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ //
+ //  This program is free software: you can redistribute it and/or modify
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000225.html">[Flexlay-commit] r732 - in trunk/flexlay/lib: . gui tools
+</A></li>
+	<LI>Next message: <A HREF="000227.html">[Flexlay-commit] r734 - trunk/flexlay/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#226">[ date ]</a>
+              <a href="thread.html#226">[ thread ]</a>
+              <a href="subject.html#226">[ subject ]</a>
+              <a href="author.html#226">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

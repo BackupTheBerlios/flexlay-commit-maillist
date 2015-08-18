@@ -1,0 +1,755 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r520 - in trunk: lib netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r520%20-%20in%20trunk%3A%20lib%20netpanzer&In-Reply-To=%3C200503301745.j2UHjJO8014469%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000028.html">
+   <LINK REL="Next"  HREF="000030.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r520 - in trunk: lib netpanzer</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r520%20-%20in%20trunk%3A%20lib%20netpanzer&In-Reply-To=%3C200503301745.j2UHjJO8014469%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r520 - in trunk: lib netpanzer">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Wed Mar 30 19:45:19 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000028.html">[Flexlay-commit] r519 - trunk/supertux
+</A></li>
+        <LI>Next message: <A HREF="000030.html">[Flexlay-commit] r521 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-30 19:45:18 +0200 (Wed, 30 Mar 2005)
+New Revision: 520
+
+Removed:
+   trunk/netpanzer/netp.act
+Modified:
+   trunk/lib/tile.cxx
+   trunk/lib/tile.hxx
+   trunk/lib/tile_provider.cxx
+   trunk/lib/tile_provider.hxx
+   trunk/lib/tile_provider_impl.hxx
+   trunk/netpanzer/gameobjects.rb
+   trunk/netpanzer/netpanzer.cxx
+   trunk/netpanzer/netpanzer.hxx
+   trunk/netpanzer/netpanzer.i
+   trunk/netpanzer/netpanzer.rb
+Log:
+- tiles are now loaded from netpanzer directory
+
+Modified: trunk/lib/tile.cxx
+===================================================================
+--- trunk/lib/tile.cxx	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/lib/tile.cxx	2005-03-30 17:45:18 UTC (rev 520)
+@@ -25,11 +25,14 @@
+ #include &lt;ClanLib/Display/Providers/provider_factory.h&gt;
+ #include &lt;iostream&gt;
+ #include &quot;string_converter.hxx&quot;
++#include &quot;tile_provider.hxx&quot;
+ #include &quot;tile.hxx&quot;
+ 
+ class TileImpl
+ {
+ public:
++  TileProvider   provider;
++
+   CL_Sprite      sprite;
+   CL_PixelBuffer pixelbuffer;
+ 
+@@ -43,6 +46,7 @@
+       and such */
+   CL_Color  attribute_color;
+ 
++  // FIXME: old windstille stuff
+   unsigned char colmap[8];
+ 
+   std::string filename;
+@@ -51,7 +55,8 @@
+ Tile::Tile(const TileProvider&amp; provider)
+   : impl(new TileImpl())
+ {
+-  
++  impl-&gt;provider  = provider;
++  impl-&gt;has_color = false; 
+ }
+ 
+ Tile::Tile(const CL_PixelBuffer&amp; pixelbuffer,
+@@ -113,41 +118,59 @@
+     }
+   else
+     {
+-      CL_SpriteDescription desc;
+-      desc.add_frame(CL_PixelBuffer(get_pixelbuffer()));
+-      impl-&gt;sprite = CL_Sprite(desc);
+-      
++      if (impl-&gt;provider)
++        {
++          impl-&gt;sprite = impl-&gt;provider.get_sprite();
++        }
++      else
++        {
++          CL_SpriteDescription desc;
++          desc.add_frame(CL_PixelBuffer(get_pixelbuffer()));
++          impl-&gt;sprite = CL_Sprite(desc);
++        }
++
+       return impl-&gt;sprite;
+     }
+ }
+ 
+ CL_PixelBuffer
+ Tile::get_pixelbuffer()
+-{	
+-  try {
+-    if (impl-&gt;pixelbuffer)
+-      {
+-        return impl-&gt;pixelbuffer;
+-      }
+-    else 
+-      {
+-        if (has_suffix(impl-&gt;filename, &quot;.png&quot;) || has_suffix(impl-&gt;filename, &quot;.jpg&quot;))
+-          {
+-            impl-&gt;pixelbuffer = CL_PixelBuffer(CL_ProviderFactory::load(impl-&gt;filename));
++{
++  if (impl-&gt;pixelbuffer)
++    {
++      return impl-&gt;pixelbuffer;
++    }
++  else 
++    {
++      if (impl-&gt;provider)
++        {
++          impl-&gt;pixelbuffer = impl-&gt;provider.get_pixelbuffer();
++          return impl-&gt;pixelbuffer;
++        }
++      else
++        {
++          // FIXME: Move all this into a special provider
++
++          try {
++            if (has_suffix(impl-&gt;filename, &quot;.png&quot;) || has_suffix(impl-&gt;filename, &quot;.jpg&quot;))
++              {
++                impl-&gt;pixelbuffer = CL_PixelBuffer(CL_ProviderFactory::load(impl-&gt;filename));
++              }
++            else
++              {
++                //CL_SpriteDescription descr(impl-&gt;filename, resources);
++                //impl-&gt;pixelbuffer = CL_PixelBuffer(*(descr.get_frames().begin()-&gt;first));
++                assert(0);
++              }
++            return impl-&gt;pixelbuffer;
++          
++          } catch(CL_Error&amp; err) {
++            std::cout &lt;&lt; &quot;CL_Error: &quot; &lt;&lt; err.message &lt;&lt; std::endl;
++            std::cout &lt;&lt; &quot;          filename = &quot; &lt;&lt; impl-&gt;filename &lt;&lt; std::endl;
++            return CL_PixelBuffer();
+           }
+-        else
+-          {
+-            //CL_SpriteDescription descr(impl-&gt;filename, resources);
+-            //impl-&gt;pixelbuffer = CL_PixelBuffer(*(descr.get_frames().begin()-&gt;first));
+-            assert(0);
+-          }
+-        return impl-&gt;pixelbuffer;
+-      }
+-  } catch(CL_Error&amp; err) {
+-    std::cout &lt;&lt; &quot;CL_Error: &quot; &lt;&lt; err.message &lt;&lt; std::endl;
+-    std::cout &lt;&lt; &quot;          filename = &quot; &lt;&lt; impl-&gt;filename &lt;&lt; std::endl;
+-    return CL_PixelBuffer();
+-  }
++        }
++    }
+ }
+ 
+ CL_Color
+
+Modified: trunk/lib/tile.hxx
+===================================================================
+--- trunk/lib/tile.hxx	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/lib/tile.hxx	2005-03-30 17:45:18 UTC (rev 520)
+@@ -24,9 +24,9 @@
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &quot;shared_ptr.hxx&quot;
+-#include &quot;tile_provider.hxx&quot;
+ 
+ class TileImpl;
++class TileProvider;
+ 
+ /** A Tile is a surface or sprite together with meta information for
+     collision (aka colmap), walkability or such. */
+
+Modified: trunk/lib/tile_provider.cxx
+===================================================================
+--- trunk/lib/tile_provider.cxx	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/lib/tile_provider.cxx	2005-03-30 17:45:18 UTC (rev 520)
+@@ -17,6 +17,7 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++#include &quot;tile_provider_impl.hxx&quot;
+ #include &quot;tile_provider.hxx&quot;
+ 
+ TileProvider::TileProvider(TileProviderImpl* impl_)
+@@ -25,9 +26,15 @@
+ }
+ 
+ CL_Sprite
+-TileProvider::get_sprite()
++TileProvider::get_sprite() const
+ {
+   return impl-&gt;get_sprite();
+ }
+ 
++CL_PixelBuffer
++TileProvider::get_pixelbuffer() const
++{
++  return impl-&gt;get_pixelbuffer();
++}
++
+ /* EOF */
+
+Modified: trunk/lib/tile_provider.hxx
+===================================================================
+--- trunk/lib/tile_provider.hxx	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/lib/tile_provider.hxx	2005-03-30 17:45:18 UTC (rev 520)
+@@ -17,10 +17,11 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-#ifndef HEADER_TILE_PROVIDER_IMPL_HXX
+-#define HEADER_TILE_PROVIDER_IMPL_HXX
++#ifndef HEADER_TILE_PROVIDER_HXX
++#define HEADER_TILE_PROVIDER_HXX
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
++#include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &quot;shared_ptr.hxx&quot;
+ 
+ class TileProviderImpl;
+@@ -29,21 +30,17 @@
+ class TileProvider
+ {
+ public:
++  TileProvider() {}
+   TileProvider(TileProviderImpl* impl);
+ 
+-  CL_Sprite get_sprite();
++  CL_Sprite      get_sprite() const;
++  CL_PixelBuffer get_pixelbuffer() const;
++
++  operator bool() const { return impl.get(); }
+ private:
+   SharedPtr&lt;TileProviderImpl&gt; impl;
+ };
+ 
+-class TileProviderImpl
+-{
+-public:
+-  TileProviderImpl() {}
+-
+-  virtual CL_Sprite get_sprite() =0;
+-};
+-
+ #endif
+ 
+ /* EOF */
+
+Modified: trunk/lib/tile_provider_impl.hxx
+===================================================================
+--- trunk/lib/tile_provider_impl.hxx	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/lib/tile_provider_impl.hxx	2005-03-30 17:45:18 UTC (rev 520)
+@@ -20,13 +20,16 @@
+ #ifndef HEADER_TILE_PROVIDER_IMPL_HXX
+ #define HEADER_TILE_PROVIDER_IMPL_HXX
+ 
+-/**
+- */
++#include &lt;ClanLib/Display/sprite.h&gt;
++#include &lt;ClanLib/Display/pixel_buffer.h&gt;
++
+ class TileProviderImpl
+ {
+-private:
+ public:
+-  TileProviderImpl();
++  TileProviderImpl() {}
++
++  virtual CL_Sprite      get_sprite()      const =0;
++  virtual CL_PixelBuffer get_pixelbuffer() const =0;
+ };
+ 
+ #endif
+
+Modified: trunk/netpanzer/gameobjects.rb
+===================================================================
+--- trunk/netpanzer/gameobjects.rb	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/netpanzer/gameobjects.rb	2005-03-30 17:45:18 UTC (rev 520)
+@@ -152,13 +152,4 @@
+   end
+ end
+ 
+-class Config
+-  attr_accessor :datadir, :recent_files
+-
+-  def initialize()
+-    @datadir      = &quot;./&quot;
+-    @recent_files = []
+-  end
+-end
+-
+ # EOF #
+
+Deleted: trunk/netpanzer/netp.act
+===================================================================
+(Binary files differ)
+
+Modified: trunk/netpanzer/netpanzer.cxx
+===================================================================
+--- trunk/netpanzer/netpanzer.cxx	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/netpanzer/netpanzer.cxx	2005-03-30 17:45:18 UTC (rev 520)
+@@ -20,25 +20,125 @@
+ #include &lt;iostream&gt;
+ #include &lt;sstream&gt;
+ #include &lt;fstream&gt;
++#include &lt;ClanLib/core.h&gt;
+ #include &lt;ClanLib/Display/palette.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
++#include &lt;ClanLib/Display/pixel_format.h&gt;
++#include &lt;ClanLib/Display/pixel_format_type.h&gt;
+ #include &lt;ClanLib/Display/sprite_description.h&gt;
+ #include &lt;ClanLib/Display/Providers/provider_factory.h&gt;
+ #include &quot;globals.hxx&quot;
+ #include &quot;tile_provider.hxx&quot;
++#include &quot;tile_provider_impl.hxx&quot;
+ #include &quot;tile.hxx&quot;
+ #include &quot;tileset.hxx&quot;
+ #include &quot;tilemap_layer.hxx&quot;
+ #include &quot;editor_map.hxx&quot;
+ #include &quot;netpanzer.hxx&quot;
+ 
+-CL_Palette netpanzer_load_palette(const char* filename)
++NetPanzerData* NetPanzerData::instance_ = 0;
++
++
++class NetPanzerTileProviderImpl : public TileProviderImpl
+ {
++private:
++  int id;
++  mutable CL_Sprite sprite;
++  mutable CL_PixelBuffer buffer;
++
++public:
++  NetPanzerTileProviderImpl(int id_)
++    : id(id_)
++  {    
++  }
++
++  virtual ~NetPanzerTileProviderImpl()
++  {
++  }
++
++  CL_Sprite get_sprite() const
++  {
++    if (sprite)
++      {
++        return sprite;
++      }
++    else
++      {
++        CL_SpriteDescription desc;
++        desc.add_frame(get_pixelbuffer());
++        sprite = CL_Sprite(desc);
++        
++        return sprite;
++      }
++  }
++
++  CL_PixelBuffer get_pixelbuffer() const
++  {
++    if (buffer)
++      {
++        return buffer;
++      }
++    else
++      {	
++        // FIXME: ClanLibs indexed handling seems broken, so we do
++        // the conversion ourself
++        const CL_Palette&amp; palette = NetPanzerData::instance()-&gt;get_palette();
++        unsigned char* data = NetPanzerData::instance()-&gt;get_tiledata() + (32*32) * id;
++        buffer = CL_PixelBuffer(32, 32, 32*3, CL_PixelFormat::rgb888);
++        buffer.lock();
++        unsigned char* target = static_cast&lt;unsigned char*&gt;(buffer.get_data());
++
++        for(int i = 0; i &lt; 32*32; ++i)
++          {
++            target[3*i+0] = palette[data[i]].get_blue();
++            target[3*i+1] = palette[data[i]].get_green();
++            target[3*i+2] = palette[data[i]].get_red();
++          }
++        buffer.unlock();
++                
++        return buffer;
++      }
++  }
++};
++
++NetPanzerData::NetPanzerData() 
++{
++}
++
++void
++NetPanzerData::init(const std::string&amp; datadir_)
++{
++  datadir = datadir_;
++  palette = load_palette(datadir + &quot;/&quot; + &quot;wads/netp.act&quot;);
++  tileset = load_tileset(datadir + &quot;/&quot; + &quot;wads/summer12mb.tls&quot;);
++}
++
++const Tileset&amp;
++NetPanzerData::get_tileset() const
++{
++  return tileset;
++}
++
++const CL_Palette&amp;
++NetPanzerData::get_palette() const
++{
++  return palette;
++}
++
++unsigned char*
++NetPanzerData::get_tiledata() const
++{
++  return tiledata;
++}
++
++CL_Palette
++NetPanzerData::load_palette(const std::string&amp; filename)
++{
+   CL_Palette palette;
+   unsigned char color_array[256 * 3];
+-
+-  std::ifstream in(filename);
+-
++  
++  std::ifstream in(filename.c_str());
++  
+   if (!in)
+     {
+       std::cout &lt;&lt; &quot;Couldn't load palette&quot; &lt;&lt; std::endl;
+@@ -57,6 +157,92 @@
+   return palette;
+ }
+ 
++Tileset
++NetPanzerData::load_tileset(const std::string&amp; filename)
++{
++  unsigned char	netp_id_header[64];
++  unsigned short	version;
++  unsigned short	width;
++  unsigned short	height;
++  unsigned short	tile_count;
++  unsigned char	raw_palette[768];
++
++  std::ifstream file(filename.c_str());  
++
++  if (!file)
++    {
++      std::cout &lt;&lt; &quot;Couldn't load &quot; &lt;&lt; filename &lt;&lt; std::endl;
++      return Tileset();
++    }
++  else
++    {
++      file.read(reinterpret_cast&lt;char*&gt;(netp_id_header), sizeof(netp_id_header));
++      file.read(reinterpret_cast&lt;char*&gt;(&amp;version), sizeof(version));
++      file.read(reinterpret_cast&lt;char*&gt;(&amp;width), sizeof(width));
++      file.read(reinterpret_cast&lt;char*&gt;(&amp;height), sizeof(height));
++      file.read(reinterpret_cast&lt;char*&gt;(&amp;tile_count), sizeof(tile_count));
++      file.read(reinterpret_cast&lt;char*&gt;(raw_palette), sizeof(raw_palette));
++
++      std::cout &lt;&lt; &quot;ID:      &quot; &lt;&lt; netp_id_header &lt;&lt; std::endl;
++      std::cout &lt;&lt; &quot;Version: &quot; &lt;&lt; version &lt;&lt; std::endl;
++      std::cout &lt;&lt; &quot;Width:   &quot; &lt;&lt; width &lt;&lt; std::endl;
++      std::cout &lt;&lt; &quot;Height:  &quot; &lt;&lt; height &lt;&lt; std::endl;
++      std::cout &lt;&lt; &quot;Count:   &quot; &lt;&lt; tile_count &lt;&lt; std::endl;
++
++      NetPanzerTileHeader* tile_headers = new NetPanzerTileHeader[tile_count];
++
++      file.read(reinterpret_cast&lt;char*&gt;(tile_headers), 
++                sizeof(NetPanzerTileHeader)*tile_count);
++
++      cl_uint32 tilesize = width * height;
++      // FIXME: Delete this somewhere!
++      unsigned char* tiledata = new unsigned char[tilesize*tile_count];
++      file.read(reinterpret_cast&lt;char*&gt;(tiledata), tilesize*tile_count);
++      file.close();
++
++      if (0)
++        {
++          // FIXME: The palette in the netpanzer 'summer12mb.tls' file
++          // is either broken or otherwise corrupt, so we ignore it
++          // and use the seperate palette file 'netp.act' which works
++          // fine.
++
++          // Convert palette in native format
++          CL_Palette palette;
++          for(int i = 0; i &lt; 256; ++i)
++            {
++              palette.colors[i].set_red  (raw_palette[3*i + 0]);
++              palette.colors[i].set_green(raw_palette[3*i + 1]);
++              palette.colors[i].set_blue (raw_palette[3*i + 2]);
++              palette.colors[i].set_alpha(255);
++
++              if (0)
++                {
++                  std::cout &lt;&lt; &quot;Palette: &quot;
++                            &lt;&lt; (int)raw_palette[3*i + 0] &lt;&lt; &quot; &quot;
++                            &lt;&lt; (int)raw_palette[3*i + 1] &lt;&lt; &quot; &quot;
++                            &lt;&lt; (int)raw_palette[3*i + 2]
++                            &lt;&lt; std::endl;
++                }
++            }
++          
++          NetPanzerData::instance()-&gt;palette  = palette;
++        }
++
++      NetPanzerData::instance()-&gt;tiledata = tiledata;
++      
++      Tileset tileset(width);
++
++      for(int i = 0; i &lt; tile_count; ++i)
++        {
++          Tile* tile = new Tile(TileProvider(new NetPanzerTileProviderImpl(i)));
++          tileset.add_tile(i, tile);
++          delete tile;
++        }
++      return tileset;
++    }
++}
++
+ unsigned char find_nearest_color(const CL_Palette&amp; palette, const CL_Color&amp; rgb)
+ { // Copyright (C) 1998 Pyrosoft Inc. (www.pyrosoftgames.com), Matthew Bogue
+   float bestDist = 10000000.0f;
+@@ -167,6 +353,7 @@
+     
+   std::ofstream out(filename.c_str());
+ 
++  // FIXME: Not endian clean
+   out.write(reinterpret_cast&lt;char*&gt;(&amp;netp_id_header), sizeof(netp_id_header));
+   out.write(reinterpret_cast&lt;char*&gt;(&amp;id), sizeof(short));
+   out.write(reinterpret_cast&lt;char*&gt;(&amp;name), sizeof(name));
+@@ -188,14 +375,12 @@
+             sizeof(unsigned short)*vec.size());
+ 
+   // Generate thumbnail
+-  CL_Palette palette = netpanzer_load_palette(&quot;netp.act&quot;);
+-  
+   std::vector&lt;unsigned char&gt; thumbnail(x_size * y_size);
+   for(int i = 0; i &lt; int(thumbnail.size()); ++i)
+     {
+       Tile* tile = impl-&gt;tileset.create((*field)[i]);
+       if (tile)
+-        thumbnail[i] = find_nearest_color(palette, tile-&gt;get_color());
++        thumbnail[i] = find_nearest_color(NetPanzerData::instance()-&gt;get_palette(), tile-&gt;get_color());
+     }
+ 
+   out.write(reinterpret_cast&lt;char*&gt;(&amp;(*thumbnail.begin())), 
+@@ -264,47 +449,4 @@
+   impl-&gt;description = description;
+ }
+ 
+-class NetPanzerTileProviderImpl
+-{
+-private:
+-  int id;
+-  CL_Sprite sprite;
+-
+-public:
+-  NetPanzerTileProviderImpl(int id_)
+-    : id(id_)
+-  {    
+-  }
+-
+-  CL_Sprite get_sprite()
+-  {
+-    if (sprite)
+-      {
+-        return sprite;
+-      }
+-    else
+-      {
+-        char str[1024];
+-        sprintf(str, &quot;netpanzertiles/tile%04d.png&quot;, id); 
+-        
+-        CL_SpriteDescription desc;
+-        desc.add_frame(CL_ProviderFactory::load(str));
+-        sprite = CL_Sprite(desc);
+-        return sprite;
+-      }
+-  }
+-};
+-
+-void load_netpanzer_tiles(Tileset tileset)
+-{
+-  char str[1024];
+-  for(int i = 0; i &lt;= 11960; ++i)
+-    {
+-      sprintf(str, &quot;netpanzertiles/tile%04d.png&quot;, i);
+-      Tile* tile = new Tile(str, CL_Color(255,   0,   0, 128));
+-      tileset.add_tile(i, tile);
+-      delete tile;
+-    }
+-}
+-
+ /* EOF */
+
+Modified: trunk/netpanzer/netpanzer.hxx
+===================================================================
+--- trunk/netpanzer/netpanzer.hxx	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/netpanzer/netpanzer.hxx	2005-03-30 17:45:18 UTC (rev 520)
+@@ -21,14 +21,53 @@
+ #define HEADER_SCRIPTING_NETPANZER_HXX
+ 
+ #include &lt;string&gt;
++#include &lt;ClanLib/Display/palette.h&gt;
+ #include &quot;../lib/tileset.hxx&quot;
+ #include &quot;../lib/tilemap_layer.hxx&quot;
+ #include &quot;../lib/shared_ptr.hxx&quot;
+ 
+-void load_netpanzer_tiles(Tileset tileset);
++void load_netpanzer_tileset(Tileset tileset, const char* filename);
+ 
+ class NetPanzerFileStructImpl;
+ 
++struct NetPanzerTileHeader
++{
++public:
++  char	attrib;
++  char	move_value;
++  char	avg_color;
++};
++
++class NetPanzerData
++{
++private:
++  static NetPanzerData* instance_;
++public:
++  static NetPanzerData* instance() 
++  {
++    if (instance_)
++      return (instance_);
++    else
++      return (instance_ = new NetPanzerData());
++  }
++
++private:
++  std::string    datadir;
++  CL_Palette     palette;
++  Tileset        tileset;
++  unsigned char* tiledata;
++  
++public:
++  NetPanzerData();
++  void init(const std::string&amp; datadir_);
++  const CL_Palette&amp; get_palette() const;
++  const Tileset&amp;    get_tileset() const;
++  unsigned char*    get_tiledata() const;
++
++  CL_Palette load_palette(const std::string&amp; filename);
++  Tileset    load_tileset(const std::string&amp; filename);
++};
++
+ class NetPanzerFileStruct
+ {
+ public:
+
+Modified: trunk/netpanzer/netpanzer.i
+===================================================================
+--- trunk/netpanzer/netpanzer.i	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/netpanzer/netpanzer.i	2005-03-30 17:45:18 UTC (rev 520)
+@@ -10,4 +10,5 @@
+ %import  &quot;../lib/flexlay_wrap.i&quot;
+ %include &quot;netpanzer.hxx&quot;
+ 
++
+ // EOF //
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-03-30 14:10:48 UTC (rev 519)
++++ trunk/netpanzer/netpanzer.rb	2005-03-30 17:45:18 UTC (rev 520)
+@@ -28,16 +28,27 @@
+ require &quot;level.rb&quot;
+ require &quot;gameobjects.rb&quot;
+ 
+-$screen = CL_Size.new(1024, 768)
++$screen  = CL_Size.new(1024, 768)
+ 
+ flexlay = Flexlay.new()
+ flexlay.init($screen.width, $screen.height)
+ 
++class Config
++  attr_accessor :datadir, :recent_files
++
++  def initialize()
++    @datadir      = &quot;./&quot;
++    @recent_files = []
++  end
++end
++
+ $config = Config.new()
+ 
+-$tileset = Tileset.new(32)
+-load_netpanzer_tiles($tileset)
++$datadir = &quot;/home/ingo/games/netpanzer-0.1.5&quot;
++NetPanzerData::instance().init($datadir)
+ 
++$tileset = NetPanzerData::instance().get_tileset()
++
+ $editor = Editor.new()
+ $gui = $editor.get_gui_manager()
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000028.html">[Flexlay-commit] r519 - trunk/supertux
+</A></li>
+	<LI>Next message: <A HREF="000030.html">[Flexlay-commit] r521 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1927 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r724 - in trunk/flexlay: lib lib/tools netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r724%20-%20in%20trunk/flexlay%3A%20lib%20lib/tools%20netpanzer&In-Reply-To=%3C200911220459.nAM4xSOt031942%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000215.html">
+   <LINK REL="Next"  HREF="000217.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r724 - in trunk/flexlay: lib lib/tools netpanzer</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r724%20-%20in%20trunk/flexlay%3A%20lib%20lib/tools%20netpanzer&In-Reply-To=%3C200911220459.nAM4xSOt031942%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r724 - in trunk/flexlay: lib lib/tools netpanzer">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 05:59:28 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000215.html">[Flexlay-commit] r723 - in trunk/flexlay/lib: . tools
+</A></li>
+        <LI>Next message: <A HREF="000217.html">[Flexlay-commit] r725 - in trunk/flexlay: . ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 05:59:25 +0100 (Sun, 22 Nov 2009)
+New Revision: 724
+
+Removed:
+   trunk/flexlay/lib/shared_ptr.hpp
+   trunk/flexlay/lib/shared_ptr_comp.hpp
+   trunk/flexlay/lib/sharedptrtest.cpp
+   trunk/flexlay/lib/sharedptrtest.hpp
+Modified:
+   trunk/flexlay/lib/bitmap_layer.hpp
+   trunk/flexlay/lib/brush.cpp
+   trunk/flexlay/lib/brush.hpp
+   trunk/flexlay/lib/command.cpp
+   trunk/flexlay/lib/command.hpp
+   trunk/flexlay/lib/console.hpp
+   trunk/flexlay/lib/directory_view.hpp
+   trunk/flexlay/lib/drawer_properties.hpp
+   trunk/flexlay/lib/editor_map.cpp
+   trunk/flexlay/lib/editor_map.hpp
+   trunk/flexlay/lib/editor_map_component.hpp
+   trunk/flexlay/lib/generated_brush.hpp
+   trunk/flexlay/lib/graphic_context_state.hpp
+   trunk/flexlay/lib/gui_manager.hpp
+   trunk/flexlay/lib/icon.hpp
+   trunk/flexlay/lib/layer.cpp
+   trunk/flexlay/lib/layer.hpp
+   trunk/flexlay/lib/marker_stroke_drawer.hpp
+   trunk/flexlay/lib/menu.hpp
+   trunk/flexlay/lib/menubar.hpp
+   trunk/flexlay/lib/meta_data.cpp
+   trunk/flexlay/lib/meta_data.hpp
+   trunk/flexlay/lib/minimap.hpp
+   trunk/flexlay/lib/object_add_command.hpp
+   trunk/flexlay/lib/object_brush.hpp
+   trunk/flexlay/lib/object_delete_command.hpp
+   trunk/flexlay/lib/object_layer.hpp
+   trunk/flexlay/lib/object_move_command.hpp
+   trunk/flexlay/lib/objmap_control_point.hpp
+   trunk/flexlay/lib/objmap_object.cpp
+   trunk/flexlay/lib/objmap_object.hpp
+   trunk/flexlay/lib/objmap_path_node.hpp
+   trunk/flexlay/lib/objmap_rect_object.cpp
+   trunk/flexlay/lib/objmap_rect_object.hpp
+   trunk/flexlay/lib/objmap_sprite_object.cpp
+   trunk/flexlay/lib/objmap_sprite_object.hpp
+   trunk/flexlay/lib/onion_skin_layer.hpp
+   trunk/flexlay/lib/paint_command.hpp
+   trunk/flexlay/lib/panel.hpp
+   trunk/flexlay/lib/scrollbar.hpp
+   trunk/flexlay/lib/sketch_layer.hpp
+   trunk/flexlay/lib/sprite_brush.hpp
+   trunk/flexlay/lib/sprite_stroke_drawer.cpp
+   trunk/flexlay/lib/sprite_stroke_drawer.hpp
+   trunk/flexlay/lib/stroke.hpp
+   trunk/flexlay/lib/stroke_drawer.cpp
+   trunk/flexlay/lib/stroke_drawer.hpp
+   trunk/flexlay/lib/tile.hpp
+   trunk/flexlay/lib/tile_provider.hpp
+   trunk/flexlay/lib/tile_selection.hpp
+   trunk/flexlay/lib/tilemap_layer.cpp
+   trunk/flexlay/lib/tilemap_layer.hpp
+   trunk/flexlay/lib/tileset.hpp
+   trunk/flexlay/lib/titlebar.hpp
+   trunk/flexlay/lib/tools/layer_move_tool.hpp
+   trunk/flexlay/lib/tools/objmap_select_tool.hpp
+   trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_paint_tool.hpp
+   trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+   trunk/flexlay/lib/tools/tool.cpp
+   trunk/flexlay/lib/tools/tool.hpp
+   trunk/flexlay/lib/tools/workspace_move_tool.hpp
+   trunk/flexlay/lib/tools/zoom2_tool.hpp
+   trunk/flexlay/lib/tools/zoom_tool.hpp
+   trunk/flexlay/lib/viewport.hpp
+   trunk/flexlay/lib/window.hpp
+   trunk/flexlay/lib/workspace.cpp
+   trunk/flexlay/lib/workspace.hpp
+   trunk/flexlay/netpanzer/netpanzer.hpp
+Log:
+Switched from SharedPtr/CL_SharedPtr to boost::shared_ptr&lt;&gt;
+
+
+Modified: trunk/flexlay/lib/bitmap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/bitmap_layer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/bitmap_layer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -57,7 +57,7 @@
+   ObjMapObject to_object();
+ 
+ private:
+-  SharedPtr&lt;BitmapLayerImpl&gt; impl;
++  boost::shared_ptr&lt;BitmapLayerImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/brush.cpp
+===================================================================
+--- trunk/flexlay/lib/brush.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/brush.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -20,7 +20,7 @@
+ {
+ }
+ 
+-Brush::Brush(SharedPtr&lt;BrushImpl&gt; impl_)
++Brush::Brush(boost::shared_ptr&lt;BrushImpl&gt; impl_)
+   : impl(impl_)
+ {
+   
+@@ -29,7 +29,7 @@
+ Brush
+ Brush::clone() const
+ {
+-  return Brush(impl-&gt;clone());
++  return Brush(boost::shared_ptr&lt;BrushImpl&gt;(impl-&gt;clone()));
+ }
+ 
+ CL_Sprite
+
+Modified: trunk/flexlay/lib/brush.hpp
+===================================================================
+--- trunk/flexlay/lib/brush.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/brush.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -17,21 +17,22 @@
+ #ifndef HEADER_FLEXLAY_BRUSH_HPP
+ #define HEADER_FLEXLAY_BRUSH_HPP
+ 
++#include &lt;boost/shared_ptr.hpp&gt;
++
+ #include &quot;brush_impl.hpp&quot;
+-#include &quot;shared_ptr.hpp&quot;
+ 
+-/** */
+ class Brush
+ {
+ public:
+   Brush();
+-  Brush(SharedPtr&lt;BrushImpl&gt; impl);
++  Brush(boost::shared_ptr&lt;BrushImpl&gt; impl);
+ 
+   CL_Sprite get_sprite();
+   Brush clone() const;
+   bool is_null() const { return !impl.get(); }
++
+ public:
+-  SharedPtr&lt;BrushImpl&gt; impl;
++  boost::shared_ptr&lt;BrushImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/command.cpp
+===================================================================
+--- trunk/flexlay/lib/command.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/command.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -21,7 +21,7 @@
+ {
+ }
+ 
+-Command::Command(const SharedPtr&lt;CommandImpl&gt;&amp; impl_)
++Command::Command(const boost::shared_ptr&lt;CommandImpl&gt;&amp; impl_)
+   : impl(impl_)
+ {
+ }
+
+Modified: trunk/flexlay/lib/command.hpp
+===================================================================
+--- trunk/flexlay/lib/command.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/command.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -17,7 +17,7 @@
+ #ifndef HEADER_FLEXLAY_COMMAND_HPP
+ #define HEADER_FLEXLAY_COMMAND_HPP
+ 
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ #include &quot;command_impl.hpp&quot;
+ 
+ /** Command is an abstract base class for all data manipulating
+@@ -29,7 +29,7 @@
+ private:
+ public:
+   Command();
+-  Command(const SharedPtr&lt;CommandImpl&gt;&amp; impl_);
++  Command(const boost::shared_ptr&lt;CommandImpl&gt;&amp; impl_);
+ 
+   /** Execute the command */
+   void execute();
+@@ -44,7 +44,7 @@
+   std::string serialize();
+ 
+ private:
+-  SharedPtr&lt;CommandImpl&gt; impl;
++  boost::shared_ptr&lt;CommandImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/console.hpp
+===================================================================
+--- trunk/flexlay/lib/console.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/console.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,7 +18,7 @@
+ #define HEADER_FLEXLAY_CONSOLE_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class CL_Font;
+ class CL_Size;
+@@ -36,7 +36,7 @@
+   void write(const std::string&amp; );
+   void clearscr();
+ private:
+-  SharedPtr&lt;ConsoleImpl&gt; impl;
++  boost::shared_ptr&lt;ConsoleImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/directory_view.hpp
+===================================================================
+--- trunk/flexlay/lib/directory_view.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/directory_view.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,7 +18,7 @@
+ #define HEADER_FLEXLAY_DIRECTORY_VIEW_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class DirectoryViewImpl;
+ 
+@@ -38,7 +38,7 @@
+   CL_Signal_v1&lt;std::string&gt;&amp; sig_on_click();
+ 
+ private:
+-  SharedPtr&lt;DirectoryViewImpl&gt; impl;
++  boost::shared_ptr&lt;DirectoryViewImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/drawer_properties.hpp
+===================================================================
+--- trunk/flexlay/lib/drawer_properties.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/drawer_properties.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -53,7 +53,7 @@
+   Brush get_brush() const;
+ 
+ private:
+-  SharedPtr&lt;DrawerPropertiesImpl&gt; impl;
++  boost::shared_ptr&lt;DrawerPropertiesImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/editor_map.cpp
+===================================================================
+--- trunk/flexlay/lib/editor_map.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/editor_map.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -14,11 +14,12 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++#include &quot;editor_map.hpp&quot;
++
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/Display/color.h&gt;
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+ #include &lt;ClanLib/signals.h&gt;
+-#include &quot;editor_map.hpp&quot;
+ 
+ class EditorMapImpl
+ {
+@@ -51,12 +52,12 @@
+   CL_Rect bounding_rect;
+ };
+ 
+-EditorMap::EditorMap(bool create)
+-  : impl(0)
++EditorMap::EditorMap(bool create) :
++  impl()
+ {
+   if (create)
+   {
+-    impl = new EditorMapImpl();
++    impl.reset(new EditorMapImpl());
+     impl-&gt;background_color = CL_Color(100, 80, 100);
+     impl-&gt;foreground_color = CL_Color(255, 80, 255);
+     impl-&gt;modified = false;
+
+Modified: trunk/flexlay/lib/editor_map.hpp
+===================================================================
+--- trunk/flexlay/lib/editor_map.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/editor_map.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -19,6 +19,8 @@
+ 
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Core/System/sharedptr.h&gt;
++#include &lt;ClanLib/Display/color.h&gt;
++
+ #include &quot;layer.hpp&quot;
+ #include &quot;meta_data.hpp&quot;
+ #include &quot;command.hpp&quot;
+@@ -87,7 +89,7 @@
+   bool is_null() const { return !impl.get(); }
+ 
+ private:
+-  CL_SharedPtr&lt;EditorMapImpl&gt; impl;
++  boost::shared_ptr&lt;EditorMapImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/editor_map_component.hpp
+===================================================================
+--- trunk/flexlay/lib/editor_map_component.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/editor_map_component.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -57,7 +57,7 @@
+   GraphicContextState&amp; get_gc_state();
+ 
+ private:
+-  SharedPtr&lt;EditorMapComponentImpl&gt; impl;
++  boost::shared_ptr&lt;EditorMapComponentImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/generated_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/generated_brush.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/generated_brush.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -55,7 +55,7 @@
+ 
+   Brush to_brush();
+ private:
+-  SharedPtr&lt;GeneratedBrushImpl&gt; impl;
++  boost::shared_ptr&lt;GeneratedBrushImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/graphic_context_state.hpp
+===================================================================
+--- trunk/flexlay/lib/graphic_context_state.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/graphic_context_state.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -19,7 +19,7 @@
+ 
+ #include &lt;ClanLib/Core/Math/point.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class CL_GraphicContext;
+ 
+@@ -68,7 +68,7 @@
+   CL_Pointf screen2world(const CL_Point&amp; pos);
+ 
+ private:
+-  SharedPtr&lt;GraphicContextStateImpl&gt; impl;
++  boost::shared_ptr&lt;GraphicContextStateImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/gui_manager.hpp
+===================================================================
+--- trunk/flexlay/lib/gui_manager.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/gui_manager.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -17,7 +17,7 @@
+ #ifndef HEADER_FLEXLAY_GUI_MANAGER_HPP
+ #define HEADER_FLEXLAY_GUI_MANAGER_HPP
+ 
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class GUIManagerImpl;
+ 
+@@ -50,7 +50,7 @@
+   CL_SlotContainer* get_slot_container();
+ 
+ private:
+-  SharedPtr&lt;GUIManagerImpl&gt; impl;
++  boost::shared_ptr&lt;GUIManagerImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/icon.hpp
+===================================================================
+--- trunk/flexlay/lib/icon.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/icon.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -19,7 +19,7 @@
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class IconImpl;
+ 
+@@ -43,7 +43,7 @@
+   Icon (const Icon&amp;);
+   Icon&amp; operator= (const Icon&amp;);
+ 
+-  SharedPtr&lt;IconImpl&gt; impl;
++  boost::shared_ptr&lt;IconImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/layer.cpp
+===================================================================
+--- trunk/flexlay/lib/layer.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/layer.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -17,12 +17,12 @@
+ #include &quot;layer_impl.hpp&quot;
+ #include &quot;layer.hpp&quot;
+ 
+-Layer::Layer()
+-  : impl(0)
++Layer::Layer() :
++  impl()
+ {
+ }
+ 
+-Layer::Layer(SharedPtr&lt;LayerImpl&gt; i)
++Layer::Layer(boost::shared_ptr&lt;LayerImpl&gt; i)
+   : impl(i)
+ {
+ }
+
+Modified: trunk/flexlay/lib/layer.hpp
+===================================================================
+--- trunk/flexlay/lib/layer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/layer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -17,9 +17,9 @@
+ #ifndef HEADER_FLEXLAY_LAYER_HPP
+ #define HEADER_FLEXLAY_LAYER_HPP
+ 
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ #include &quot;meta_data.hpp&quot;
+-#include &quot;shared_ptr.hpp&quot;
+ 
+ class EditorMapComponent;
+ class LayerImpl;
+@@ -35,7 +35,7 @@
+ private:
+ public:
+   Layer();
+-  Layer(SharedPtr&lt;LayerImpl&gt; i);
++  Layer(boost::shared_ptr&lt;LayerImpl&gt; i);
+   ~Layer();
+ 
+   MetaData get_metadata() const;
+@@ -56,8 +56,9 @@
+   /** Returns the current position of the layer */
+   CL_Pointf get_pos() const;
+   bool is_null() const;
++
+ public:
+-  SharedPtr&lt;LayerImpl&gt; impl;
++  boost::shared_ptr&lt;LayerImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/marker_stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/marker_stroke_drawer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/marker_stroke_drawer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -31,7 +31,7 @@
+   StrokeDrawer to_drawer();
+ 
+ private:
+-  SharedPtr&lt;MarkerStrokeDrawerImpl&gt; impl;
++  boost::shared_ptr&lt;MarkerStrokeDrawerImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/menu.hpp
+===================================================================
+--- trunk/flexlay/lib/menu.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/menu.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,7 +18,7 @@
+ #define HEADER_FLEXLAY_MENU_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class MenuImpl;
+ class CL_Sprite;
+@@ -45,7 +45,7 @@
+ 
+   void run();
+ private:
+-  SharedPtr&lt;MenuImpl&gt; impl;
++  boost::shared_ptr&lt;MenuImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/menubar.hpp
+===================================================================
+--- trunk/flexlay/lib/menubar.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/menubar.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,7 +18,7 @@
+ #define HEADER_FLEXLAY_MENUBAR_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class Menu;
+ class MenubarImpl;
+@@ -33,7 +33,7 @@
+ 
+   void add_submenu(const std::string&amp; name, Menu* menu);
+ private:
+-  SharedPtr&lt;MenubarImpl&gt; impl;
++  boost::shared_ptr&lt;MenubarImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/meta_data.cpp
+===================================================================
+--- trunk/flexlay/lib/meta_data.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/meta_data.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -20,7 +20,7 @@
+ {
+ }
+ 
+-MetaData::MetaData(SharedPtr&lt;MetaDataImpl&gt; impl_)
++MetaData::MetaData(boost::shared_ptr&lt;MetaDataImpl&gt; impl_)
+   : impl(impl_)
+ {
+ }
+@@ -29,7 +29,7 @@
+ {
+ }
+ 
+-SharedPtr&lt;MetaDataImpl&gt;
++boost::shared_ptr&lt;MetaDataImpl&gt;
+ MetaData::get_impl() const
+ {
+   return impl;
+
+Modified: trunk/flexlay/lib/meta_data.hpp
+===================================================================
+--- trunk/flexlay/lib/meta_data.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/meta_data.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -17,7 +17,7 @@
+ #ifndef HEADER_FLEXLAY_META_DATA_HPP
+ #define HEADER_FLEXLAY_META_DATA_HPP
+ 
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class MetaDataImpl;
+ 
+@@ -27,12 +27,12 @@
+ private:
+ public:
+   MetaData();
+-  MetaData(SharedPtr&lt;MetaDataImpl&gt; impl_);
++  MetaData(boost::shared_ptr&lt;MetaDataImpl&gt; impl_);
+   ~MetaData();
+   
+-  SharedPtr&lt;MetaDataImpl&gt; get_impl() const;
++  boost::shared_ptr&lt;MetaDataImpl&gt; get_impl() const;
+ private:
+-  SharedPtr&lt;MetaDataImpl&gt; impl;
++  boost::shared_ptr&lt;MetaDataImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/minimap.hpp
+===================================================================
+--- trunk/flexlay/lib/minimap.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/minimap.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -20,7 +20,7 @@
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/System/sharedptr.h&gt;
+ 
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class MinimapImpl;
+ class EditorMapComponent;
+@@ -41,7 +41,7 @@
+   void mouse_up  (const CL_InputEvent&amp; event);
+   
+ private:
+-  SharedPtr&lt;MinimapImpl&gt; impl;
++  boost::shared_ptr&lt;MinimapImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/object_add_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_add_command.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/object_add_command.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -40,7 +40,7 @@
+   Command to_command();
+ 
+ private:
+-  SharedPtr&lt;ObjectAddCommandImpl&gt; impl;
++  boost::shared_ptr&lt;ObjectAddCommandImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/object_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/object_brush.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/object_brush.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -35,7 +35,7 @@
+ 
+   ObjMapSpriteObject to_sprite_object(const CL_Pointf&amp; pos);
+ private:
+-  SharedPtr&lt;ObjectBrushImpl&gt; impl;
++  boost::shared_ptr&lt;ObjectBrushImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/object_delete_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_delete_command.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/object_delete_command.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -33,7 +33,7 @@
+ 
+   Command to_command();
+ private:
+-  SharedPtr&lt;ObjectDeleteCommandImpl&gt; impl;
++  boost::shared_ptr&lt;ObjectDeleteCommandImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/object_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/object_layer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/object_layer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -72,7 +72,7 @@
+   Layer to_layer();
+ 
+ private:
+-  SharedPtr&lt;ObjectLayerImpl&gt; impl;
++  boost::shared_ptr&lt;ObjectLayerImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/object_move_command.hpp
+===================================================================
+--- trunk/flexlay/lib/object_move_command.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/object_move_command.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -36,7 +36,7 @@
+ 
+   Command to_command();
+ private:
+-  SharedPtr&lt;ObjectMoveCommandImpl&gt; impl;
++  boost::shared_ptr&lt;ObjectMoveCommandImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/objmap_control_point.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_control_point.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/objmap_control_point.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,6 +18,8 @@
+ #define HEADER_FLEXLAY_OBJMAP_CONTROL_POINT_HPP
+ 
+ #include &lt;ClanLib/Display/sprite.h&gt;
++#include &lt;boost/shared_ptr.hpp&gt;
++
+ #include &quot;meta_data.hpp&quot;
+ 
+ class ObjMapControlPointImpl;
+@@ -30,7 +32,7 @@
+ {
+ private:
+ public:
+-  ObjMapControlPoint() : impl(0) {}
++  ObjMapControlPoint() : impl() {}
+   ObjMapControlPoint(CL_Sprite sprite_, CL_Pointf pos_, MetaData data_);
+ 
+   CL_Pointf get_pos() const;
+@@ -43,8 +45,9 @@
+   CL_Signal_v1&lt;CL_Pointf&gt;&amp; sig_set_pos();
+ 
+   bool is_null() const { return !impl.get(); }
++
+ private:
+-  SharedPtr&lt;ObjMapControlPointImpl&gt; impl;
++  boost::shared_ptr&lt;ObjMapControlPointImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/objmap_object.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/objmap_object.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -20,7 +20,7 @@
+ {
+ }
+ 
+-ObjMapObject::ObjMapObject(const SharedPtr&lt;ObjMapObjectImpl&gt;&amp; impl_)
++ObjMapObject::ObjMapObject(const boost::shared_ptr&lt;ObjMapObjectImpl&gt;&amp; impl_)
+   : impl(impl_)
+ {
+ }
+
+Modified: trunk/flexlay/lib/objmap_object.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_object.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/objmap_object.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -27,7 +27,7 @@
+ {
+ public:
+   ObjMapObject();
+-  ObjMapObject(const SharedPtr&lt;ObjMapObjectImpl&gt;&amp; impl_);
++  ObjMapObject(const boost::shared_ptr&lt;ObjMapObjectImpl&gt;&amp; impl_);
+   virtual ~ObjMapObject() {}
+ 
+   CL_Pointf get_pos() const;
+@@ -51,7 +51,7 @@
+   bool operator==(const ObjMapObject&amp; obj) const;
+   bool operator&lt;(const ObjMapObject&amp; obj) const;
+ private:
+-  SharedPtr&lt;ObjMapObjectImpl&gt; impl;
++  boost::shared_ptr&lt;ObjMapObjectImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/objmap_path_node.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_path_node.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/objmap_path_node.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -32,7 +32,7 @@
+ 
+   ObjMapObject to_object();
+ private:
+-  SharedPtr&lt;ObjMapPathNodeImpl&gt; impl;
++  boost::shared_ptr&lt;ObjMapPathNodeImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/objmap_rect_object.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_rect_object.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/objmap_rect_object.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -225,7 +225,7 @@
+ ObjMapObject
+ ObjMapRectObject::to_object()
+ {
+-  return ObjMapObject(SharedPtr&lt;ObjMapObjectImpl&gt;(impl));
++  return ObjMapObject(boost::shared_ptr&lt;ObjMapObjectImpl&gt;(impl));
+ }
+ 
+ void
+
+Modified: trunk/flexlay/lib/objmap_rect_object.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_rect_object.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/objmap_rect_object.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -38,7 +38,7 @@
+ 
+   ObjMapObject to_object();
+ private:
+-  SharedPtr&lt;ObjMapRectObjectImpl&gt; impl;
++  boost::shared_ptr&lt;ObjMapRectObjectImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/objmap_sprite_object.cpp
+===================================================================
+--- trunk/flexlay/lib/objmap_sprite_object.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/objmap_sprite_object.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -119,7 +119,7 @@
+ ObjMapObject
+ ObjMapSpriteObject::to_object()
+ {
+-  return ObjMapObject(SharedPtr&lt;ObjMapObjectImpl&gt;(impl));
++  return ObjMapObject(boost::shared_ptr&lt;ObjMapObjectImpl&gt;(impl));
+ }
+ 
+ /* EOF */
+
+Modified: trunk/flexlay/lib/objmap_sprite_object.hpp
+===================================================================
+--- trunk/flexlay/lib/objmap_sprite_object.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/objmap_sprite_object.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -40,7 +40,7 @@
+   
+   ObjMapObject to_object();
+ private:
+-  SharedPtr&lt;ObjMapSpriteObjectImpl&gt; impl;
++  boost::shared_ptr&lt;ObjMapSpriteObjectImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/onion_skin_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/onion_skin_layer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -46,7 +46,7 @@
+   bool is_null() const { return !impl.get(); }
+   Layer to_layer();
+ private:
+-  SharedPtr&lt;OnionSkinLayerImpl&gt; impl;  
++  boost::shared_ptr&lt;OnionSkinLayerImpl&gt; impl;  
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/paint_command.hpp
+===================================================================
+--- trunk/flexlay/lib/paint_command.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/paint_command.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -37,7 +37,7 @@
+ 
+   Command to_command();
+ private:
+-  SharedPtr&lt;PaintCommandImpl&gt; impl;
++  boost::shared_ptr&lt;PaintCommandImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/panel.hpp
+===================================================================
+--- trunk/flexlay/lib/panel.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/panel.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,7 +18,7 @@
+ #define HEADER_FLEXLAY_PANEL_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class PanelImpl;
+ 
+@@ -28,7 +28,7 @@
+ public:
+   Panel(const CL_Rect&amp; rect, CL_Component* parent);
+ private:
+-  SharedPtr&lt;PanelImpl&gt; impl;
++  boost::shared_ptr&lt;PanelImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/scrollbar.hpp
+===================================================================
+--- trunk/flexlay/lib/scrollbar.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/scrollbar.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,7 +18,7 @@
+ #define HEADER_FLEXLAY_SCROLLBAR_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class ScrollbarImpl;
+ 
+@@ -38,7 +38,7 @@
+   
+   CL_Signal_v1&lt;float&gt;&amp; sig_scrollbar_move();
+ private:
+-  SharedPtr&lt;ScrollbarImpl&gt; impl;
++  boost::shared_ptr&lt;ScrollbarImpl&gt; impl;
+ };
+ 
+ #endif
+
+Deleted: trunk/flexlay/lib/shared_ptr.hpp
+===================================================================
+--- trunk/flexlay/lib/shared_ptr.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/shared_ptr.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -1,48 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_SHARED_PTR_HPP
+-#define HEADER_FLEXLAY_SHARED_PTR_HPP
+-
+-#include &lt;assert.h&gt;
+-
+-/** */
+-template&lt;typename T&gt;
+-class SharedPtr
+-{
+-private:
+-  T* ptr;
+-public:
+-  template&lt;typename Parent&gt; friend class SharedPtr;
+-
+-  SharedPtr() : ptr(0) {}
+-  SharedPtr(T* p) : ptr(p) {}
+-  
+-  template &lt;typename Parent&gt;
+-  SharedPtr(const SharedPtr&lt;Parent&gt;&amp; p) : ptr(p.ptr) {}
+-
+-  T&amp; operator*() { assert(ptr); return *ptr; }
+-  T const&amp; operator*() const { assert(ptr); return *ptr; }
+-
+-  T* operator-&gt;() { assert(ptr); return ptr; }
+-  T const* operator-&gt;() const { assert(ptr); return ptr; }
+-
+-  T* get() const { return ptr; }
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/shared_ptr_comp.hpp
+===================================================================
+--- trunk/flexlay/lib/shared_ptr_comp.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/shared_ptr_comp.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -1,258 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_SHARED_PTR_COMP_HPP
+-#define HEADER_FLEXLAY_SHARED_PTR_COMP_HPP
+-
+-#include &lt;iostream&gt;
+-#include &lt;typeinfo&gt;
+-
+-template&lt;class T&gt;
+-class SharedPtrDeleter
+-{
+-public:
+-  T* ptr; 
+-
+-  SharedPtrDeleter(T* p) : ptr(p) {}
+-  virtual ~SharedPtrDeleter() {}
+-  
+-  virtual void del() =0;
+-};
+-
+-template&lt;class T&gt;
+-class SharedPtrDeleterImpl : public SharedPtrDeleter&lt;T&gt;
+-{
+-public:
+-  SharedPtrDeleterImpl(T* p)
+-    : SharedPtrDeleter&lt;T&gt;(p) {}
+-
+-  ~SharedPtrDeleterImpl()
+-  {
+-  }  
+-
+-  void del() {
+-    //if (ptr)
+-    //  delete ptr;
+-    ptr = 0;
+-  }
+-};
+-
+-template&lt;class T&gt;
+-class SharedPtr
+-{
+-private:
+-  SharedPtrDeleter&lt;T&gt;* deleter;
+-  int* ref_count;
+-
+-  void inc() {
+-#ifdef DEBUG
+-    std::cout &lt;&lt; &quot;SharedPtr: inc: &quot; &lt;&lt; (ref_count ? *ref_count : -45) &lt;&lt; std::endl;
+-#endif
+-    if (ref_count)
+-    {
+-      *ref_count += 1;
+-    }
+-  }
+-  
+-  void dec() {
+-#ifdef DEBUG
+-    std::cout &lt;&lt; &quot;SharedPtr: dec: &quot; &lt;&lt; (ref_count ? *ref_count : -45) &lt;&lt; std::endl;
+-#endif
+-    if (ref_count)
+-    {
+-      *ref_count -= 1;
+-      if (*ref_count == 0) {
+-#ifdef DEBUG
+-        std::cout &lt;&lt; &quot;SharedPtr: deleting: type: &quot;
+-                  &lt;&lt; typeid(deleter-&gt;ptr).name()
+-                  &lt;&lt; &quot; ptr: &quot; &lt;&lt; deleter-&gt;ptr
+-                  &lt;&lt; std::endl;
+-#endif
+-        deleter-&gt;del();
+-          
+-        delete ref_count; ref_count = 0;
+-        delete deleter;   deleter   = 0;
+-      }
+-    }
+-    else
+-    {
+-#ifdef DEBUG
+-      std::cout &lt;&lt; &quot;SharedPtr: null delete&quot; &lt;&lt; std::endl;
+-#endif
+-    }
+-  }
+-public:
+-  template&lt;class Base&gt; friend class SharedPtr;
+-
+-  // Constructors
+-  SharedPtr()
+-    : deleter(0),
+-      ref_count(0)
+-  {
+-#ifdef DEBUG
+-    std::cout &lt;&lt; &quot;SharedPtr: ctor null&quot; &lt;&lt; std::endl;
+-#endif
+-  }
+-
+-  template&lt;typename D&gt;
+-  SharedPtr(D* p)
+-    : deleter(new SharedPtrDeleterImpl&lt;T&gt;(p)), 
+-      ref_count(new int(1))
+-  {
+-#ifdef DEBUG
+-    std::cout &lt;&lt; &quot;SharedPtr: ctor: type: &quot;
+-              &lt;&lt; typeid(deleter-&gt;ptr).name()
+-              &lt;&lt; &quot; ptr: &quot; &lt;&lt; deleter-&gt;ptr
+-              &lt;&lt; std::endl;
+-#endif
+-  }
+-  
+-  template&lt;class Base&gt;
+-  SharedPtr(const SharedPtr&lt;Base&gt;&amp; copy)
+-    : deleter(0), ref_count(0)
+-  {
+-    if (copy.deleter)
+-    {
+-      deleter   = new SharedPtrDeleterImpl&lt;T&gt;(copy.deleter-&gt;ptr);
+-      ref_count = copy.ref_count;
+-      inc();
+-    }
+-
+-#ifdef DEBUG
+-    if (deleter)
+-    {
+-      std::cout &lt;&lt; &quot;SharedPtr: copy-ctor template: type: &quot;
+-                &lt;&lt; typeid(deleter-&gt;ptr).name()
+-                &lt;&lt; &quot; ptr: &quot; &lt;&lt; deleter-&gt;ptr
+-                &lt;&lt; std::endl;
+-    }
+-    else
+-    {
+-      std::cout &lt;&lt; &quot;SharedPtr: copy-ctor template null&quot; &lt;&lt; std::endl;
+-    }
+-#endif
+-  }
+-
+-  // Assign
+-  template&lt;class Base&gt;
+-  SharedPtr&lt;T&gt;&amp; operator= (const SharedPtr&lt;Base&gt;&amp; copy) 
+-  {
+-#ifdef DEBUG
+-    std::cout &lt;&lt; &quot;SharedPtr&lt;T&gt;&amp; operator= (const SharedPtr&lt;Base&gt;&amp; copy)&quot; &lt;&lt; std::endl;
+-#endif
+-    if (ref_count != copy.ref_count)
+-    {
+-      dec();
+-
+-      if (copy.deleter)
+-      {
+-        deleter   = new SharedPtrDeleterImpl&lt;T&gt;(copy.deleter-&gt;ptr);
+-        ref_count = copy.ref_count;
+-        inc();
+-      }
+-
+-#ifdef DEBUG
+-      if (deleter)
+-      {
+-        std::cout &lt;&lt; &quot;SharedPtr: assign template: type: &quot;
+-                  &lt;&lt; typeid(deleter-&gt;ptr).name()
+-                  &lt;&lt; &quot; ptr: &quot; &lt;&lt; deleter-&gt;ptr
+-                  &lt;&lt; std::endl;
+-      }
+-      else
+-      {
+-        std::cout &lt;&lt; &quot;SharedPtr: assign template: null: &quot; &lt;&lt; std::endl;
+-      }
+-#endif
+-    }
+-
+-    return *this;
+-  }
+-
+-  SharedPtr&lt;T&gt;&amp; operator= (const SharedPtr&lt;T&gt;&amp; copy) 
+-  {
+-    if (this != &amp;copy)
+-    {
+-      dec();
+-
+-      if (copy.deleter)
+-      {
+-        deleter   = new SharedPtrDeleterImpl&lt;T&gt;(copy.deleter-&gt;ptr);
+-        ref_count = copy.ref_count;
+-        inc();
+-      }
+-
+-#ifdef DEBUG
+-      if (deleter)
+-      {
+-        std::cout &lt;&lt; &quot;SharedPtr: assign normal: type: &quot;
+-                  &lt;&lt; typeid(deleter-&gt;ptr).name()
+-                  &lt;&lt; &quot; ptr: &quot; &lt;&lt; deleter-&gt;ptr
+-                  &lt;&lt; std::endl;
+-      }
+-      else
+-      {
+-        std::cout &lt;&lt; &quot;SharedPtr: assign normal null&quot; &lt;&lt; std::endl;
+-      }
+-#endif
+-    }
+-    else
+-    {
+-#ifdef DEBUG
+-      if (deleter)
+-      {
+-        std::cout &lt;&lt; &quot;SharedPtr: self assin: type: &quot;
+-                  &lt;&lt; typeid(deleter-&gt;ptr).name()
+-                  &lt;&lt; &quot; ptr: &quot; &lt;&lt; deleter-&gt;ptr
+-                  &lt;&lt; std::endl;
+-      }
+-      else
+-      {
+-        std::cout &lt;&lt; &quot;SharedPtr: assign normal null&quot; &lt;&lt; std::endl;
+-      }
+-#endif
+-    }
+-
+-    return *this;
+-  }
+-  
+-  ~SharedPtr()
+-  {
+-    dec();
+-  }
+-
+-  //: Dereferencing operator.
+-  T&amp; operator*() { return *deleter-&gt;ptr; }
+-
+-  T const&amp; operator*() const { return *deleter-&gt;ptr; }
+-        
+-  //: Indirect member access operator.
+-  T* operator-&gt;() { return deleter-&gt;ptr; }
+-
+-  T const* operator-&gt;() const { return deleter-&gt;ptr; }
+-
+-  T* get() const 
+-  {
+-    if (deleter) 
+-      return deleter-&gt;ptr;
+-    else
+-      return 0; 
+-  }
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/sharedptrtest.cpp
+===================================================================
+--- trunk/flexlay/lib/sharedptrtest.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/sharedptrtest.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -1,88 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#include &lt;iostream&gt;
+-#include &lt;boost/shared_ptr.hpp&gt;
+-
+-#define SharedPtr boost::shared_ptr
+-
+-class B
+-{
+-public:
+-  B() { std::cout &lt;&lt; &quot;B(&quot; &lt;&lt; this &lt;&lt; &quot;)&quot; &lt;&lt; std::endl; }
+-  virtual ~B() { std::cout &lt;&lt; &quot;~B(&quot; &lt;&lt; this &lt;&lt; &quot;)&quot; &lt;&lt; std::endl; }
+-
+-  virtual void do_something()
+-  {
+-    std::cout &lt;&lt; &quot;B: do_something&quot; &lt;&lt; std::endl;
+-  }
+-};
+-
+-class A : public B
+-{
+-public:
+-  A() { std::cout &lt;&lt; &quot;A(&quot; &lt;&lt; this &lt;&lt; &quot;)&quot; &lt;&lt; std::endl; }
+-  virtual ~A() { std::cout &lt;&lt; &quot;~A(&quot; &lt;&lt; this &lt;&lt; &quot;)&quot; &lt;&lt; std::endl; }
+-  
+-  void do_something()
+-  {
+-    std::cout &lt;&lt; &quot;A: do_something&quot; &lt;&lt; std::endl;
+-  }
+-};
+-
+-class C;
+-
+-int main()
+-{
+-  SharedPtr&lt;A&gt; p0_;
+-  SharedPtr&lt;A&gt; p1_;
+-  SharedPtr&lt;B&gt; p2_(p0_);
+-  SharedPtr&lt;B&gt; p3_(p1_);
+-
+-  SharedPtr&lt;B&gt; p0(new B());
+-  {
+-    SharedPtr&lt;B&gt; ptr0(new A());
+-  }
+-  {
+-    SharedPtr&lt;A&gt; aptr0(new A());
+-    {
+-      p0_ = p1_;
+-      SharedPtr&lt;B&gt; ptr1(new B());
+-      {
+-        SharedPtr&lt;B&gt; ptr2 = ptr1;
+-        SharedPtr&lt;B&gt; ptr1 = ptr2;
+-        ptr1 = aptr0;
+-        p0   = aptr0;
+-      }
+-    }
+-  }
+-
+-  std::cout &lt;&lt; &quot;\nInteresting part: &quot; &lt;&lt; std::endl;
+-  {
+-    std::cout &lt;&lt; &quot;### SharedPtr&lt;A&gt; p1;&quot; &lt;&lt; std::endl;
+-    SharedPtr&lt;A&gt; p1;
+-    {
+-      std::cout &lt;&lt; &quot;### SharedPtr&lt;A&gt; p(new A());&quot; &lt;&lt; std::endl;
+-      SharedPtr&lt;A&gt; p(new A());
+-      std::cout &lt;&lt; &quot;### p1 = p;&quot; &lt;&lt; std::endl;
+-      p1 = p;
+-    }
+-    std::cout &lt;&lt; &quot;### p1-&gt;do_something()&quot; &lt;&lt; std::endl;
+-    p1-&gt;do_something();
+-  }
+-}
+-
+-/* EOF */
+
+Deleted: trunk/flexlay/lib/sharedptrtest.hpp
+===================================================================
+--- trunk/flexlay/lib/sharedptrtest.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/sharedptrtest.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -1,23 +0,0 @@
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software: you can redistribute it and/or modify
+-//  it under the terms of the GNU General Public License as published by
+-//  the Free Software Foundation, either version 3 of the License, or
+-//  (at your option) any later version.
+-//  
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//  
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+-
+-#ifndef HEADER_FLEXLAY_SHAREDPTRTEST_HPP
+-#define HEADER_FLEXLAY_SHAREDPTRTEST_HPP
+-
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/flexlay/lib/sketch_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/sketch_layer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -48,7 +48,7 @@
+   Layer to_layer();
+ 
+ private:
+-  SharedPtr&lt;SketchLayerImpl&gt; impl;  
++  boost::shared_ptr&lt;SketchLayerImpl&gt; impl;  
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/sprite_brush.hpp
+===================================================================
+--- trunk/flexlay/lib/sprite_brush.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/sprite_brush.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -28,7 +28,7 @@
+ 
+   Brush to_brush();
+ private:
+-  SharedPtr&lt;SpriteBrushImpl&gt; impl;
++  boost::shared_ptr&lt;SpriteBrushImpl&gt; impl;
+ };
+ 
+ 
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/sprite_stroke_drawer.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -43,8 +43,7 @@
+ 
+ SpriteStrokeDrawer::SpriteStrokeDrawer(StrokeDrawer drawer)
+ {
+-  // FIXME: THIS WON'T WORK WITH A REAL SMARTPTR!!!!
+-  impl = dynamic_cast&lt;SpriteStrokeDrawerImpl*&gt;(drawer.impl.get());
++  impl = boost::dynamic_pointer_cast&lt;SpriteStrokeDrawerImpl&gt;(drawer.impl);
+   assert(impl.get());
+ }
+ 
+
+Modified: trunk/flexlay/lib/sprite_stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/sprite_stroke_drawer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/sprite_stroke_drawer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -37,7 +37,7 @@
+ 
+   StrokeDrawer to_drawer();
+ private:
+-  SharedPtr&lt;SpriteStrokeDrawerImpl&gt; impl;
++  boost::shared_ptr&lt;SpriteStrokeDrawerImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/stroke.hpp
+===================================================================
+--- trunk/flexlay/lib/stroke.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/stroke.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -20,7 +20,7 @@
+ #include &lt;vector&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+ #include &lt;ClanLib/Core/System/system.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class StrokeImpl;
+ class StrokeDrawer;
+@@ -87,7 +87,7 @@
+ 
+   CL_Rectf get_bounding_rect() const;
+ private:
+-  SharedPtr&lt;StrokeImpl&gt; impl;
++  boost::shared_ptr&lt;StrokeImpl&gt; impl;
+ };
+ 
+ 
+
+Modified: trunk/flexlay/lib/stroke_drawer.cpp
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/stroke_drawer.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -21,7 +21,7 @@
+ {
+ }
+ 
+-StrokeDrawer::StrokeDrawer(SharedPtr&lt;StrokeDrawerImpl&gt; impl_)
++StrokeDrawer::StrokeDrawer(boost::shared_ptr&lt;StrokeDrawerImpl&gt; impl_)
+   :impl(impl_)
+ {
+   
+@@ -37,7 +37,7 @@
+ StrokeDrawer
+ StrokeDrawer::clone() const
+ {
+-  return StrokeDrawer(impl-&gt;clone());
++  return StrokeDrawer(boost::shared_ptr&lt;StrokeDrawerImpl&gt;(impl-&gt;clone()));
+ }
+ 
+ /* EOF */
+
+Modified: trunk/flexlay/lib/stroke_drawer.hpp
+===================================================================
+--- trunk/flexlay/lib/stroke_drawer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/stroke_drawer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -17,7 +17,7 @@
+ #ifndef HEADER_FLEXLAY_STROKE_DRAWER_HPP
+ #define HEADER_FLEXLAY_STROKE_DRAWER_HPP
+ 
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class Stroke;
+ class StrokeDrawerImpl;
+@@ -30,14 +30,15 @@
+ private:
+ public:
+   StrokeDrawer();
+-  StrokeDrawer(SharedPtr&lt;StrokeDrawerImpl&gt; impl);
++  StrokeDrawer(boost::shared_ptr&lt;StrokeDrawerImpl&gt; impl);
+   
+   void draw(const Stroke&amp; stroke, CL_GraphicContext* gc);
+ 
+   bool is_null() const { return !impl.get(); }
+   StrokeDrawer clone() const;
++
+ public:
+-  SharedPtr&lt;StrokeDrawerImpl&gt; impl;
++  boost::shared_ptr&lt;StrokeDrawerImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tile.hpp
+===================================================================
+--- trunk/flexlay/lib/tile.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tile.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,7 +18,7 @@
+ #define HEADER_FLEXLAY_TILE_HPP
+ 
+ #include &lt;ClanLib/Display/color.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class TileImpl;
+ class TileProvider;
+@@ -61,7 +61,7 @@
+   CL_Color calc_color();
+ 
+ private:
+-  SharedPtr&lt;TileImpl&gt; impl;
++  boost::shared_ptr&lt;TileImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tile_provider.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_provider.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tile_provider.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -17,7 +17,7 @@
+ #ifndef HEADER_FLEXLAY_TILE_PROVIDER_HPP
+ #define HEADER_FLEXLAY_TILE_PROVIDER_HPP
+ 
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class TileProviderImpl;
+ 
+@@ -33,7 +33,7 @@
+ 
+   operator bool() const { return impl.get(); }
+ private:
+-  SharedPtr&lt;TileProviderImpl&gt; impl;
++  boost::shared_ptr&lt;TileProviderImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tile_selection.hpp
+===================================================================
+--- trunk/flexlay/lib/tile_selection.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tile_selection.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -44,7 +44,7 @@
+ 
+   TileBrush get_brush(const Field&lt;int&gt;&amp; field) const;
+ private:
+-  SharedPtr&lt;TileSelectionImpl&gt; impl;
++  boost::shared_ptr&lt;TileSelectionImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tilemap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tilemap_layer.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -63,7 +63,7 @@
+ {
+ }
+ 
+-/*TilemapLayer::TilemapLayer(const SharedPtr&lt;TilemapLayerImpl&gt;&amp; i)
++/*TilemapLayer::TilemapLayer(const boost::shared_ptr&lt;TilemapLayerImpl&gt;&amp; i)
+   : impl(i)
+   {
+   }*/
+
+Modified: trunk/flexlay/lib/tilemap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tilemap_layer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -20,7 +20,7 @@
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &quot;field.hpp&quot;
+ #include &quot;meta_data.hpp&quot;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ #include &quot;layer.hpp&quot;
+ 
+ class Tileset;
+@@ -93,7 +93,7 @@
+   Layer to_layer();
+ 
+ private:
+-  SharedPtr&lt;TilemapLayerImpl&gt; impl;
++  boost::shared_ptr&lt;TilemapLayerImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tileset.hpp
+===================================================================
+--- trunk/flexlay/lib/tileset.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tileset.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -20,6 +20,7 @@
+ #include &lt;vector&gt;
+ #include &lt;string&gt;
+ #include &lt;ClanLib/Core/System/sharedptr.h&gt;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class Tile;
+ class TilesetImpl;
+@@ -54,7 +55,7 @@
+   std::vector&lt;int&gt; get_tiles() const;
+ 
+ private:
+-  CL_SharedPtr&lt;TilesetImpl&gt; impl;
++  boost::shared_ptr&lt;TilesetImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/titlebar.hpp
+===================================================================
+--- trunk/flexlay/lib/titlebar.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/titlebar.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -18,7 +18,7 @@
+ #define HEADER_FLEXLAY_TITLEBAR_HPP
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class TitlebarImpl;
+ 
+@@ -31,7 +31,7 @@
+   Titlebar(const CL_Rect&amp; rect, const std::string&amp; title, CL_Component* parent);
+ 
+ private:
+-  SharedPtr&lt;TitlebarImpl&gt; impl;
++  boost::shared_ptr&lt;TitlebarImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/layer_move_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/layer_move_tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/layer_move_tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -30,7 +30,7 @@
+ 
+   Tool to_tool();
+ private:
+-  SharedPtr&lt;LayerMoveToolImpl&gt; impl;
++  boost::shared_ptr&lt;LayerMoveToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/objmap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/objmap_select_tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/objmap_select_tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -43,7 +43,7 @@
+ 
+   Tool to_tool();
+ private:
+-  SharedPtr&lt;ObjMapSelectToolImpl&gt; impl;
++  boost::shared_ptr&lt;ObjMapSelectToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/sketch_stroke_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/sketch_stroke_tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -34,7 +34,7 @@
+ 
+   Tool to_tool();
+ private:
+-  SharedPtr&lt;SketchStrokeToolImpl&gt; impl;
++  boost::shared_ptr&lt;SketchStrokeToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/tilemap_paint_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_paint_tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/tilemap_paint_tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -40,7 +40,7 @@
+ 
+   Tool to_tool();
+ private:
+-  SharedPtr&lt;TileMapPaintToolImpl&gt; impl;
++  boost::shared_ptr&lt;TileMapPaintToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/tilemap_select_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/tilemap_select_tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -39,7 +39,7 @@
+ 
+   Tool to_tool();
+ private:
+-  SharedPtr&lt;TileMapSelectToolImpl&gt; impl;
++  boost::shared_ptr&lt;TileMapSelectToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/tool.cpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/tool.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -22,7 +22,7 @@
+ {
+ }
+ 
+-Tool::Tool(SharedPtr&lt;ToolImpl&gt; impl_)
++Tool::Tool(boost::shared_ptr&lt;ToolImpl&gt; impl_)
+   : impl(impl_)
+ {
+ }
+
+Modified: trunk/flexlay/lib/tools/tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -21,7 +21,7 @@
+ class EditorMapComponent;
+ class CL_InputEvent;
+ 
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class ToolImpl;
+ 
+@@ -32,7 +32,7 @@
+ 
+ public:
+   Tool();
+-  Tool(SharedPtr&lt;ToolImpl&gt; impl_);
++  Tool(boost::shared_ptr&lt;ToolImpl&gt; impl_);
+   ~Tool();
+ 
+   void draw();
+@@ -42,7 +42,7 @@
+   void on_mouse_move(const CL_InputEvent&amp; event);
+ 
+ private:
+-  SharedPtr&lt;ToolImpl&gt; impl;
++  boost::shared_ptr&lt;ToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/workspace_move_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/workspace_move_tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/workspace_move_tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -30,7 +30,7 @@
+ 
+   Tool to_tool();
+ private:
+-  SharedPtr&lt;WorkspaceMoveToolImpl&gt; impl;
++  boost::shared_ptr&lt;WorkspaceMoveToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/zoom2_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom2_tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/zoom2_tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -33,7 +33,7 @@
+ 
+   Tool to_tool();
+ private:
+-  SharedPtr&lt;Zoom2ToolImpl&gt; impl;
++  boost::shared_ptr&lt;Zoom2ToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/tools/zoom_tool.hpp
+===================================================================
+--- trunk/flexlay/lib/tools/zoom_tool.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/tools/zoom_tool.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -33,7 +33,7 @@
+ 
+   Tool to_tool();
+ private:
+-  SharedPtr&lt;ZoomToolImpl&gt; impl;
++  boost::shared_ptr&lt;ZoomToolImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/viewport.hpp
+===================================================================
+--- trunk/flexlay/lib/viewport.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/viewport.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -19,7 +19,7 @@
+ 
+ #include &lt;ClanLib/GUI/component.h&gt;
+ #include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &quot;shared_ptr.hpp&quot;
++#include &lt;boost/shared_ptr.hpp&gt;
+ 
+ class ViewportImpl;
+ 
+@@ -34,7 +34,7 @@
+   void set_pos(const CL_Pointf&amp; pos);
+   CL_Pointf get_pos() const;
+ private:
+-  SharedPtr&lt;ViewportImpl&gt; impl;
++  boost::shared_ptr&lt;ViewportImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/window.hpp
+===================================================================
+--- trunk/flexlay/lib/window.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/window.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -36,7 +36,7 @@
+   Window (const Window&amp;);
+   Window&amp; operator= (const Window&amp;);
+ 
+-  SharedPtr&lt;WindowImpl&gt; impl;
++  boost::shared_ptr&lt;WindowImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/lib/workspace.cpp
+===================================================================
+--- trunk/flexlay/lib/workspace.cpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/workspace.cpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -37,12 +37,12 @@
+   Tools tools;
+ };
+ 
+-Workspace::Workspace(bool create)
+-  : impl(0)
++Workspace::Workspace(bool create) :
++  impl()
+ {
+   if (create)
+   {
+-    impl = new WorkspaceImpl();
++    impl.reset(new WorkspaceImpl());
+     current_ = *this;
+     std::cout &lt;&lt; &quot;Workspace()&quot; &lt;&lt; std::endl;
+   }
+
+Modified: trunk/flexlay/lib/workspace.hpp
+===================================================================
+--- trunk/flexlay/lib/workspace.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/lib/workspace.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -53,7 +53,7 @@
+ 
+   bool is_null() const { return !impl.get(); }
+ private:
+-  CL_SharedPtr&lt;WorkspaceImpl&gt; impl;
++  boost::shared_ptr&lt;WorkspaceImpl&gt; impl;
+ };
+ 
+ #endif
+
+Modified: trunk/flexlay/netpanzer/netpanzer.hpp
+===================================================================
+--- trunk/flexlay/netpanzer/netpanzer.hpp	2009-11-22 04:36:12 UTC (rev 723)
++++ trunk/flexlay/netpanzer/netpanzer.hpp	2009-11-22 04:59:25 UTC (rev 724)
+@@ -23,9 +23,9 @@
+ #include &lt;ClanLib/Display/palette.h&gt;
+ #include &lt;ClanLib/Display/surface.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
++
+ #include &quot;../lib/tileset.hpp&quot;
+ #include &quot;../lib/tilemap_layer.hpp&quot;
+-#include &quot;../lib/shared_ptr.hpp&quot;
+ 
+ void load_netpanzer_tileset(Tileset tileset, const char* filename);
+ 
+@@ -119,8 +119,9 @@
+   void set_tilemap(TilemapLayer l); 
+ 
+   void save(const std::string&amp; filename);
++
+ private:
+-  SharedPtr&lt;NetPanzerFileStructImpl&gt; impl;
++  boost::shared_ptr&lt;NetPanzerFileStructImpl&gt; impl;
+ };
+ 
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000215.html">[Flexlay-commit] r723 - in trunk/flexlay/lib: . tools
+</A></li>
+	<LI>Next message: <A HREF="000217.html">[Flexlay-commit] r725 - in trunk/flexlay: . ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

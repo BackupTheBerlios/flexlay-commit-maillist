@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r564 - trunk/lib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r564%20-%20trunk/lib&In-Reply-To=%3C200506301228.j5UCSNMj011602%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000065.html">
+   <LINK REL="Next"  HREF="000063.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r564 - trunk/lib</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r564%20-%20trunk/lib&In-Reply-To=%3C200506301228.j5UCSNMj011602%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r564 - trunk/lib">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 14:28:23 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000065.html">[Flexlay-commit] r563 - trunk/lib
+</A></li>
+        <LI>Next message: <A HREF="000063.html">[Flexlay-commit] r565 - trunk/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-06-30 14:28:21 +0200 (Thu, 30 Jun 2005)
+New Revision: 564
+
+Modified:
+   trunk/lib/SConstruct
+Log:
+- switched to a static library
+
+Modified: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2005-06-30 11:40:49 UTC (rev 563)
++++ trunk/lib/SConstruct	2005-06-30 12:28:21 UTC (rev 564)
+@@ -49,8 +49,8 @@
+ clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7&quot;)
+ 
+ libflexlay_env = env.Copy()
+-flexlay_lib = libflexlay_env.SharedLibrary(
+-    target = 'libflexlay.so',
++flexlay_lib = libflexlay_env.StaticLibrary(
++    target = 'libflexlay.a',
+     source = [
+     'blitter.cxx',
+     'box.cxx',
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000065.html">[Flexlay-commit] r563 - trunk/lib
+</A></li>
+	<LI>Next message: <A HREF="000063.html">[Flexlay-commit] r565 - trunk/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

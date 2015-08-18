@@ -1,0 +1,280 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r509 - trunk/netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r509%20-%20trunk/netpanzer&In-Reply-To=%3C200503292048.j2TKmuRo023464%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000018.html">
+   <LINK REL="Next"  HREF="000020.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r509 - trunk/netpanzer</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r509%20-%20trunk/netpanzer&In-Reply-To=%3C200503292048.j2TKmuRo023464%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r509 - trunk/netpanzer">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 29 22:48:56 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000018.html">[Flexlay-commit] r508 - trunk/netpanzer
+</A></li>
+        <LI>Next message: <A HREF="000020.html">[Flexlay-commit] r510 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-29 22:48:54 +0200 (Tue, 29 Mar 2005)
+New Revision: 509
+
+Modified:
+   trunk/netpanzer/gameobjects.rb
+   trunk/netpanzer/level.rb
+   trunk/netpanzer/netpanzer.rb
+Log:
+- added spawnpoint and outpost handling (save only, no load)
+
+Modified: trunk/netpanzer/gameobjects.rb
+===================================================================
+--- trunk/netpanzer/gameobjects.rb	2005-03-29 20:25:38 UTC (rev 508)
++++ trunk/netpanzer/gameobjects.rb	2005-03-29 20:48:54 UTC (rev 509)
+@@ -19,16 +19,50 @@
+ 
+ module GameObjects
+   class GameObject
+-    attr_accessor :data
++    attr_reader :data
++    
++    def data=(data)
++      @data = data
++      connect_v1_ObjMapObject(@data.to_object.sig_move(), method(:on_move))
++    end
++
++    def on_move(data)
++      pos = @data.to_object.get_pos()
++      pos.x = (((pos.x+16)/32).to_i)*32
++      pos.y = (((pos.y+16)/32).to_i)*32
++      @data.to_object.set_pos(pos)
++    end
+   end
+ 
+   class Outpost &lt; GameObject
++    attr_accessor :name
++
++    def initialize()
++      @name = &quot;Foobar&quot;
++    end
++
++    def x()
++      return (@data.to_object.get_pos.x()/32).to_i
++    end
++
++    def y()
++      return (@data.to_object.get_pos.y()/32).to_i
++    end
++
+     def Outpost.get_sprite()
+       return make_sprite_from_resource(&quot;sprites/outpost&quot;, $resources)
+     end
+   end
+   
+   class SpawnPoint &lt; GameObject
++    def x()
++      return (@data.to_object.get_pos.x()/32).to_i
++    end
++
++    def y()
++      return (@data.to_object.get_pos.y()/32).to_i
++    end
++
+     def SpawnPoint.get_sprite()
+       return make_sprite_from_resource(&quot;sprites/spawnpoint&quot;, $resources)
+     end
+
+Modified: trunk/netpanzer/level.rb
+===================================================================
+--- trunk/netpanzer/level.rb	2005-03-29 20:25:38 UTC (rev 508)
++++ trunk/netpanzer/level.rb	2005-03-29 20:48:54 UTC (rev 509)
+@@ -17,6 +17,8 @@
+ ##  along with this program; if not, write to the Free Software
+ ##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++require &quot;gameobjects.rb&quot;
++
+ class Level
+   attr_accessor :filename, :data, :editormap, :objects
+ 
+@@ -40,24 +42,31 @@
+   end
+ 
+   def save_optfile(filename)
+-    outposts = [] # FIXME
+-    
++    outposts = @objects.get_objects().
++      find_all {|obj| obj.get_data().is_a? GameObjects::Outpost }.
++      map {|obj| obj.get_data() }    
++
+     f = open(filename, &quot;w&quot;)
+     f.write(&quot;ObjectiveCount: %d\n\n&quot; % outposts.length)
+-    outposts.each {|name, x , y|
+-        f.write(&quot;Name: %s\n&quot; % &quot;Foobar&quot;)
+-      f.write(&quot;Location: %d %d\n\n&quot; % x.to_i/32, y.to_i/32)
++    outposts.each {|obj|
++      f.write(&quot;Name: %s\n&quot; % obj.name)
++      f.write(&quot;Location: %d %d\n\n&quot; % [obj.x, obj.y])
+     }
++    f.close()
+   end
+ 
+   def save_spnfile(filename)
+-    spawnpoints = []
++    spawnpoints = @objects.get_objects().
++      find_all {|obj| obj.get_data().is_a? GameObjects::SpawnPoint }.
++      map {|obj| obj.get_data() }
++
+     f = open(filename, &quot;w&quot;)
+ 
+     f.write(&quot;SpawnCount: %d\n\n&quot; % spawnpoints.length)
+-    spawnpoints.each {|x, y|
+-      f.print(&quot;Location: %d %d\n&quot; % [x.to_i/32, y.to_i/32])
++    spawnpoints.each {|obj|
++      f.print(&quot;Location: %d %d\n&quot; % [obj.x, obj.y])
+     }
++    f.close()
+   end
+ 
+   def save(filename)
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-03-29 20:25:38 UTC (rev 508)
++++ trunk/netpanzer/netpanzer.rb	2005-03-29 20:48:54 UTC (rev 509)
+@@ -65,7 +65,7 @@
+   obj = get_ruby_object(brush.get_data()).call()
+   pos = $editor_map.screen2world(pos)
+   sprite_obj = ObjMapSpriteObject.new(obj.class.get_sprite(), pos, make_metadata(obj))
+-  obj.data = obj
++  obj.data = sprite_obj
+   
+   cmd = ObjectAddCommand.new(get_ruby_object($workspace.get_map().get_metadata()).objects)
+   cmd.add_object(sprite_obj.to_object)
+@@ -180,14 +180,20 @@
+   $select.set_up()
+   $zoom.set_up()
+   $object.set_up()
++
++  $brushbox.show(true)
++  $objectselector.show(false)
+ end
+ 
+ def set_tilemap_select_tool()
+   $workspace.set_tool($tilemap_select_tool.to_tool())
+   $paint.set_up()
+-   $select.set_down()
++  $select.set_down()
+   $zoom.set_up()
+   $object.set_up()
++
++  $brushbox.show(false)
++  $objectselector.show(false)
+ end
+ 
+ def set_zoom_tool()
+@@ -196,6 +202,9 @@
+   $select.set_up()
+   $zoom.set_down()
+   $object.set_up()
++
++  $brushbox.show(false)
++  $objectselector.show(false)
+ end
+ 
+ def set_objmap_select_tool()
+@@ -204,6 +213,9 @@
+   $select.set_up()
+   $zoom.set_up()
+   $object.set_down()
++
++  $brushbox.show(false)
++  $objectselector.show(true)
+ end
+ 
+ $toolbar = Panel.new(CL_Rect.new(CL_Point.new(0, 23+33), CL_Size.new(33, 32*4+2)), $gui.get_component())
+@@ -227,16 +239,15 @@
+   level.activate($workspace)
+   connect(level.editormap.sig_change(), proc{on_map_change})
+   
+-  if not(has_element(config.recent_files, filename))
+-    config.recent_files.append(filename)
+-    recent_files_menu.add_item(mysprite, filename, proc{ netpanzer_load_level(filename) })
+-
+-    minimap.update_minimap()
+-  end
++#  if not(has_element($config.recent_files, filename))
++#    $config.recent_files.push(filename)
++#    recent_files_menu.add_item(mysprite, filename, proc{ netpanzer_load_level(filename) })
++#  end
++  $minimap.update_minimap()
+ end
+ 
+ def netpanzer_save_level(filename)
+-  $workspace.get_map().get_metadata().save(filename)
++  get_ruby_object($workspace.get_map().get_metadata()).save(filename)
+ end
+ 
+ recent_files_menu = Menu.new(CL_Point.new(32*2, 54), $gui.get_component())
+@@ -250,7 +261,7 @@
+       return True
+     end
+   }
+-  return False
++  return false
+ end
+ 
+ menu = CL_Menu.new($gui.get_component())
+@@ -273,7 +284,7 @@
+ menu.add_item(&quot;Zoom/4:1 (400%) &quot;, proc{ gui_set_zoom(4.0) })
+ 
+ # minimap_panel = Panel(CL_Rect(CL_Point(0, 600-56), CL_Size(800-134, 56)), $gui.get_component())
+-minimap = Minimap.new($editor_map, CL_Rect.new(CL_Point.new(3, 488+56 - 128-3), CL_Size.new(128, 128)), $option_panel)
++$minimap = Minimap.new($editor_map, CL_Rect.new(CL_Point.new(3, 488+56 - 128-3), CL_Size.new(128, 128)), $option_panel)
+ 
+ $load_dialog = SimpleFileDialog.new(&quot;Load netPanzer Level&quot;, &quot;Load&quot;, &quot;Cancel&quot;, $gui.get_component())
+ $load_dialog.set_filename($config.datadir + &quot;maps/&quot;)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000018.html">[Flexlay-commit] r508 - trunk/netpanzer
+</A></li>
+	<LI>Next message: <A HREF="000020.html">[Flexlay-commit] r510 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

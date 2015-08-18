@@ -1,0 +1,436 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r746 - in trunk/flexlay: lib lib/gui netpanzer ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r746%20-%20in%20trunk/flexlay%3A%20lib%20lib/gui%20netpanzer%20ruby&In-Reply-To=%3C201005142259.o4EMxpqo024332%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000238.html">
+   <LINK REL="Next"  HREF="000240.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r746 - in trunk/flexlay: lib lib/gui netpanzer ruby</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r746%20-%20in%20trunk/flexlay%3A%20lib%20lib/gui%20netpanzer%20ruby&In-Reply-To=%3C201005142259.o4EMxpqo024332%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r746 - in trunk/flexlay: lib lib/gui netpanzer ruby">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat May 15 00:59:51 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000238.html">[Flexlay-commit] r745 - trunk/flexlay
+</A></li>
+        <LI>Next message: <A HREF="000240.html">[Flexlay-commit] r747 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#239">[ date ]</a>
+              <a href="thread.html#239">[ thread ]</a>
+              <a href="subject.html#239">[ subject ]</a>
+              <a href="author.html#239">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2010-05-15 00:59:47 +0200 (Sat, 15 May 2010)
+New Revision: 746
+
+Modified:
+   trunk/flexlay/lib/flexlay.cpp
+   trunk/flexlay/lib/flexlay.hpp
+   trunk/flexlay/lib/globals.cpp
+   trunk/flexlay/lib/gui/window.cpp
+   trunk/flexlay/lib/gui_manager.cpp
+   trunk/flexlay/lib/helper.cpp
+   trunk/flexlay/netpanzer/gui.rb
+   trunk/flexlay/netpanzer/netpanzer.rb
+   trunk/flexlay/ruby/basic_gui.rb
+Log:
+Added some datadir handling
+
+Modified: trunk/flexlay/lib/flexlay.cpp
+===================================================================
+--- trunk/flexlay/lib/flexlay.cpp	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/lib/flexlay.cpp	2010-05-14 22:59:47 UTC (rev 746)
+@@ -67,12 +67,10 @@
+     CL_SetupDisplay::init();
+     CL_SetupGUI::init();
+   
+-    datadir = &quot;../data/&quot;;
+-
+     window = new CL_DisplayWindow(title,
+                                   screen_width, screen_height, fullscreen, allow_resize);
+ 
+-    resources = CL_ResourceManager(datadir + &quot;flexlay.xml&quot;);
++    resources = CL_ResourceManager(datadir + &quot;/flexlay.xml&quot;);
+     Fonts::verdana11        = CL_Font(&quot;verdana11_black&quot;, &amp;resources);
+     Fonts::verdana11_yellow = CL_Font(&quot;verdana11_yellow&quot;, &amp;resources);
+   } catch (CL_Error&amp; err) {
+@@ -99,4 +97,10 @@
+   CL_SetupCore::deinit();
+ }
+ 
++void
++Flexlay::set_datadir(const std::string&amp; datadir_)
++{
++  datadir = datadir_;
++}
++
+ /* EOF */
+
+Modified: trunk/flexlay/lib/flexlay.hpp
+===================================================================
+--- trunk/flexlay/lib/flexlay.hpp	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/lib/flexlay.hpp	2010-05-14 22:59:47 UTC (rev 746)
+@@ -95,6 +95,8 @@
+ 
+   CL_Signal_v2&lt;int, int&gt;&amp; sig_resize();
+ 
++  void set_datadir(const std::string&amp; datadir_);
++
+   void init(const std::string&amp; title = &quot;Flexlay&quot;, int width = 800, int height = 600,
+             bool fullscreen = false, bool allow_resize = false);
+   void deinit();
+
+Modified: trunk/flexlay/lib/globals.cpp
+===================================================================
+--- trunk/flexlay/lib/globals.cpp	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/lib/globals.cpp	2010-05-14 22:59:47 UTC (rev 746)
+@@ -16,7 +16,7 @@
+ 
+ #include &quot;globals.hpp&quot;
+ 
+-std::string datadir;
++std::string datadir = &quot;../data/&quot;;
+ std::string bindir;
+ std::string homedir;
+ 
+
+Modified: trunk/flexlay/lib/gui/window.cpp
+===================================================================
+--- trunk/flexlay/lib/gui/window.cpp	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/lib/gui/window.cpp	2010-05-14 22:59:47 UTC (rev 746)
+@@ -16,6 +16,7 @@
+ 
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
++#include &quot;globals.hpp&quot;
+ #include &quot;box.hpp&quot;
+ #include &quot;icon.hpp&quot;
+ #include &quot;helper.hpp&quot;
+@@ -53,13 +54,13 @@
+   //Fonts::verdana11.draw(8+15, 3, title);
+ 
+   impl-&gt;close = new Icon(CL_Rect(CL_Point(3, 3), CL_Size(18,18)), 
+-                         make_sprite(&quot;../data/images/window/close.png&quot;),
++                         make_sprite(datadir + &quot;/images/window/close.png&quot;),
+                          &quot;&quot;, this);
+   impl-&gt;minimize = new Icon(CL_Rect(CL_Point(get_width()-3-18-18, 3), CL_Size(18,18)), 
+-                            make_sprite(&quot;../data/images/window/minimize.png&quot;),
++                            make_sprite(datadir + &quot;/images/window/minimize.png&quot;),
+                             &quot;&quot;, this);
+   impl-&gt;maximize = new Icon(CL_Rect(CL_Point(get_width()-3-18, 3), CL_Size(18,18)), 
+-                            make_sprite(&quot;../data/images/window/maximize.png&quot;),
++                            make_sprite(datadir + &quot;/images/window/maximize.png&quot;),
+                             &quot;&quot;, this);
+ 
+   impl-&gt;client_area = new CL_Component(CL_Rect(CL_Point(4, 3+12+7), 
+
+Modified: trunk/flexlay/lib/gui_manager.cpp
+===================================================================
+--- trunk/flexlay/lib/gui_manager.cpp	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/lib/gui_manager.cpp	2010-05-14 22:59:47 UTC (rev 746)
+@@ -37,9 +37,9 @@
+ GUIManager::GUIManager()
+   : impl(new GUIManagerImpl())
+ {
+-  std::cout &lt;&lt; &quot;Creating GUIManager: &quot; &lt;&lt; datadir + &quot;gui/gui.xml&quot; &lt;&lt; std::endl;
++  std::cout &lt;&lt; &quot;Creating GUIManager: &quot; &lt;&lt; datadir + &quot;/gui/gui.xml&quot; &lt;&lt; std::endl;
+   impl-&gt;slot_container = new CL_SlotContainer();
+-  impl-&gt;resources = new CL_ResourceManager(datadir + &quot;gui/gui.xml&quot;, false);
++  impl-&gt;resources = new CL_ResourceManager(datadir + &quot;/gui/gui.xml&quot;, false);
+   impl-&gt;style     = new CL_StyleManager_Silver(impl-&gt;resources);
+   impl-&gt;manager   = new CL_GUIManager(impl-&gt;style);
+   current_  = this;
+
+Modified: trunk/flexlay/lib/helper.cpp
+===================================================================
+--- trunk/flexlay/lib/helper.cpp	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/lib/helper.cpp	2010-05-14 22:59:47 UTC (rev 746)
+@@ -20,6 +20,7 @@
+ #include &lt;ClanLib/core.h&gt;
+ 
+ #include &quot;blitter.hpp&quot;
++#include &quot;globals.hpp&quot;
+ #include &quot;helper.hpp&quot;
+ 
+ typedef std::map&lt;std::string, CL_PixelBuffer&gt; PixelBufferCache;
+
+Modified: trunk/flexlay/netpanzer/gui.rb
+===================================================================
+--- trunk/flexlay/netpanzer/gui.rb	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/netpanzer/gui.rb	2010-05-14 22:59:47 UTC (rev 746)
+@@ -75,7 +75,7 @@
+                                               make_metadata(proc{GameObjects::SpawnPoint.new()})))
+ 
+     $brushes.size.times {|i|
+-      @objectselector.add_brush(ObjectBrush.new(make_sprite(&quot;thumbnails/#{i}.png&quot;),
++      @objectselector.add_brush(ObjectBrush.new(make_sprite($config.datadir + &quot;/thumbnails/#{i}.png&quot;),
+                                                 make_metadata(proc{GameObjects::TileObject.new(i)})))
+     }
+ 
+@@ -90,34 +90,34 @@
+ 
+     @button_panel = components.get('buttonpanel').component
+ 
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_new.png&quot;,
++    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_new.png&quot;,
+                            proc{ gui_level_new() })
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_open.png&quot;, 
++    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_open.png&quot;, 
+                            proc{ gui_level_load() })
+-    @button_panel.add_small_icon(&quot;../data/images/icons24/downarrow.png&quot;, 
++    @button_panel.add_small_icon($config.datadir + &quot;/images/icons24/downarrow.png&quot;, 
+                                  proc{ gui_level_load() })
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_save.png&quot;,
++    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_save.png&quot;,
+                            proc{ gui_level_save() })
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_save_as.png&quot;, 
++    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_save_as.png&quot;, 
+                            proc{ gui_level_save_as() })
+ 
+     @button_panel.add_separator()
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_copy.png&quot;, proc{})
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_paste.png&quot;, proc{})
++    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_copy.png&quot;, proc{})
++    @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_paste.png&quot;, proc{})
+     @button_panel.add_separator()
+-    @undo_icon = @button_panel.add_icon(&quot;../data/images/icons24/stock_undo.png&quot;, proc{@workspace.get_map().undo()})
+-    @redo_icon = @button_panel.add_icon(&quot;../data/images/icons24/stock_redo.png&quot;, proc{@workspace.get_map().redo()})
++    @undo_icon = @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_undo.png&quot;, proc{@workspace.get_map().undo()})
++    @redo_icon = @button_panel.add_icon($config.datadir + &quot;/images/icons24/stock_redo.png&quot;, proc{@workspace.get_map().redo()})
+     @button_panel.add_separator()
+ 
+ 
+     @tool_button_panel = ButtonPanel.new(320, 23, $screen.width, 33, true, @gui.get_component)
+     @tool_button_panel.add_separator()
+-    @tool_button_panel.add_icon(&quot;../data/images/icons24/object_raise.png&quot;, proc{
++    @tool_button_panel.add_icon($config.datadir + &quot;/images/icons24/object_raise.png&quot;, proc{
+                                   $objmap_select_tool.get_selection().each {|obj|
+                                     @workspace.get_map().get_data().objects.raise(obj)
+                                   }
+                                 })
+-    @tool_button_panel.add_icon(&quot;../data/images/icons24/object_lower.png&quot;, proc{
++    @tool_button_panel.add_icon($config.datadir + &quot;/images/icons24/object_lower.png&quot;, proc{
+                                   $objmap_select_tool.get_selection().each {|obj|
+                                     @workspace.get_map().get_data().objects.lower(obj)
+                                   }
+@@ -126,13 +126,13 @@
+ 
+ 
+     @toolbar = ButtonPanel.new(0, 23+33, 33, 32*4+2, false, @gui.get_component())
+-    @paint = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-pencil-22.png&quot;,
++    @paint = @toolbar.add_icon($config.datadir + &quot;/images/tools/stock-tool-pencil-22.png&quot;,
+                                method(:set_tilemap_paint_tool))
+-    @select = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-rect-select-22.png&quot;,
++    @select = @toolbar.add_icon($config.datadir + &quot;/images/tools/stock-tool-rect-select-22.png&quot;,
+                                 method(:set_tilemap_select_tool))
+-    @zoom = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-zoom-22.png&quot;,
++    @zoom = @toolbar.add_icon($config.datadir + &quot;/images/tools/stock-tool-zoom-22.png&quot;,
+                               method(:set_zoom_tool))
+-    @object = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-clone-22.png&quot;,
++    @object = @toolbar.add_icon($config.datadir + &quot;/images/tools/stock-tool-clone-22.png&quot;,
+                                 method(:set_objmap_select_tool))
+ 
+     $brushes.each {|i|
+@@ -159,9 +159,9 @@
+     @minimap = components.get('minimap').component
+ 
+     @load_dialog = SimpleFileDialog.new(&quot;Load netPanzer Level&quot;, &quot;Load&quot;, &quot;Cancel&quot;, @gui.get_component())
+-    @load_dialog.set_filename($config.datadir + &quot;maps/&quot;)
++    @load_dialog.set_filename($config.datadir + &quot;/maps/&quot;)
+     @save_dialog = SimpleFileDialog.new(&quot;Save netPanzer Level as...&quot;, &quot;Save&quot;, &quot;Cancel&quot;, @gui.get_component())
+-    @save_dialog.set_filename($config.datadir + &quot;maps/&quot;)
++    @save_dialog.set_filename($config.datadir + &quot;/maps/&quot;)
+ 
+     connect_v2(@editor_map.sig_on_key(&quot;l&quot;), proc{ |x, y|
+                  $objmap_select_tool.get_selection().each {|obj|
+@@ -194,13 +194,13 @@
+                                  $objmap_select_tool.clear_selection()
+                                })
+                  menu.add_separator()
+-                 menu.add_item(make_sprite(&quot;../data/images/icons16/object_raise.png&quot;), 
++                 menu.add_item(make_sprite($config.datadir + &quot;/images/icons16/object_raise.png&quot;), 
+                                &quot;Raise Selection&quot;, proc{
+                                  $objmap_select_tool.get_selection().each {|obj|
+                                    @workspace.get_map().get_data().objects.raise(obj)
+                                  }
+                                })
+-                 menu.add_item(make_sprite(&quot;../data/images/icons16/object_lower.png&quot;), 
++                 menu.add_item(make_sprite($config.datadir + &quot;/images/icons16/object_lower.png&quot;), 
+                                &quot;Lower Selection&quot;, proc{
+                                  $objmap_select_tool.get_selection().each {|obj|
+                                    @workspace.get_map().get_data().objects.lower(obj)
+@@ -333,7 +333,7 @@
+       grid_icon.set_up()
+       
+       grid_icon = Icon(CL_Rect(CL_Point(p.inc(48), 2), CL_Size(32, 32)),
+-                       make_sprite(&quot;../data/images/icons24/grid.png&quot;), &quot;Some tooltip&quot;, button_panel);
++                       make_sprite($config.datadir + &quot;/images/icons24/grid.png&quot;), &quot;Some tooltip&quot;, button_panel);
+       grid_icon.set_callback(proc{gui_toggle_grid})
+ 
+       layer_menu = Menu(CL_Point(32*11+2, 54), $gui.get_component())
+
+Modified: trunk/flexlay/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/flexlay/netpanzer/netpanzer.rb	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/netpanzer/netpanzer.rb	2010-05-14 22:59:47 UTC (rev 746)
+@@ -37,29 +37,43 @@
+ $screen  = CL_Size.new(640, 480)
+ 
+ $flexlay = Flexlay.new()
++if ENV[&quot;FLEXLAY_DATADIR&quot;] then
++  $flexlay.set_datadir(ENV[&quot;FLEXLAY_DATADIR&quot;])
++  $flexlay_datadir = ENV[&quot;FLEXLAY_DATADIR&quot;]
++end
+ $flexlay.init(&quot;netPanzer Editor&quot;, $screen.width, $screen.height, false, true)
+ 
+ class Config
+   attr_accessor :datadir, :recent_files
+ 
+   def initialize()
+-    @datadir      = &quot;./&quot;
++    @datadir      = &quot;.&quot;
+     @recent_files = []
+   end
+ end
+ 
+ $config = Config.new()
+ 
+-$datadir = &quot;/home/ingo/projects/netpanzer/netpanzer&quot;
++if ENV[&quot;NETPANZER_DATADIR&quot;] then
++  $netpanzer_datadir = ENV[&quot;NETPANZER_DATADIR&quot;]
++else
++  $netpanzer_datadir = &quot;/home/ingo/projects/netpanzer/netpanzer&quot;
++end
++
+ $brushes.each_with_index{|(start, width, height, name), index|
+   NetPanzerData::instance().register_tilegroup(start, width, height)
+ }
+ 
+-NetPanzerData::instance().load_data($datadir)
++NetPanzerData::instance().load_data($netpanzer_datadir)
+ 
+ $tileset = NetPanzerData::instance().get_tileset()
+ 
+-$resources = CL_ResourceManager.new(&quot;netpanzersprites.xml&quot;)
++if ENV[&quot;NETPANZER_EDITOR_DATADIR&quot;] then
++  $config.datadir = ENV[&quot;NETPANZER_EDITOR_DATADIR&quot;]
++  $resources = CL_ResourceManager.new(ENV[&quot;NETPANZER_EDITOR_DATADIR&quot;] + &quot;/netpanzersprites.xml&quot;)
++else
++  $resources = CL_ResourceManager.new(&quot;netpanzersprites.xml&quot;)
++end
+ 
+ # Tools
+ $tilemap_paint_tool  = TileMapPaintTool.new()
+
+Modified: trunk/flexlay/ruby/basic_gui.rb
+===================================================================
+--- trunk/flexlay/ruby/basic_gui.rb	2010-05-14 22:59:12 UTC (rev 745)
++++ trunk/flexlay/ruby/basic_gui.rb	2010-05-14 22:59:47 UTC (rev 746)
+@@ -28,7 +28,9 @@
+     @gui.run()
+   end
+ 
+-  def initialize()
++  def initialize(datadir = &quot;../data&quot;)
++    @datadir = datadir
++
+     ## Init the GUI manager
+     @editor = Editor.new()
+     @gui = @editor.get_gui_manager()
+@@ -45,36 +47,36 @@
+ 
+     @button_panel = ButtonPanel.new(0, 23, 800, 33, true, @gui.get_component)
+ 
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_new.png&quot;)
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_open.png&quot;, proc{ level_load() })
+-    @button_panel.add_small_icon(&quot;../data/images/icons24/downarrow.png&quot;, proc{ $controller.recent_files_menu.run() })
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_save.png&quot;, proc{ level_save() })
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_save_as.png&quot;, proc{ level_save_as() })
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/stock_new.png&quot;)
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/stock_open.png&quot;, proc{ level_load() })
++    @button_panel.add_small_icon(@datadir + &quot;/images/icons24/downarrow.png&quot;, proc{ $controller.recent_files_menu.run() })
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/stock_save.png&quot;, proc{ level_save() })
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/stock_save_as.png&quot;, proc{ level_save_as() })
+     @button_panel.add_separator()
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_copy.png&quot;)
+-    @button_panel.add_icon(&quot;../data/images/icons24/stock_paste.png&quot;)
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/stock_copy.png&quot;)
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/stock_paste.png&quot;)
+     @button_panel.add_separator()
+-    @undo_icon = @button_panel.add_icon(&quot;../data/images/icons24/stock_undo.png&quot;, proc{ @workspace.get_map().undo() })
+-    @redo_icon = @button_panel.add_icon(&quot;../data/images/icons24/stock_redo.png&quot;, proc{ @workspace.get_map().redo() })
++    @undo_icon = @button_panel.add_icon(@datadir + &quot;/images/icons24/stock_undo.png&quot;, proc{ @workspace.get_map().undo() })
++    @redo_icon = @button_panel.add_icon(@datadir + &quot;/images/icons24/stock_redo.png&quot;, proc{ @workspace.get_map().redo() })
+     @undo_icon.disable()
+     @redo_icon.disable()
+     @button_panel.add_separator()
+-    @minimap_icon = @button_panel.add_icon(&quot;../data/images/icons24/minimap.png&quot;, proc{ toggle_minimap() })
+-    @grid_icon = @button_panel.add_icon(&quot;../data/images/icons24/grid.png&quot;, proc{ toggle_grid() })
++    @minimap_icon = @button_panel.add_icon(@datadir + &quot;/images/icons24/minimap.png&quot;, proc{ toggle_minimap() })
++    @grid_icon = @button_panel.add_icon(@datadir + &quot;/images/icons24/grid.png&quot;, proc{ toggle_grid() })
+     @button_panel.add_separator()
+ 
+-    @button_panel.add_icon(&quot;../data/images/icons24/background.png&quot;)
+-    @button_panel.add_icon(&quot;../data/images/icons24/interactive.png&quot;)
+-    @button_panel.add_icon(&quot;../data/images/icons24/foreground.png&quot;)
+-    @button_panel.add_icon(&quot;../data/images/icons24/eye.png&quot;)
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/background.png&quot;)
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/interactive.png&quot;)
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/foreground.png&quot;)
++    @button_panel.add_icon(@datadir + &quot;/images/icons24/eye.png&quot;)
+ 
+     @layer_menu = Menu.new(CL_Point.new(32*15+2, 54), @gui.get_component())
+     
+     @toolbar = ButtonPanel.new(0, 23+33, 33, 32*4+2, false, @gui.get_component)
+-    @paint  = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-pencil-22.png&quot;, proc{ $controller.set_tilemap_paint_tool() })
+-    @select = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-rect-select-22.png&quot;, proc{ $controller.set_tilemap_select_tool() })
+-    @zoom   = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-zoom-22.png&quot;, proc{ $controller.set_zoom_tool() })
+-    @object = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-clone-22.png&quot;, proc{ $controller.set_objmap_select_tool() })
++    @paint  = @toolbar.add_icon(@datadir + &quot;/images/tools/stock-tool-pencil-22.png&quot;, proc{ $controller.set_tilemap_paint_tool() })
++    @select = @toolbar.add_icon(@datadir + &quot;/images/tools/stock-tool-rect-select-22.png&quot;, proc{ $controller.set_tilemap_select_tool() })
++    @zoom   = @toolbar.add_icon(@datadir + &quot;/images/tools/stock-tool-zoom-22.png&quot;, proc{ $controller.set_zoom_tool() })
++    @object = @toolbar.add_icon(@datadir + &quot;/images/tools/stock-tool-clone-22.png&quot;, proc{ $controller.set_objmap_select_tool() })
+ 
+     # $foreground_icon.set_callback(proc{ show_foreground() })
+     # $interactive_icon.set_callback(proc{ show_interactive() })
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000238.html">[Flexlay-commit] r745 - trunk/flexlay
+</A></li>
+	<LI>Next message: <A HREF="000240.html">[Flexlay-commit] r747 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#239">[ date ]</a>
+              <a href="thread.html#239">[ thread ]</a>
+              <a href="subject.html#239">[ subject ]</a>
+              <a href="author.html#239">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

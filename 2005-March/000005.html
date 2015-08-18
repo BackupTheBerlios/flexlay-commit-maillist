@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r494 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r494%20-%20trunk/supertux&In-Reply-To=%3C200503151406.j2FE6mdj031261%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000004.html">
+   <LINK REL="Next"  HREF="000006.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r494 - trunk/supertux</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r494%20-%20trunk/supertux&In-Reply-To=%3C200503151406.j2FE6mdj031261%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r494 - trunk/supertux">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 15 15:06:48 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000004.html">[Flexlay-commit] r493 - in trunk: lib paint pingus
+</A></li>
+        <LI>Next message: <A HREF="000006.html">[Flexlay-commit] r495 - trunk/paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-15 15:06:47 +0100 (Tue, 15 Mar 2005)
+New Revision: 494
+
+Modified:
+   trunk/supertux/sector.rb
+Log:
+- fixed height bug
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2005-03-15 13:31:38 UTC (rev 493)
++++ trunk/supertux/sector.rb	2005-03-15 14:06:47 UTC (rev 494)
+@@ -66,7 +66,7 @@
+     @gravity = 10.0
+     
+     @width  = get_value_from_tree([&quot;width&quot;, &quot;_&quot;], data, 20)
+-    @height = get_value_from_tree([&quot;height&quot;&quot;_&quot;], data, 15)
++    @height = get_value_from_tree([&quot;height&quot;, &quot;_&quot;], data, 15)
+     
+     @foreground  = TilemapLayer.new($tileset, @width, @height)
+     @foreground.set_data(get_value_from_tree([&quot;foreground-tm&quot;], data, []))
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000004.html">[Flexlay-commit] r493 - in trunk: lib paint pingus
+</A></li>
+	<LI>Next message: <A HREF="000006.html">[Flexlay-commit] r495 - trunk/paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#5">[ date ]</a>
+              <a href="thread.html#5">[ thread ]</a>
+              <a href="subject.html#5">[ subject ]</a>
+              <a href="author.html#5">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

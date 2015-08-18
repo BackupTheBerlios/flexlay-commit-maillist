@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r656 - trunk/netbrush
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r656%20-%20trunk/netbrush&In-Reply-To=%3C200610191848.k9JIm1cd023308%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000151.html">
+   <LINK REL="Next"  HREF="000153.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r656 - trunk/netbrush</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r656%20-%20trunk/netbrush&In-Reply-To=%3C200610191848.k9JIm1cd023308%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r656 - trunk/netbrush">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 19 20:48:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000151.html">[Flexlay-commit] r655 - in trunk/netbrush: . widget
+</A></li>
+        <LI>Next message: <A HREF="000153.html">[Flexlay-commit] r657 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#152">[ date ]</a>
+              <a href="thread.html#152">[ thread ]</a>
+              <a href="subject.html#152">[ subject ]</a>
+              <a href="author.html#152">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-19 20:48:01 +0200 (Thu, 19 Oct 2006)
+New Revision: 656
+
+Modified:
+   trunk/netbrush/brush_widget.cpp
+Log:
+- don't create mousepointers that are virtually invisible
+
+Modified: trunk/netbrush/brush_widget.cpp
+===================================================================
+--- trunk/netbrush/brush_widget.cpp	2006-10-19 18:22:36 UTC (rev 655)
++++ trunk/netbrush/brush_widget.cpp	2006-10-19 18:48:01 UTC (rev 656)
+@@ -117,6 +117,9 @@
+ void
+ BrushWidget::update_mouse_cursor()
+ {
++  if (client_draw_param-&gt;generic_brush.radius &lt; 5.0f)
++    return ;
++
+   GrayscaleBuffer* brush = client_draw_param-&gt;brush_buffer;
+   
+   int w     = brush-&gt;get_width();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000151.html">[Flexlay-commit] r655 - in trunk/netbrush: . widget
+</A></li>
+	<LI>Next message: <A HREF="000153.html">[Flexlay-commit] r657 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#152">[ date ]</a>
+              <a href="thread.html#152">[ thread ]</a>
+              <a href="subject.html#152">[ subject ]</a>
+              <a href="author.html#152">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

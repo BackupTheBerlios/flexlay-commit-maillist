@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r610 - trunk/ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r610%20-%20trunk/ruby&In-Reply-To=%3C200509200901.j8K91w7b028554%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000106.html">
+   <LINK REL="Next"  HREF="000108.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r610 - trunk/ruby</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r610%20-%20trunk/ruby&In-Reply-To=%3C200509200901.j8K91w7b028554%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r610 - trunk/ruby">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Sep 20 11:01:58 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000106.html">[Flexlay-commit] r609 - trunk/ruby
+</A></li>
+        <LI>Next message: <A HREF="000108.html">[Flexlay-commit] r611 - in trunk: ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-09-20 11:01:54 +0200 (Tue, 20 Sep 2005)
+New Revision: 610
+
+Modified:
+   trunk/ruby/command_line.rb
+Log:
+- command line parsing now basically working
+
+Modified: trunk/ruby/command_line.rb
+===================================================================
+--- trunk/ruby/command_line.rb	2005-09-19 22:26:15 UTC (rev 609)
++++ trunk/ruby/command_line.rb	2005-09-20 09:01:54 UTC (rev 610)
+@@ -19,15 +19,19 @@
+ 
+ # A parser for command line arguments
+ class CommandLineOption
+-  attr_reader :short, :long, :description
++  attr_reader :short, :long, :argument, :description
+ 
+-  def initialize(short, long, description)
++  def initialize(short, long, argument, description)
+     @short = short
+     @long  = long
++    @argument = argument
+     @description = description
+   end
+ end
+ 
++class CommandLineException &lt; RuntimeError
++end
++
+ class CommandLine
+   def initialize(&amp;block)
+     @options = []
+@@ -58,20 +62,85 @@
+   end
+ 
+   def text(text)
+-    @help.push(text)
++    @help.push(&quot;\n&quot; + text)
+   end
+ 
+   def option(short, long, argument, description)
+-    cmd = CommandLineOption.new(short, long, description)
++    cmd = CommandLineOption.new(short, long, argument, description)
+     @options.push(cmd)
+     @help.push(cmd)
+   end
+ 
+   def parse(args)
+-    args = args.clone()
+-    print_help()
++    args = args.reverse()
+ 
+-    yield()
++    @stop_parsing = false
++    while not args.empty? and not @stop_parsing
++      current = args.pop
++      
++      if current == &quot;--&quot; then
++        while not args.empty?
++          yield(:rest, args.pop)
++        end
++        
++      elsif current == &quot;-&quot; then
++        yield(:rest, current)
++
++      elsif current[0] == ?- then
++        if current[1] == ?- then
++          long_option = current[2..-1]
++          cmd = @options.find {|item| item.long == long_option }
++          
++          if not cmd then
++            raise CommandLineException, &quot;unrecoginzed option '#{current}'&quot;
++          else
++            if cmd.argument then
++              if args.empty? then
++                raise &quot;Error: Option '#{current}' requires argument of type '#{cmd.argument}'&quot;
++              else
++                yield(cmd.short, args.pop())
++              end
++            else
++              yield(cmd.short, nil)
++            end
++          end
++
++        else
++          # short option
++          short_options = current[1..-1]
++          
++          while not short_options.empty? 
++            short = short_options[0]
++            short_options = short_options[1..-1]
++
++            cmd = @options.find {|item| item.short == short}
++            
++            if not cmd then
++              raise CommandLineException, &quot;unrecoginzed option '#{current}'&quot;
++            else
++              if cmd.argument then
++                if not short_options.empty? then
++                  yield(cmd.short, short_options)
++                  short_options = &quot;&quot;
++                else
++                  if args.empty? then
++                    raise CommandLineException, &quot;Error: Option '#{current}' requires argument of type '#{cmd.argument}'&quot;
++                  else
++                    yield(cmd.short, args.pop())
++                  end    
++                end
++              else
++                yield(cmd.short, nil)
++              end
++            end
++          end
++
++        end
++      else
++        # rest argument
++        yield(:rest, current)
++      end
++    end
+   end
+ 
+   def print_help()
+@@ -88,6 +157,10 @@
+       end
+     }
+   end
++
++  def exit()
++    @stop_parsing = true
++  end
+ end
+ 
+ cmd = CommandLine.new() {
+@@ -96,21 +169,38 @@
+   description(&quot;Editor for editing Windstille map files.&quot;)
+   
+   group(&quot;Display&quot;)
+-  option(&quot;f&quot;, &quot;fullscreen&quot;, nil,            &quot;Launch in fullscreen mode&quot;)
+-  option(&quot;g&quot;, &quot;geometry&quot;,   &quot;WIDTHxHEIGHT&quot;, &quot;Launch in the given resolution&quot;)
++  option(?f, &quot;fullscreen&quot;, nil,            &quot;Launch in fullscreen mode&quot;)
++  option(?g, &quot;geometry&quot;,   &quot;WIDTHxHEIGHT&quot;, &quot;Launch in the given resolution&quot;)
+ 
+-  text(&quot;If you have throuble launching, try to cleanup ~/.windstille-editor/config.scm or contact <A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&quot;)
++  group(&quot;Misc&quot;)
++  option(?h, &quot;help&quot;,       nil,            &quot;Print this help&quot;)
++
++  text(&quot;If you have throuble launching, try to cleanup ~/.windstille-editor/config.scm&quot; \
++       &quot;or contact <A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&quot;)
+ }
+ 
+-cmd.parse(ARGV) { |option, argument|
+-  case option
+-  when &quot;f&quot;
+-    
+-  when &quot;g&quot;
+-    
+-  when :rest
+-    
++if false then
++  begin
++    cmd.parse(ARGV) { |option, argument|
++      case option
++      when ?f
++        puts(&quot;Fullscreen&quot;)
++
++      when ?g
++        puts(&quot;Geometry: #{argument}&quot;)
++        
++      when ?h
++        cmd.print_help()
++        cmd.exit()
++
++      when :rest
++        puts(&quot;Rest: #{argument}&quot;)
++      end
++    }
++
++  rescue CommandLineException =&gt; err
++    puts('windstille-editor:' + err)
+   end
+-}
++end
+ 
+ # EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000106.html">[Flexlay-commit] r609 - trunk/ruby
+</A></li>
+	<LI>Next message: <A HREF="000108.html">[Flexlay-commit] r611 - in trunk: ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

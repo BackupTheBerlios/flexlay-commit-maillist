@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r629 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-April/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r629%20-%20trunk/supertux&In-Reply-To=%3C200603312254.k2VMsV2n026646%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r629 - trunk/supertux</H1>
+    <B>matzebraun at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r629%20-%20trunk/supertux&In-Reply-To=%3C200603312254.k2VMsV2n026646%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r629 - trunk/supertux">matzebraun at berlios.de
+       </A><BR>
+    <I>Sat Apr  1 00:54:31 CEST 2006</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#126">[ date ]</a>
+              <a href="thread.html#126">[ thread ]</a>
+              <a href="subject.html#126">[ subject ]</a>
+              <a href="author.html#126">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: matzebraun
+Date: 2006-04-01 00:54:19 +0200 (Sat, 01 Apr 2006)
+New Revision: 629
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+fix for background/gradient split
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-03-15 22:37:18 UTC (rev 628)
++++ trunk/supertux/data.rb	2006-03-31 22:54:19 UTC (rev 629)
+@@ -61,6 +61,8 @@
+     proc{|data, sexpr| SequenceTrigger.new(data, sexpr)}],
+   [&quot;background&quot;, &quot;images/engine/editor/background.png&quot;, :sprite,
+     proc{|data, sexpr| Background.new(data, sexpr)}],
++  [&quot;gradient&quot;, &quot;images/engine/editor/gradient.png&quot;, :sprite,
++    proc{|data, sexpr| Gradient.new(data, sexpr)}],
+   [&quot;particles-snow&quot;, &quot;images/engine/editor/snow.png&quot;, :sprite,
+     proc{|data, sexpr| ParticleSystem.new(&quot;snow&quot;, sexpr)}],
+   [&quot;particles-clouds&quot;, &quot;images/engine/editor/clouds.png&quot;, :sprite,
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2006-03-15 22:37:18 UTC (rev 628)
++++ trunk/supertux/gameobj.rb	2006-03-31 22:54:19 UTC (rev 629)
+@@ -340,25 +340,19 @@
+   end
+ end
+ 
+-class Background&lt;GameObj
++class Gradient&lt;GameObj
+   def initialize(object, sexpr = [])
+     @object = object
+-    @image = get_value_from_tree([&quot;image&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
+-    @speed = get_value_from_tree([&quot;speed&quot;, &quot;_&quot;], sexpr, 1.0)
+     @layer = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], sexpr, -1)
+     @color_top = [0, 0, 0]
+     @color_bottom = [0, 0, 0]
+     @type = &quot;image&quot;
+-    if(@image == &quot;&quot; || @type == &quot;gradient&quot;)
+-      if(get_value_from_tree([&quot;top_color&quot;], sexpr, []) != [])
+-        @color_top = parse_color(
+-            get_value_from_tree([&quot;top_color&quot;], sexpr, []))
+-        @color_bottom = parse_color(
+-            get_value_from_tree([&quot;bottom_color&quot;], sexpr, []))
+-        @type = &quot;gradient&quot;
+-      end
++    if(get_value_from_tree([&quot;top_color&quot;], sexpr, []) != [])
++       @color_top = parse_color(
++           get_value_from_tree([&quot;top_color&quot;], sexpr, []))
++       @color_bottom = parse_color(
++           get_value_from_tree([&quot;bottom_color&quot;], sexpr, []))
+     end
+-    set_icon()
+   end
+ 
+   def parse_color(sexpr = [])
+@@ -368,23 +362,10 @@
+     return [sexpr[0], sexpr[1], sexpr[2]]
+   end
+ 
+-  def set_icon()
+-    if(@type == &quot;image&quot;)
+-      @object.set_sprite(make_sprite($datadir + &quot;images/engine/editor/background.png&quot;))
+-    else
+-      @object.set_sprite(make_sprite($datadir + &quot;images/engine/editor/gradient.png&quot;))
+-    end
+-  end
+-
+   def save(f, obj)
+-    f.write(&quot;       (background\n&quot;)
+-    if(@type == &quot;image&quot;)
+-      f.write(&quot;         (image \&quot;%s\&quot;)\n&quot; % [@image])
+-    else
+-      f.write(&quot;         (top_color %d %d %d)\n&quot; % @color_top)
+-      f.write(&quot;         (bottom_color %d %d %d)\n&quot; % @color_bottom)
+-    end
+-    f.write(&quot;         (speed %f)\n&quot; % [@speed])
++    f.write(&quot;       (gradient\n&quot;)
++    f.write(&quot;         (top_color %f %f %f)\n&quot; % [@color_top[0], @color_top[1], @color_top[2]])
++    f.write(&quot;         (bottom_color %f %f %f)\n&quot; % [@color_bottom[0], @color_bottom[1], @color_bottom[2]])
+     if(@layer != -1)
+       f.write(&quot;         (layer %d)\n&quot; % [@layer])
+     end
+@@ -393,9 +374,6 @@
+ 
+   def property_dialog()
+     dialog = GenericDialog.new(&quot;Background Property Dialog&quot;, $gui.get_component())
+-    dialog.add_string(&quot;Type: &quot;, @type)
+-    dialog.add_string(&quot;Image: &quot;, @image)
+-    dialog.add_float(&quot;Speed: &quot;, @speed)
+     dialog.add_int(&quot;Layer: &quot;, @layer)
+     dialog.add_int(&quot;Top Red: &quot;, @color_top[0])
+     dialog.add_int(&quot;Top Green: &quot;, @color_top[1])
+@@ -404,10 +382,7 @@
+     dialog.add_int(&quot;Bottom Green: &quot;, @color_bottom[1])
+     dialog.add_int(&quot;Bottom Blue: &quot;, @color_bottom[2])
+     dialog.set_callback(
+-          proc{|type, image, speed, layer, topred, topgreen, topblue, botred, botgreen, botblue|
+-            @type = type
+-            @image = image
+-            @speed = speed
++          proc{|layer, topred, topgreen, topblue, botred, botgreen, botblue|
+             @layer = layer
+             @color_top[0] = topred
+             @color_top[1] = topgreen
+@@ -415,11 +390,44 @@
+             @color_bottom[0] = botred
+             @color_bottom[1] = botgreen
+             @color_bottom[2] = botblue
+-            set_icon()
+             })
+   end
+ end
+ 
++class Background&lt;GameObj
++  def initialize(object, sexpr = [])
++    @object = object
++    @image = get_value_from_tree([&quot;image&quot;, &quot;_&quot;], sexpr, &quot;&quot;)
++    @speed = get_value_from_tree([&quot;speed&quot;, &quot;_&quot;], sexpr, 1.0)
++    @layer = get_value_from_tree([&quot;layer&quot;, &quot;_&quot;], sexpr, -1)
++    @type = &quot;image&quot;
++  end
++
++  def save(f, obj)
++    f.write(&quot;       (background\n&quot;)
++    f.write(&quot;         (image \&quot;%s\&quot;)\n&quot; % [@image])
++    f.write(&quot;         (speed %f)\n&quot; % [@speed])
++    if(@layer != -1)
++      f.write(&quot;         (layer %d)\n&quot; % [@layer])
++    end
++    f.write(&quot;       )\n&quot;)
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new(&quot;Background Property Dialog&quot;, $gui.get_component())
++    dialog.add_string(&quot;Image: &quot;, @image)
++    dialog.add_float(&quot;Speed: &quot;, @speed)
++    dialog.add_int(&quot;Layer: &quot;, @layer)
++    dialog.set_callback(
++          proc{|type, image, speed, layer|
++            @type = type
++            @image = image
++            @speed = speed
++            @layer = layer
++            })
++  end
++end
++
+ class UnimplementedObject&lt;GameObj
+   def initialize(sexpr = [])
+ 	@sexpr = sexpr
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#126">[ date ]</a>
+              <a href="thread.html#126">[ thread ]</a>
+              <a href="subject.html#126">[ subject ]</a>
+              <a href="author.html#126">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

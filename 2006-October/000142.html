@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r645 - in trunk: lib supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r645%20-%20in%20trunk%3A%20lib%20supertux&In-Reply-To=%3C200610171124.k9HBOnhI020077%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000143.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r645 - in trunk: lib supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r645%20-%20in%20trunk%3A%20lib%20supertux&In-Reply-To=%3C200610171124.k9HBOnhI020077%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r645 - in trunk: lib supertux">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Tue Oct 17 13:24:49 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000143.html">[Flexlay-commit] r646 - in trunk: . flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#142">[ date ]</a>
+              <a href="thread.html#142">[ thread ]</a>
+              <a href="subject.html#142">[ subject ]</a>
+              <a href="author.html#142">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-17 13:24:49 +0200 (Tue, 17 Oct 2006)
+New Revision: 645
+
+Modified:
+   trunk/lib/generated_brush.hxx
+   trunk/supertux/gui.rb
+   trunk/supertux/supertux.rb
+Log:
+- small stuff
+
+Modified: trunk/lib/generated_brush.hxx
+===================================================================
+--- trunk/lib/generated_brush.hxx	2006-07-24 07:36:13 UTC (rev 644)
++++ trunk/lib/generated_brush.hxx	2006-10-17 11:24:49 UTC (rev 645)
+@@ -45,8 +45,8 @@
+   void  set_radius(float radius);
+   float get_radius();
+ 
+-  void set_spikes(int spikes);
+-  int  get_spikes();
++  void  set_spikes(int spikes);
++  int   get_spikes();
+ 
+   void  set_hardness(float hardness);
+   float get_hardness();
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-07-24 07:36:13 UTC (rev 644)
++++ trunk/supertux/gui.rb	2006-10-17 11:24:49 UTC (rev 645)
+@@ -43,6 +43,7 @@
+ 
+     @workspace.set_tool(106, $workspace_move_tool.to_tool())
+     @workspace.set_tool(107, $zoom2_tool.to_tool())
++    @workspace.set_tool(65507, $zoom2_tool.to_tool())
+ 
+     @minimap = Minimap.new(@editor_map, minimap_rect, @gui.get_component())
+ 
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2006-07-24 07:36:13 UTC (rev 644)
++++ trunk/supertux/supertux.rb	2006-10-17 11:24:49 UTC (rev 645)
+@@ -51,9 +51,11 @@
+ require &quot;sexpr.rb&quot;
+ 
+ flexlay = Flexlay.new()
+-width = 1024
++width  = 1024
+ height = 768
+-flexlay.init(&quot;SuperTux Editor&quot;, width, height)
++fullscreen = false
++resizeable = true
++flexlay.init(&quot;SuperTux Editor&quot;, width, height, fullscreen, resizeable)
+ 
+ # Tools
+ $tilemap_paint_tool  = TileMapPaintTool.new()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000143.html">[Flexlay-commit] r646 - in trunk: . flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#142">[ date ]</a>
+              <a href="thread.html#142">[ thread ]</a>
+              <a href="subject.html#142">[ subject ]</a>
+              <a href="author.html#142">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

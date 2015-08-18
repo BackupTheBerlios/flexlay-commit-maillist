@@ -1,0 +1,942 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r648 - trunk/netbrush
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r648%20-%20trunk/netbrush&In-Reply-To=%3C200610191222.k9JCMLP6002519%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000143.html">
+   <LINK REL="Next"  HREF="000145.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r648 - trunk/netbrush</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r648%20-%20trunk/netbrush&In-Reply-To=%3C200610191222.k9JCMLP6002519%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r648 - trunk/netbrush">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 19 14:22:21 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000143.html">[Flexlay-commit] r646 - in trunk: . flexlay
+</A></li>
+        <LI>Next message: <A HREF="000145.html">[Flexlay-commit] r649 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#144">[ date ]</a>
+              <a href="thread.html#144">[ thread ]</a>
+              <a href="subject.html#144">[ subject ]</a>
+              <a href="author.html#144">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-19 14:22:20 +0200 (Thu, 19 Oct 2006)
+New Revision: 648
+
+Added:
+   trunk/netbrush/server_connection.cpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/brush_widget.cpp
+   trunk/netbrush/client.cpp
+   trunk/netbrush/client_state.hpp
+   trunk/netbrush/globals.cpp
+   trunk/netbrush/globals.hpp
+   trunk/netbrush/screen_buffer.cpp
+   trunk/netbrush/stroke_buffer.cpp
+Log:
+- fixed offline mode
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/SConstruct	2006-10-19 12:22:20 UTC (rev 648)
+@@ -45,7 +45,8 @@
+         'widget/slider_widget.cpp',
+         'brushmask.cpp',
+         'brush_widget.cpp',
+-        'generic_brush.cpp'
++        'generic_brush.cpp',
++        'server_connection.cpp'
+ ])
+ 
+ # EOF #
+
+Modified: trunk/netbrush/brush_widget.cpp
+===================================================================
+--- trunk/netbrush/brush_widget.cpp	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/brush_widget.cpp	2006-10-19 12:22:20 UTC (rev 648)
+@@ -191,7 +191,7 @@
+     }
+ 
+   SDL_Cursor* cursor = SDL_CreateCursor(data, mask, pitch*8, h, 
+-                                        pitch*4, h/2);
++                                        w/2, h/2);
+   SDL_SetCursor(cursor);
+ }
+ 
+
+Modified: trunk/netbrush/client.cpp
+===================================================================
+--- trunk/netbrush/client.cpp	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/client.cpp	2006-10-19 12:22:20 UTC (rev 648)
+@@ -22,6 +22,7 @@
+ #include &quot;alpha_picker.hpp&quot;
+ #include &quot;brush_widget.hpp&quot;
+ #include &quot;widget/callback.hpp&quot;
++#include &quot;server_connection.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
+ 
+ SDL_Rect* make_rect(int x, int y, int w, int h)
+@@ -34,246 +35,6 @@
+   return &rect;
+ }
+ 
+-void connect(const char* hostname, Uint16 port)
+-{
+-  IPaddress ip;
+-
+-  if(SDLNet_ResolveHost(&amp;ip, hostname, port) == -1) 
+-    {
+-      printf(&quot;SDLNet_ResolveHost: %s\n&quot;, SDLNet_GetError());
+-      exit(1);
+-    }
+-
+-  tcpsock = SDLNet_TCP_Open(&amp;ip);
+-  if(!tcpsock)
+-    {
+-      printf(&quot;SDLNet_TCP_Open: %s %s:%d\n&quot;, SDLNet_GetError(), hostname, port);
+-      exit(2);
+-    }
+-  else
+-    {
+-      std::string line = &quot;client_version 1\n&quot;;
+-      SDLNet_TCP_Send(tcpsock, const_cast&lt;char*&gt;(line.c_str()), line.length());
+-
+-      socketset = SDLNet_AllocSocketSet(1);
+-      SDLNet_TCP_AddSocket(socketset, tcpsock);
+-    }
+-}
+-
+-
+-std::vector&lt;std::string&gt;
+-tokenize(const std::string&amp; str, char split_char)
+-{
+-  std::string::size_type start = 0;
+-  std::string::size_type end   = 0;
+-
+-  std::vector&lt;std::string&gt; tokens;
+-
+-  while (start &lt; str.size())
+-    {
+-      if ((end = str.find(split_char, start)) == std::string::npos)
+-        {
+-          tokens.push_back(str.substr(start));
+-          break;
+-        }
+-
+-      const std::string&amp; ret = str.substr(start, end - start);
+-
+-      if (!ret.empty())
+-        tokens.push_back(ret);
+-
+-      start = end + 1;
+-    }
+-
+-  return tokens;
+-}
+-
+-void process_command(const std::string&amp; cmd)
+-{
+-  if (cmd.empty()) return;
+-
+-  const std::vector&lt;std::string&gt;&amp; tokens = tokenize(cmd, ' ');
+-  if (0)
+-    for(int i = 0; i &lt; int(tokens.size()); ++i)
+-      std::cout &lt;&lt; &quot;Token: '&quot; &lt;&lt; tokens[i] &lt;&lt; &quot;'&quot; &lt;&lt; std::endl;
+-
+-  if (!tokens.empty())
+-    {
+-      if (tokens[0] == &quot;#&quot;)
+-        {
+-          // comment, ignore
+-        }
+-      else if (tokens[0] == &quot;clear&quot;)
+-        {
+-          draw_ctx-&gt;clear();
+-        }
+-      else if (tokens[0] == &quot;client&quot;)
+-        {
+-          if (tokens.size() &gt; 2)
+-            {
+-              int client_id = atoi(tokens[1].c_str());
+-              // convert to stroke
+-              std::map&lt;int, ClientState*&gt;::iterator i = client_states.find(client_id);
+-              ClientState* client_state = 0;
+-              if (i != client_states.end())
+-                {
+-                  client_state = i-&gt;second;
+-                }
+-              else
+-                {
+-                  std::cout &lt;&lt; &quot;# allocating new ClientState&quot; &lt;&lt; std::endl;
+-                  client_state = new ClientState(client_id);
+-                  client_states[client_id] = client_state;
+-                }
+-              
+-              if (tokens.size() == 3 &amp;&amp; tokens[2] == &quot;stroke_begin&quot;)
+-                {
+-                  client_state-&gt;stroke_begin();
+-                }
+-              else if (tokens.size() == 3 &amp;&amp; tokens[2] == &quot;stroke_end&quot;)
+-                {
+-                  client_state-&gt;stroke_end();
+-                }
+-              else if (tokens.size() == 4 &amp;&amp; tokens[2] == &quot;set_brush&quot;)
+-                {
+-                  client_state-&gt;set_brush(tokens[3]);
+-                }
+-              else if (tokens.size() == 9 &amp;&amp; tokens[2] == &quot;set_generic_brush&quot;)
+-                {
+-                  client_state-&gt;set_generic_brush((BrushShape)atoi(tokens[3].c_str()),  // shape FIXME: could use name instead
+-                                                  atof(tokens[4].c_str()),  // radius
+-                                                  atoi(tokens[5].c_str()),  // spike
+-                                                  atof(tokens[6].c_str()),  // hardness
+-                                                  atof(tokens[7].c_str()),  // aspectratio
+-                                                  atof(tokens[8].c_str())); // angle
+-                }
+-              else if (tokens.size() == 4 &amp;&amp; tokens[2] == &quot;set_opacity&quot;)
+-                {
+-                  client_state-&gt;set_opacity(atoi(tokens[3].c_str()));
+-                }
+-              else if (tokens.size() == 6 &amp;&amp; tokens[2] == &quot;set_color&quot;)
+-                {
+-                  client_state-&gt;set_color(Color(atoi(tokens[3].c_str()), 
+-                                                atoi(tokens[4].c_str()), 
+-                                                atoi(tokens[5].c_str())));
+-                }
+-              else if (tokens.size() == 6 &amp;&amp; tokens[2] == &quot;dab&quot;)
+-                {
+-                  client_state-&gt;dab(atoi(tokens[3].c_str()), 
+-                                    atoi(tokens[4].c_str()),
+-                                    atoi(tokens[5].c_str()));
+-                }
+-              else
+-                {
+-                  std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
+-                }
+-            }
+-          else
+-            {
+-              std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
+-            }
+-        }
+-      else if (tokens[0] == &quot;version&quot;)
+-        {
+-          if (tokens.size() == 2)
+-            {
+-              if (atoi(tokens[1].c_str()) != 0)
+-                {
+-                  std::cout &lt;&lt; &quot;# version mismatch: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
+-                  std::cout &lt;&lt; &quot;# upgrade your netbrush client&quot; &lt;&lt; std::endl;
+-                  exit(1);
+-                }
+-            }
+-          else
+-            {
+-              std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
+-            }
+-        }
+-      else if (tokens[0] == &quot;your_id&quot;)
+-        {
+-          if (tokens.size() == 2)
+-            {
+-              std::cout &lt;&lt; &quot;# my Id: &quot; &lt;&lt; atoi(tokens[1].c_str()) &lt;&lt; std::endl;
+-            }
+-          else
+-            {
+-              std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
+-            }
+-        }
+-      else
+-        {
+-          std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
+-        }
+-    }
+-}
+-
+-void update_network()
+-{
+-  if (tcpsock)
+-    {
+-      int num = 0;
+-      if ((num = SDLNet_CheckSockets(socketset, 0)) == -1)
+-        {
+-          printf(&quot;SDLNet_CheckSockets: %s\n&quot;, SDLNet_GetError());
+-          //most of the time this is a system error, where perror might help you.
+-          perror(&quot;SDLNet_CheckSockets&quot;);
+-        }
+-  
+-      if (num &gt; 0)
+-        {
+-          if (SDLNet_SocketReady(tcpsock))
+-            {
+-              const int MAXLEN = 1024;
+-              int result;
+-              char msg[MAXLEN];
+-
+-              result = SDLNet_TCP_Recv(tcpsock, msg, MAXLEN);
+-              if(result &lt;= 0) 
+-                {
+-                  // TCP Connection is broken. (because of error or closure)
+-                  SDLNet_TCP_Close(tcpsock);
+-                  exit(1);
+-                }
+-              else 
+-                {
+-                  for(int i = 0; i &lt; result; ++i)
+-                    {
+-                      if (msg[i] == '\n')
+-                        {
+-                          process_command(server_buffer);
+-                          //std::cout &lt;&lt; server_buffer &lt;&lt; std::endl;
+-                          server_buffer.clear();
+-                        }
+-                      else
+-                        {
+-                          server_buffer += msg[i];
+-                        }
+-                    }
+-                }
+-            }
+-        }
+-    }
+-}
+-
+-
+-void
+-draw_stroke(SDL_Surface* surface, const Stroke&amp; stroke, DrawingParameter* param)
+-{
+-  SDL_Surface* brush = param-&gt;get_brush_surface();
+-  
+-  Stroke::Dabs dabs = stroke.get_interpolated_dabs(param-&gt;spacing, param-&gt;spacing);
+-  for(Stroke::Dabs::iterator i = dabs.begin(); i != dabs.end(); ++i)
+-    {
+-      SDL_Rect rect;
+-      rect.x = int(i-&gt;pos.x)-(brush-&gt;w/2);
+-      rect.y = int(i-&gt;pos.y)-(brush-&gt;h/2);
+-      rect.w = brush-&gt;w;
+-      rect.h = brush-&gt;h;
+-                  
+-      SDL_BlitSurface(brush, 0, surface, &amp;rect);
+-    }
+-}
+-
+ void process_events()
+ {
+   SDL_Event event;
+@@ -325,8 +86,7 @@
+             }
+           else if (event.key.keysym.sym == SDLK_c)
+             {
+-              std::string line = &quot;clear\n&quot;;
+-              SDLNet_TCP_Send(tcpsock, const_cast&lt;char*&gt;(line.c_str()), line.length());
++              server-&gt;send(&quot;clear\n&quot;);
+             }
+           else if (event.key.keysym.sym == SDLK_INSERT)
+             {
+@@ -384,7 +144,7 @@
+   {
+     float radius = v * 100.0f + 0.1f;
+     client_draw_param-&gt;generic_brush.radius = radius;
+-    std::cout &lt;&lt; &quot;Radius: &quot; &lt;&lt; radius &lt;&lt; std::endl;
++    //std::cout &lt;&lt; &quot;Radius: &quot; &lt;&lt; radius &lt;&lt; std::endl;
+     brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+   }
+ };
+@@ -395,7 +155,7 @@
+   void operator()(float v) 
+   {
+     int spikes = int(v*18) + 2;
+-    std::cout &lt;&lt; &quot;Spike: &quot; &lt;&lt; spikes &lt;&lt; std::endl;
++    //std::cout &lt;&lt; &quot;Spike: &quot; &lt;&lt; spikes &lt;&lt; std::endl;
+     client_draw_param-&gt;generic_brush.spikes = spikes;    
+     brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+   }
+@@ -407,8 +167,8 @@
+   void operator()(float v) 
+   {
+     float hardness = v;
+-    client_draw_param-&gt;generic_brush.hardness = v;
+-    std::cout &lt;&lt; &quot;Hardness: &quot; &lt;&lt; hardness &lt;&lt; std::endl;
++    client_draw_param-&gt;generic_brush.hardness = hardness;
++    //std::cout &lt;&lt; &quot;Hardness: &quot; &lt;&lt; hardness &lt;&lt; std::endl;
+     brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+   }
+ };
+@@ -420,7 +180,7 @@
+   {
+     float aspect_ratio = v*19.0f + 1.0f;
+     client_draw_param-&gt;generic_brush.aspect_ratio = aspect_ratio;
+-    std::cout &lt;&lt; &quot;Aspect_Ratio: &quot; &lt;&lt; aspect_ratio &lt;&lt; std::endl;
++    //std::cout &lt;&lt; &quot;Aspect_Ratio: &quot; &lt;&lt; aspect_ratio &lt;&lt; std::endl;
+     brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+   }
+ };
+@@ -432,7 +192,7 @@
+   {
+     float angle = v * 360.0f;
+     client_draw_param-&gt;generic_brush.angle = angle;
+-    std::cout &lt;&lt; &quot;Angle: &quot; &lt;&lt; angle &lt;&lt; std::endl;
++    //std::cout &lt;&lt; &quot;Angle: &quot; &lt;&lt; angle &lt;&lt; std::endl;
+     brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+   }
+ };
+@@ -469,10 +229,11 @@
+   client_draw_param = new DrawingParameter();
+   stroke_buffer-&gt;set_param(client_draw_param);
+   
++  server = new ServerConnection();
+   if (argc == 3)
+     {
+       std::cout &lt;&lt; &quot;# connecting to: &quot; &lt;&lt; argv[1] &lt;&lt; &quot;:&quot; &lt;&lt; atoi(argv[2]) &lt;&lt; std::endl;
+-      connect(argv[1], atoi(argv[2]));
++      server-&gt;connect(argv[1], atoi(argv[2]));
+     }
+   else
+     {
+@@ -538,7 +299,7 @@
+   while(true)
+     {
+       process_events();
+-      update_network();
++      server-&gt;update();
+       widget_manager-&gt;update();
+       SDL_Delay(10);
+     }
+
+Modified: trunk/netbrush/client_state.hpp
+===================================================================
+--- trunk/netbrush/client_state.hpp	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/client_state.hpp	2006-10-19 12:22:20 UTC (rev 648)
+@@ -27,7 +27,9 @@
+ #define HEADER_CLIENT_STATE_HPP
+ 
+ #include &lt;string&gt;
++#include &quot;brushmask.hpp&quot;
+ 
++class Color;
+ class Stroke;
+ class DrawingParameter;
+ 
+
+Modified: trunk/netbrush/globals.cpp
+===================================================================
+--- trunk/netbrush/globals.cpp	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/globals.cpp	2006-10-19 12:22:20 UTC (rev 648)
+@@ -25,10 +25,6 @@
+ 
+ #include &quot;globals.hpp&quot;
+ 
+-TCPsocket tcpsock = 0;
+-SDLNet_SocketSet socketset;
+-
+-std::string server_buffer;
+ DrawingContext*   draw_ctx          = 0;
+ DrawingParameter* client_draw_param = 0;
+ ScreenBuffer*     screen_buffer     = 0;
+@@ -39,8 +35,9 @@
+ 
+ SaturationValuePicker* saturation_value_picker =0;
+ HuePicker*   hue_picker =0;
+-AlphaPicker* alpha_picker = 0;
+-BrushWidget* brush_widget = 0;
+-Stroke* current_stroke = 0;
++AlphaPicker*      alpha_picker = 0;
++BrushWidget*      brush_widget = 0;
++Stroke*           current_stroke = 0;
++ServerConnection* server = 0;
+ 
+ /* EOF */
+
+Modified: trunk/netbrush/globals.hpp
+===================================================================
+--- trunk/netbrush/globals.hpp	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/globals.hpp	2006-10-19 12:22:20 UTC (rev 648)
+@@ -43,12 +43,11 @@
+ class HuePicker;
+ class AlphaPicker;
+ class BrushWidget;
++class ServerConnection;
+ 
+-extern TCPsocket tcpsock;
+ extern SDLNet_SocketSet socketset;
+ 
+ extern BrushWidget* brush_widget;
+-extern std::string server_buffer;
+ extern DrawingContext*   draw_ctx;
+ extern DrawingParameter* client_draw_param;
+ extern std::map&lt;int, ClientState*&gt; client_states;
+@@ -59,7 +58,7 @@
+ extern SaturationValuePicker* saturation_value_picker;
+ extern HuePicker*   hue_picker;
+ extern AlphaPicker* alpha_picker;
+-
++extern ServerConnection* server;
+ extern Stroke* current_stroke;
+ 
+ #endif
+
+Modified: trunk/netbrush/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/screen_buffer.cpp	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/screen_buffer.cpp	2006-10-19 12:22:20 UTC (rev 648)
+@@ -31,49 +31,9 @@
+ #include &quot;stroke_buffer.hpp&quot;
+ #include &quot;widget/widget_manager.hpp&quot;
+ #include &quot;globals.hpp&quot;
++#include &quot;server_connection.hpp&quot;
+ #include &quot;screen_buffer.hpp&quot;
+ 
+-void send_stroke(const Stroke&amp; stroke, DrawingParameter* param)
+-{
+-  if (tcpsock)
+-    {
+-      const Stroke::Dabs&amp; dabs = stroke.get_dabs();
+-
+-      std::stringstream str;
+-      if (param-&gt;get_brush().empty())
+-        str &lt;&lt; &quot;set_generic_brush &quot; 
+-            &lt;&lt; param-&gt;generic_brush.shape &lt;&lt; &quot; &quot;
+-            &lt;&lt; param-&gt;generic_brush.radius &lt;&lt; &quot; &quot;
+-            &lt;&lt; param-&gt;generic_brush.spikes &lt;&lt; &quot; &quot;
+-            &lt;&lt; param-&gt;generic_brush.hardness &lt;&lt; &quot; &quot;
+-            &lt;&lt; param-&gt;generic_brush.aspect_ratio &lt;&lt; &quot; &quot;
+-            &lt;&lt; param-&gt;generic_brush.angle &lt;&lt; &quot; &quot;
+-            &lt;&lt; std::endl;
+-      else
+-          str &lt;&lt; &quot;set_brush &quot; &lt;&lt; param-&gt;get_brush() &lt;&lt; std::endl;
+-      str &lt;&lt; &quot;set_opacity &quot; &lt;&lt; int(param-&gt;opacity) &lt;&lt; std::endl;
+-      str &lt;&lt; &quot;set_color &quot;
+-          &lt;&lt; int(param-&gt;color.r) &lt;&lt; &quot; &quot; 
+-          &lt;&lt; int(param-&gt;color.g) &lt;&lt; &quot; &quot; 
+-          &lt;&lt; int(param-&gt;color.b) &lt;&lt; std::endl;
+-      str &lt;&lt; &quot;stroke_begin&quot; &lt;&lt; std::endl;
+-      for(Stroke::Dabs::const_iterator i = dabs.begin(); i != dabs.end(); ++i)
+-        {
+-          str &lt;&lt; &quot;dab &quot; &lt;&lt; i-&gt;time &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pos.x &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pos.y  &lt;&lt; std::endl;
+-        }
+-      str &lt;&lt; &quot;stroke_end&quot; &lt;&lt; std::endl;
+-      
+-      std::string line = str.str();
+-
+-      int result = SDLNet_TCP_Send(tcpsock, const_cast&lt;char*&gt;(line.c_str()), line.length());
+-      if(result &lt; int(line.length()))
+-        {
+-          printf( &quot;SDLNet_TCP_Send: %s\n&quot;, SDLNet_GetError() );
+-          // It may be good to disconnect sock because it is likely invalid now.
+-        }     
+-    }
+-}
+-
+ ScreenBuffer::ScreenBuffer(const Rect&amp; rect)
+   : Widget(rect),
+     scroll_offset_x(0),
+@@ -255,15 +215,8 @@
+             {
+               widget_manager-&gt;ungrab(this);
+ 
+-              if (!tcpsock)
+-                { // FIXME: Might not work, not really maintained
+-                  draw_ctx-&gt;draw_stroke(*current_stroke, client_draw_param);
+-                }
+-              else
+-                {
+-                  stroke_buffer-&gt;clear();
+-                  send_stroke(*current_stroke, client_draw_param);
+-                }
++              stroke_buffer-&gt;clear();
++              server-&gt;send_stroke(*current_stroke, client_draw_param);
+ 
+               current_stroke = 0;
+             }
+
+Added: trunk/netbrush/server_connection.cpp
+===================================================================
+--- trunk/netbrush/server_connection.cpp	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/server_connection.cpp	2006-10-19 12:22:20 UTC (rev 648)
+@@ -0,0 +1,328 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;iostream&gt;
++#include &lt;sstream&gt;
++#include &quot;globals.hpp&quot;
++#include &quot;client_state.hpp&quot;
++#include &quot;color.hpp&quot;
++#include &quot;drawing_context.hpp&quot;
++#include &quot;drawing_parameter.hpp&quot;
++#include &quot;server_connection.hpp&quot;
++
++static std::vector&lt;std::string&gt;
++tokenize(const std::string&amp; str, char split_char)
++{
++  std::string::size_type start = 0;
++  std::string::size_type end   = 0;
++
++  std::vector&lt;std::string&gt; tokens;
++
++  while (start &lt; str.size())
++    {
++      if ((end = str.find(split_char, start)) == std::string::npos)
++        {
++          tokens.push_back(str.substr(start));
++          break;
++        }
++
++      const std::string&amp; ret = str.substr(start, end - start);
++
++      if (!ret.empty())
++        tokens.push_back(ret);
++
++      start = end + 1;
++    }
++
++  return tokens;
++}
++
++ServerConnection::ServerConnection()
++  : tcpsock(0),
++    socketset(0)
++{
++}
++
++ServerConnection::~ServerConnection()
++{
++}
++
++void
++ServerConnection::send(const std::string&amp; str)
++{
++  if (tcpsock)
++    {
++      int result = SDLNet_TCP_Send(tcpsock, const_cast&lt;char*&gt;(str.c_str()), str.length());
++      if(result &lt; int(str.length()))
++        {
++          printf( &quot;SDLNet_TCP_Send: %s\n&quot;, SDLNet_GetError() );
++          // It may be good to disconnect sock because it is likely invalid now.
++        }     
++    }
++  else
++    { // Not connected, so directly procses the command without a
++      // round trip through the server
++      std::string tmp;
++      for(std::string::size_type i = 0; i &lt; str.length(); ++i)
++        {
++          if (str[i] == '\n')
++            {
++              process_command(&quot;client 0 &quot; + tmp);
++              tmp.clear();
++            }
++          else
++            tmp += str[i];
++        }
++    }  
++}
++
++void
++ServerConnection::connect(const char* hostname, Uint16 port)
++{
++  IPaddress ip;
++
++  if(SDLNet_ResolveHost(&amp;ip, hostname, port) == -1) 
++    {
++      printf(&quot;SDLNet_ResolveHost: %s\n&quot;, SDLNet_GetError());
++      exit(1);
++    }
++
++  tcpsock = SDLNet_TCP_Open(&amp;ip);
++  if(!tcpsock)
++    {
++      printf(&quot;SDLNet_TCP_Open: %s %s:%d\n&quot;, SDLNet_GetError(), hostname, port);
++      exit(2);
++    }
++  else
++    {
++      std::string line = &quot;client_version 1\n&quot;;
++      SDLNet_TCP_Send(tcpsock, const_cast&lt;char*&gt;(line.c_str()), line.length());
++
++      socketset = SDLNet_AllocSocketSet(1);
++      SDLNet_TCP_AddSocket(socketset, tcpsock);
++    }
++}
++
++void
++ServerConnection::update()
++{
++  if (!tcpsock) return;
++
++  int num = 0;
++  if ((num = SDLNet_CheckSockets(socketset, 0)) == -1)
++    {
++      printf(&quot;SDLNet_CheckSockets: %s\n&quot;, SDLNet_GetError());
++      //most of the time this is a system error, where perror might help you.
++      perror(&quot;SDLNet_CheckSockets&quot;);
++    }
++  
++  if (num &gt; 0)
++    {
++      if (SDLNet_SocketReady(tcpsock))
++        {
++          const int MAXLEN = 1024;
++          int result;
++          char msg[MAXLEN];
++
++          result = SDLNet_TCP_Recv(tcpsock, msg, MAXLEN);
++          if(result &lt;= 0) 
++            {
++              // TCP Connection is broken. (because of error or closure)
++              SDLNet_TCP_Close(tcpsock);
++              exit(1);
++            }
++          else 
++            {
++              for(int i = 0; i &lt; result; ++i)
++                {
++                  if (msg[i] == '\n')
++                    {
++                      process_command(buffer);
++                      //std::cout &lt;&lt; server_buffer &lt;&lt; std::endl;
++                      buffer.clear();
++                    }
++                  else
++                    {
++                      buffer += msg[i];
++                    }
++                }
++            }
++        }
++    }
++}
++
++void
++ServerConnection::process_command(const std::string&amp; cmd)
++{
++  if (cmd.empty()) return;
++
++  const std::vector&lt;std::string&gt;&amp; tokens = tokenize(cmd, ' ');
++  if (0)
++    for(int i = 0; i &lt; int(tokens.size()); ++i)
++      std::cout &lt;&lt; &quot;Token: '&quot; &lt;&lt; tokens[i] &lt;&lt; &quot;'&quot; &lt;&lt; std::endl;
++
++  if (!tokens.empty())
++    {
++      if (tokens[0] == &quot;#&quot;)
++        {
++          // comment, ignore
++        }
++      else if (tokens[0] == &quot;clear&quot;)
++        {
++          draw_ctx-&gt;clear();
++        }
++      else if (tokens[0] == &quot;client&quot;)
++        {
++          if (tokens.size() &gt; 2)
++            {
++              int client_id = atoi(tokens[1].c_str());
++              // convert to stroke
++              std::map&lt;int, ClientState*&gt;::iterator i = client_states.find(client_id);
++              ClientState* client_state = 0;
++              if (i != client_states.end())
++                {
++                  client_state = i-&gt;second;
++                }
++              else
++                {
++                  std::cout &lt;&lt; &quot;# allocating new ClientState&quot; &lt;&lt; std::endl;
++                  client_state = new ClientState(client_id);
++                  client_states[client_id] = client_state;
++                }
++              
++              if (tokens.size() == 3 &amp;&amp; tokens[2] == &quot;stroke_begin&quot;)
++                {
++                  client_state-&gt;stroke_begin();
++                }
++              else if (tokens.size() == 3 &amp;&amp; tokens[2] == &quot;stroke_end&quot;)
++                {
++                  client_state-&gt;stroke_end();
++                }
++              else if (tokens.size() == 4 &amp;&amp; tokens[2] == &quot;set_brush&quot;)
++                {
++                  client_state-&gt;set_brush(tokens[3]);
++                }
++              else if (tokens.size() == 9 &amp;&amp; tokens[2] == &quot;set_generic_brush&quot;)
++                {
++                  client_state-&gt;set_generic_brush((BrushShape)atoi(tokens[3].c_str()),  // shape FIXME: could use name instead
++                                                  atof(tokens[4].c_str()),  // radius
++                                                  atoi(tokens[5].c_str()),  // spike
++                                                  atof(tokens[6].c_str()),  // hardness
++                                                  atof(tokens[7].c_str()),  // aspectratio
++                                                  atof(tokens[8].c_str())); // angle
++                }
++              else if (tokens.size() == 4 &amp;&amp; tokens[2] == &quot;set_opacity&quot;)
++                {
++                  client_state-&gt;set_opacity(atoi(tokens[3].c_str()));
++                }
++              else if (tokens.size() == 6 &amp;&amp; tokens[2] == &quot;set_color&quot;)
++                {
++                  client_state-&gt;set_color(Color(atoi(tokens[3].c_str()), 
++                                                atoi(tokens[4].c_str()), 
++                                                atoi(tokens[5].c_str())));
++                }
++              else if (tokens.size() == 6 &amp;&amp; tokens[2] == &quot;dab&quot;)
++                {
++                  client_state-&gt;dab(atoi(tokens[3].c_str()), 
++                                    atoi(tokens[4].c_str()),
++                                    atoi(tokens[5].c_str()));
++                }
++              else
++                {
++                  std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
++                }
++            }
++          else
++            {
++              std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
++            }
++        }
++      else if (tokens[0] == &quot;version&quot;)
++        {
++          if (tokens.size() == 2)
++            {
++              if (atoi(tokens[1].c_str()) != 0)
++                {
++                  std::cout &lt;&lt; &quot;# version mismatch: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
++                  std::cout &lt;&lt; &quot;# upgrade your netbrush client&quot; &lt;&lt; std::endl;
++                  exit(1);
++                }
++            }
++          else
++            {
++              std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
++            }
++        }
++      else if (tokens[0] == &quot;your_id&quot;)
++        {
++          if (tokens.size() == 2)
++            {
++              std::cout &lt;&lt; &quot;# my Id: &quot; &lt;&lt; atoi(tokens[1].c_str()) &lt;&lt; std::endl;
++            }
++          else
++            {
++              std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
++            }
++        }
++      else
++        {
++          std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
++        }
++    }
++}
++
++void
++ServerConnection::send_stroke(const Stroke&amp; stroke, DrawingParameter* param)
++{
++  const Stroke::Dabs&amp; dabs = stroke.get_dabs();
++
++  std::stringstream str;
++  if (param-&gt;get_brush().empty())
++    str &lt;&lt; &quot;set_generic_brush &quot; 
++        &lt;&lt; param-&gt;generic_brush.shape &lt;&lt; &quot; &quot;
++        &lt;&lt; param-&gt;generic_brush.radius &lt;&lt; &quot; &quot;
++        &lt;&lt; param-&gt;generic_brush.spikes &lt;&lt; &quot; &quot;
++        &lt;&lt; param-&gt;generic_brush.hardness &lt;&lt; &quot; &quot;
++        &lt;&lt; param-&gt;generic_brush.aspect_ratio &lt;&lt; &quot; &quot;
++        &lt;&lt; param-&gt;generic_brush.angle &lt;&lt; &quot; &quot;
++        &lt;&lt; std::endl;
++  else
++    str &lt;&lt; &quot;set_brush &quot; &lt;&lt; param-&gt;get_brush() &lt;&lt; std::endl;
++  str &lt;&lt; &quot;set_opacity &quot; &lt;&lt; int(param-&gt;opacity) &lt;&lt; std::endl;
++  str &lt;&lt; &quot;set_color &quot;
++      &lt;&lt; int(param-&gt;color.r) &lt;&lt; &quot; &quot; 
++      &lt;&lt; int(param-&gt;color.g) &lt;&lt; &quot; &quot; 
++      &lt;&lt; int(param-&gt;color.b) &lt;&lt; std::endl;
++  str &lt;&lt; &quot;stroke_begin&quot; &lt;&lt; std::endl;
++  for(Stroke::Dabs::const_iterator i = dabs.begin(); i != dabs.end(); ++i)
++    {
++      str &lt;&lt; &quot;dab &quot; &lt;&lt; i-&gt;time &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pos.x &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pos.y  &lt;&lt; std::endl;
++    }
++  str &lt;&lt; &quot;stroke_end&quot; &lt;&lt; std::endl;
++      
++  send(str.str());
++}
++
++/* EOF */
+
+Modified: trunk/netbrush/stroke_buffer.cpp
+===================================================================
+--- trunk/netbrush/stroke_buffer.cpp	2006-10-18 21:14:26 UTC (rev 647)
++++ trunk/netbrush/stroke_buffer.cpp	2006-10-19 12:22:20 UTC (rev 648)
+@@ -89,7 +89,8 @@
+ {
+   GrayscaleBuffer* brush = param-&gt;get_brush_buffer();
+ 
+-  Stroke::Dabs dabs = stroke.get_interpolated_dabs(param-&gt;spacing, param-&gt;spacing);
++  //Stroke::Dabs dabs = stroke.get_interpolated_dabs(param-&gt;spacing, param-&gt;spacing);
++  Stroke::Dabs dabs = stroke.get_dabs();
+   for(Stroke::Dabs::iterator i = dabs.begin(); i != dabs.end(); ++i)
+     {
+       buffer-&gt;blit(brush,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000143.html">[Flexlay-commit] r646 - in trunk: . flexlay
+</A></li>
+	<LI>Next message: <A HREF="000145.html">[Flexlay-commit] r649 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#144">[ date ]</a>
+              <a href="thread.html#144">[ thread ]</a>
+              <a href="subject.html#144">[ subject ]</a>
+              <a href="author.html#144">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

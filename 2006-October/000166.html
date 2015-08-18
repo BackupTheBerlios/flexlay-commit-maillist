@@ -1,0 +1,1343 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r671 - in trunk/netbrush: . data/icons sessions	src src/widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r671%20-%20in%20trunk/netbrush%3A%20.%20data/icons%20sessions%0A%09src%20src/widget&In-Reply-To=%3C200610232057.k9NKvBHc025146%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000165.html">
+   <LINK REL="Next"  HREF="000167.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r671 - in trunk/netbrush: . data/icons sessions	src src/widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r671%20-%20in%20trunk/netbrush%3A%20.%20data/icons%20sessions%0A%09src%20src/widget&In-Reply-To=%3C200610232057.k9NKvBHc025146%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r671 - in trunk/netbrush: . data/icons sessions	src src/widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Oct 23 22:57:11 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000165.html">[Flexlay-commit] r670 - trunk/netbrush/src
+</A></li>
+        <LI>Next message: <A HREF="000167.html">[Flexlay-commit] r672 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#166">[ date ]</a>
+              <a href="thread.html#166">[ thread ]</a>
+              <a href="subject.html#166">[ subject ]</a>
+              <a href="author.html#166">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-23 22:57:09 +0200 (Mon, 23 Oct 2006)
+New Revision: 671
+
+Added:
+   trunk/netbrush/data/icons/stock-tool-color-picker-22.png
+   trunk/netbrush/src/airbrush_tool.cpp
+   trunk/netbrush/src/airbrush_tool.hpp
+   trunk/netbrush/src/color.cpp
+   trunk/netbrush/src/colorpicker_tool.cpp
+   trunk/netbrush/src/colorpicker_tool.hpp
+   trunk/netbrush/src/paintbrush_tool.cpp
+   trunk/netbrush/src/paintbrush_tool.hpp
+   trunk/netbrush/src/scroll_tool.cpp
+   trunk/netbrush/src/scroll_tool.hpp
+   trunk/netbrush/src/tool.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/sessions/
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/color.hpp
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/drawing_parameter.hpp
+   trunk/netbrush/src/navigation.cpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/screen_buffer.hpp
+   trunk/netbrush/src/stroke_buffer.hpp
+   trunk/netbrush/src/widget/events.hpp
+Log:
+- splitted Tool out of ScreenBuffer
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/SConstruct	2006-10-23 20:57:09 UTC (rev 671)
+@@ -57,6 +57,11 @@
+         'src/navigation.cpp',
+         'src/graphic_context_state.cpp',
+         'src/controller.cpp',
++        'src/airbrush_tool.cpp',
++        'src/paintbrush_tool.cpp',
++        'src/scroll_tool.cpp',
++        'src/colorpicker_tool.cpp',
++        'src/color.cpp',
+ #        'src/widget/events.cpp',
+ ])
+ 
+
+Added: trunk/netbrush/data/icons/stock-tool-color-picker-22.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/netbrush/data/icons/stock-tool-color-picker-22.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+
+Property changes on: trunk/netbrush/sessions
+___________________________________________________________________
+Name: svn:ignore
+   + *.nbr
+
+
+Added: trunk/netbrush/src/airbrush_tool.cpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/airbrush_tool.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,95 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &quot;globals.hpp&quot;
++#include &quot;stroke.hpp&quot;
++#include &quot;stroke_buffer.hpp&quot;
++#include &quot;screen_buffer.hpp&quot;
++#include &quot;server_connection.hpp&quot;
++#include &quot;drawing_parameter.hpp&quot;
++#include &quot;widget/widget_manager.hpp&quot;
++#include &quot;airbrush_tool.hpp&quot;
++
++AirbrushTool::AirbrushTool()
++{
++}
++
++AirbrushTool::~AirbrushTool()
++{
++}
++
++void
++AirbrushTool::on_motion(const ToolMotionEvent&amp; ev)
++{
++  if (current_stroke)
++    {
++      current_stroke-&gt;add_dab(Dab(ev.x, ev.y));
++      stroke_buffer-&gt;add_dab(Dab(ev.x, ev.y));
++
++      // sync
++      Rect rect = current_stroke-&gt;get_bounding_rect(); 
++              
++      // calculate bounding rectangle by taking brush thickness into account
++      // FIXME: Handle x/y thickness independetly to get a smaller clip rect
++      rect.left -= client_draw_param-&gt;thickness()/2;
++      rect.top  -= client_draw_param-&gt;thickness()/2;
++
++      rect.right  += client_draw_param-&gt;thickness()/2;
++      rect.bottom += client_draw_param-&gt;thickness()/2;
++                  
++      screen_buffer-&gt;mark_dirty(rect);
++    } 
++}
++
++void
++AirbrushTool::on_button_press(const ToolButtonEvent&amp; ev)
++{
++  widget_manager-&gt;grab(screen_buffer); // FIXME: ugly out of place widget class abuse
++
++  // FIXME: activate this and test: delete current_stroke;
++
++  current_stroke = new Stroke();
++
++  current_stroke-&gt;add_dab(Dab(ev.x, ev.y));
++  stroke_buffer-&gt;add_dab(Dab(ev.x, ev.y));
++
++  // FIXME: First dab is lost
++}
++
++void
++AirbrushTool::on_button_release(const ToolButtonEvent&amp; ev)
++{
++  if (current_stroke)
++    {
++      widget_manager-&gt;ungrab(screen_buffer); // FIXME: ugly out of place widget class abuse
++
++      stroke_buffer-&gt;clear();
++      server-&gt;send_stroke(*current_stroke, client_draw_param);
++
++      current_stroke = 0;
++    }
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/airbrush_tool.hpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/airbrush_tool.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,51 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_AIRBRUSH_TOOL_HPP
++#define HEADER_AIRBRUSH_TOOL_HPP
++
++#include &quot;tool.hpp&quot;
++
++/** */
++class AirbrushTool : public Tool
++{
++private:
++
++public:
++  AirbrushTool();
++  ~AirbrushTool();
++
++  void on_motion(const ToolMotionEvent&amp; ev);
++  void on_button_press(const ToolButtonEvent&amp; ev);
++  void on_button_release(const ToolButtonEvent&amp; ev);
++
++private:
++  AirbrushTool (const AirbrushTool&amp;);
++  AirbrushTool&amp; operator= (const AirbrushTool&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/client.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -122,33 +122,6 @@
+     }  
+ }
+ 
+-class ToolButtonCallback : public ButtonCallback
+-{
+-private:
+-  DrawingParameter::Tool tool;
+-public:
+-  ToolButtonCallback(DrawingParameter::Tool tool_)
+-    : tool(tool_)
+-  {
+-  }
+-
+-  void on_press  (Button* button) 
+-  {
+-    //std::cout &lt;&lt; &quot;Press: &quot; &lt;&lt; button &lt;&lt; std::endl;
+-  }
+-
+-  void on_release(Button* button) 
+-  {
+-    //std::cout &lt;&lt; &quot;Release: &quot; &lt;&lt; button &lt;&lt; std::endl;
+-  }
+-  
+-  void on_click  (Button* button) 
+-  {
+-    //std::cout &lt;&lt; &quot;Setting tool: &quot; &lt;&lt; tool &lt;&lt; std::endl;
+-    client_draw_param-&gt;tool = tool;
+-  }
+-};
+-
+ int main(int argc, char** argv)
+ {
+   try {
+@@ -282,17 +255,6 @@
+ 
+     widget_manager-&gt;add(navigation = new Navigation(Rect(Point(screen-&gt;w - 128 - 2, screen-&gt;h - 128 - 2),
+                                                          Size(128, 128))));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
+-                                   Rect(Point(2, 2+0*34), Size(34, 34)),
+-                                   new ToolButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-paintbrush-22.png&quot;), 
+-                                   Rect(Point(2, 2+1*34), Size(34, 34)),
+-                                   new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
+-    if (0)
+-      widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-zoom-22.png&quot;), 
+-                                     Rect(Point(2, 2+2*34), Size(34, 34)),
+-                                     new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
+-
+     {
+       SDL_Rect color_rect;
+       color_rect.x = 768;
+
+Added: trunk/netbrush/src/color.cpp
+===================================================================
+--- trunk/netbrush/src/color.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/color.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,112 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;algorithm&gt;
++#include &quot;color.hpp&quot;
++
++HSVColor::HSVColor()
++  : hue(0), saturation(0), value(0)
++{
++}
++
++HSVColor
++HSVColor::from_rgb(const Color&amp; color)
++{ // untested
++  HSVColor hsvcolor;
++    
++  Uint8 min = std::min(std::min(color.r, color.g), color.b);
++  Uint8 max = std::max(std::max(color.r, color.g), color.b);
++
++  if (min == max)
++    {
++      hsvcolor.hue = 0;
++    }
++  else
++    {
++      if (max == color.r)
++        hsvcolor.hue = (0 + (color.g - color.b) / (max - min)) * 43;
++      else if (max == color.g)
++        hsvcolor.hue = (2 + (color.b - color.r) / (max - min)) * 43;
++      else if (max == color.b)
++        hsvcolor.hue = (4 + (color.r - color.g) / (max - min)) * 43;
++    }
++
++  if (max == 0)
++    hsvcolor.saturation = 0;
++  else
++    hsvcolor.saturation = 255 * (max - min) / max;
++
++  hsvcolor.value = 255 * max;
++
++  return hsvcolor;
++}
++
++Color::Color()
++  : r(0), g(0), b(0)
++{}
++
++Color::Color(Uint8 r_, Uint8 g_, Uint8 b_)
++  : r(r_), g(g_), b(b_)
++{}
++
++Color
++Color::from_hsv(Uint8 hue, Uint8 saturation, Uint8 value)
++{
++  Color color = Color::from_hue(hue);
++  color.apply_value_saturation(value, saturation);
++  return color;
++}
++  
++  
++
++Color
++Color::from_hue(Uint8 hue)
++{
++  static Color colors[] = { Color(255,   0,   0),
++                            Color(255,   0, 255),
++                            Color(  0,   0, 255),
++                            Color(  0, 255, 255),
++                            Color(  0, 255,   0),
++                            Color(255, 255,   0),
++                            Color(255,   0,   0) };
++  
++  int seg_len = (255/6);
++  int seg  = (hue / seg_len);
++  int prog = (hue % seg_len);
++
++  return Color((((seg_len - prog) * colors[seg].r) + (prog * colors[seg+1].r))/seg_len,
++               (((seg_len - prog) * colors[seg].g) + (prog * colors[seg+1].g))/seg_len,
++               (((seg_len - prog) * colors[seg].b) + (prog * colors[seg+1].b))/seg_len);
++}
++
++void
++Color::apply_value_saturation(Uint8 value, Uint8 saturation)
++{
++  r = (0*value + (255-value) * ((255 * saturation + r * (255 - saturation))/255))/255;
++  g = (0*value + (255-value) * ((255 * saturation + g * (255 - saturation))/255))/255;
++  b = (0*value + (255-value) * ((255 * saturation + b * (255 - saturation))/255))/255;
++}
++
++/* EOF */
+
+Modified: trunk/netbrush/src/color.hpp
+===================================================================
+--- trunk/netbrush/src/color.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/color.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -28,45 +28,30 @@
+ 
+ #include &quot;SDL.h&quot;
+ 
+-struct Color
++struct Color;
++
++struct HSVColor
+ {
+-  Color()
+-    : r(0), g(0), b(0)
+-  {}
++public:
++  Uint8 hue;
++  Uint8 saturation;
++  Uint8 value;
++  
++  HSVColor();
++  static HSVColor from_rgb(const Color&amp; color);
++};
+ 
+-  Color(Uint8 r_, Uint8 g_, Uint8 b_)
+-    : r(r_), g(g_), b(b_)
+-  {}
+-
++struct Color
++{
+   Uint8 r;
+   Uint8 g;
+   Uint8 b;
+ 
+-  static Color from_hue(Uint8 hue)
+-  {
+-    static Color colors[] = { Color(255,   0,   0),
+-                              Color(255,   0, 255),
+-                              Color(  0,   0, 255),
+-                              Color(  0, 255, 255),
+-                              Color(  0, 255,   0),
+-                              Color(255, 255,   0),
+-                              Color(255,   0,   0) };
+-  
+-    int seg_len = (255/6);
+-    int seg  = (hue / seg_len);
+-    int prog = (hue % seg_len);
+-
+-    return Color((((seg_len - prog) * colors[seg].r) + (prog * colors[seg+1].r))/seg_len,
+-                 (((seg_len - prog) * colors[seg].g) + (prog * colors[seg+1].g))/seg_len,
+-                 (((seg_len - prog) * colors[seg].b) + (prog * colors[seg+1].b))/seg_len);
+-  }
+-
+-  void apply_value_saturation(Uint8 value, Uint8 saturation)
+-  {
+-    r = (0*value + (255-value) * ((255 * saturation + r * (255 - saturation))/255))/255;
+-    g = (0*value + (255-value) * ((255 * saturation + g * (255 - saturation))/255))/255;
+-    b = (0*value + (255-value) * ((255 * saturation + b * (255 - saturation))/255))/255;
+-  }
++  Color();
++  Color(Uint8 r_, Uint8 g_, Uint8 b_);
++  static Color from_hsv(Uint8 hue, Uint8 saturation, Uint8 value);
++  static Color from_hue(Uint8 hue);
++  void apply_value_saturation(Uint8 value, Uint8 saturation);
+ };
+ 
+ #endif
+
+Added: trunk/netbrush/src/colorpicker_tool.cpp
+===================================================================
+--- trunk/netbrush/src/colorpicker_tool.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/colorpicker_tool.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,51 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &quot;colorpicker_tool.hpp&quot;
++
++ColorpickerTool::ColorpickerTool()
++{
++}
++
++ColorpickerTool::~ColorpickerTool()
++{
++}
++
++void
++ColorpickerTool::on_motion(const ToolMotionEvent&amp; ev)
++{
++}
++
++void
++ColorpickerTool::on_button_press(const ToolButtonEvent&amp; ev)
++{
++}
++
++void
++ColorpickerTool::on_button_release(const ToolButtonEvent&amp; ev)
++{
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/colorpicker_tool.hpp
+===================================================================
+--- trunk/netbrush/src/colorpicker_tool.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/colorpicker_tool.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,49 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_COLORPICKER_TOOL_HPP
++#define HEADER_COLORPICKER_TOOL_HPP
++
++#include &quot;tool.hpp&quot;
++
++/** */
++class ColorpickerTool : public Tool
++{
++private:
++public:
++  ColorpickerTool();
++  ~ColorpickerTool();
++
++  void on_motion(const ToolMotionEvent&amp; ev);
++  void on_button_press(const ToolButtonEvent&amp; ev);
++  void on_button_release(const ToolButtonEvent&amp; ev);
++private:
++  ColorpickerTool (const ColorpickerTool&amp;);
++  ColorpickerTool&amp; operator= (const ColorpickerTool&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/controller.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -32,6 +32,7 @@
+ #include &quot;drawing_parameter.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
+ #include &quot;brush_widget.hpp&quot;
++#include &quot;widget/button.hpp&quot;
+ #include &quot;widget/widget_manager.hpp&quot;
+ #include &quot;controller.hpp&quot;
+ 
+@@ -76,8 +77,46 @@
+   }
+ };
+ 
++class ToolButtonCallback : public ButtonCallback
++{
++private:
++  DrawingParameter::Tool tool;
++public:
++  ToolButtonCallback(DrawingParameter::Tool tool_)
++    : tool(tool_)
++  {
++  }
++
++  void on_press  (Button* button) 
++  {
++    //std::cout &lt;&lt; &quot;Press: &quot; &lt;&lt; button &lt;&lt; std::endl;
++  }
++
++  void on_release(Button* button) 
++  {
++    //std::cout &lt;&lt; &quot;Release: &quot; &lt;&lt; button &lt;&lt; std::endl;
++  }
++  
++  void on_click  (Button* button) 
++  {
++    //std::cout &lt;&lt; &quot;Setting tool: &quot; &lt;&lt; tool &lt;&lt; std::endl;
++    client_draw_param-&gt;tool = tool;
++  }
++};
++
+ Controller::Controller()
+ {
++  // Toolbar
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
++                                   Rect(Point(2, 2+0*34), Size(34, 34)),
++                                   new ToolButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-paintbrush-22.png&quot;), 
++                                   Rect(Point(2, 2+1*34), Size(34, 34)),
++                                   new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-color-picker-22.png&quot;), 
++                                     Rect(Point(2, 2+2*34), Size(34, 34)),
++                                     new ToolButtonCallback(DrawingParameter::TOOL_COLOR_PICKER)));
++
+   // Color Selection
+   alpha_picker            = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
+   saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
+@@ -107,6 +146,7 @@
+   widget_manager-&gt;add(hardness_slider);
+   widget_manager-&gt;add(aspect_ratio_slider);
+   widget_manager-&gt;add(angle_slider);
++
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/drawing_parameter.hpp
+===================================================================
+--- trunk/netbrush/src/drawing_parameter.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/drawing_parameter.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -37,7 +37,7 @@
+ class DrawingParameter
+ {
+ public:
+-  enum Tool { TOOL_AIRBRUSH, TOOL_PAINTBRUSH };
++  enum Tool { TOOL_AIRBRUSH, TOOL_PAINTBRUSH, TOOL_COLOR_PICKER };
+   Tool             tool;
+   std::string      brush_file;
+   GenericBrush     generic_brush;
+
+Modified: trunk/netbrush/src/navigation.cpp
+===================================================================
+--- trunk/netbrush/src/navigation.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/navigation.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -41,8 +41,8 @@
+ {
+   if (dragging)
+     {
+-      screen_buffer-&gt;move_to(draw_ctx-&gt;get_width()  * motion.x / get_rect().get_width(),
+-                             draw_ctx-&gt;get_height() * motion.y / get_rect().get_height());
++      screen_buffer-&gt;move_to(Point(draw_ctx-&gt;get_width()  * motion.x / get_rect().get_width(),
++                                   draw_ctx-&gt;get_height() * motion.y / get_rect().get_height()));
+     }
+ }
+ 
+@@ -53,14 +53,14 @@
+     {
+       if (button.state == SDL_RELEASED)
+         {
+-          screen_buffer-&gt;move_to(draw_ctx-&gt;get_width()  * button.x / get_rect().get_width(),
+-                                 draw_ctx-&gt;get_height() * button.y / get_rect().get_height());
++          screen_buffer-&gt;move_to(Point(draw_ctx-&gt;get_width()  * button.x / get_rect().get_width(),
++                                       draw_ctx-&gt;get_height() * button.y / get_rect().get_height()));
+           dragging = false;
+         }
+       else if (button.state == SDL_PRESSED)
+         {
+-          screen_buffer-&gt;move_to(draw_ctx-&gt;get_width()  * button.x / get_rect().get_width(),
+-                                 draw_ctx-&gt;get_height() * button.y / get_rect().get_height());
++          screen_buffer-&gt;move_to(Point(draw_ctx-&gt;get_width()  * button.x / get_rect().get_width(),
++                                       draw_ctx-&gt;get_height() * button.y / get_rect().get_height()));
+           dragging = true;
+         }
+     }
+
+Added: trunk/netbrush/src/paintbrush_tool.cpp
+===================================================================
+--- trunk/netbrush/src/paintbrush_tool.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/paintbrush_tool.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,52 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &quot;paintbrush_tool.hpp&quot;
++
++PaintbrushTool::PaintbrushTool()
++{
++}
++
++PaintbrushTool::~PaintbrushTool()
++{
++}
++
++void
++PaintbrushTool::on_motion(const ToolMotionEvent&amp; ev)
++{
++}
++
++void
++PaintbrushTool::on_button_press(const ToolButtonEvent&amp; ev)
++{
++}
++
++void
++PaintbrushTool::on_button_release(const ToolButtonEvent&amp; ev)
++{
++  
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/paintbrush_tool.hpp
+===================================================================
+--- trunk/netbrush/src/paintbrush_tool.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/paintbrush_tool.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,50 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_PAINTBRUSH_TOOL_HPP
++#define HEADER_PAINTBRUSH_TOOL_HPP
++
++#include &quot;tool.hpp&quot;
++
++/** */
++class PaintbrushTool : public Tool
++{
++private:
++public:
++  PaintbrushTool();
++  ~PaintbrushTool();
++
++  void on_motion(const ToolMotionEvent&amp; ev);
++  void on_button_press(const ToolButtonEvent&amp; ev);
++  void on_button_release(const ToolButtonEvent&amp; ev);
++
++private:
++  PaintbrushTool (const PaintbrushTool&amp;);
++  PaintbrushTool&amp; operator= (const PaintbrushTool&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -33,19 +33,20 @@
+ #include &quot;globals.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+ #include &quot;widget/scrollbar.hpp&quot;
++#include &quot;tool.hpp&quot;
++#include &quot;airbrush_tool.hpp&quot;
++#include &quot;scroll_tool.hpp&quot;
+ #include &quot;screen_buffer.hpp&quot;
+ 
+ ScreenBuffer::ScreenBuffer(const Rect&amp; rect)
+   : Widget(rect),
++    complete_refresh(false),
+     scroll_offset_x(0),
+-    scroll_offset_y(0),
+-    old_scroll_offset_x(0),
+-    old_scroll_offset_y(0),
+-    click_pos_x(0),
+-    click_pos_y(0),
+-    scrolling(false),
+-    complete_refresh(false)
++    scroll_offset_y(0)
+ {
++  tools.push_back(new AirbrushTool());
++  tools.push_back(new ScrollTool());
++  tools.push_back(new AirbrushTool());
+ }
+ 
+ ScreenBuffer::~ScreenBuffer()
+@@ -204,105 +205,64 @@
+ void
+ ScreenBuffer::on_mouse_motion(const MouseMotionEvent&amp; motion)
+ {
+-  //satd::cout &lt;&lt; motion.x &lt;&lt; &quot; &quot; &lt;&lt; motion.y &lt;&lt; std::endl;
+-  if (current_stroke)
+-    {
+-      current_stroke-&gt;add_dab(Dab(motion.x - scroll_offset_x, motion.y - scroll_offset_y));
+-      stroke_buffer-&gt;add_dab(Dab(motion.x - scroll_offset_x, motion.y - scroll_offset_y));
++  ToolMotionEvent tool_motion;
+ 
+-      // sync
+-      Rect rect = current_stroke-&gt;get_bounding_rect(); 
+-              
+-      // calculate bounding rectangle by taking brush thickness into account
+-      rect.left -= client_draw_param-&gt;thickness()/2;
+-      rect.top  -= client_draw_param-&gt;thickness()/2;
++  tool_motion.x = motion.x - scroll_offset_x;
++  tool_motion.y = motion.y - scroll_offset_y;
+ 
+-      rect.right  += client_draw_param-&gt;thickness()/2;
+-      rect.bottom += client_draw_param-&gt;thickness()/2;
+-                  
+-      mark_dirty(rect);
+-    }
+-
+-  if (scrolling)
+-    {
+-      scroll_offset_x = old_scroll_offset_x + (motion.x - click_pos_x);
+-      scroll_offset_y = old_scroll_offset_y + (motion.y - click_pos_y);
+-
+-      Rect r(0, 0, get_rect().get_width(), get_rect().get_height());
+-      r.left   -= scroll_offset_x;
+-      r.right  -= scroll_offset_x;
+-      r.top    -= scroll_offset_y;
+-      r.bottom -= scroll_offset_y;
+-      mark_dirty(r);
+-      complete_refresh = true;
+-      //std::cout &lt;&lt; &quot;Scrolling: &quot; &lt;&lt; scroll_offset_x &lt;&lt; &quot; &quot; &lt;&lt; scroll_offset_y &lt;&lt; std::endl;
+-    } 
++  tool_motion.screen = Point(motion.x, motion.y);
++  
++  for(Tools::iterator i = tools.begin(); i != tools.end(); ++i)
++    (*i)-&gt;on_motion(tool_motion);
+ }
+ 
+ void
+ ScreenBuffer::on_mouse_button(const MouseButtonEvent&amp; button)
+ {
+-  if (button.state == SDL_RELEASED)
+-    {
+-      if (button.button == 1)
+-        {
+-          if (current_stroke)
+-            {
+-              widget_manager-&gt;ungrab(this);
++  ToolButtonEvent tool_button;
+ 
+-              stroke_buffer-&gt;clear();
+-              server-&gt;send_stroke(*current_stroke, client_draw_param);
++  tool_button.screen = Point(button.x, button.y);
+ 
+-              current_stroke = 0;
+-            }
+-        }
+-      else if (button.button == 2)
+-        {
+-          scroll_offset_x = old_scroll_offset_x + (button.x - click_pos_x);
+-          scroll_offset_y = old_scroll_offset_y + (button.y - click_pos_y);
+-          scrolling = false;
+-        }
+-    }  
+-  else if (button.state == SDL_PRESSED)
++  tool_button.x = button.x - scroll_offset_x;
++  tool_button.y = button.y - scroll_offset_y;
++  
++  if (button.button &gt;= 1 &amp;&amp; button.button &lt;= int(tools.size()))
+     {
+-      if (button.button == 1)
+-        {
+-          widget_manager-&gt;grab(this);
+-          current_stroke = new Stroke();
+-
+-          current_stroke-&gt;add_dab(Dab(button.x - scroll_offset_x, button.y - scroll_offset_y));
+-          stroke_buffer-&gt;add_dab(Dab(button.x - scroll_offset_x, button.y - scroll_offset_y));
+-
+-          // FIXME: First dab is lost
+-        }
+-      else if (button.button == 2)
+-        {
+-          click_pos_x = button.x;
+-          click_pos_y = button.y;
+-
+-          old_scroll_offset_x = scroll_offset_x;
+-          old_scroll_offset_y = scroll_offset_y;
+-
+-          scrolling = true;
+-        }
++      if (button.state == SDL_PRESSED)
++        tools[button.button-1]-&gt;on_button_press(tool_button);
++      else if (button.state == SDL_RELEASED)
++        tools[button.button-1]-&gt;on_button_release(tool_button);
+     }
+ }
+ 
+ void
+-ScreenBuffer::move_to(int x, int y)
++ScreenBuffer::force_full_refresh()
+ {
+-  scroll_offset_x = get_rect().get_width()/2  - x;
+-  scroll_offset_y = get_rect().get_height()/2 - y;
+-  //std::cout &lt;&lt; &quot;MoveTo: &quot; &lt;&lt; x &lt;&lt; &quot; &quot; &lt;&lt; y &lt;&lt; std::endl;
+-
+-  Rect r(0, 0, get_rect().get_width(), get_rect().get_height());
++  // FIXME: Ugly! Add function for fullscreen refresh in screenbuffer
++  Rect r(0, 0, screen_buffer-&gt;get_rect().get_width(), screen_buffer-&gt;get_rect().get_height());
+   r.left   -= scroll_offset_x;
+   r.right  -= scroll_offset_x;
+   r.top    -= scroll_offset_y;
+   r.bottom -= scroll_offset_y;
+-  mark_dirty(r);
++  screen_buffer-&gt;mark_dirty(r);
+   complete_refresh = true;
+   set_dirty(true);
+ }
+ 
++void
++ScreenBuffer::move_to(const Point&amp; p)
++{
++  scroll_offset_x = get_rect().get_width()/2  - p.x;
++  scroll_offset_y = get_rect().get_height()/2 - p.y;
++
++  force_full_refresh();
++}
++
++Point
++ScreenBuffer::get_pos()
++{
++  return Point(get_rect().get_width()/2  - scroll_offset_x,
++               get_rect().get_height()/2 - scroll_offset_y);
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/screen_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/screen_buffer.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -29,6 +29,8 @@
+ #include &quot;SDL.h&quot;
+ #include &quot;widget/widget.hpp&quot;
+ 
++class Tool;
++
+ /** */
+ class ScreenBuffer : public Widget
+ {
+@@ -36,17 +38,14 @@
+   //SDL_Surface* buffer;
+   Rect dirty_region;
+ 
++  bool scrolling;
++  bool complete_refresh;
++
+   int scroll_offset_x;
+   int scroll_offset_y;
+ 
+-  int old_scroll_offset_x;
+-  int old_scroll_offset_y;
+-
+-  int click_pos_x;
+-  int click_pos_y;
+-
+-  bool scrolling;
+-  bool complete_refresh;
++  typedef std::vector&lt;Tool*&gt; Tools;
++  Tools tools;
+ public:
+   ScreenBuffer(const Rect&amp; rect);
+   ~ScreenBuffer();
+@@ -54,6 +53,7 @@
+   // Mark an region as dirty in canvas space, not screen space
+   void mark_dirty(int x, int y, int w, int h);
+   void mark_dirty(const Rect&amp; region);
++  void force_full_refresh();
+   
+   void draw(SDL_Surface* target);
+ 
+@@ -65,8 +65,8 @@
+ 
+   bool do_update() { return false; }
+ 
+-  void move_to(int x, int y);
+-
++  void move_to(const Point&amp; p);
++  Point get_pos();
+ private:
+   ScreenBuffer (const ScreenBuffer&amp;);
+   ScreenBuffer&amp; operator= (const ScreenBuffer&amp;);
+
+Added: trunk/netbrush/src/scroll_tool.cpp
+===================================================================
+--- trunk/netbrush/src/scroll_tool.cpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/scroll_tool.cpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,73 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &quot;globals.hpp&quot;
++#include &quot;screen_buffer.hpp&quot;
++#include &quot;math/rect.hpp&quot;
++#include &quot;scroll_tool.hpp&quot;
++
++ScrollTool::ScrollTool()
++  : scrolling(false),
++    old_pos(0,0),
++    click_pos(0,0)
++{
++}
++
++ScrollTool::~ScrollTool()
++{
++}
++
++void
++ScrollTool::on_motion(const ToolMotionEvent&amp; ev)
++{
++  if (scrolling)
++    {
++      screen_buffer-&gt;move_to(Point(old_pos.x - (ev.screen.x - click_pos.x),
++                                   old_pos.y - (ev.screen.y - click_pos.y)));
++    }
++}
++
++void
++ScrollTool::on_button_press(const ToolButtonEvent&amp; ev)
++{
++  click_pos.x = ev.screen.x;
++  click_pos.y = ev.screen.y;
++
++  old_pos = screen_buffer-&gt;get_pos();
++
++  scrolling = true;
++}
++
++void
++ScrollTool::on_button_release(const ToolButtonEvent&amp; ev)
++{ 
++  // FIXME: grab
++  screen_buffer-&gt;move_to(Point(old_pos.x - (ev.screen.x - click_pos.x),
++                               old_pos.y - (ev.screen.y - click_pos.y)));
++
++  scrolling = false;
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/scroll_tool.hpp
+===================================================================
+--- trunk/netbrush/src/scroll_tool.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/scroll_tool.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,55 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_SCROLL_TOOL_HPP
++#define HEADER_SCROLL_TOOL_HPP
++
++#include &quot;tool.hpp&quot;
++
++/** */
++class ScrollTool : public Tool
++{
++private:
++  bool scrolling;
++
++  Point old_pos;
++  Point click_pos;
++
++public:
++  ScrollTool();
++  ~ScrollTool();
++
++  void on_motion(const ToolMotionEvent&amp; ev);
++  void on_button_press(const ToolButtonEvent&amp; ev);
++  void on_button_release(const ToolButtonEvent&amp; ev);
++  
++private:
++  ScrollTool (const ScrollTool&amp;);
++  ScrollTool&amp; operator= (const ScrollTool&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/stroke_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/stroke_buffer.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/stroke_buffer.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -29,6 +29,7 @@
+ class Rect;
+ class DrawingParameter;
+ class Dab;
++class GrayscaleBuffer;
+ 
+ /** */
+ class StrokeBuffer
+
+Added: trunk/netbrush/src/tool.hpp
+===================================================================
+--- trunk/netbrush/src/tool.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/tool.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -0,0 +1,67 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_TOOL_HPP
++#define HEADER_TOOL_HPP
++
++#include &quot;math/point.hpp&quot;
++#include &quot;widget/events.hpp&quot;
++
++struct ToolMotionEvent
++{
++  int x;
++  int y;
++
++  Point screen;
++};
++
++struct ToolButtonEvent
++{
++  int x;
++  int y;
++
++  Point screen;
++};
++
++/** */
++class Tool
++{
++private:
++public:
++  Tool() {}
++  virtual ~Tool() {}
++
++  virtual void on_motion(const ToolMotionEvent&amp; ev) =0;
++  virtual void on_button_press(const ToolButtonEvent&amp; ev) =0;
++  virtual void on_button_release(const ToolButtonEvent&amp; ev) =0;
++
++private:
++  Tool (const Tool&amp;);
++  Tool&amp; operator= (const Tool&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/widget/events.hpp
+===================================================================
+--- trunk/netbrush/src/widget/events.hpp	2006-10-21 02:11:19 UTC (rev 670)
++++ trunk/netbrush/src/widget/events.hpp	2006-10-23 20:57:09 UTC (rev 671)
+@@ -26,6 +26,8 @@
+ #ifndef HEADER_EVENTS_HPP
+ #define HEADER_EVENTS_HPP
+ 
++#include &quot;SDL.h&quot;
++
+ class MouseButtonEvent
+ {
+ public:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000165.html">[Flexlay-commit] r670 - trunk/netbrush/src
+</A></li>
+	<LI>Next message: <A HREF="000167.html">[Flexlay-commit] r672 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#166">[ date ]</a>
+              <a href="thread.html#166">[ thread ]</a>
+              <a href="subject.html#166">[ subject ]</a>
+              <a href="author.html#166">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

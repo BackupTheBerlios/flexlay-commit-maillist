@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r597 - trunk/windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r597%20-%20trunk/windstille&In-Reply-To=%3C200508142322.j7ENMaH2032044%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000091.html">
+   <LINK REL="Next"  HREF="000093.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r597 - trunk/windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r597%20-%20trunk/windstille&In-Reply-To=%3C200508142322.j7ENMaH2032044%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r597 - trunk/windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Mon Aug 15 01:22:36 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000091.html">[Flexlay-commit] r596 - in trunk: lib ruby windstille
+</A></li>
+        <LI>Next message: <A HREF="000093.html">[Flexlay-commit] r598 - in trunk: lib windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#92">[ date ]</a>
+              <a href="thread.html#92">[ thread ]</a>
+              <a href="subject.html#92">[ subject ]</a>
+              <a href="author.html#92">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-15 01:21:56 +0200 (Mon, 15 Aug 2005)
+New Revision: 597
+
+Modified:
+   trunk/windstille/gui_specs.rb
+   trunk/windstille/layout_manager.rb
+Log:
+- added panel support
+
+Modified: trunk/windstille/gui_specs.rb
+===================================================================
+--- trunk/windstille/gui_specs.rb	2005-08-14 22:41:12 UTC (rev 596)
++++ trunk/windstille/gui_specs.rb	2005-08-14 23:21:56 UTC (rev 597)
+@@ -103,7 +103,8 @@
+         [:editormap, 
+           [:name, 'editormap']],
+ 
+-        [:vbox,
++        [:panel,
++          [:layout, :vbox],
+           [:size, 192],
+           [:components,
+             [:tileselector,
+
+Modified: trunk/windstille/layout_manager.rb
+===================================================================
+--- trunk/windstille/layout_manager.rb	2005-08-14 22:41:12 UTC (rev 596)
++++ trunk/windstille/layout_manager.rb	2005-08-14 23:21:56 UTC (rev 597)
+@@ -29,8 +29,9 @@
+ 
+   # use nil for width and height if it should be determined
+   # automatically
+-  def initialize(component, params)
++  def initialize(component, child, params)
+     @component = component
++    @child     = child
+ 
+     @name      = params[:name]
+     @size      = params[:size]
+@@ -40,19 +41,34 @@
+   end
+ 
+   def get(name)
+-    return nil
++    if @child then
++      return @child.get(name)
++    else
++      return nil
++    end
+   end
+   
+   def set_pos(x, y)
+-    @component.set_position(x, y)
++    if @component then
++      @component.set_position(x, y)
++    end
+   end
+   
+   def set_size(width, height)
+-    @component.set_size(width, height)
++    if @component then
++      @component.set_size(width, height)
++    end
++
++    if @child then
++      @child.set_size(width, height)
++    end
+   end
+ 
+   # Rearanges the layout to fit the current size
+   def layout()
++    if @child then
++      return @child.layout()
++    end
+   end
+ 
+   def LayoutComponent.create_from_sexpr(rect, sexpr, parent)
+@@ -69,15 +85,26 @@
+   def LayoutComponent.create(type, rect, sexpr, parent)
+     case type
+     when :vbox
+-      box = LayoutBox.new(type, rect, sexpr, parent)
+-      return box
++      return LayoutBox.new(type, rect, sexpr, parent)
+ 
+     when :hbox
+-      box = LayoutBox.new(type, rect, sexpr, parent)
+-      return box
+-      
++      return  LayoutBox.new(type, rect, sexpr, parent)
++
++    when :panel
++      panel = Panel.new(rect, parent)
++      return LayoutComponent.new(panel, 
++                                 LayoutBox.new(sexpr.get_value([:layout, '_'], :vbox),
++                                               CL_Rect.new(0, 0, rect.get_width(), rect.get_height()), 
++                                               sexpr, panel),
++                                 :name    =&gt; sexpr.get_value([:name,    '_'], nil),
++                                 :size    =&gt; sexpr.get_value([:size,    '_'], nil),
++                                 :expand  =&gt; sexpr.get_value([:expand,  '_'], true),
++                                 :fill    =&gt; sexpr.get_value([:fill,    '_'],    true),
++                                 :padding =&gt; sexpr.get_value([:padding, '_'], 0))
++
+     else
+       return LayoutComponent.new(create_raw(type, rect, sexpr, parent), 
++                                 nil,
+                                  :name    =&gt; sexpr.get_value([:name,    '_'], nil),
+                                  :size    =&gt; sexpr.get_value([:size,    '_'], nil),
+                                  :expand  =&gt; sexpr.get_value([:expand,  '_'], true),
+@@ -88,7 +115,6 @@
+ 
+   def LayoutComponent.create_raw(type, rect, sexpr, parent)
+     case type
+-    when :panel     
+ 
+     when :editormap
+       return EditorMapComponent.new(rect, parent)      
+@@ -151,7 +177,7 @@
+ 
+ class LayoutBox &lt; LayoutComponent
+   def initialize(type, rect, sexpr, parent)
+-    super(nil,
++    super(nil, nil,
+           :name    =&gt; sexpr.get_value([:name,    '_'], nil),
+           :size    =&gt; sexpr.get_value([:size,    '_'], nil),
+           :expand  =&gt; sexpr.get_value([:expand,  '_'], true),
+@@ -178,7 +204,7 @@
+     @components.each() { |i|
+       if i.name == name then
+         return i
+-      elsif i.is_a?(LayoutBox) then
++      else
+         a = i.get(name)
+         if a then return a end
+       end
+@@ -193,6 +219,7 @@
+   def set_pos(x, y)
+     @x = x
+     @y = y
++    layout()
+   end
+ 
+   def set_size(width, height)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000091.html">[Flexlay-commit] r596 - in trunk: lib ruby windstille
+</A></li>
+	<LI>Next message: <A HREF="000093.html">[Flexlay-commit] r598 - in trunk: lib windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#92">[ date ]</a>
+              <a href="thread.html#92">[ thread ]</a>
+              <a href="subject.html#92">[ subject ]</a>
+              <a href="author.html#92">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

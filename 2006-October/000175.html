@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r681 - in trunk/netbrush: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r681%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610301603.k9UG330C031244%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000174.html">
+   <LINK REL="Next"  HREF="000176.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r681 - in trunk/netbrush: . src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r681%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610301603.k9UG330C031244%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r681 - in trunk/netbrush: . src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Oct 30 17:03:03 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000174.html">[Flexlay-commit] r680 - trunk/netbrush/src
+</A></li>
+        <LI>Next message: <A HREF="000176.html">[Flexlay-commit] r683 - in trunk/netbrush: data/icons src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#175">[ date ]</a>
+              <a href="thread.html#175">[ thread ]</a>
+              <a href="subject.html#175">[ subject ]</a>
+              <a href="author.html#175">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-30 17:03:02 +0100 (Mon, 30 Oct 2006)
+New Revision: 681
+
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/src/drawing_context.cpp
+   trunk/netbrush/src/screen_buffer.cpp
+Log:
+- added region select tool (use fourth mouse button for now)
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-30 15:12:28 UTC (rev 680)
++++ trunk/netbrush/SConstruct	2006-10-30 16:03:02 UTC (rev 681)
+@@ -63,6 +63,7 @@
+         'src/paintbrush_tool.cpp',
+         'src/scroll_tool.cpp',
+         'src/colorpicker_tool.cpp',
++        'src/region_tool.cpp',
+         'src/color_display.cpp',
+         'src/color.cpp',
+         'src/SDL_tty.c',
+
+Modified: trunk/netbrush/src/drawing_context.cpp
+===================================================================
+--- trunk/netbrush/src/drawing_context.cpp	2006-10-30 15:12:28 UTC (rev 680)
++++ trunk/netbrush/src/drawing_context.cpp	2006-10-30 16:03:02 UTC (rev 681)
+@@ -251,6 +251,8 @@
+   target_pos.y = pos.y;
+ 
+   SDL_BlitSurface(source, NULL, drawable, &amp;target_pos);
++
++  screen_buffer-&gt;mark_dirty(Rect(pos, Size(source-&gt;w, source-&gt;h)));
+ }
+ 
+ /* EOF */
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-30 15:12:28 UTC (rev 680)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-30 16:03:02 UTC (rev 681)
+@@ -37,6 +37,7 @@
+ #include &quot;airbrush_tool.hpp&quot;
+ #include &quot;scroll_tool.hpp&quot;
+ #include &quot;colorpicker_tool.hpp&quot;
++#include &quot;region_tool.hpp&quot;
+ #include &quot;screen_buffer.hpp&quot;
+ 
+ ScreenBuffer::ScreenBuffer(const Rect&amp; rect)
+@@ -48,6 +49,7 @@
+   tools.push_back(new AirbrushTool());
+   tools.push_back(new ScrollTool());
+   tools.push_back(new ColorpickerTool());
++  tools.push_back(new RegionTool());
+ }
+ 
+ ScreenBuffer::~ScreenBuffer()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000174.html">[Flexlay-commit] r680 - trunk/netbrush/src
+</A></li>
+	<LI>Next message: <A HREF="000176.html">[Flexlay-commit] r683 - in trunk/netbrush: data/icons src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#175">[ date ]</a>
+              <a href="thread.html#175">[ thread ]</a>
+              <a href="subject.html#175">[ subject ]</a>
+              <a href="author.html#175">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

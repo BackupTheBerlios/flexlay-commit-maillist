@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r602 - in trunk: ruby windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r602%20-%20in%20trunk%3A%20ruby%20windstille&In-Reply-To=%3C200508171204.j7HC4AVW010403%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000096.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r602 - in trunk: ruby windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r602%20-%20in%20trunk%3A%20ruby%20windstille&In-Reply-To=%3C200508171204.j7HC4AVW010403%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r602 - in trunk: ruby windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Wed Aug 17 14:04:10 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000096.html">[Flexlay-commit] r601 - in trunk: lib ruby windstille
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#97">[ date ]</a>
+              <a href="thread.html#97">[ thread ]</a>
+              <a href="subject.html#97">[ subject ]</a>
+              <a href="author.html#97">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-17 14:04:04 +0200 (Wed, 17 Aug 2005)
+New Revision: 602
+
+Modified:
+   trunk/ruby/flexlay.rb
+   trunk/windstille/gui.rb
+   trunk/windstille/gui_specs.rb
+   trunk/windstille/sector.rb
+   trunk/windstille/windstille.rb
+Log:
+- added some editing for layer properties
+
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-08-17 00:55:27 UTC (rev 601)
++++ trunk/ruby/flexlay.rb	2005-08-17 12:04:04 UTC (rev 602)
+@@ -1,3 +1,5 @@
++puts &quot;This line must only apear once!&quot;
++
+ class TilemapLayer
+   alias orig_get_metadata get_metadata
+   alias orig_set_metadata set_metadata
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-17 00:55:27 UTC (rev 601)
++++ trunk/windstille/gui.rb	2005-08-17 12:04:04 UTC (rev 602)
+@@ -133,7 +133,7 @@
+ 
+     if layer == :foreground then
+       @button_panel.items[&quot;foreground&quot;].set_down();
+-      TilemapLayer.set_current(@workspace.get_map().get_metadata().interactive)
++      TilemapLayer.set_current(@workspace.get_map().get_metadata().foreground)
+     else
+       @button_panel.items[&quot;foreground&quot;].set_up();
+     end
+@@ -214,6 +214,23 @@
+     $gui.workspace.get_map().execute(cmd.to_command());
+     return obj
+   end
++
++  def layer_properties()
++    tilemap = TilemapLayer.current()
++
++    dialog = GenericDialog.new(&quot;Edit Tilemap Properties&quot;, @gui.get_component())
++    dialog.add_string(&quot;Name: &quot;, tilemap.get_metadata().name)
++    dialog.add_int(&quot;XOffset: &quot;, tilemap.get_metadata().x_offset)
++    dialog.add_int(&quot;YOffset: &quot;, tilemap.get_metadata().y_offset)
++    dialog.add_int(&quot;Z-Pos: &quot;,   tilemap.get_metadata().z_pos)
++
++    dialog.set_callback(proc{|name, x_offset, y_offset, z_pos| 
++                          tilemap.get_metadata().name      = name
++                          tilemap.get_metadata().x_offset = x_offset 
++                          tilemap.get_metadata().y_offset = y_offset 
++                          tilemap.get_metadata().z_pos    = z_pos 
++                        })
++  end
+ end
+ 
+ # EOF #
+
+Modified: trunk/windstille/gui_specs.rb
+===================================================================
+--- trunk/windstille/gui_specs.rb	2005-08-17 00:55:27 UTC (rev 601)
++++ trunk/windstille/gui_specs.rb	2005-08-17 12:04:04 UTC (rev 602)
+@@ -60,6 +60,7 @@
+   [:icon,       &quot;background&quot;,  &quot;../data/images/icons24/background.png&quot;,    proc{ $gui.show_layer(:background) }],
+   [:icon,       &quot;interactive&quot;, &quot;../data/images/icons24/interactive.png&quot;,   proc{ $gui.show_layer(:interactive) }],
+   [:icon,       &quot;foreground&quot;,  &quot;../data/images/icons24/foreground.png&quot;,    proc{ $gui.show_layer(:foreground) }],
++  [:icon,       &quot;properties&quot;,  &quot;../data/images/icons24/stock_properties.png&quot;, proc{ $gui.layer_properties() }],
+   [:icon,       &quot;viewprops&quot;,   &quot;../data/images/icons24/eye.png&quot;,           proc{ $gui.layer_menu.run() }],
+   [:seperator],
+   [:icon,       &quot;tilegroups&quot;,  &quot;../data/images/icons24/eye.png&quot;,           proc{ $gui.tilegroup_menu.run() }],
+
+Modified: trunk/windstille/sector.rb
+===================================================================
+--- trunk/windstille/sector.rb	2005-08-17 00:55:27 UTC (rev 601)
++++ trunk/windstille/sector.rb	2005-08-17 12:04:04 UTC (rev 602)
+@@ -17,14 +17,14 @@
+ ##  along with this program; if not, write to the Free Software
+ ##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+-class Tilemap
++class TilemapMetadata
+   attr_accessor :name, :x_offset, :y_offset, :z_pos
+   
+-  def initialize()
+-    name     = &quot;empty&quot;
+-    x_offset = 0
+-    y_offset = 0
+-    z_pos = 0;
++  def initialize(params = {})
++    @name     = (params[:name] or &quot;&quot;)
++    @x_offset = (params[:x_offset] or 0)
++    @y_offset = (params[:y_offset] or 0)
++    @z_pos    = (params[:z_pos] or 0)
+   end
+ end
+ 
+@@ -51,6 +51,10 @@
+     @interactive = TilemapLayer.new($tileset, width, height)
+     @foreground  = TilemapLayer.new($tileset, width, height)
+     
++    @background.set_metadata(TilemapMetadata.new(:name =&gt;  'background'))
++    @foreground.set_metadata(TilemapMetadata.new(:name =&gt;  'foreground'))
++    @interactive.set_metadata(TilemapMetadata.new(:name =&gt; 'interactive'))
++
+     @layers = []
+     @layers += [@background]
+     @layers += [@interactive]
+@@ -93,8 +97,12 @@
+         
+         tilemap = TilemapLayer.new($tileset, width, height)
+         tilemap.set_data(get_value_from_tree([&quot;data&quot;], objdata, []))
+-        # tilemap.z_pos = get_value_from_tree([&quot;z-pos&quot;, &quot;_&quot;],  mydata, 0)
+-        
++        tilemap.set_metadata(TilemapMetadata.new(:name  =&gt; name,
++                                                 :z_pos =&gt; get_value_from_tree([&quot;z-pos&quot;, &quot;_&quot;],  objdata, 0),
++                                                 :x_offset =&gt; get_value_from_tree([&quot;x-offset&quot;, &quot;_&quot;],  objdata, 0),
++                                                 :y_offset =&gt; get_value_from_tree([&quot;y-offset&quot;, &quot;_&quot;],  objdata, 0)
++                                                 ))
++
+         case name 
+         when &quot;background&quot;
+           @background = tilemap
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-08-17 00:55:27 UTC (rev 601)
++++ trunk/windstille/windstille.rb	2005-08-17 12:04:04 UTC (rev 602)
+@@ -41,8 +41,8 @@
+ require &quot;sector.rb&quot;
+ require &quot;tileset.rb&quot;
+ 
+-$screen_width  = 400
+-$screen_height = 300
++$screen_width  = 640
++$screen_height = 480
+ 
+ ## Init Flexlay itself
+ $flexlay = Flexlay.new()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000096.html">[Flexlay-commit] r601 - in trunk: lib ruby windstille
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#97">[ date ]</a>
+              <a href="thread.html#97">[ thread ]</a>
+              <a href="subject.html#97">[ subject ]</a>
+              <a href="author.html#97">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,561 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r676 - trunk/netbrush/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r676%20-%20trunk/netbrush/src&In-Reply-To=%3C200610291433.k9TEXNLl015306%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000170.html">
+   <LINK REL="Next"  HREF="000172.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r676 - trunk/netbrush/src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r676%20-%20trunk/netbrush/src&In-Reply-To=%3C200610291433.k9TEXNLl015306%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r676 - trunk/netbrush/src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Oct 29 15:33:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000170.html">[Flexlay-commit] r675 - trunk/netbrush
+</A></li>
+        <LI>Next message: <A HREF="000172.html">[Flexlay-commit] r678 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#171">[ date ]</a>
+              <a href="thread.html#171">[ thread ]</a>
+              <a href="subject.html#171">[ subject ]</a>
+              <a href="author.html#171">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-29 15:33:22 +0100 (Sun, 29 Oct 2006)
+New Revision: 676
+
+Modified:
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/controller.hpp
+   trunk/netbrush/src/drawing_context.cpp
+   trunk/netbrush/src/drawing_context.hpp
+   trunk/netbrush/src/stroke.cpp
+   trunk/netbrush/src/stroke.hpp
+   trunk/netbrush/src/stroke_buffer.cpp
+   trunk/netbrush/src/stroke_buffer.hpp
+Log:
+- added PNG saving (press F5)
+- added DabInterpolater
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/client.cpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -26,6 +26,12 @@
+ #include &quot;widget/slider_widget.hpp&quot;
+ #include &quot;controller.hpp&quot;
+ 
++#ifdef WIN32
++#include  &lt;io.h&gt;
++#define access _access
++#define F_OK   0
++#endif
++
+ SDL_Rect* make_rect(int x, int y, int w, int h)
+ {
+   static SDL_Rect rect;
+@@ -97,6 +103,23 @@
+             {
+               client_draw_param-&gt;opacity = std::min(255, client_draw_param-&gt;opacity + 16);
+             }
++          else if (event.key.keysym.sym == SDLK_F5)
++            {
++              int j = 1;
++              std::string fname;
++              std::ostringstream filename;
++              do 
++                {
++                  filename.str(&quot;&quot;);
++                  filename &lt;&lt; &quot;images/canvas-&quot; &lt;&lt; j &lt;&lt; &quot;.png&quot;;
++                  fname = filename.str();
++                  j += 1;
++              }
++              while (access(fname.c_str(), F_OK) == 0);
++              
++              controller-&gt;save_png(fname);
++
++            }
+           else if (event.key.keysym.sym == SDLK_F11)
+             {
+               if (SDL_WM_ToggleFullScreen(screen) == 0) {
+@@ -244,8 +267,7 @@
+     screen_buffer = new ScreenBuffer(Rect(38, 2, screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 16 - 4 - 38)); 
+     draw_ctx      = new DrawingContext(canvas_width, canvas_height);
+     stroke_buffer = new StrokeBuffer(canvas_width, canvas_height);
+-
+-
++    
+     //std::cout &lt;&lt; &quot;# clear screen&quot; &lt;&lt; std::endl;
+ 
+     // clear screen
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/controller.cpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -28,6 +28,7 @@
+ #include &quot;alpha_picker.hpp&quot;
+ #include &quot;hue_picker.hpp&quot;
+ #include &quot;saturation_value_picker.hpp&quot;
++#include &quot;drawing_context.hpp&quot;
+ #include &quot;globals.hpp&quot;
+ #include &quot;drawing_parameter.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
+@@ -350,4 +351,11 @@
+   text_view-&gt;put(str+&quot;\n&quot;);
+ }
+ 
++void
++Controller::save_png(const std::string&amp; filename)
++{
++  draw_ctx-&gt;save_png(filename);
++  puts(&quot;Wrote PNG: &quot; + filename);
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/controller.hpp
+===================================================================
+--- trunk/netbrush/src/controller.hpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/controller.hpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -77,6 +77,7 @@
+   void puts(const std::string&amp; str);
+ 
+   void update_mouse_cursor();
++  void save_png(const std::string&amp; filename);
+ private:
+   Controller (const Controller&amp;);
+   Controller&amp; operator= (const Controller&amp;);
+
+Modified: trunk/netbrush/src/drawing_context.cpp
+===================================================================
+--- trunk/netbrush/src/drawing_context.cpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/drawing_context.cpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -23,6 +23,7 @@
+ **  02111-1307, USA.
+ */
+ 
++#include &lt;png.h&gt;
+ #include &lt;iostream&gt;
+ #include &quot;globals.hpp&quot;
+ #include &quot;screen_buffer.hpp&quot;
+@@ -184,4 +185,61 @@
+     }
+ }
+ 
++void
++DrawingContext::save_png(const std::string&amp; filename)
++{
++  SDL_LockSurface(drawable);
++
++  // FIXME: could/should check the right drawable format
++
++  FILE* fp;
++  fp = fopen(filename.c_str (), &quot;wb&quot;);
++  if (fp == NULL)
++    {
++      std::cout &lt;&lt; &quot;Error: Couldn't write &quot; &lt;&lt; filename &lt;&lt; std::endl;
++      return;
++    }
++
++  png_structp png_ptr;
++  png_infop info_ptr;
++
++  png_ptr  = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
++  info_ptr = png_create_info_struct(png_ptr);
++
++  png_init_io(png_ptr, fp);
++
++  png_set_IHDR(png_ptr, info_ptr, 
++               drawable-&gt;w, drawable-&gt;h, 8 /* bitdepth */,
++               PNG_COLOR_TYPE_RGB,
++               PNG_INTERLACE_NONE, 
++               PNG_COMPRESSION_TYPE_BASE, 
++               PNG_FILTER_TYPE_BASE);
++
++  png_write_info(png_ptr, info_ptr);
++
++  png_uint_32 height    = drawable-&gt;h;
++  png_uint_32 row_bytes = drawable-&gt;w * 3;
++
++  png_byte* image = new png_byte[height * row_bytes];
++  png_bytep* row_pointers = new png_bytep[height];
++
++  // fill the image with data
++  for (int i = 0; i &lt; drawable-&gt;w*drawable-&gt;h*3; ++i)
++    image[i] = static_cast&lt;unsigned char*&gt;(drawable-&gt;pixels)[i];
++
++  // generate row pointers
++  for (unsigned int k = 0; k &lt; height; k++)
++    row_pointers[k] = image + (k * row_bytes);
++
++  png_write_image(png_ptr, row_pointers);
++
++  png_write_end(png_ptr, info_ptr);
++
++  delete image;
++  delete row_pointers;
++
++  fclose(fp);
++  SDL_UnlockSurface(drawable);
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/drawing_context.hpp
+===================================================================
+--- trunk/netbrush/src/drawing_context.hpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/drawing_context.hpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -55,6 +55,8 @@
+   int get_height() const { return drawable-&gt;h; }
+   bool get_color(int x, int y, Color&amp; color);
+   SDL_Surface* get_surface() { return drawable; }
++
++  void save_png(const std::string&amp; filename);
+ };
+ 
+ #endif
+
+Modified: trunk/netbrush/src/stroke.cpp
+===================================================================
+--- trunk/netbrush/src/stroke.cpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/stroke.cpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -26,6 +26,65 @@
+ #include &lt;math.h&gt;
+ #include &quot;stroke.hpp&quot;
+ 
++DabInterpolater::DabInterpolater(float x_spacing_, float y_spacing_)
++  : x_spacing(x_spacing_),
++    y_spacing(y_spacing_),
++    overspace(0.0f)
++{
++  
++}
++
++const Stroke::Dabs&amp;
++DabInterpolater::get_interpolated_dabs() const
++{
++  return interpolated_dabs;
++}
++
++void
++DabInterpolater::add_dab(const Dab&amp; dab)
++{
++  if (dabs.empty())
++    { // First dab
++      interpolated_dabs.push_back(dab);
++      dabs.push_back(dab);
++    }
++  else
++    {
++      // The following code basically takes all the event dabs as recieved
++      // by from the InputDevice and interpolates new dabs inbetween to
++      // give them an equal spacing (ie. every dab is only 'spacing' away
++      // from the next)
++      
++      const Dab&amp; prev_dab = dabs.back();
++      const Dab&amp; next_dab = dab;
++
++      Vector dist  = next_dab.pos - prev_dab.pos;
++      float length = sqrt(dist.x * dist.x + dist.y * dist.y);
++      int n = 1;
++    
++      // Spacing is keep relative to the brush size
++      // FIXME: This is specific to a Sprite based drawer, might not work for others
++      // FIXME: y_spacing isn't taken into account either
++      float local_spacing = x_spacing * prev_dab.pressure;
++
++      while (length + overspace &gt; (local_spacing * n))
++        {
++          float factor = (local_spacing/length) * n - (overspace/length);
++          
++          // FIXME: Interpolate tilting, pressure, etc. along the line
++          interpolated_dabs.push_back(Dab(prev_dab.pos.x + dist.x * factor,
++                                          prev_dab.pos.y + dist.y * factor,
++                                          prev_dab.pressure));
++          n += 1;
++        }
++
++      // calculate the space that wasn't used in the last iteration
++      overspace = (length + overspace) - (local_spacing * (n-1));
++
++      dabs.push_back(dab);
++    }
++}
++
+ Stroke::Stroke()
+ {
+   
+
+Modified: trunk/netbrush/src/stroke.hpp
+===================================================================
+--- trunk/netbrush/src/stroke.hpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/stroke.hpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -99,6 +99,23 @@
+   Stroke&amp; operator= (const Stroke&amp;);
+ };
+ 
++class DabInterpolater
++{
++private:
++  float x_spacing;
++  float y_spacing;
++  float overspace;
++
++  Stroke::Dabs interpolated_dabs;
++  Stroke::Dabs dabs;
++
++public: 
++  DabInterpolater(float x_spacing_, float y_spacing_);
++
++  void add_dab(const Dab&amp; dab);
++  const Stroke::Dabs&amp; get_interpolated_dabs() const;
++};
++
+ #endif
+ 
+ /* EOF */
+
+Modified: trunk/netbrush/src/stroke_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/stroke_buffer.cpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/stroke_buffer.cpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -32,7 +32,7 @@
+ #include &quot;stroke_buffer.hpp&quot;
+ 
+ StrokeBuffer::StrokeBuffer(int w, int h)
+-  : param(0)
++  : param(0), interpolater(0)
+ {
+   buffer = new GrayscaleBuffer(w, h, 0);
+   stroke = new Stroke();
+@@ -42,6 +42,7 @@
+ {
+   delete stroke;
+   delete buffer;
++  delete interpolater;
+ }
+ 
+ void
+@@ -58,6 +59,9 @@
+   // FIXME: This doesn't belong here
+   delete this-&gt;stroke;
+   this-&gt;stroke = new Stroke();
++
++  delete interpolater;
++  interpolater = 0;
+ }
+ 
+ void
+@@ -67,21 +71,38 @@
+   //for(int x = - 5; x &lt; 10; ++x)
+   //buffer-&gt;at(int(dab.pos.x)+x, int(dab.pos.y)+y) = 128;
+ 
++  stroke-&gt;add_dab(dab);
+   GrayscaleBuffer* brush = param-&gt;get_brush_buffer();
+ 
+-  stroke-&gt;add_dab(dab);
+-  if (1)
++  if (param-&gt;tool == DrawingParameter::TOOL_PAINTBRUSH)
+     {
++      if (!interpolater)
++        {
++          interpolater = new DabInterpolater(param-&gt;get_spacing(), param-&gt;get_spacing());
++        }
++
++      Stroke::Dabs::size_type last_dabs_size = interpolater-&gt;get_interpolated_dabs().size();
++      interpolater-&gt;add_dab(dab);
++      
++      if (last_dabs_size &lt; interpolater-&gt;get_interpolated_dabs().size())
++        {
++          const Stroke::Dabs&amp; dabs = interpolater-&gt;get_interpolated_dabs();
++          for(Stroke::Dabs::const_iterator i = dabs.begin() + last_dabs_size; i != dabs.end(); ++i)
++            {
++              buffer-&gt;blit(brush,
++                           static_cast&lt;int&gt;(i-&gt;pos.x - brush-&gt;get_width()/2), 
++                           static_cast&lt;int&gt;(i-&gt;pos.y - brush-&gt;get_height()/2), 
++                           GrayscaleBuffer::ALPHA);
++            }
++        }
++    }
++  else if (param-&gt;tool == DrawingParameter::TOOL_AIRBRUSH)
++    {
+       buffer-&gt;blit(brush,
+                    static_cast&lt;int&gt;(dab.pos.x - brush-&gt;get_width()/2), 
+                    static_cast&lt;int&gt;(dab.pos.y - brush-&gt;get_height()/2), 
+                    GrayscaleBuffer::ALPHA);
+     }
+-  else
+-    { // FIXME: SLOW!
+-      buffer-&gt;clear(0);
+-      draw_stroke(*stroke, param);
+-    }
+ }
+ 
+ void
+@@ -113,58 +134,58 @@
+     }
+ }
+ 
+-  void
+-    StrokeBuffer::draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of)
+-  { 
+-    // rect is in screenspace, x_of, y_of tell how to go from canvas to screenspace
+-    SDL_LockSurface(target);
++void
++StrokeBuffer::draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of)
++{ 
++  // rect is in screenspace, x_of, y_of tell how to go from canvas to screenspace
++  SDL_LockSurface(target);
+ 
+-    Uint8* dst = static_cast&lt;Uint8*&gt;(target-&gt;pixels);
+-    Uint8* src = buffer-&gt;get_data();
++  Uint8* dst = static_cast&lt;Uint8*&gt;(target-&gt;pixels);
++  Uint8* src = buffer-&gt;get_data();
+   
+-    assert(rect.left &gt;= 0);
+-    if (0)
+-      std::cout &lt;&lt; &quot;StrokeBuffer::draw: &quot; &lt;&lt; target &lt;&lt; &quot; &quot; &lt;&lt; rect.left &lt;&lt; &quot; &quot; &lt;&lt; rect.top &lt;&lt; &quot; &quot;
+-                &lt;&lt; rect.right &lt;&lt; &quot; &quot; &lt;&lt; rect.bottom &lt;&lt; &quot; - &quot; &lt;&lt; x_of &lt;&lt; &quot; &quot; &lt;&lt; y_of &lt;&lt; std::endl;
++  assert(rect.left &gt;= 0);
++  if (0)
++    std::cout &lt;&lt; &quot;StrokeBuffer::draw: &quot; &lt;&lt; target &lt;&lt; &quot; &quot; &lt;&lt; rect.left &lt;&lt; &quot; &quot; &lt;&lt; rect.top &lt;&lt; &quot; &quot;
++              &lt;&lt; rect.right &lt;&lt; &quot; &quot; &lt;&lt; rect.bottom &lt;&lt; &quot; - &quot; &lt;&lt; x_of &lt;&lt; &quot; &quot; &lt;&lt; y_of &lt;&lt; std::endl;
+ 
+-    if (target == screen) // FIXME: Ugly workaround
+-      {
+-        for(int y = rect.top; y &lt; rect.bottom; ++y)
+-          for(int x = rect.left; x &lt; rect.right; ++x)
+-            {
+-              Uint8* d = dst + (y * target-&gt;pitch + target-&gt;format-&gt;BytesPerPixel * x);
+-              Uint8  s = src[(y - y_of) * buffer-&gt;get_width() + (x - x_of)];
++  if (target == screen) // FIXME: Ugly workaround
++    {
++      for(int y = rect.top; y &lt; rect.bottom; ++y)
++        for(int x = rect.left; x &lt; rect.right; ++x)
++          {
++            Uint8* d = dst + (y * target-&gt;pitch + target-&gt;format-&gt;BytesPerPixel * x);
++            Uint8  s = src[(y - y_of) * buffer-&gt;get_width() + (x - x_of)];
+ 
+-              s = (s * param-&gt;opacity)/255;
++            s = (s * param-&gt;opacity)/255;
+ 
+-              d[0] = ((255 - s) * d[0] + (s * param-&gt;color.b))/255;
+-              d[1] = ((255 - s) * d[1] + (s * param-&gt;color.g))/255;
+-              d[2] = ((255 - s) * d[2] + (s * param-&gt;color.r))/255;
+-            }
+-      }
+-    else
+-      {
+-        for(int y = rect.top; y &lt; rect.bottom; ++y)
+-          for(int x = rect.left; x &lt; rect.right; ++x)
+-            {
+-              Uint8* d = dst + (y * target-&gt;pitch + target-&gt;format-&gt;BytesPerPixel * x);
+-              Uint8  s = src[(y - y_of) * buffer-&gt;get_width() + (x - x_of)];
++            d[0] = ((255 - s) * d[0] + (s * param-&gt;color.b))/255;
++            d[1] = ((255 - s) * d[1] + (s * param-&gt;color.g))/255;
++            d[2] = ((255 - s) * d[2] + (s * param-&gt;color.r))/255;
++          }
++    }
++  else
++    {
++      for(int y = rect.top; y &lt; rect.bottom; ++y)
++        for(int x = rect.left; x &lt; rect.right; ++x)
++          {
++            Uint8* d = dst + (y * target-&gt;pitch + target-&gt;format-&gt;BytesPerPixel * x);
++            Uint8  s = src[(y - y_of) * buffer-&gt;get_width() + (x - x_of)];
+ 
+-              s = (s * param-&gt;opacity)/255;
++            s = (s * param-&gt;opacity)/255;
+ 
+-              d[0] = ((255 - s) * d[0] + (s * param-&gt;color.r))/255;
+-              d[1] = ((255 - s) * d[1] + (s * param-&gt;color.g))/255;
+-              d[2] = ((255 - s) * d[2] + (s * param-&gt;color.b))/255;
+-            }
+-      }
++            d[0] = ((255 - s) * d[0] + (s * param-&gt;color.r))/255;
++            d[1] = ((255 - s) * d[1] + (s * param-&gt;color.g))/255;
++            d[2] = ((255 - s) * d[2] + (s * param-&gt;color.b))/255;
++          }
++    }
+ 
+-    SDL_UnlockSurface(target);
+-  }
++  SDL_UnlockSurface(target);
++}
+ 
+-  void
+-    StrokeBuffer::set_param(DrawingParameter* param_)
+-  {
+-    param = param_;
+-  }
++void
++StrokeBuffer::set_param(DrawingParameter* param_)
++{
++  param = param_;
++}
+ 
+-  /* EOF */
++/* EOF */
+
+Modified: trunk/netbrush/src/stroke_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/stroke_buffer.hpp	2006-10-28 20:39:06 UTC (rev 675)
++++ trunk/netbrush/src/stroke_buffer.hpp	2006-10-29 14:33:22 UTC (rev 676)
+@@ -30,6 +30,7 @@
+ class DrawingParameter;
+ class Dab;
+ class GrayscaleBuffer;
++class DabInterpolater;
+ 
+ /** */
+ class StrokeBuffer
+@@ -38,6 +39,7 @@
+   GrayscaleBuffer*  buffer;
+   Stroke*           stroke;
+   DrawingParameter* param;
++  DabInterpolater*  interpolater;
+ 
+ public:
+   StrokeBuffer(int w, int h);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000170.html">[Flexlay-commit] r675 - trunk/netbrush
+</A></li>
+	<LI>Next message: <A HREF="000172.html">[Flexlay-commit] r678 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#171">[ date ]</a>
+              <a href="thread.html#171">[ thread ]</a>
+              <a href="subject.html#171">[ subject ]</a>
+              <a href="author.html#171">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

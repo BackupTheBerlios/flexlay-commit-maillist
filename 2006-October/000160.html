@@ -1,0 +1,1272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r665 - in trunk/netbrush: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r665%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610201235.k9KCZQRY004695%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000159.html">
+   <LINK REL="Next"  HREF="000161.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r665 - in trunk/netbrush: . src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r665%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610201235.k9KCZQRY004695%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r665 - in trunk/netbrush: . src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Fri Oct 20 14:35:26 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000159.html">[Flexlay-commit] r664 - in trunk/netbrush: . src
+</A></li>
+        <LI>Next message: <A HREF="000161.html">[Flexlay-commit] r666 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#160">[ date ]</a>
+              <a href="thread.html#160">[ thread ]</a>
+              <a href="subject.html#160">[ subject ]</a>
+              <a href="author.html#160">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-20 14:35:24 +0200 (Fri, 20 Oct 2006)
+New Revision: 665
+
+Added:
+   trunk/netbrush/src/command_line.cpp
+   trunk/netbrush/src/command_line.hpp
+   trunk/netbrush/src/command_line_generic.cpp
+   trunk/netbrush/src/command_line_generic.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/server_connection.cpp
+Log:
+- added command line parsing
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-20 09:57:21 UTC (rev 664)
++++ trunk/netbrush/SConstruct	2006-10-20 12:35:24 UTC (rev 665)
+@@ -8,7 +8,7 @@
+ server_env.ParseConfig('sdl-config --cflags --libs')
+ server_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
+ server_env['LIBS'] += ['SDL_net']
+-server_env.Program('server', [
++server_env.Program('netbrush-server', [
+         'src/server.cpp'
+ ])
+ 
+@@ -18,7 +18,7 @@
+ client_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
+ client_env['CPPPATH'] += ['src/']
+ client_env['LIBS'] += ['SDL_image', 'SDL_net']
+-client_env.Program('client', [
++client_env.Program('netbrush-client', [
+         'src/alpha_picker.cpp',
+         'src/brush_widget.cpp',
+         'src/brushmask.cpp',
+@@ -49,6 +49,8 @@
+         'src/widget/widget_manager.cpp',
+         'src/navigation.cpp',
+         'src/graphic_context_state.cpp',
++        'src/command_line.cpp',
++        'src/command_line_generic.cpp'
+ #        'src/widget/events.cpp',
+ ])
+ 
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-10-20 09:57:21 UTC (rev 664)
++++ trunk/netbrush/src/client.cpp	2006-10-20 12:35:24 UTC (rev 665)
+@@ -1,4 +1,5 @@
+ #include &lt;iostream&gt;
++#include &lt;stdexcept&gt;
+ #include &lt;sstream&gt;
+ #include &lt;map&gt;
+ #include &quot;math/rect.hpp&quot;
+@@ -24,6 +25,7 @@
+ #include &quot;brush_widget.hpp&quot;
+ #include &quot;navigation.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
++#include &quot;command_line.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
+ 
+ SDL_Rect* make_rect(int x, int y, int w, int h)
+@@ -45,7 +47,7 @@
+       switch(event.type)
+         {
+         case SDL_QUIT:
+-          puts(&quot;# quit&quot;);
++          puts(&quot;Quitting&quot;);
+           exit(0);
+           break;
+ 
+@@ -101,6 +103,10 @@
+             {
+               navigation-&gt;update();
+             }
++          else if (event.key.keysym.sym == SDLK_ESCAPE)
++            {
++              exit(EXIT_SUCCESS);
++            }
+           break;
+ 
+         case SDL_MOUSEBUTTONDOWN:
+@@ -190,147 +196,229 @@
+ 
+   void on_press  (Button* button) 
+   {
+-    std::cout &lt;&lt; &quot;Press: &quot; &lt;&lt; button &lt;&lt; std::endl;
++    //std::cout &lt;&lt; &quot;Press: &quot; &lt;&lt; button &lt;&lt; std::endl;
+   }
+ 
+   void on_release(Button* button) 
+   {
+-    std::cout &lt;&lt; &quot;Release: &quot; &lt;&lt; button &lt;&lt; std::endl;
++    //std::cout &lt;&lt; &quot;Release: &quot; &lt;&lt; button &lt;&lt; std::endl;
+   }
+   
+   void on_click  (Button* button) 
+   {
+-    std::cout &lt;&lt; &quot;Setting tool: &quot; &lt;&lt; tool &lt;&lt; std::endl;
++    //std::cout &lt;&lt; &quot;Setting tool: &quot; &lt;&lt; tool &lt;&lt; std::endl;
+     client_draw_param-&gt;tool = tool;
+   }
+ };
+ 
+ int main(int argc, char** argv)
+ {
+-  if(SDL_Init(SDL_INIT_VIDEO)== -1) {
+-    printf(&quot;SDL_Init: %s\n&quot;, SDL_GetError());
+-    exit(1);
+-  }
+-  atexit(SDL_Quit);
++  try {
++    bool fullscreen = false;
++    int screen_width  = 800;
++    int screen_height = 600;
++    std::string hostname;
++    std::string port     = &quot;4711&quot;;
++    int rest_arg_count = 0;
+ 
+-  if(SDLNet_Init()==-1) {
+-    printf(&quot;SDLNet_Init: %s\n&quot;, SDLNet_GetError());
+-    exit(2);
+-  }
+-  atexit(SDLNet_Quit);
++    CommandLine argp;
+ 
+-  screen = SDL_SetVideoMode(1024, 768, 32, SDL_HWSURFACE); 
+-  if (screen == 0)
+-    printf(&quot;SDL_SetVideoMode: %s\n&quot;, SDL_GetError());
+-  SDL_WM_SetCaption(&quot;netBrush&quot;, &quot;netBrush&quot;);
++    argp.add_usage(&quot;[OPTIONS] HOSTNAME PORT&quot;);
++    argp.add_group(&quot;Display:&quot;);
++    argp.add_option('g', &quot;geometry&quot;,  &quot;WIDTHxHEIGHT&quot;, &quot;Set the windows size to WIDTHxHEIGHT&quot;);
++    argp.add_option('f', &quot;fullscreen&quot;, &quot;&quot;,            &quot;Start the application in fullscreen mode&quot;);
++    argp.add_option('w', &quot;window&quot;,     &quot;&quot;,            &quot;Start the application in window mode&quot;);
++    argp.add_option('v', &quot;version&quot;,    &quot;&quot;,            &quot;Display the netBrush version&quot;);
++    argp.add_option('h', &quot;help&quot;,       &quot;&quot;,            &quot;Show this help text&quot;);
+ 
+-  // 18 is scrollbar
+-  screen_buffer = new ScreenBuffer(Rect(38, 2, screen-&gt;w - 128 - 16 - 18, screen-&gt;h - 16 - 4)); 
+-  draw_ctx      = new DrawingContext(2048, 2048);
+-  stroke_buffer = new StrokeBuffer(2048, 2048);
++    argp.parse_args(argc, argv);
+ 
+-  std::cout &lt;&lt; &quot;# clear screen&quot; &lt;&lt; std::endl;
++    while(argp.next())
++      {
++        switch(argp.get_key())
++          {
++          case 'g':
++            {
++              if (sscanf(argp.get_argument().c_str(), &quot;%dx%d&quot;,
++                         &amp;screen_width, &amp;screen_height) == 2)
++                {
++                  std::cout &lt;&lt; &quot;Geometry: &quot; &lt;&lt; screen_width &lt;&lt; &quot;x&quot; &lt;&lt; screen_height &lt;&lt; std::endl;
++                }
++              else
++                {
++                  throw std::runtime_error(&quot;Geometry option '-g' requires argument of type {WIDTH}x{HEIGHT}&quot;);
++                }
++            }
++            break;
+ 
+-  // clear screen
+-  draw_ctx-&gt;clear();
++          case 'f':
++            fullscreen = true;
++            break;
+ 
+-  std::cout &lt;&lt; &quot;# clear screen done&quot; &lt;&lt; std::endl;
++          case 'w':
++            fullscreen = false;
++            break;
+ 
+-  client_draw_param = new DrawingParameter();
+-  stroke_buffer-&gt;set_param(client_draw_param);
+-  
+-  server = new ServerConnection();
+-  if (argc == 3)
+-    {
+-      std::cout &lt;&lt; &quot;# connecting to: &quot; &lt;&lt; argv[1] &lt;&lt; &quot;:&quot; &lt;&lt; atoi(argv[2]) &lt;&lt; std::endl;
+-      server-&gt;connect(argv[1], atoi(argv[2]));
+-      std::ostringstream title_line;
+-      title_line &lt;&lt; &quot;netBrush - online: &quot; &lt;&lt; argv[1] &lt;&lt; &quot;:&quot; &lt;&lt; atoi(argv[2]);
+-      SDL_WM_SetCaption(title_line.str().c_str(), &quot;netBrush&quot;);
++          case 'h':
++            argp.print_help();
++            return 0;
++            break;
++
++          case 'v':
++            std::cout &lt;&lt; &quot;netBrush 0.1.0&quot; &lt;&lt; std::endl;
++            break;
++
++          case CommandLine::REST_ARG:
++            //std::cout &lt;&lt; &quot;Rest: &quot; &lt;&lt; argp.get_argument() &lt;&lt; std::endl;
++            if (rest_arg_count == 0)
++              {
++                hostname = argp.get_argument();
++                rest_arg_count += 1;
++              }
++            else if (rest_arg_count == 1)
++              {
++                port = argp.get_argument();
++                rest_arg_count += 1;
++              }
++            else
++              {
++                std::cout &lt;&lt; &quot;Invalide argument &quot; &lt;&lt; argp.get_argument() &lt;&lt; std::endl;
++                exit(EXIT_FAILURE);
++              }
++            break;
++          }
++      }
++
++    if(SDL_Init(SDL_INIT_VIDEO)== -1) {
++      printf(&quot;SDL_Init: %s\n&quot;, SDL_GetError());
++      exit(1);
+     }
+-  else
+-    {
+-      std::cout &lt;&lt; &quot;# use '&quot; &lt;&lt; argv[0] &lt;&lt; &quot; HOSTNAME PORT' to connect a networking session&quot; &lt;&lt; std::endl;
+-      SDL_WM_SetCaption(&quot;netBrush - offline mode&quot;, &quot;netBrush&quot;);
++    atexit(SDL_Quit);
++
++    if(SDLNet_Init()==-1) {
++      printf(&quot;SDLNet_Init: %s\n&quot;, SDLNet_GetError());
++      exit(2);
+     }
++    atexit(SDLNet_Quit);
++
++    Uint32 flags = SDL_HWSURFACE;
++    if (fullscreen)
++      flags |= SDL_FULLSCREEN;
++    screen = SDL_SetVideoMode(screen_width, screen_height, 32, flags); 
++    if (screen == 0)
++      printf(&quot;SDL_SetVideoMode: %s\n&quot;, SDL_GetError());
++    SDL_WM_SetCaption(&quot;netBrush&quot;, &quot;netBrush&quot;);
++
++    // 18 is scrollbar
++    screen_buffer = new ScreenBuffer(Rect(38, 2, screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 16 - 4)); 
++    draw_ctx      = new DrawingContext(2048, 2048);
++    stroke_buffer = new StrokeBuffer(2048, 2048);
++
++    //std::cout &lt;&lt; &quot;# clear screen&quot; &lt;&lt; std::endl;
++
++    // clear screen
++    draw_ctx-&gt;clear();
++
++    //std::cout &lt;&lt; &quot;# clear screen done&quot; &lt;&lt; std::endl;
++
++    client_draw_param = new DrawingParameter();
++    stroke_buffer-&gt;set_param(client_draw_param);
+   
+-  widget_manager = new WidgetManager();
+-  widget_manager-&gt;add(navigation = new Navigation(Rect(Point(screen-&gt;w - 128 - 2, screen-&gt;h - 128 - 2),
+-                                                       Size(128, 128))));
+-  widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
+-                                 Rect(Point(2, 2+0*34), Size(34, 34)),
+-                                 new ToolButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
+-  widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-paintbrush-22.png&quot;), 
+-                                 Rect(Point(2, 2+1*34), Size(34, 34)),
+-                                 new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
+-  if (0)
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-zoom-22.png&quot;), 
+-                                   Rect(Point(2, 2+2*34), Size(34, 34)),
++    server = new ServerConnection();
++    if (!hostname.empty() &amp;&amp; !port.empty())
++      {
++        std::cout &lt;&lt; &quot;Connecting to: &quot; &lt;&lt; hostname &lt;&lt; &quot;:&quot; &lt;&lt; atoi(port.c_str()) &lt;&lt; std::endl;
++        server-&gt;connect(hostname.c_str(), atoi(port.c_str()));
++        std::ostringstream title_line;
++        title_line &lt;&lt; &quot;netBrush - online: &quot; &lt;&lt; hostname &lt;&lt; &quot;:&quot; &lt;&lt; atoi(port.c_str());
++        SDL_WM_SetCaption(title_line.str().c_str(), &quot;netBrush&quot;);
++      }
++    else
++      {
++        std::cout &lt;&lt; &quot;# use '&quot; &lt;&lt; argv[0] &lt;&lt; &quot; HOSTNAME PORT' to connect a networking session&quot; &lt;&lt; std::endl;
++        SDL_WM_SetCaption(&quot;netBrush - offline mode&quot;, &quot;netBrush&quot;);
++      }
++  
++    widget_manager = new WidgetManager();
++    widget_manager-&gt;add(navigation = new Navigation(Rect(Point(screen-&gt;w - 128 - 2, screen-&gt;h - 128 - 2),
++                                                         Size(128, 128))));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
++                                   Rect(Point(2, 2+0*34), Size(34, 34)),
++                                   new ToolButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-paintbrush-22.png&quot;), 
++                                   Rect(Point(2, 2+1*34), Size(34, 34)),
+                                    new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
++    if (0)
++      widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-zoom-22.png&quot;), 
++                                     Rect(Point(2, 2+2*34), Size(34, 34)),
++                                     new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
+ 
+-  {
+-    SDL_Rect color_rect;
+-    color_rect.x = 768;
+-    color_rect.y = 100;
++    {
++      SDL_Rect color_rect;
++      color_rect.x = 768;
++      color_rect.y = 100;
+ 
+-    color_rect.w = 128;
+-    color_rect.h = 128;
++      color_rect.w = 128;
++      color_rect.h = 128;
+ 
+-    //widget_manager-&gt;add(new ColorSelector(&amp;color_rect));
+-  }
++      //widget_manager-&gt;add(new ColorSelector(&amp;color_rect));
++    }
+ 
+-  widget_manager-&gt;add(screen_buffer);
++    widget_manager-&gt;add(screen_buffer);
+ 
+-  widget_manager-&gt;add(vertical_scrollbar = 
+-                      new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_height(), Scrollbar::VERTICAL,
+-                                    Rect(screen-&gt;w - 128 - 16 - 16, 2,
+-                                         screen-&gt;w - 128 - 16, screen-&gt;h - 16 - 4)));
++    widget_manager-&gt;add(vertical_scrollbar = 
++                        new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_height(), Scrollbar::VERTICAL,
++                                      Rect(screen-&gt;w - 128 - 16 - 2 - 2, 2,
++                                           screen-&gt;w - 128 - 2 - 2, screen-&gt;h - 16 - 4)));
+ 
+-  widget_manager-&gt;add(horizontal_scrollbar = 
+-                      new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_width(), Scrollbar::HORIZONTAL,
+-                                    Rect(38, screen-&gt;h - 16 - 2,
+-                                         screen-&gt;w - 128 - 16 - 18, screen-&gt;h - 2)));
++    widget_manager-&gt;add(horizontal_scrollbar = 
++                        new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_width(), Scrollbar::HORIZONTAL,
++                                      Rect(38, screen-&gt;h - 16 - 2,
++                                           screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 2)));
+ 
+-  alpha_picker = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
+-  saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
+-  hue_picker   = new HuePicker(Rect(Point(screen-&gt;w-128, 128), Size(128, 24)));
++    alpha_picker = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
++    saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
++    hue_picker   = new HuePicker(Rect(Point(screen-&gt;w-128, 128), Size(128, 24)));
+ 
+-  brush_widget = new BrushWidget(Rect(Point(screen-&gt;w-128, 128+24+24), Size(128, 128)));
+-  brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
++    brush_widget = new BrushWidget(Rect(Point(screen-&gt;w-128, 128+24+24), Size(128, 128)));
++    brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+ 
+-  SliderWidget* radius_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(0)), Size(128, 24)),
+-                                                 new RadiusCallback());
+-  widget_manager-&gt;add(radius_slider);
++    SliderWidget* radius_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(0)), Size(128, 24)),
++                                                   new RadiusCallback());
++    widget_manager-&gt;add(radius_slider);
+ 
+-  SliderWidget* spike_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(1)), Size(128, 24)),
+-                                                 new SpikeCallback());
+-  widget_manager-&gt;add(spike_slider);
++    SliderWidget* spike_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(1)), Size(128, 24)),
++                                                  new SpikeCallback());
++    widget_manager-&gt;add(spike_slider);
+ 
+-  SliderWidget* hardness_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(2)), Size(128, 24)),
+-                                                 new HardnessCallback());
+-  widget_manager-&gt;add(hardness_slider);
++    SliderWidget* hardness_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(2)), Size(128, 24)),
++                                                     new HardnessCallback());
++    widget_manager-&gt;add(hardness_slider);
+ 
+-  SliderWidget* aspect_ratio_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(3)), Size(128, 24)),
+-                                                 new AspectRatioCallback());
+-  widget_manager-&gt;add(aspect_ratio_slider);
++    SliderWidget* aspect_ratio_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(3)), Size(128, 24)),
++                                                         new AspectRatioCallback());
++    widget_manager-&gt;add(aspect_ratio_slider);
+ 
+-  SliderWidget* angle_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(4)), Size(128, 24)),
+-                                                 new AngleCallback());
+-  widget_manager-&gt;add(angle_slider);
++    SliderWidget* angle_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(4)), Size(128, 24)),
++                                                  new AngleCallback());
++    widget_manager-&gt;add(angle_slider);
+ 
+-  widget_manager-&gt;add(saturation_value_picker);
+-  widget_manager-&gt;add(hue_picker);
+-  widget_manager-&gt;add(alpha_picker);
+-  widget_manager-&gt;add(brush_widget);
++    widget_manager-&gt;add(saturation_value_picker);
++    widget_manager-&gt;add(hue_picker);
++    widget_manager-&gt;add(alpha_picker);
++    widget_manager-&gt;add(brush_widget);
+ 
+-  // Main Loop
+-  while(true)
+-    {
+-      process_events();
+-      server-&gt;update();
+-      widget_manager-&gt;update();
+-      SDL_Delay(10);
+-    }
++    // Main Loop
++    while(true)
++      {
++        process_events();
++        server-&gt;update();
++        widget_manager-&gt;update();
++        SDL_Delay(10);
++      }
++  } catch(std::exception&amp; err) {
++    std::cout &lt;&lt; &quot;Exception: &quot; &lt;&lt; err.what() &lt;&lt; std::endl;
++  }
+   
+   return 0;
+ }
+
+Added: trunk/netbrush/src/command_line.cpp
+===================================================================
+--- trunk/netbrush/src/command_line.cpp	2006-10-20 09:57:21 UTC (rev 664)
++++ trunk/netbrush/src/command_line.cpp	2006-10-20 12:35:24 UTC (rev 665)
+@@ -0,0 +1,96 @@
++/*
++**  ClanLib SDK
++**  Copyright (c) 1997-2005 The ClanLib Team
++**
++**  This software is provided 'as-is', without any express or implied
++**  warranty.  In no event will the authors be held liable for any damages
++**  arising from the use of this software.
++**
++**  Permission is granted to anyone to use this software for any purpose,
++**  including commercial applications, and to alter it and redistribute it
++**  freely, subject to the following restrictions:
++**
++**  1. The origin of this software must not be misrepresented; you must not
++**     claim that you wrote the original software. If you use this software
++**     in a product, an acknowledgment in the product documentation would be
++**     appreciated but is not required.
++**  2. Altered source versions must be plainly marked as such, and must not be
++**     misrepresented as being the original software.
++**  3. This notice may not be removed or altered from any source distribution.
++**
++**  Note: Some of the libraries ClanLib may link to may have additional
++**  requirements or restrictions.
++**
++**  File Author(s):
++**
++**    Magnus Norddahl
++**    (if your name is missing here, please add it)
++*/
++
++#include &quot;command_line.hpp&quot;
++#include &quot;command_line_generic.hpp&quot;
++
++CommandLine::CommandLine()
++{
++	impl = new CommandLine_Generic();
++}
++
++CommandLine::~CommandLine()
++{
++	delete impl;
++}
++
++void CommandLine::parse_args(int argc, char** argv)
++{
++	impl-&gt;parse_args(argc, argv);
++}
++
++void CommandLine::print_help()
++{
++	impl-&gt;print_help();
++}
++
++void CommandLine::set_help_indent(int i)
++{
++	impl-&gt;set_help_indent(i);
++}
++
++void CommandLine::add_usage(const std::string&amp; usage)
++{
++	impl-&gt;add_usage(usage);
++}
++
++void CommandLine::add_doc(const std::string&amp; doc)
++{
++	impl-&gt;add_doc(doc);
++}
++
++void CommandLine::add_group(const std::string&amp; grouptopic)
++{
++	impl-&gt;add_group(grouptopic);
++}
++
++void CommandLine::add_option(
++	int key, 
++	const std::string&amp; long_option, 
++	const std::string&amp; argument,
++	const std::string&amp; help,
++	bool visible)
++{
++	impl-&gt;add_option(key, long_option, argument, help, visible);
++}
++
++bool CommandLine::next()
++{
++	return impl-&gt;next();
++}
++
++int CommandLine::get_key()
++{
++	return impl-&gt;get_key();
++}
++
++std::string CommandLine::get_argument()
++{
++	return impl-&gt;get_argument();
++}
+
+Added: trunk/netbrush/src/command_line.hpp
+===================================================================
+--- trunk/netbrush/src/command_line.hpp	2006-10-20 09:57:21 UTC (rev 664)
++++ trunk/netbrush/src/command_line.hpp	2006-10-20 12:35:24 UTC (rev 665)
+@@ -0,0 +1,157 @@
++/*
++**  ClanLib SDK
++**  Copyright (c) 1997-2005 The ClanLib Team
++**
++**  This software is provided 'as-is', without any express or implied
++**  warranty.  In no event will the authors be held liable for any damages
++**  arising from the use of this software.
++**
++**  Permission is granted to anyone to use this software for any purpose,
++**  including commercial applications, and to alter it and redistribute it
++**  freely, subject to the following restrictions:
++**
++**  1. The origin of this software must not be misrepresented; you must not
++**     claim that you wrote the original software. If you use this software
++**     in a product, an acknowledgment in the product documentation would be
++**     appreciated but is not required.
++**  2. Altered source versions must be plainly marked as such, and must not be
++**     misrepresented as being the original software.
++**  3. This notice may not be removed or altered from any source distribution.
++**
++**  Note: Some of the libraries ClanLib may link to may have additional
++**  requirements or restrictions.
++**
++**  File Author(s):
++**
++**    Magnus Norddahl
++**    (if your name is missing here, please add it)
++*/
++
++//! clanCore=&quot;System&quot;
++//! header=core.h
++
++#ifndef HEADER_COMMAND_LINE_HPP
++#define HEADER_COMMAND_LINE_HPP
++
++#if _MSC_VER &gt; 1000
++#pragma once
++#endif
++
++#include &lt;string&gt;
++#include &lt;vector&gt;
++
++class CommandLine_Generic;
++
++//: Helper class to parse command line arguments
++//- !group=Core/System!
++//- !header=core.h!
++//- &lt;p&gt;The CommandLine class helps to parse command line arguments, namely
++//- the argc/argv pair that you get from main(). CommandLine mimics
++//- getopt_long() behaviour as closely as possible, while providing a
++//- cleaner interface and a few additional features, like automatic
++//- generation of '--help' output. CommandLine can parse long arguments
++//- in the following styles:&lt;/p&gt;
++//-
++//- &lt;p&gt;program --file FILENAME&lt;br&gt;
++//- program --file=FILENAME&lt;/p&gt;
++//-
++//- &lt;p&gt;Short arguments are handled like this:&lt;/p&gt;
++//-
++//- &lt;p&gt;program -f FILENAME&lt;/p&gt;
++//-
++//- &lt;p&gt;Concatenating short arguments is also supported, so that:&lt;/p&gt;
++//- 
++//- &lt;p&gt;program -f -a -b FILENAME&lt;/p&gt;
++//-
++//- &lt;p&gt;is equivalent to:&lt;/p&gt;
++//-
++//- &lt;p&gt;program -fab FILENAME&lt;/p&gt;
++//-
++//- &lt;p&gt;Non-option arguments (aka rest arguments) are supported as well:&lt;/p&gt;
++//-
++//- &lt;p&gt;program SOMEFILE SOMEOTHERFILE ...&lt;/p&gt;
++//- 
++//- &lt;p&gt;To avoid ambiguity when a filename starts with '-' CommandLine stops
++//- parsing arguments after the first encounter of a '--', so in&lt;/p&gt;
++//-
++//- &lt;p&gt;program -f -b -- -f -b&lt;/p&gt;
++//-
++//- &lt;p&gt;In the above example the first '-f -b' options are treated as
++//- normal while the ones after the '--' are treated as rest arguments
++//- (aka filenames in most programs).&lt;/p&gt;
++class CommandLine
++{
++//! Construction:
++public:
++	CommandLine();
++
++	~CommandLine();
++
++//! Attributes:
++public:
++	enum
++	{
++		REST_ARG  = -2
++	};
++
++	//: Return the key of the current option
++	int get_key();
++
++	//: Return the argument to the current option
++	std::string get_argument();
++
++//! Operations:
++public:
++	//: Change the indention used for the help message, default is 18
++	void set_help_indent(int i);
++
++	//: Add a usage line to the help output, usage is for example
++	//: &quot;[OPTIONS]... FILE&quot;, the program name will get appended
++	//: automatically
++	void add_usage(const std::string&amp; usage);
++
++	//: Adds extra documentation to the help output, should only be
++	//: used at the beginning or at the end, to
++	void add_doc(const std::string&amp; doc);
++	
++	//: Starts a new group of options, the grouptopic gets printed
++	//: above the group of options in the print_help() output
++	void add_group(const std::string&amp; grouptopic);
++  
++	//: Adds a option to the parser
++	//param key: a letter for a short-option or a numeric value
++	//param key: larger than 255 that identifies the option
++	//param long_option: the long name of this option or &quot;&quot; if non
++	//param long_option: should be used for this option
++	//param argument: the type of the argument that this option
++	//param argument: requires (i.e. FILE, SIZE, WIDTH, etc.) or &quot;&quot; if no argument is
++	//param argument: required
++	//param help: the help string for this option
++	//param visible: true if the option should be listed in the help
++	//param visible: output, false will not list it in the help output which might
++	//param visible: be usefull for cheat-options or backward-compability options
++	//param visible: than would only clutter the help output
++	void add_option(
++		int key,
++		const std::string&amp; long_option, 
++		const std::string&amp; argument,
++		const std::string&amp; help,
++		bool visible = true);
++	
++	//: Parse the options arcording to the options added with
++	//: add_option(), result of the parsing is accessible via
++	//: next() and get_key()/get_argument()
++	void parse_args(int argc, char** argv);
++
++	//: Print the help output, normaly done via a --help option
++	void print_help();
++
++	//: Goto the next option
++	bool next();
++
++//! Implementation:
++private:
++	CommandLine_Generic* impl;
++};
++
++#endif
+
+Added: trunk/netbrush/src/command_line_generic.cpp
+===================================================================
+--- trunk/netbrush/src/command_line_generic.cpp	2006-10-20 09:57:21 UTC (rev 664)
++++ trunk/netbrush/src/command_line_generic.cpp	2006-10-20 12:35:24 UTC (rev 665)
+@@ -0,0 +1,336 @@
++/*
++**  ClanLib SDK
++**  Copyright (c) 1997-2005 The ClanLib Team
++**
++**  This software is provided 'as-is', without any express or implied
++**  warranty.  In no event will the authors be held liable for any damages
++**  arising from the use of this software.
++**
++**  Permission is granted to anyone to use this software for any purpose,
++**  including commercial applications, and to alter it and redistribute it
++**  freely, subject to the following restrictions:
++**
++**  1. The origin of this software must not be misrepresented; you must not
++**     claim that you wrote the original software. If you use this software
++**     in a product, an acknowledgment in the product documentation would be
++**     appreciated but is not required.
++**  2. Altered source versions must be plainly marked as such, and must not be
++**     misrepresented as being the original software.
++**  3. This notice may not be removed or altered from any source distribution.
++**
++**  Note: Some of the libraries ClanLib may link to may have additional
++**  requirements or restrictions.
++**
++**  File Author(s):
++**
++**    Magnus Norddahl
++**    (if your name is missing here, please add it)
++*/
++
++#include &lt;iomanip&gt;
++#include &lt;iostream&gt;
++#include &lt;stdexcept&gt;
++#include &lt;stdio.h&gt;
++
++#include &quot;command_line_generic.hpp&quot;
++
++
++#ifdef WIN32
++#define snprintf _snprintf
++#endif
++
++CommandLine_Generic::CommandLine_Generic()
++{
++  help_indent = 18;
++}
++
++void CommandLine_Generic::parse_args(int argc, char** argv)
++{
++  programm = argv[0];
++
++  for(int i = 1; i &lt; argc; ++i) 
++    {
++      if (argv[i][0] == '-') 
++        {
++          if (argv[i][1] == '-') 
++            {
++              // We got a long option
++              if (argv[i][2] == '\0') { 
++                // Got a '--', so we stop evaluating arguments
++                ++i;
++                while(i &lt; argc) 
++                  {
++                    read_option(CommandLine::REST_ARG, argv[i]);
++                    ++i;
++                  }
++              } 
++              else
++                {
++                  std::string opt = argv[i] + 2;
++                  std::string long_opt;
++                  std::string long_opt_arg;
++
++                  std::string::size_type pos = opt.find('=');
++
++                  if (pos != std::string::npos) 
++                    {
++                      long_opt = opt.substr(0, pos);
++                      long_opt_arg = opt.substr(pos+1);
++                    }
++                  else 
++                    {
++                      long_opt = opt;
++                    }
++
++                  // Long Option
++                  Option* option = lookup_long_option(long_opt);
++
++                  if (option) 
++                    {
++                      if (option-&gt;argument.empty()) 
++                        {
++                          read_option(option-&gt;key, &quot;&quot;);
++                        } 
++                      else
++                        {
++                          if (pos != std::string::npos) 
++                            {
++                              read_option(option-&gt;key, long_opt_arg);
++                            }
++                          else
++                            {            
++                              if (i == argc - 1) 
++                                {
++                                  throw std::runtime_error(&quot;option '&quot; + std::string(argv[i]) + &quot;' requires an argument&quot;);
++                                }
++                              else 
++                                {
++                                  read_option(option-&gt;key, argv[i + 1]);
++                                  ++i;
++                                }
++                            }
++                        }
++                    }
++                  else
++                    {
++                      throw std::runtime_error(&quot;unrecognized option '&quot; + std::string(argv[i]) + &quot;'&quot;);
++                    }
++                }
++            } 
++          else 
++            {
++              // We got a short option
++              char* p = argv[i] + 1;
++          
++              if (*p != '\0') {
++                // Handle option chains
++                while (*p) 
++                  {
++                    // Short option(s)
++                    Option* option = lookup_short_option(*p);
++
++                    if (option) 
++                      {
++                        if (option-&gt;argument.empty()) 
++                          {
++                            read_option(option-&gt;key, &quot;&quot;);
++                          } 
++                        else 
++                          {
++                            if (i == argc - 1 || *(p+1) != '\0') 
++                              {
++                                // No more arguments
++                                throw std::runtime_error(&quot;option requires an argument -- &quot; + std::string(1, *p));
++                              }
++                            else
++                              {
++                                read_option(option-&gt;key, argv[i + 1]);
++                                ++i;
++                              }
++                          }
++                      } 
++                    else 
++                      {
++                        throw std::runtime_error(&quot;invalid option -- &quot; + std::string(1, *p));
++                      }
++                    ++p; 
++                  }
++              } 
++              else
++                {
++                  read_option(CommandLine::REST_ARG, &quot;-&quot;);
++                } 
++            }
++        } 
++      else
++        {
++          read_option(CommandLine::REST_ARG, argv[i]);
++        }
++    }
++
++  current_option = parsed_options.end();
++}
++
++CommandLine_Generic::Option *CommandLine_Generic::lookup_short_option(char short_option)
++{
++  for(Options::iterator i = options.begin(); i != options.end(); ++i)
++    {
++      if (i-&gt;key == short_option)
++        return &amp;(*i);
++    }
++  return 0;
++}
++
++CommandLine_Generic::Option *CommandLine_Generic::lookup_long_option(const std::string&amp; long_option)
++{
++  for(Options::iterator i = options.begin(); i != options.end(); ++i)
++    {
++      if (i-&gt;long_option == long_option)
++        return &amp;*i;
++    }
++  return 0;
++}
++
++void CommandLine_Generic::read_option(int key, const std::string&amp; argument)
++{
++  ParsedOption parsed_option;
++  
++  parsed_option.key = key;
++  parsed_option.argument = argument;
++
++  parsed_options.push_back(parsed_option);
++}
++
++void CommandLine_Generic::print_help()
++{
++  bool first_usage = true;
++  for(Options::iterator i = options.begin(); i != options.end(); ++i)
++    {
++      if (i-&gt;visible)
++        {
++          if (i-&gt;key == USAGE) 
++            {
++              if (first_usage) 
++                {
++                  std::cout &lt;&lt; &quot;Usage: &quot; &lt;&lt; programm &lt;&lt; &quot; &quot; &lt;&lt;  i-&gt;help &lt;&lt; std::endl; 
++                  first_usage = false;
++                }
++              else
++                {
++                  std::cout &lt;&lt; &quot;or:    &quot; &lt;&lt; programm &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;help &lt;&lt; std::endl; 
++                }
++            } 
++          else if (i-&gt;key == GROUP) 
++            {
++              if (i != options.begin())
++                std::cout &lt;&lt; std::endl;
++              std::cout &lt;&lt; i-&gt;help &lt;&lt; std::endl;
++            }
++          else if (i-&gt;key == DOC) 
++            {
++              if (i != options.begin())
++                std::cout &lt;&lt; std::endl;
++              std::cout &lt;&lt; i-&gt;help &lt;&lt; std::endl;
++            }
++          else 
++            {
++              char option[256]   = { 0 };
++              char argument[256] = { 0 };
++
++              if (i-&gt;key &gt; 255 || i-&gt;key &lt; 0)
++                snprintf(option, 256, &quot;--%s&quot;, i-&gt;long_option.c_str());
++              else if (i-&gt;long_option.empty())
++                snprintf(option, 256, &quot;-%c&quot;, char(i-&gt;key));
++              else
++                snprintf(option, 256, &quot;-%c, --%s&quot;, char(i-&gt;key), i-&gt;long_option.c_str());
++
++              if (!i-&gt;argument.empty())
++                {
++                  if (i-&gt;long_option.empty())
++                    snprintf(argument, 256, &quot; %s&quot;, i-&gt;argument.c_str());
++                  else
++                    snprintf(argument, 256, &quot;=%s&quot;, i-&gt;argument.c_str());
++                }
++
++              std::cout &lt;&lt; &quot;  &quot; 
++                        &lt;&lt; std::setiosflags(std::ios::left) &lt;&lt; std::setw(help_indent)
++                        &lt;&lt; (std::string(option) + std::string(argument)) &lt;&lt; std::setw(0)
++                        &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;help &lt;&lt; std::endl;
++            }
++        }
++    }
++  std::cout &lt;&lt; std::endl;
++}
++
++void CommandLine_Generic::add_usage(const std::string&amp; usage)
++{
++  Option option;
++
++  option.key          = USAGE;
++  option.help         = usage;
++  option.visible      = true;
++
++  options.push_back(option);   
++}
++
++void CommandLine_Generic::add_doc(const std::string&amp; grouptopic)
++{
++  Option option;
++
++  option.key          = DOC;
++  option.help         = grouptopic;
++  option.visible      = true;
++
++  options.push_back(option);  
++}
++
++void CommandLine_Generic::add_group(const std::string&amp; grouptopic)
++{
++  Option option;
++
++  option.key          = GROUP;
++  option.help         = grouptopic;
++  option.visible      = true;
++
++  options.push_back(option);  
++}
++
++void CommandLine_Generic::add_option(int key, 
++                                        const std::string&amp; long_option, 
++                                        const std::string&amp; argument,
++                                        const std::string&amp; help,
++                                        bool visible)
++{
++  Option option;
++
++  option.key          = key;
++  option.help         = help;
++  option.long_option  = long_option;
++  option.argument     = argument;
++  option.visible      = visible;
++
++  options.push_back(option);
++}
++
++bool CommandLine_Generic::next()
++{
++  if (current_option == parsed_options.end()) 
++    {
++      (current_option = parsed_options.begin());
++      return current_option != parsed_options.end();
++    }
++  else
++    {
++      return (++current_option) != parsed_options.end();
++    }
++}
++
++int CommandLine_Generic::get_key()
++{
++  return current_option-&gt;key;
++}
++
++std::string CommandLine_Generic::get_argument()
++{
++  return current_option-&gt;argument;
++}
+
+Added: trunk/netbrush/src/command_line_generic.hpp
+===================================================================
+--- trunk/netbrush/src/command_line_generic.hpp	2006-10-20 09:57:21 UTC (rev 664)
++++ trunk/netbrush/src/command_line_generic.hpp	2006-10-20 12:35:24 UTC (rev 665)
+@@ -0,0 +1,111 @@
++/*
++**  ClanLib SDK
++**  Copyright (c) 1997-2005 The ClanLib Team
++**
++**  This software is provided 'as-is', without any express or implied
++**  warranty.  In no event will the authors be held liable for any damages
++**  arising from the use of this software.
++**
++**  Permission is granted to anyone to use this software for any purpose,
++**  including commercial applications, and to alter it and redistribute it
++**  freely, subject to the following restrictions:
++**
++**  1. The origin of this software must not be misrepresented; you must not
++**     claim that you wrote the original software. If you use this software
++**     in a product, an acknowledgment in the product documentation would be
++**     appreciated but is not required.
++**  2. Altered source versions must be plainly marked as such, and must not be
++**     misrepresented as being the original software.
++**  3. This notice may not be removed or altered from any source distribution.
++**
++**  Note: Some of the libraries ClanLib may link to may have additional
++**  requirements or restrictions.
++**
++**  File Author(s):
++**
++**    Magnus Norddahl
++**    (if your name is missing here, please add it)
++*/
++
++#ifndef HEADER_COMMAND_LINE_GENERIC_HPP
++#define HEADER_COMMAND_LINE_GENERIC_HPP
++
++#if _MSC_VER &gt; 1000
++#pragma once
++#endif
++
++#include &lt;string&gt;
++#include &lt;vector&gt;
++#include &quot;command_line.hpp&quot;
++
++class CommandLine_Generic
++{
++private:
++	int help_indent;
++
++	std::string programm;
++
++	struct Option 
++	{
++		int key;
++		std::string help;
++		std::string long_option;
++		std::string argument;
++		bool visible;
++	};
++  
++	typedef std::vector&lt;Option&gt; Options;
++	Options options;
++
++	struct ParsedOption
++	{
++		int key;
++		std::string argument;
++	};
++
++	typedef std::vector&lt;ParsedOption&gt; ParsedOptions;
++	ParsedOptions parsed_options;
++	ParsedOptions::iterator current_option;
++
++	enum
++	{
++		GROUP     = -3,
++		DOC       = -4,
++		USAGE     = -5
++	};
++
++public:  
++	CommandLine_Generic();
++
++	void set_help_indent(int i) { help_indent = i; }
++
++	void add_usage(const std::string&amp; usage);
++	void add_doc(const std::string&amp; doc);
++	void add_group(const std::string&amp; grouptopic);
++  
++	void add_option(int key,
++						 const std::string&amp; long_option, 
++						 const std::string&amp; argument,
++						 const std::string&amp; help,
++						 bool visible = true);
++
++	void parse_args(int argc, char** argv);
++	void print_help();
++  
++	bool next();
++	int get_key();
++	std::string get_argument();
++
++private:
++	void read_option(int id, const std::string&amp; argument);
++
++	/** Find the Option structure that matches \a short_option */
++	Option* lookup_short_option(char short_option);
++
++	/** Find the Option structure that matches \a long_option */
++	Option* lookup_long_option (const std::string&amp; long_option);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-20 09:57:21 UTC (rev 664)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-20 12:35:24 UTC (rev 665)
+@@ -116,39 +116,6 @@
+       draw_ctx-&gt;draw(target, dirty_region, trans_x, trans_y);
+       if (!scrolling)
+         stroke_buffer-&gt;draw(target, dirty_region, trans_x, trans_y);
+-
+-      { // draw layer boundary
+-        Uint32 color = SDL_MapRGB(target-&gt;format, 0, 0, 0);
+-        SDL_Rect r;
+-
+-        r.x = trans_x;
+-        r.y = trans_y;
+-        r.w = draw_ctx-&gt;get_width();
+-        r.h = 1;
+-
+-        SDL_FillRect(target, &amp;r, color);
+-
+-        r.x = trans_x;
+-        r.y = draw_ctx-&gt;get_height()-1 + trans_y;
+-        r.w = draw_ctx-&gt;get_width();
+-        r.h = 1;
+-
+-        SDL_FillRect(target, &amp;r, color);
+-
+-        r.x = draw_ctx-&gt;get_width()-1 + trans_x;
+-        r.y = trans_y;
+-        r.w = 1;
+-        r.h = draw_ctx-&gt;get_height();
+-
+-        SDL_FillRect(target, &amp;r, color);
+-
+-        r.x = trans_x;
+-        r.y = trans_y;
+-        r.w = 1;
+-        r.h = draw_ctx-&gt;get_height();
+-
+-        SDL_FillRect(target, &amp;r, color);
+-      }
+   
+       if (complete_refresh)
+         { 
+
+Modified: trunk/netbrush/src/server_connection.cpp
+===================================================================
+--- trunk/netbrush/src/server_connection.cpp	2006-10-20 09:57:21 UTC (rev 664)
++++ trunk/netbrush/src/server_connection.cpp	2006-10-20 12:35:24 UTC (rev 665)
+@@ -207,7 +207,7 @@
+                 }
+               else
+                 {
+-                  std::cout &lt;&lt; &quot;# allocating new ClientState&quot; &lt;&lt; std::endl;
++                  //std::cout &lt;&lt; &quot;# allocating new ClientState&quot; &lt;&lt; std::endl;
+                   client_state = new ClientState(client_id);
+                   client_states[client_id] = client_state;
+                 }
+@@ -283,7 +283,7 @@
+         {
+           if (tokens.size() == 2)
+             {
+-              std::cout &lt;&lt; &quot;# my Id: &quot; &lt;&lt; atoi(tokens[1].c_str()) &lt;&lt; std::endl;
++              //std::cout &lt;&lt; &quot;# my Id: &quot; &lt;&lt; atoi(tokens[1].c_str()) &lt;&lt; std::endl;
+             }
+           else
+             {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000159.html">[Flexlay-commit] r664 - in trunk/netbrush: . src
+</A></li>
+	<LI>Next message: <A HREF="000161.html">[Flexlay-commit] r666 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#160">[ date ]</a>
+              <a href="thread.html#160">[ thread ]</a>
+              <a href="subject.html#160">[ subject ]</a>
+              <a href="author.html#160">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

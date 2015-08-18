@@ -1,0 +1,969 @@
+From matzebraun at sheep.berlios.de  Fri Jul  1 18:14:32 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Fri, 1 Jul 2005 18:14:32 +0200
+Subject: [Flexlay-commit] r571 - branches/flexlay-0.0.2
+Message-ID: <200507011614.j61GEWx4010740@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-07-01 18:14:31 +0200 (Fri, 01 Jul 2005)
+New Revision: 571
+
+Modified:
+   branches/flexlay-0.0.2/configure.ac
+Log:
+fix completey broken AC_ARG_ENABLE checks for maintainer+debug mode
+
+Modified: branches/flexlay-0.0.2/configure.ac
+===================================================================
+--- branches/flexlay-0.0.2/configure.ac	2005-06-30 14:58:48 UTC (rev 570)
++++ branches/flexlay-0.0.2/configure.ac	2005-07-01 16:14:31 UTC (rev 571)
+@@ -22,8 +22,11 @@
+ CXXFLAGS="$CXXFLAGS -I\${top_srcdir}/src/"
+ 
+ AC_MSG_CHECKING(for debug mode)
+-AC_ARG_ENABLE(debug, AC_HELP_STRING([--enable-debug], [Enable debugging support (default: yes)]),, enable_debug="yes")
+-if test "$enable_debug" != "no"; then
++AC_ARG_ENABLE([debug], AC_HELP_STRING([--enable-debug],
++            [Enable debugging support (default: yes)]),
++        [enable_debug="$enableval"],
++        [enable_debug="yes"])
++if test "$enable_debug" = "yes"; then
+     CXXFLAGS="$CXXFLAGS -Wall -O0 -g"
+     AC_MSG_RESULT([enabled])
+ else
+@@ -31,8 +34,11 @@
+ fi
+ 
+ AC_MSG_CHECKING(for maintainer mode)
+-AC_ARG_ENABLE(debug, AC_HELP_STRING([--enable-maintainer-mode], [Enable maintainer mode (default: no)]),, enable_maintainer_mode="no")
+-if test "$enable_maintainer_mode" != "no"; then
++AC_ARG_ENABLE([maintainer], AC_HELP_STRING([--enable-maintainer-mode],
++            [Enable maintainer mode (default: no)]),
++        [enable_maintainer_mode="$enableval"],
++        [enable_maintainer_mode="no"])
++if test "$enable_maintainer_mode" = "yes"; then
+     CXXFLAGS="$CXXFLAGS -Werror"
+     AC_MSG_RESULT([enabled])
+ else
+
+
+
+From matzebraun at berlios.de  Sat Jul  2 18:43:43 2005
+From: matzebraun at berlios.de (Matthias Braun at BerliOS)
+Date: Sat, 2 Jul 2005 18:43:43 +0200
+Subject: [Flexlay-commit] r572 - in trunk: lib netpanzer ruby
+Message-ID: <200507021643.j62GhhrP003341@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-07-02 18:43:20 +0200 (Sat, 02 Jul 2005)
+New Revision: 572
+
+Modified:
+   trunk/lib/SConstruct
+   trunk/netpanzer/SConstruct
+   trunk/ruby/SConstruct
+Log:
+use -fPIC for libraries
+
+Modified: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2005-07-01 16:14:31 UTC (rev 571)
++++ trunk/lib/SConstruct	2005-07-02 16:43:20 UTC (rev 572)
+@@ -23,7 +23,7 @@
+ 
+ opts = Options('custom.py')
+ opts.Add('CXX', 'The C++ compiler.', 'g++')
+-opts.Add('CXXFLAGS', 'The C++ compiler flags.', ['-g3', '-O0', '-Wall'])
++opts.Add('CXXFLAGS', 'The C++ compiler flags.', ['-g3', '-O0', '-Wall', '-fPIC'])
+ opts.Add('CPPPATH', 'additional header path', '')
+ opts.Add('LIBPATH', 'additional library path', '')
+ 
+
+Modified: trunk/netpanzer/SConstruct
+===================================================================
+--- trunk/netpanzer/SConstruct	2005-07-01 16:14:31 UTC (rev 571)
++++ trunk/netpanzer/SConstruct	2005-07-02 16:43:20 UTC (rev 572)
+@@ -23,7 +23,7 @@
+ 
+ opts = Options('custom.py')
+ opts.Add('CXX', 'The C++ compiler.', 'g++')
+-opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall')
++opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall -fPIC')
+ opts.Add('CPPPATH', 'additional header path', '')
+ opts.Add('LIBPATH', 'additional library path', '')
+ opts.Add('RUBYDIR', 'Ruby directory', os.popen('ruby -e "require \'rbconfig\'; puts Config::CONFIG[\'archdir\']"').read()[:-1])
+
+Modified: trunk/ruby/SConstruct
+===================================================================
+--- trunk/ruby/SConstruct	2005-07-01 16:14:31 UTC (rev 571)
++++ trunk/ruby/SConstruct	2005-07-02 16:43:20 UTC (rev 572)
+@@ -24,7 +24,7 @@
+ 
+ opts = Options('custom.py')
+ opts.Add('CXX', 'The C++ compiler.', 'g++')
+-opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall')
++opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall -fPIC')
+ opts.Add('CPPPATH', 'additional header path', '')
+ opts.Add('LIBPATH', 'additional library path', '')
+ opts.Add('RUBYDIR', 'Ruby directory', os.popen('ruby -e "require \'rbconfig\'; puts Config::CONFIG[\'archdir\']"').read()[:-1])
+
+
+
+From grumbel at berlios.de  Thu Jul 14 04:14:27 2005
+From: grumbel at berlios.de (Ingo Ruhnke at BerliOS)
+Date: Thu, 14 Jul 2005 04:14:27 +0200
+Subject: [Flexlay-commit] r573 - trunk/lib
+Message-ID: <200507140214.j6E2ERS3024798@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-07-14 04:14:08 +0200 (Thu, 14 Jul 2005)
+New Revision: 573
+
+Modified:
+   trunk/lib/tile_selector.cxx
+Log:
+- fixed width handling
+
+Modified: trunk/lib/tile_selector.cxx
+===================================================================
+--- trunk/lib/tile_selector.cxx	2005-07-02 16:43:20 UTC (rev 572)
++++ trunk/lib/tile_selector.cxx	2005-07-14 02:14:08 UTC (rev 573)
+@@ -234,6 +234,7 @@
+ TileSelector::set_scale(float s)
+ {
+   scale = s;
++  width  = static_cast<int>(get_width()/tileset.get_tile_size() * (1.0f/scale));
+ }
+ 
+ TileSelector::Tiles
+@@ -247,7 +248,7 @@
+ {
+   tileset = t;
+   // Recalc the number of tiles in a row
+-  width  = get_width()/tileset.get_tile_size();
++  width  = static_cast<int>(get_width()/tileset.get_tile_size() * (1.0f/scale));
+ }
+ 
+ void
+
+
+
+From wansti at berlios.de  Sat Jul 16 23:39:35 2005
+From: wansti at berlios.de (Marek Moeckel at BerliOS)
+Date: Sat, 16 Jul 2005 23:39:35 +0200
+Subject: [Flexlay-commit] r574 - trunk/supertux
+Message-ID: <200507162139.j6GLdZ3K018502@sheep.berlios.de>
+
+Author: wansti
+Date: 2005-07-16 23:39:33 +0200 (Sat, 16 Jul 2005)
+New Revision: 574
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/supertux-worldmap.rb
+   trunk/supertux/supertux.rb
+Log:
+added moving platforms and a temporary point object to help building paths until the path object is implemented
+
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-07-14 02:14:08 UTC (rev 573)
++++ trunk/supertux/data.rb	2005-07-16 21:39:33 UTC (rev 574)
+@@ -65,6 +65,10 @@
+     proc{|data, sexpr| ParticleSystem.new("rain", sexpr)}],
+   ["leveltime", "images/engine/editor/clock.png", "sprite",
+     proc{|data, sexpr| LevelTime.new(sexpr)}],
++  ["point", "images/engine/editor/point.png", "sprite",
++    proc{|data, sexpr| SimpleObject.new("point")}],
++  ["platform", "images/objects/flying_platform/flying_platform-0.png", "sprite",
++    proc{|data, sexpr| Platform.new(data, sexpr)}],
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+@@ -101,7 +105,7 @@
+     obj.to_object.set_metadata(make_metadata(gobj))
+ 
+   else
+-    raise "Error: Unknown object type droped: '#{data}'"
++    raise "Error: Unknown object type dropped: '#{data}'"
+   end
+   
+   cmd = ObjectAddCommand.new(objmap)
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-07-14 02:14:08 UTC (rev 573)
++++ trunk/supertux/gameobj.rb	2005-07-16 21:39:33 UTC (rev 574)
+@@ -161,6 +161,29 @@
+   end  
+ end
+ 
++class Platform<GameObj
++  def initialize(data, sexpr = [])
++    @data = data
++    @path = get_value_from_tree(["use_path", "_"], sexpr, "path01")
++    @type = get_value_from_tree(["type", "_"], sexpr, "flying")
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write("       (platform (x %d) (y %d) (use_path \"%s\") (type \"%s\"))\n" % [pos.x, pos.y, @path, @type])
++  end
++  
++  def property_dialog()
++    dialog = GenericDialog.new("Platform Property Dialog", $gui.get_component())
++    dialog.add_string("Use Path: ", @path)
++    dialog.add_string("Platform Type: ", @type)
++    dialog.set_callback(proc{|path, type| 
++                          @path = path
++                          @type = type
++                        })
++  end  
++end
++
+ class SpawnPoint<GameObj
+   attr_accessor :name
+   attr_reader   :data
+
+Modified: trunk/supertux/supertux-worldmap.rb
+===================================================================
+--- trunk/supertux/supertux-worldmap.rb	2005-07-14 02:14:08 UTC (rev 573)
++++ trunk/supertux/supertux-worldmap.rb	2005-07-16 21:39:33 UTC (rev 574)
+@@ -29,8 +29,7 @@
+     "/usr/local/share/games/supertux/",
+     "/opt/supertux/data/",
+     "~/project/supertux/data/",
+-    "~/projects/supertux/trunk/supertux/data/",
+-    "~/data/projects/supertux/trunk/supertux/data",
++    "~/projects/supertux/svn/trunk/supertux/data/",
+   ]
+   # `which supertux`
+ end
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-07-14 02:14:08 UTC (rev 573)
++++ trunk/supertux/supertux.rb	2005-07-16 21:39:33 UTC (rev 574)
+@@ -29,8 +29,7 @@
+     "/usr/local/share/games/supertux/",
+     "/opt/supertux/data/",
+     "~/projects/supertux/data/",
+-    "~/projects/supertux/trunk/supertux/data/",
+-    "~/data/projects/supertux/trunk/supertux/data",
++    "~/projects/supertux/svn/trunk/supertux/data/",
+   ]
+   # `which supertux`
+ end
+
+
+
+From wansti at berlios.de  Mon Jul 18 18:52:11 2005
+From: wansti at berlios.de (Marek Moeckel at BerliOS)
+Date: Mon, 18 Jul 2005 18:52:11 +0200
+Subject: [Flexlay-commit] r575 - trunk/supertux
+Message-ID: <200507181652.j6IGqBnT009319@sheep.berlios.de>
+
+Author: wansti
+Date: 2005-07-18 18:51:17 +0200 (Mon, 18 Jul 2005)
+New Revision: 575
+
+Modified:
+   trunk/supertux/data.rb
+Log:
+added kugelblitz badguy
+
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-07-16 21:39:33 UTC (rev 574)
++++ trunk/supertux/data.rb	2005-07-18 16:51:17 UTC (rev 575)
+@@ -25,6 +25,8 @@
+     proc{|data, sexpr| BadGuy.new("poisonivy")}],
+   ["zeekling", "images/creatures/zeekling/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("zeekling")}],
++  ["kugelblitz", "images/creatures/kugelblitz/flying-0.png", "sprite",
++    proc{|data, sexpr| BadGuy.new("kugelblitz")}],
+   ["dispenser", "images/creatures/dispenser/working.png", "sprite",
+     proc{|data, sexpr| Dispenser.new(data, sexpr)}],
+   ["yeti", "images/creatures/yeti/yeti.png", "sprite",
+
+
+
+From grumbel at berlios.de  Wed Jul 20 01:51:22 2005
+From: grumbel at berlios.de (Ingo Ruhnke at BerliOS)
+Date: Wed, 20 Jul 2005 01:51:22 +0200
+Subject: [Flexlay-commit] r576 - in trunk: lib windstille
+Message-ID: <200507192351.j6JNpM0K007803@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-07-20 01:50:10 +0200 (Wed, 20 Jul 2005)
+New Revision: 576
+
+Modified:
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/helper.cxx
+   trunk/lib/helper.hxx
+   trunk/windstille/gui.rb
+   trunk/windstille/level.rb
+   trunk/windstille/windstille.rb
+Log:
+- improved load time of windstille editor
+- few other fixes to adopt to the levelformat
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-07-18 16:51:17 UTC (rev 575)
++++ trunk/lib/flexlay_wrap.i	2005-07-19 23:50:10 UTC (rev 576)
+@@ -205,5 +205,4 @@
+ %include "../ruby/ruby_sexpr_parser.hxx"
+ #endif
+ 
+-
+ /* EOF */
+
+Modified: trunk/lib/helper.cxx
+===================================================================
+--- trunk/lib/helper.cxx	2005-07-18 16:51:17 UTC (rev 575)
++++ trunk/lib/helper.cxx	2005-07-19 23:50:10 UTC (rev 576)
+@@ -104,4 +104,19 @@
+   return CL_PixelBuffer(width, height, width*4, CL_PixelFormat::rgba8888);
+ }
+ 
++CL_PixelBuffer
++make_region_pixelbuffer(const CL_PixelBuffer& buffer, int x, int y, int w, int h)
++{
++  try {
++    CL_PixelBuffer target(w, h, w * (buffer.get_format().get_depth()/8), buffer.get_format());
++    clear(target);
++    blit(target, buffer, -x, -y);
++
++    return target;
++  } catch (CL_Error& err) {
++    std::cout << "CL_Error: " << err.message << std::endl;
++    return CL_PixelBuffer();
++  }
++}
++
+ /* EOF */
+
+Modified: trunk/lib/helper.hxx
+===================================================================
+--- trunk/lib/helper.hxx	2005-07-18 16:51:17 UTC (rev 575)
++++ trunk/lib/helper.hxx	2005-07-19 23:50:10 UTC (rev 576)
+@@ -27,6 +27,7 @@
+ CL_Sprite      make_sprite(const std::string& filename);
+ CL_PixelBuffer make_pixelbuffer(const std::string& filename);
+ CL_PixelBuffer make_region_pixelbuffer(const std::string& filename, int x, int y, int w, int h);
++CL_PixelBuffer make_region_pixelbuffer(const CL_PixelBuffer& buffer, int x, int y, int w, int h);
+ CL_PixelBuffer make_pixelbuffer(int width, int height);
+ 
+ CL_Sprite      make_sprite_from_resource(const std::string& filename, CL_ResourceManager& resources);
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-07-18 16:51:17 UTC (rev 575)
++++ trunk/windstille/gui.rb	2005-07-19 23:50:10 UTC (rev 576)
+@@ -123,7 +123,7 @@
+     @tileselector = TileSelector.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128+64, $screen_height - 600 + 552)), @selector_window)
+     @tileselector.set_tileset($tileset)
+     puts "Setting scale to 1.0"
+-    @tileselector.set_scale(1.0)
++    @tileselector.set_scale(0.5)
+     @tileselector.set_tiles($tileset.get_tiles())
+     @tileselector.show(true)
+     
+
+Modified: trunk/windstille/level.rb
+===================================================================
+--- trunk/windstille/level.rb	2005-07-18 16:51:17 UTC (rev 575)
++++ trunk/windstille/level.rb	2005-07-19 23:50:10 UTC (rev 576)
+@@ -18,12 +18,13 @@
+ ##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+ class Tilemap
+-  attr_accessor :name, :x_offset, :y_offset
++  attr_accessor :name, :x_offset, :y_offset, :z_pos
+   
+   def initialize()
+     name     = "empty"
+     x_offset = 0
+     y_offset = 0
++    z_pos = 0;
+   end
+ end
+ 
+@@ -80,9 +81,10 @@
+       puts mydata
+       width  = get_value_from_tree(["width", "_"],  mydata, 0)
+       height = get_value_from_tree(["height", "_"],  mydata, 0)
+-
++      
+       tilemap = TilemapLayer.new($tileset, width, height)
+       tilemap.set_data(get_value_from_tree(["data"], mydata, []))
++      tilemap.z_pos = get_value_from_tree(["z-pos", "_"],  mydata, 0)
+       tilemap
+     }
+     
+@@ -126,8 +128,8 @@
+     save_tilemap = proc {|name, tilemap|
+       width  = tilemap.get_width()
+       height = tilemap.get_height()
+-      f.write("  (tilemap (name \"%s\") (width %d) (height %d)\n" % \
+-              [name, width, height]) # FIXME: add escaping to strings
++      f.write("  (tilemap (name \"%s\") (width %d) (height %d) (z-pos %d)\n" % \
++              [name, width, height, tilemap.z_pos]) # FIXME: add escaping to strings
+       f.write("    (data")
+       tilemap.get_data().each_with_index {|item, i|
+         if (i % width == 0) then
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-07-18 16:51:17 UTC (rev 575)
++++ trunk/windstille/windstille.rb	2005-07-19 23:50:10 UTC (rev 576)
+@@ -20,7 +20,7 @@
+ ## A basic tile editor that should act as example for other games, use
+ ## it to fork your own code.
+ 
+-$datadir = ""
++$datadir = "/home/ingo/projects/windstille/trunk/data/"
+ 
+ ## First we try to read a config file to set some variables
+ $config_file = File.expand_path("~/.flexlay/windstille.rb")
+@@ -38,6 +38,7 @@
+ require "sexpr.rb"
+ require "gui.rb"
+ require "level.rb"
++require "tileset.rb"
+ 
+ ## Init Flexlay itself
+ flexlay = Flexlay.new()
+@@ -92,19 +93,9 @@
+              
+ $resources = CL_ResourceManager.new("../data/flexlay.xml")
+ 
+-$tileset = Tileset.new(32)
+-(0...6).each {|y|
+-  (0...6).each {|x|
+-    $tileset.add_tile(y*6+x+1, Tile.new(make_region_pixelbuffer("virtualreality.png", 32*x, 32*y, 32, 32)))
+-  }
+-}
++$tileset = Tileset.new(64)
++$tileset.load($datadir + "tiles.scm")
+ 
+-(0...6).each {|y|
+-  (0...6).each {|x|
+-    $tileset.add_tile(y*6+x+1+6*6, Tile.new(make_region_pixelbuffer("virtualreality-background.png", 32*x, 32*y, 32, 32)))
+-  }
+-}
+-
+ ## Create some basic GUI
+ $gui = GUI.new()
+ 
+
+
+
+From grumbel at berlios.de  Wed Jul 20 02:56:43 2005
+From: grumbel at berlios.de (Ingo Ruhnke at BerliOS)
+Date: Wed, 20 Jul 2005 02:56:43 +0200
+Subject: [Flexlay-commit] r577 - in trunk: lib windstille
+Message-ID: <200507200056.j6K0uhFq003028@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-07-20 02:56:19 +0200 (Wed, 20 Jul 2005)
+New Revision: 577
+
+Added:
+   trunk/windstille/tileset.rb
+Modified:
+   trunk/lib/blitter.cxx
+   trunk/lib/blitter.hxx
+   trunk/lib/helper.cxx
+   trunk/windstille/gui.rb
+   trunk/windstille/level.rb
+Log:
+- fixed windstille editor so that it can now load/save level files a bit more
+
+Modified: trunk/lib/blitter.cxx
+===================================================================
+--- trunk/lib/blitter.cxx	2005-07-19 23:50:10 UTC (rev 576)
++++ trunk/lib/blitter.cxx	2005-07-20 00:56:19 UTC (rev 577)
+@@ -25,6 +25,85 @@
+ #include "blitter.hxx"
+ 
+ void 
++blit_opaque(CL_PixelBuffer target, CL_PixelBuffer brush, int x_pos, int y_pos)
++{
++  target.lock();
++  brush.lock();
++
++  int start_x = std::max(0, -x_pos);
++  int start_y = std::max(0, -y_pos);
++  
++  int end_x = std::min(brush.get_width(),  target.get_width()  - x_pos);
++  int end_y = std::min(brush.get_height(), target.get_height() - y_pos);
++
++  unsigned char* target_buf = static_cast<unsigned char*>(target.get_data());
++  unsigned char* brush_buf  = static_cast<unsigned char*>(brush.get_data());
++
++  int target_pitch = target.get_pitch();
++  int brush_pitch  = brush.get_pitch();
++
++  if (brush.get_format().get_type() == pixelformat_rgba)
++    {
++      if (brush.get_format().get_depth() == 32)
++        {
++          for (int y = start_y; y < end_y; ++y)
++            for (int x = start_x; x < end_x; ++x)
++              {
++                int target_pos = (y + y_pos) * target_pitch + 4*(x + x_pos);
++                int brush_pos  = y * brush_pitch + x*4;
++
++                target_buf[target_pos + 0] = brush_buf[brush_pos + 0];
++                target_buf[target_pos + 1] = brush_buf[brush_pos + 1];
++                target_buf[target_pos + 2] = brush_buf[brush_pos + 2];
++                target_buf[target_pos + 3] = brush_buf[brush_pos + 3];
++              } 
++        }
++      else if (brush.get_format().get_depth() == 24)
++        {
++          for (int y = start_y; y < end_y; ++y)
++            for (int x = start_x; x < end_x; ++x)
++              {
++                int target_pos = (y + y_pos) * target_pitch + 3*(x + x_pos);
++                int brush_pos  = y * brush_pitch + 3*x;
++
++                target_buf[target_pos + 0] = 255;
++                target_buf[target_pos + 1] = brush_buf[brush_pos + 0];
++                target_buf[target_pos + 2] = brush_buf[brush_pos + 1];
++                target_buf[target_pos + 3] = brush_buf[brush_pos + 2];
++              }
++        }
++      else
++        {
++          std::cout << "Unsupported bpp: " << brush.get_format().get_depth() << std::endl;
++        }
++    }
++  else if (brush.get_format().get_type() == pixelformat_index)
++    {
++      CL_Palette palette = brush.get_palette();
++      for (int y = start_y; y < end_y; ++y)
++        for (int x = start_x; x < end_x; ++x)
++          {
++            int target_pos = (y + y_pos) * target_pitch + 4*(x + x_pos);
++            int brush_pos  = y * brush_pitch + x;
++            
++            target_buf[target_pos + 0] = 255;
++            target_buf[target_pos + 1] = palette.colors[brush_buf[brush_pos]].get_blue();
++            target_buf[target_pos + 2] = palette.colors[brush_buf[brush_pos]].get_green();
++            target_buf[target_pos + 3] = palette.colors[brush_buf[brush_pos]].get_red();
++          }
++    }
++  else
++    {
++      assert(!"Unknown pixelformat type");
++    }
++    
++
++
++  brush.unlock();
++  target.unlock();
++}
++
++void 
+ blit(CL_PixelBuffer target, CL_PixelBuffer brush, int x_pos, int y_pos)
+ {
+   target.lock();
+@@ -39,6 +118,7 @@
+   unsigned char* target_buf = static_cast<unsigned char*>(target.get_data());
+   unsigned char* brush_buf  = static_cast<unsigned char*>(brush.get_data());
+ 
++  // FIXME: This doesn't take pitch into account
+   int target_width = target.get_width();
+   int brush_width  = brush.get_width();
+ 
+
+Modified: trunk/lib/blitter.hxx
+===================================================================
+--- trunk/lib/blitter.hxx	2005-07-19 23:50:10 UTC (rev 576)
++++ trunk/lib/blitter.hxx	2005-07-20 00:56:19 UTC (rev 577)
+@@ -23,6 +23,7 @@
+ #include <ClanLib/Display/pixel_buffer.h>
+ 
+ void blit(CL_PixelBuffer target, CL_PixelBuffer brush, int x_pos, int y_pos);
++void blit_opaque(CL_PixelBuffer target, CL_PixelBuffer brush, int x_pos, int y_pos);
+ void clear(CL_PixelBuffer target);
+ 
+ #endif
+
+Modified: trunk/lib/helper.cxx
+===================================================================
+--- trunk/lib/helper.cxx	2005-07-19 23:50:10 UTC (rev 576)
++++ trunk/lib/helper.cxx	2005-07-20 00:56:19 UTC (rev 577)
+@@ -64,7 +64,7 @@
+ 
+     CL_PixelBuffer target(w, h, w * (buffer.get_format().get_depth()/8), buffer.get_format());
+     clear(target);
+-    blit(target, buffer, -x, -y);
++    blit_opaque(target, buffer, -x, -y);
+ 
+     return target;
+   } catch (CL_Error& err) {
+@@ -110,7 +110,7 @@
+   try {
+     CL_PixelBuffer target(w, h, w * (buffer.get_format().get_depth()/8), buffer.get_format());
+     clear(target);
+-    blit(target, buffer, -x, -y);
++    blit_opaque(target, buffer, -x, -y);
+ 
+     return target;
+   } catch (CL_Error& err) {
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-07-19 23:50:10 UTC (rev 576)
++++ trunk/windstille/gui.rb	2005-07-20 00:56:19 UTC (rev 577)
+@@ -122,9 +122,9 @@
+                                  @gui.get_component())
+     @tileselector = TileSelector.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128+64, $screen_height - 600 + 552)), @selector_window)
+     @tileselector.set_tileset($tileset)
+-    puts "Setting scale to 1.0"
+     @tileselector.set_scale(0.5)
+-    @tileselector.set_tiles($tileset.get_tiles())
++    @tileselector.set_tiles($tileset.tilegroups[0].tiles)
++    # @tileselector.set_tiles($tileset.get_tiles())
+     @tileselector.show(true)
+     
+     @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, $screen_height - 600 + 552), 42, 42, @selector_window)
+
+Modified: trunk/windstille/level.rb
+===================================================================
+--- trunk/windstille/level.rb	2005-07-19 23:50:10 UTC (rev 576)
++++ trunk/windstille/level.rb	2005-07-20 00:56:19 UTC (rev 577)
+@@ -76,26 +76,45 @@
+     @name    = get_value_from_tree(["name", "_"],    data, 0)
+     @music   = get_value_from_tree(["music", "_"],   data, 0)
+ 
+-    load_tilemap = proc {|name|
+-      mydata   = get_value_from_tree(["tilemap"],  data, 0)
+-      puts mydata
+-      width  = get_value_from_tree(["width", "_"],  mydata, 0)
+-      height = get_value_from_tree(["height", "_"],  mydata, 0)
+-      
+-      tilemap = TilemapLayer.new($tileset, width, height)
+-      tilemap.set_data(get_value_from_tree(["data"], mydata, []))
+-      tilemap.z_pos = get_value_from_tree(["z-pos", "_"],  mydata, 0)
+-      tilemap
++    objects = get_value_from_tree(["objects"],  data, [])
++
++    objects.each{ |object|
++      objtype = object[0]
++      objdata = object[1..-1]
++
++      case objtype
++      when "tilemap"
++        name   = get_value_from_tree(["name",  "_"],   objdata, "")
++        width  = get_value_from_tree(["width",  "_"],  objdata, 0)
++        height = get_value_from_tree(["height", "_"],  objdata, 0)
++        
++        tilemap = TilemapLayer.new($tileset, width, height)
++        tilemap.set_data(get_value_from_tree(["data"], objdata, []))
++        # tilemap.z_pos = get_value_from_tree(["z-pos", "_"],  mydata, 0)
++        
++        case name 
++        when "background"
++          @background = tilemap
++        when "interactive"
++          @interactive = tilemap
++        when "background"
++          @background = tilemap
++        else
++          puts "Unknown Tilemap: #{name}"
++        end
++      else
++        puts "Unknown object: '#{objtype}'"
++      end
+     }
+     
+-    @background  = load_tilemap.call("background")
+-    @interactive = load_tilemap.call("interactive")
+-    @foreground  = load_tilemap.call("foreground")
+-
+     @layers = [@background, @interactive, @foreground]
+ 
+     @editormap = EditorMap.new()
+-    @layers.each {|layer| @editormap.add_layer(layer.to_layer()) }
++    @layers.each {|layer| 
++      if layer then 
++        @editormap.add_layer(layer.to_layer()) 
++      end 
++    }
+     
+     # FIXME: Data might not get freed since its 'recursively' refcounted
+     @editormap.set_data(self)
+@@ -126,23 +145,26 @@
+ 
+     f.write("  (objects\n")
+     save_tilemap = proc {|name, tilemap|
+-      width  = tilemap.get_width()
+-      height = tilemap.get_height()
+-      f.write("  (tilemap (name \"%s\") (width %d) (height %d) (z-pos %d)\n" % \
+-              [name, width, height, tilemap.z_pos]) # FIXME: add escaping to strings
+-      f.write("    (data")
+-      tilemap.get_data().each_with_index {|item, i|
+-        if (i % width == 0) then
+-          f.write("\n      ")
+-        end
+-        f.write("%d " % item)
+-      }
+-      f.write("\n     ))\n")
++      if tilemap then
++        width  = tilemap.get_width()
++        height = tilemap.get_height()
++        f.write("  (tilemap (name \"%s\") (width %d) (height %d)\n" % \
++                [name, width, height]) # FIXME: add escaping to strings
++        f.write("    (data")
++        tilemap.get_data().each_with_index {|item, i|
++          if (i % width == 0) then
++            f.write("\n      ")
++          end
++          f.write("%d " % item)
++        }
++        f.write("\n     ))\n")
++      end
+     }
+ 
+     save_tilemap.call("background",  @background)
+     save_tilemap.call("interactive", @interactive)
+     save_tilemap.call("foreground",  @foreground)
++
+     f.write("   )\n")
+ 
+     f.write(" )\n\n")
+
+Added: trunk/windstille/tileset.rb
+===================================================================
+--- trunk/windstille/tileset.rb	2005-07-19 23:50:10 UTC (rev 576)
++++ trunk/windstille/tileset.rb	2005-07-20 00:56:19 UTC (rev 577)
+@@ -0,0 +1,109 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2004 Ingo Ruhnke <grumbel at gmx.de>
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++class TileGroup
++  attr_accessor :name, :tiles
++  
++  def initialize(name, tiles)
++    @name  = name
++    @tiles = tiles
++  end 
++end
++
++class Tileset
++  attr_accessor :tilegroups
++
++  def load(filename)
++    puts "Loading Tileset: #{filename}"
++    tree = sexpr_read_from_file(filename)
++    if tree == nil then
++      puts "Error; Couldn't load: ", filename
++      return 
++    end
++
++    tree = tree[1..-1]
++    counter = 0
++    
++    tree.each do |i|
++      case i[0]
++      when "tile"
++        data   = i[1..-1]
++        id     = get_value_from_tree(['id', '_'], data, -1)
++        image  = get_value_from_tree(['editor-images', '_'], data, false)
++        hidden = get_value_from_tree(['hidden', '_'], data, false)
++
++        # puts "Loading tile: #{id} => #{image}"
++
++        if not(image)
++          image = get_value_from_tree(['images', '_'], data, "notile.png")
++        end
++        
++        if image.is_a?(String) then
++          pixelbuffer = make_pixelbuffer($datadir + 'images/' + image)
++        elsif image.is_a?(Array) then
++          if image[0] == "region" then
++            pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image[1],
++                                                  image[2], image[3], image[4], image[5])
++          end
++        end
++        
++        if not hidden then
++          if id == 0 then
++            add_tile(id, nil)
++          else
++            add_tile(id, Tile.new(pixelbuffer))
++          end
++        end
++
++      when "tilegroup"
++        data  = i[1..-1]
++        name  = get_value_from_tree(['name', '_'], data, "Unnamed")
++        tiles = get_value_from_tree(['tiles'], data, [])
++        
++        if not @tilegroups then
++          @tilegroups = []
++        end
++        @tilegroups.push(TileGroup.new(name, tiles))
++        
++      when "tiles"
++        data   = i[1..-1]
++        colmap  = get_value_from_tree(['colmap'], data, [])
++        ids     = get_value_from_tree(['ids'], data, [])
++        image = get_value_from_tree(['image', '_'], data, "")
++        
++        width  = get_value_from_tree(['width', '_'], data, 0)
++        height = get_value_from_tree(['height', '_'], data, 0)
++
++        pixelbuffer = make_pixelbuffer($datadir + image);
++
++        (0..width-1).each {|y|
++          (0..height-1).each {|x|
++            $tileset.add_tile(ids[y*width + x],
++                              Tile.new(make_region_pixelbuffer(pixelbuffer,
++                                                               64*x, 64*y, 64, 64)))
++          }
++        }
++      end
++    end
++    puts ""
++  end
++end
++
++# EOF #
++
+
+
+
+From wansti at berlios.de  Wed Jul 20 22:55:41 2005
+From: wansti at berlios.de (Marek Moeckel at BerliOS)
+Date: Wed, 20 Jul 2005 22:55:41 +0200
+Subject: [Flexlay-commit] r578 - trunk/supertux
+Message-ID: <200507202055.j6KKtfSB000211@sheep.berlios.de>
+
+Author: wansti
+Date: 2005-07-20 22:55:40 +0200 (Wed, 20 Jul 2005)
+New Revision: 578
+
+Modified:
+   trunk/supertux/WorldMap.rb
+   trunk/supertux/WorldMapObject.rb
+Log:
+changed some paths to match changes in supertux
+
+
+Modified: trunk/supertux/WorldMap.rb
+===================================================================
+--- trunk/supertux/WorldMap.rb	2005-07-20 00:56:19 UTC (rev 577)
++++ trunk/supertux/WorldMap.rb	2005-07-20 20:55:40 UTC (rev 578)
+@@ -44,7 +44,7 @@
+ 
+       if name == "properties"
+         @name = get_value_from_tree(["name", "_"], data, "No Name")
+-        @music = get_value_from_tree(["music", "_"], data, "salcon.mod")
++        @music = get_value_from_tree(["music", "_"], data, "salcon.ogg")
+         @intro_filename = get_value_from_tree(["intro-filename", "_"], data, "")
+         @start_pos_x = get_value_from_tree(["start_pos_x", "_"], data, 0)
+         @start_pos_y = get_value_from_tree(["start_pos_y", "_"], data, 0)
+
+Modified: trunk/supertux/WorldMapObject.rb
+===================================================================
+--- trunk/supertux/WorldMapObject.rb	2005-07-20 00:56:19 UTC (rev 577)
++++ trunk/supertux/WorldMapObject.rb	2005-07-20 20:55:40 UTC (rev 578)
+@@ -11,7 +11,7 @@
+   def initialize()
+     @name = ""
+     @obj = ObjMapSpriteObject.new(
+-        make_sprite($datadir + "images/tiles/worldmap/tux.png"),
++        make_sprite($datadir + "images/worldmap/common/tux.png"),
+         CL_Pointf.new(0, 0), make_metadata(self))
+      connect_v1_ObjMapObject(@obj.to_object.sig_move(), method(:on_move))
+   end
+@@ -55,7 +55,7 @@
+     @extro_filename = ""
+     @quit_worldmap = false
+     @obj = ObjMapSpriteObject.new(
+-            make_sprite($datadir + "images/tiles/worldmap/leveldot_green.png"),
++            make_sprite($datadir + "images/worldmap/common/leveldot_green.png"),
+             CL_Pointf.new(0, 0), make_metadata(self))
+     connect_v1_ObjMapObject(@obj.to_object.sig_move(), method(:on_move))
+   end
+@@ -114,7 +114,7 @@
+     @teleport_y = 0
+     @invisible_tile = false
+     @obj = ObjMapSpriteObject.new(
+-            make_sprite($datadir + "images/tiles/worldmap/teleporterdot.png"),
++            make_sprite($datadir + "images/worldmap/common/teleporterdot.png"),
+             CL_Pointf.new(0, 0), make_metadata(self))
+     connect_v1_ObjMapObject(@obj.to_object.sig_move(), method(:on_move))
+   end
+@@ -186,9 +186,9 @@
+ end
+ 
+ $worldmap_objects = [
+-  ["level", "images/tiles/worldmap/leveldot_green.png", WorldmapLevel],
+-  ["special-tile", "images/tiles/worldmap/teleporterdot.png", SpecialTile],
+-  ["spawnpoint", "images/tiles/worldmap/tux.png", WMSpawnPoint],
++  ["level", "images/worldmap/common/leveldot_green.png", WorldmapLevel],
++  ["special-tile", "images/worldmap/common/teleporterdot.png", SpecialTile],
++  ["spawnpoint", "images/worldmap/common/tux.png", WMSpawnPoint],
+ ]
+ 
+ def create_worldmapobject_at_pos(objmap, name, pos)
+
+
+
+From grumbel at berlios.de  Mon Jul 25 16:26:51 2005
+From: grumbel at berlios.de (Ingo Ruhnke at BerliOS)
+Date: Mon, 25 Jul 2005 16:26:51 +0200
+Subject: [Flexlay-commit] r579 - trunk/lib
+Message-ID: <200507251426.j6PEQp1p022558@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-07-25 16:26:50 +0200 (Mon, 25 Jul 2005)
+New Revision: 579
+
+Modified:
+   trunk/lib/tile.cxx
+Log:
+- added error message
+
+Modified: trunk/lib/tile.cxx
+===================================================================
+--- trunk/lib/tile.cxx	2005-07-20 20:55:40 UTC (rev 578)
++++ trunk/lib/tile.cxx	2005-07-25 14:26:50 UTC (rev 579)
+@@ -160,6 +160,7 @@
+               {
+                 //CL_SpriteDescription descr(impl->filename, resources);
+                 //impl->pixelbuffer = CL_PixelBuffer(*(descr.get_frames().begin()->first));
++                std::cout << "Error: not a png or jpg file: " << impl->filename << std::endl;
+                 assert(0);
+               }
+             return impl->pixelbuffer;
+
+
+

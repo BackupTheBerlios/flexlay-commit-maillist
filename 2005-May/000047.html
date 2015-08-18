@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r552 - in trunk: ruby supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r552%20-%20in%20trunk%3A%20ruby%20supertux&In-Reply-To=%3C200505102007.j4AK7pTa008316%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000046.html">
+   <LINK REL="Next"  HREF="000048.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r552 - in trunk: ruby supertux</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r552%20-%20in%20trunk%3A%20ruby%20supertux&In-Reply-To=%3C200505102007.j4AK7pTa008316%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r552 - in trunk: ruby supertux">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 10 22:07:51 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000046.html">[Flexlay-commit] r551 - trunk/supertux
+</A></li>
+        <LI>Next message: <A HREF="000048.html">[Flexlay-commit] r553 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#47">[ date ]</a>
+              <a href="thread.html#47">[ thread ]</a>
+              <a href="subject.html#47">[ subject ]</a>
+              <a href="author.html#47">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-05-10 22:07:49 +0200 (Tue, 10 May 2005)
+New Revision: 552
+
+Modified:
+   trunk/ruby/flexlay.rb
+   trunk/supertux/WorldMap.rb
+   trunk/supertux/gui.rb
+   trunk/supertux/level.rb
+   trunk/supertux/sector.rb
+Log:
+- cleaned up some metadata vs data mess
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/ruby/flexlay.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -31,24 +31,13 @@
+ end
+ 
+ class ObjMapObject
+-  alias orig_get_metadata get_metadata
+-  alias orig_set_metadata set_metadata
+-
+   def get_data()
+-    return get_ruby_object(orig_get_metadata())
++    return get_ruby_object(get_metadata())
+   end
+ 
+   def set_data(data)
+-    orig_set_metadata(make_metadata(data))
++    set_metadata(make_metadata(data))
+   end
+-
+-  def get_metadata()
+-    return get_ruby_object(orig_get_metadata())
+-  end
+-
+-  def set_metadata(data)
+-    orig_set_metadata(make_metadata(data))
+-  end
+ end
+ 
+ 
+
+Modified: trunk/supertux/WorldMap.rb
+===================================================================
+--- trunk/supertux/WorldMap.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/supertux/WorldMap.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -77,7 +77,7 @@
+     @tilemap.save(writer)
+ 
+     for o in @objects.get_objects()
+-      object = o.get_metadata()
++      object = o.get_data()
+       object.save(writer)
+     end
+     writer.end_list(&quot;supertux-worldmap&quot;)
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/supertux/gui.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -1,3 +1,5 @@
++require &quot;flexlay.rb&quot;
++
+ class SuperTuxGUI
+   quit_button = nil
+   menu        = nil
+@@ -166,12 +168,12 @@
+ 
+   def create_menu()
+     @menu = CL_Menu.new(@gui.get_component())
+-    @menu.add_item(&quot;Level/Open...&quot;, method(:gui_level_load))
+-    @menu.add_item(&quot;Level/Save...&quot;, method(:gui_level_save))
++    @menu.add_item(&quot;File/Open...&quot;, method(:gui_level_load))
++    @menu.add_item(&quot;File/Save...&quot;, method(:gui_level_save))
+     # @menu.add_item(&quot;File/Save Commands...&quot;, menu_file_save_commands)
+     # @menu.add_item(&quot;File/Save As...&quot;, method(:gui_level_save_as))
+-    @menu.add_item(&quot;Level/Properties...&quot;, method(:gui_edit_level))
+-    @menu.add_item(&quot;Level/Quit&quot;,  proc{ @gui.quit })
++    @menu.add_item(&quot;File/Properties...&quot;, method(:gui_edit_level))
++    @menu.add_item(&quot;File/Quit&quot;,  proc{ @gui.quit })
+     
+     @menu.add_item(&quot;Edit/Smooth Selection&quot;, method(:gui_smooth_level_struct))
+     @menu.add_item(&quot;Edit/Resize&quot;, method(:gui_resize_level))
+@@ -573,7 +575,7 @@
+     if selection.length() &gt; 1 then
+       print &quot;Warning: Selection to large&quot;
+     elsif selection.length() == 1 then
+-      obj = get_ruby_object(selection[0].get_metadata())
++      obj = get_ruby_object(selection[0].get_data())
+       obj.property_dialog()
+     else
+       print &quot;Warning: Selection is empty\n&quot;
+@@ -642,7 +644,7 @@
+     print &quot;Connecting path nodes&quot;
+     pathnodes = []
+     for i in $objmap_select_tool.get_selection()
+-      obj = i.get_metadata()
++      obj = i.get_data()
+       if obj.is_a?(PathNode)
+         pathnodes.push(obj.node)
+       end
+
+Modified: trunk/supertux/level.rb
+===================================================================
+--- trunk/supertux/level.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/supertux/level.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -147,7 +147,7 @@
+     f.write(&quot;    (mode \&quot;autoscroll\&quot;)\n&quot;)
+     f.write(&quot;    (path\n&quot;)
+     for obj in @objects.get_objects()
+-      pathnode = obj.get_metadata()
++      pathnode = obj.get_data()
+       if (pathnode.class() == PathNode)
+         f.write(&quot;     (point (x %d) (y %d) (speed 1))\n&quot; % obj.get_pos().x, obj.get_pos().y)
+       end
+@@ -156,7 +156,7 @@
+     
+     f.write(&quot;  (objects\n&quot;)
+     for obj in @objects.get_objects()
+-      badguy = obj.get_metadata()
++      badguy = obj.get_data()
+       if (badguy.class == BadGuy)
+         pos    = obj.get_pos()
+         if (badguy.type != &quot;resetpoint&quot;)
+@@ -168,7 +168,7 @@
+     
+     f.write(&quot;  (reset-points\n&quot;)
+     for obj in @objects.get_objects()
+-      badguy = obj.get_metadata()
++      badguy = obj.get_data()
+       if (badguy.class == BadGuy)
+         pos    = obj.get_pos()
+         if (badguy.type == &quot;resetpoint&quot;)
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/supertux/sector.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -261,7 +261,7 @@
+     f.write(&quot;      (mode \&quot;%s\&quot;)\n&quot; % [@cameramode])
+ #    f.write(&quot;      (path\n&quot;)
+ #    @objects.get_objects().each {|obj|
+-#      pathnode = obj.get_metadata()
++#      pathnode = obj.get_data()
+ #      if (pathnode.is_a?(PathNode))
+ #        f.write(&quot;       (point (x %d) (y %d) (speed 1))\n&quot; % obj.get_pos().x, obj.get_pos().y)
+ #      end
+@@ -270,8 +270,7 @@
+ 	f.write(&quot;    )\n\n&quot;)
+ 
+     for obj in @objects.get_objects()
+-      # FIXME: not sure why I need get_ruby_object() here
+-      object = get_ruby_object(obj.get_metadata())
++      object = obj.get_data()
+       object.save(f, obj)
+     end
+   end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000046.html">[Flexlay-commit] r551 - trunk/supertux
+</A></li>
+	<LI>Next message: <A HREF="000048.html">[Flexlay-commit] r553 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#47">[ date ]</a>
+              <a href="thread.html#47">[ thread ]</a>
+              <a href="subject.html#47">[ subject ]</a>
+              <a href="author.html#47">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

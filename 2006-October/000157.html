@@ -1,0 +1,464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r662 - trunk/netbrush
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r662%20-%20trunk/netbrush&In-Reply-To=%3C200610200829.k9K8TVeA009449%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000156.html">
+   <LINK REL="Next"  HREF="000158.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r662 - trunk/netbrush</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r662%20-%20trunk/netbrush&In-Reply-To=%3C200610200829.k9K8TVeA009449%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r662 - trunk/netbrush">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Fri Oct 20 10:29:31 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000156.html">[Flexlay-commit] r661 - trunk/netbrush
+</A></li>
+        <LI>Next message: <A HREF="000158.html">[Flexlay-commit] r663 - in trunk/netbrush: . src src/widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-20 10:29:30 +0200 (Fri, 20 Oct 2006)
+New Revision: 662
+
+Added:
+   trunk/netbrush/graphic_context_state.cpp
+   trunk/netbrush/graphic_context_state.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/drawing_context.cpp
+Log:
+- some code for zooming
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-19 23:02:30 UTC (rev 661)
++++ trunk/netbrush/SConstruct	2006-10-20 08:29:30 UTC (rev 662)
+@@ -47,7 +47,8 @@
+         'widget/slider_widget.cpp',
+         'widget/widget.cpp',
+         'widget/widget_manager.cpp',
+-        'navigation.cpp'
++        'navigation.cpp',
++        'graphic_context_state.cpp',
+ #        'widget/events.cpp',
+ ])
+ 
+
+Modified: trunk/netbrush/drawing_context.cpp
+===================================================================
+--- trunk/netbrush/drawing_context.cpp	2006-10-19 23:02:30 UTC (rev 661)
++++ trunk/netbrush/drawing_context.cpp	2006-10-20 08:29:30 UTC (rev 662)
+@@ -106,30 +106,57 @@
+ }
+ 
+ void
+-DrawingContext::draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of)
++DrawingContext::draw(SDL_Surface* target_surf, const Rect&amp; rect, int x_of, int y_of)
+ {
+   // rect is in screenspace, x_of, y_of tell how to go from canvas to screenspace
+ 
+-  SDL_Rect target_pos;
+-  target_pos.x = rect.left;
+-  target_pos.y = rect.top;
+-  target_pos.w = rect.get_width();
+-  target_pos.h = rect.get_height();
++  if (1) // no zoom
++    {
++      SDL_Rect target_pos;
++      target_pos.x = rect.left;
++      target_pos.y = rect.top;
++      target_pos.w = rect.get_width();
++      target_pos.h = rect.get_height();
+ 
+-  SDL_Rect source_pos;
+-  source_pos.x = rect.left - x_of;
+-  source_pos.y = rect.top  - y_of;
+-  source_pos.w = rect.get_width();
+-  source_pos.h = rect.get_height();
++      SDL_Rect source_pos;
++      source_pos.x = rect.left - x_of;
++      source_pos.y = rect.top  - y_of;
++      source_pos.w = rect.get_width();
++      source_pos.h = rect.get_height();
+ 
+-  SDL_Rect r;
+-  r.x = 0;
+-  r.y = 0;
+-  r.w = drawable-&gt;w;
+-  r.h = drawable-&gt;h;
++      SDL_Rect r;
++      r.x = 0;
++      r.y = 0;
++      r.w = drawable-&gt;w;
++      r.h = drawable-&gt;h;
+ 
+-  clip_to(&amp;source_pos, &amp;r);
+-  SDL_BlitSurface(drawable, &amp;source_pos, target, &amp;target_pos);
++      clip_to(&amp;source_pos, &amp;r);
++      SDL_BlitSurface(drawable, &amp;source_pos, target_surf, &amp;target_pos);
++    }
++  else
++    {
++      SDL_LockSurface(target_surf);
++      SDL_LockSurface(drawable);
++
++      Uint8* target = static_cast&lt;Uint8*&gt;(target_surf-&gt;pixels);
++      Uint8* source = static_cast&lt;Uint8*&gt;(drawable-&gt;pixels);
++
++      // FIXME: do clipping or do clipping at a higher level in the code
++      float zoom = 2.0f;
++      for(int y = rect.top; y &lt; rect.bottom; ++y)
++        for(int x = rect.left; x &lt; rect.right; ++x)
++          {
++            int sx = int(x * zoom);
++            int sy = int(y * zoom);
++
++            target[y * target_surf-&gt;pitch + target_surf-&gt;format-&gt;BytesPerPixel * x + 2] = source[sy * drawable-&gt;pitch + drawable-&gt;format-&gt;BytesPerPixel * sx + 0];
++            target[y * target_surf-&gt;pitch + target_surf-&gt;format-&gt;BytesPerPixel * x + 1] = source[sy * drawable-&gt;pitch + drawable-&gt;format-&gt;BytesPerPixel * sx + 1];
++            target[y * target_surf-&gt;pitch + target_surf-&gt;format-&gt;BytesPerPixel * x + 0] = source[sy * drawable-&gt;pitch + drawable-&gt;format-&gt;BytesPerPixel * sx + 2];
++          }
++
++      SDL_UnlockSurface(drawable);
++      SDL_UnlockSurface(target_surf);
++    }
+ }
+ 
+ /* EOF */
+
+Added: trunk/netbrush/graphic_context_state.cpp
+===================================================================
+--- trunk/netbrush/graphic_context_state.cpp	2006-10-19 23:02:30 UTC (rev 661)
++++ trunk/netbrush/graphic_context_state.cpp	2006-10-20 08:29:30 UTC (rev 662)
+@@ -0,0 +1,201 @@
++//  $Id$
++//
++//  Flexlay - A Generic 2D Game Editor
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++//
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &lt;math.h&gt;
++#include &quot;graphic_context_state.hpp&quot;
++
++class GraphicContextStateImpl
++{
++public:
++  int width;
++  int height;
++  
++  Vector offset;
++  float zoom;
++  float rotation;
++};
++
++GraphicContextState::GraphicContextState()
++  : impl(new GraphicContextStateImpl())
++{
++  impl-&gt;width  = 1;
++  impl-&gt;height = 1; 
++  impl-&gt;offset = Vector(0,0);
++  impl-&gt;zoom   = 1.0f;
++  impl-&gt;rotation = 0;
++}
++
++GraphicContextState::GraphicContextState(int w, int h)
++  : impl(new GraphicContextStateImpl())
++{  
++  impl-&gt;width  = w;
++  impl-&gt;height = h;
++  impl-&gt;offset = Vector(0,0); 
++  impl-&gt;zoom   = 1.0f;
++  impl-&gt;rotation = 0;
++}
++
++void
++GraphicContextState::set_size(int w, int h)
++{
++  impl-&gt;width  = w;
++  impl-&gt;height = h;
++}
++
++#if 0
++void
++GraphicContextState::push(CL_GraphicContext* gc)
++{
++  if (gc == 0)
++    gc = CL_Display::get_current_window()-&gt;get_gc();
++  
++  gc-&gt;push_modelview();
++
++  gc-&gt;add_translate(impl-&gt;width/2, impl-&gt;height/2);
++  gc-&gt;add_rotate(impl-&gt;rotation, 0, 0, 1.0);
++  gc-&gt;add_translate(-impl-&gt;width/2, -impl-&gt;height/2);
++
++  gc-&gt;add_scale(get_zoom(), get_zoom());
++  gc-&gt;add_translate(impl-&gt;offset.x, impl-&gt;offset.y);
++}
++
++void
++GraphicContextState::pop(CL_GraphicContext* gc)
++{
++  if (gc == 0)
++    gc = CL_Display::get_current_window()-&gt;get_gc();
++  
++  gc-&gt;pop_modelview();
++}
++#endif
++
++Rectf
++GraphicContextState::get_clip_rect()
++{
++  return Rectf(Vector(-impl-&gt;offset.x,
++                            -impl-&gt;offset.y),
++                  Sizef(get_width()  / impl-&gt;zoom,
++                           get_height() / impl-&gt;zoom));
++}
++
++void
++GraphicContextState::set_pos(const Vector&amp; pos)
++{
++  impl-&gt;offset.x = -pos.x + (get_width()/2  / impl-&gt;zoom);
++  impl-&gt;offset.y = -pos.y + (get_height()/2 / impl-&gt;zoom);
++}
++
++Vector
++GraphicContextState::get_pos() const
++{
++  return Vector(-impl-&gt;offset.x + (get_width()/2  / impl-&gt;zoom),
++                   -impl-&gt;offset.y + (get_height()/2  / impl-&gt;zoom));
++}
++
++void
++GraphicContextState::set_zoom(Vector pos, float z)
++{
++  float old_zoom = impl-&gt;zoom;
++  set_zoom(z);
++  impl-&gt;offset.x = pos.x/impl-&gt;zoom - pos.x/old_zoom + impl-&gt;offset.x;
++  impl-&gt;offset.y = pos.y/impl-&gt;zoom - pos.y/old_zoom + impl-&gt;offset.y;
++}
++
++void
++GraphicContextState::set_zoom(float z)
++{
++  impl-&gt;zoom = z;
++}
++
++float
++GraphicContextState::get_zoom()
++{
++  return impl-&gt;zoom;
++}
++
++void
++GraphicContextState::zoom_to (const Rectf&amp; rect)
++{
++  float center_x = (rect.left + rect.right) / 2.0f;
++  float center_y = (rect.top + rect.bottom) / 2.0f;
++
++  float width  = rect.right - rect.left;
++  float height = rect.bottom - rect.top;
++  float screen_relation = float(get_height())/float(get_width ());
++  float rect_relation   = height/width; 
++  
++  //std::cout &lt;&lt; &quot;Screen: &quot; &lt;&lt; screen_relation &lt;&lt; &quot; Zoom: &quot; &lt;&lt; rect_relation &lt;&lt; std::endl;
++  if (rect_relation &lt; screen_relation) // take width, ignore height
++    {
++      impl-&gt;zoom = get_width()/width; 
++    }
++  else // take height, ignore width
++    {
++      impl-&gt;zoom = get_height()/height;
++    }
++
++  impl-&gt;offset.x = (get_width()  / (2*impl-&gt;zoom)) - center_x;
++  impl-&gt;offset.y = (get_height() / (2*impl-&gt;zoom)) - center_y;
++}
++
++Vector
++GraphicContextState::screen2world(const Point&amp; pos_)
++{
++  Vector pos(pos_.x, pos_.y);
++
++  float sa = sin(-impl-&gt;rotation/180.0f*M_PI);
++  float ca = cos(-impl-&gt;rotation/180.0f*M_PI);
++
++  float dx = pos.x - impl-&gt;width/2;
++  float dy = pos.y - impl-&gt;height/2;
++
++  pos.x = impl-&gt;width/2  + (ca * dx - sa * dy);
++  pos.y = impl-&gt;height/2 + (sa * dx + ca * dy);
++
++  Vector p((float(pos.x) / impl-&gt;zoom) - impl-&gt;offset.x, 
++              (float(pos.y) / impl-&gt;zoom) - impl-&gt;offset.y);
++
++  return p;
++}
++
++void
++GraphicContextState::set_rotation(float angle)
++{
++  impl-&gt;rotation = angle;
++}
++
++float
++GraphicContextState::get_rotation()
++{
++  return impl-&gt;rotation;
++}
++
++int
++GraphicContextState::get_width()  const 
++{
++  return impl-&gt;width; 
++}
++
++int
++GraphicContextState::get_height() const 
++{ 
++  return impl-&gt;height; 
++}
++
++/* EOF */
+
+Added: trunk/netbrush/graphic_context_state.hpp
+===================================================================
+--- trunk/netbrush/graphic_context_state.hpp	2006-10-19 23:02:30 UTC (rev 661)
++++ trunk/netbrush/graphic_context_state.hpp	2006-10-20 08:29:30 UTC (rev 662)
+@@ -0,0 +1,81 @@
++//  $Id$
++// 
++//  Flexlay - A Generic 2D Game Editor
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_GRAPHIC_CONTEXT_STATE_HXX
++#define HEADER_GRAPHIC_CONTEXT_STATE_HXX
++
++#include &quot;math/rect.hpp&quot;
++#include &quot;math/point.hpp&quot;
++
++class CL_GraphicContext;
++
++class GraphicContextStateImpl;
++
++/** Helper class for capturing the state of a GraphicContext, with
++    additional convenience functions to make handling GraphicContexts
++    easier */
++class GraphicContextState
++{
++public:
++  GraphicContextState();
++  GraphicContextState(int w, int h);
++
++  void set_size(int w, int h);
++
++  //void push(CL_GraphicContext* gc = 0);
++  //void pop (CL_GraphicContext* gc = 0);
++
++  /** Return a rectangle in world coordinates that represents the area
++      visible on the screen */
++  Rectf get_clip_rect();
++
++  int get_width()  const;
++  int get_height() const;
++
++  /** Set the current rotation angel */
++  void  set_rotation(float angle);
++
++  /** Return the current rotation angel */
++  float get_rotation();
++
++  /** Move the center of the visible area to pos */
++  void   set_pos(const Vector&amp; pos);
++  Vector get_pos() const;
++
++  /** Set zoom to z, while ensuring that the screen position \a pos
++      (normaly the position of the mouse pointer) stays in the same
++      position even after zoomed in/out */
++  void  set_zoom(Vector pos, float z);
++  void  set_zoom(float z);
++  float get_zoom(); 
++
++  void zoom_to (const Rectf&amp; rect);
++
++  Vector screen2world(const Point&amp; pos);
++
++private:
++  GraphicContextStateImpl* impl;
++
++  GraphicContextState (const GraphicContextState&amp;);
++  GraphicContextState&amp; operator= (const GraphicContextState&amp;);
++};
++
++#endif
++
++/* EOF */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000156.html">[Flexlay-commit] r661 - trunk/netbrush
+</A></li>
+	<LI>Next message: <A HREF="000158.html">[Flexlay-commit] r663 - in trunk/netbrush: . src src/widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

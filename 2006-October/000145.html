@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r649 - trunk/netbrush
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r649%20-%20trunk/netbrush&In-Reply-To=%3C200610191224.k9JCO4En002625%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000144.html">
+   <LINK REL="Next"  HREF="000146.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r649 - trunk/netbrush</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r649%20-%20trunk/netbrush&In-Reply-To=%3C200610191224.k9JCO4En002625%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r649 - trunk/netbrush">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 19 14:24:04 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000144.html">[Flexlay-commit] r648 - trunk/netbrush
+</A></li>
+        <LI>Next message: <A HREF="000146.html">[Flexlay-commit] r650 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-19 14:24:04 +0200 (Thu, 19 Oct 2006)
+New Revision: 649
+
+Added:
+   trunk/netbrush/server_connection.hpp
+Log:
+- fixed offline mode
+
+Added: trunk/netbrush/server_connection.hpp
+===================================================================
+--- trunk/netbrush/server_connection.hpp	2006-10-19 12:22:20 UTC (rev 648)
++++ trunk/netbrush/server_connection.hpp	2006-10-19 12:24:04 UTC (rev 649)
+@@ -0,0 +1,62 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_SERVER_CONNECTION_HPP
++#define HEADER_SERVER_CONNECTION_HPP
++
++#include &lt;string&gt;
++#include &quot;SDL_net.h&quot;
++
++class Stroke;
++class DrawingParameter;
++
++/** */
++class ServerConnection
++{
++private:
++  TCPsocket tcpsock;
++  SDLNet_SocketSet socketset;
++  std::string buffer;
++
++public:
++  ServerConnection();
++  ~ServerConnection();
++
++  void connect(const char* hostname, Uint16 port);
++
++  /** Send a string to the server, you must add the trailing newline
++      yourself to \a str */
++  void send(const std::string&amp; str);
++  void send_stroke(const Stroke&amp; stroke, DrawingParameter* param);
++  void update();
++  void process_command(const std::string&amp; cmd);
++private:
++  ServerConnection (const ServerConnection&amp;);
++  ServerConnection&amp; operator= (const ServerConnection&amp;);
++};
++
++#endif
++
++/* EOF */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000144.html">[Flexlay-commit] r648 - trunk/netbrush
+</A></li>
+	<LI>Next message: <A HREF="000146.html">[Flexlay-commit] r650 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

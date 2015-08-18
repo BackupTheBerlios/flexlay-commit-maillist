@@ -1,0 +1,221 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r601 - in trunk: lib ruby windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r601%20-%20in%20trunk%3A%20lib%20ruby%20windstille&In-Reply-To=%3C200508170055.j7H0tjMW007151%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000095.html">
+   <LINK REL="Next"  HREF="000097.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r601 - in trunk: lib ruby windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r601%20-%20in%20trunk%3A%20lib%20ruby%20windstille&In-Reply-To=%3C200508170055.j7H0tjMW007151%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r601 - in trunk: lib ruby windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Wed Aug 17 02:55:45 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000095.html">[Flexlay-commit] r600 - trunk/windstille
+</A></li>
+        <LI>Next message: <A HREF="000097.html">[Flexlay-commit] r602 - in trunk: ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#96">[ date ]</a>
+              <a href="thread.html#96">[ thread ]</a>
+              <a href="subject.html#96">[ subject ]</a>
+              <a href="author.html#96">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-17 02:55:27 +0200 (Wed, 17 Aug 2005)
+New Revision: 601
+
+Modified:
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/tilemap_layer.cxx
+   trunk/lib/tilemap_layer.hxx
+   trunk/ruby/flexlay.rb
+   trunk/windstille/gui.rb
+   trunk/windstille/windstille.rb
+Log:
+- some cleanup
+- added metadata handling to TilemapLayer
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-08-15 11:47:55 UTC (rev 600)
++++ trunk/lib/flexlay_wrap.i	2005-08-17 00:55:27 UTC (rev 601)
+@@ -205,6 +205,6 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
+-// 1
++// 2
+ 
+ /* EOF */
+
+Modified: trunk/lib/tilemap_layer.cxx
+===================================================================
+--- trunk/lib/tilemap_layer.cxx	2005-08-15 11:47:55 UTC (rev 600)
++++ trunk/lib/tilemap_layer.cxx	2005-08-17 00:55:27 UTC (rev 601)
+@@ -39,9 +39,6 @@
+ class TilemapLayerImpl : public LayerImpl
+ {
+ public:
+-  TilemapLayerImpl() {}
+-  virtual ~TilemapLayerImpl() {}
+-
+   Tileset tileset;
+   CL_Color background_color;
+   CL_Color foreground_color;
+@@ -52,6 +49,11 @@
+   bool draw_grid;
+   bool draw_attribute;
+ 
++  MetaData metadata;
++
++  TilemapLayerImpl() {}
++  virtual ~TilemapLayerImpl() {}
++
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
+   void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
+@@ -414,4 +416,16 @@
+    return Layer(impl);
+ }
+ 
++void
++TilemapLayer::set_metadata(const MetaData&amp; metadata)
++{
++  impl-&gt;metadata = metadata;
++}
++
++MetaData
++TilemapLayer::get_metadata() const
++{
++  return impl-&gt;metadata;
++}
++
+ /* EOF */
+
+Modified: trunk/lib/tilemap_layer.hxx
+===================================================================
+--- trunk/lib/tilemap_layer.hxx	2005-08-15 11:47:55 UTC (rev 600)
++++ trunk/lib/tilemap_layer.hxx	2005-08-17 00:55:27 UTC (rev 601)
+@@ -22,6 +22,7 @@
+ 
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &quot;field.hxx&quot;
++#include &quot;meta_data.hxx&quot;
+ #include &quot;shared_ptr.hxx&quot;
+ #include &quot;layer.hxx&quot;
+ 
+@@ -58,6 +59,9 @@
+   const std::vector&lt;int&gt;&amp; get_data();
+   void set_data(std::vector&lt;int&gt; d);
+ 
++  void   set_metadata(const MetaData&amp; obj);
++  MetaData get_metadata() const;
++
+   /** Draw the gives brush to the map */
+   void draw_tile(const TileBrush&amp; brush, const CL_Point&amp; pos);
+ 
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-08-15 11:47:55 UTC (rev 600)
++++ trunk/ruby/flexlay.rb	2005-08-17 00:55:27 UTC (rev 601)
+@@ -1,4 +1,15 @@
+ class TilemapLayer
++  alias orig_get_metadata get_metadata
++  alias orig_set_metadata set_metadata
++
++  def set_metadata(data)
++    orig_set_metadata(make_metadata(data))
++  end
++
++  def get_metadata()
++    return get_ruby_object(orig_get_metadata())
++  end
++
+   def each(x, y, width, height)
+     data = get_data()
+     (y..height-1).each{
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-15 11:47:55 UTC (rev 600)
++++ trunk/windstille/gui.rb	2005-08-17 00:55:27 UTC (rev 601)
+@@ -55,18 +55,18 @@
+     @button_panel.items[&quot;redo&quot;].disable()
+ 
+     @layer_menu = Menu.new(CL_Point.new(32*15+2, 54), @gui.get_component())
+-    @layer_menu.add_item($mysprite, &quot;Show all&quot;,          proc{ show_all() })
+-    @layer_menu.add_item($mysprite, &quot;Show current&quot;,      proc{ show_current() })
+-    @layer_menu.add_item($mysprite, &quot;Show only current&quot;, proc{ show_only_current() })
++    @layer_menu.add_item(&quot;Show all&quot;,          proc{ show_all() })
++    @layer_menu.add_item(&quot;Show current&quot;,      proc{ show_current() })
++    @layer_menu.add_item(&quot;Show only current&quot;, proc{ show_only_current() })
+     
+     @toolbar = ButtonPanel.new_from_spec(0, 23+33, 33, 32*4+2, false, $toolbar_spec, @gui.get_component)
+     @menu    = components.get('menubar').component
+ 
+     # FIXME: Having position in the Menus here is EXTREMLY ugly
+     @tilegroup_menu = Menu.new(CL_Point.new(35*15+2, 54), @gui.get_component())
+-    @tilegroup_menu.add_item($mysprite, &quot;All Tiles&quot;, proc{@tileselector.set_tiles($tileset.get_tiles())})
++    @tilegroup_menu.add_item(&quot;All Tiles&quot;, proc{@tileselector.set_tiles($tileset.get_tiles())})
+     $tileset.tilegroups.each { |tilegroup|
+-      @tilegroup_menu.add_item($mysprite, tilegroup.name, proc{@tileselector.set_tiles(tilegroup.tiles)})
++      @tilegroup_menu.add_item(tilegroup.name, proc{@tileselector.set_tiles(tilegroup.tiles)})
+     }
+ 
+     @tileselector = components.get('tileselector').component
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-08-15 11:47:55 UTC (rev 600)
++++ trunk/windstille/windstille.rb	2005-08-17 00:55:27 UTC (rev 601)
+@@ -52,9 +52,6 @@
+ 
+ $controller = Controller.new()
+ 
+-$mysprite = make_sprite(&quot;../data/images/icons16/stock_paste-16.png&quot;)
+-
+-             
+ $resources = CL_ResourceManager.new(&quot;../data/flexlay.xml&quot;)
+ 
+ $tileset = Tileset.new(32)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000095.html">[Flexlay-commit] r600 - trunk/windstille
+</A></li>
+	<LI>Next message: <A HREF="000097.html">[Flexlay-commit] r602 - in trunk: ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#96">[ date ]</a>
+              <a href="thread.html#96">[ thread ]</a>
+              <a href="subject.html#96">[ subject ]</a>
+              <a href="author.html#96">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

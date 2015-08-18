@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r626 - in trunk: lib netpanzer ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r626%20-%20in%20trunk%3A%20lib%20netpanzer%20ruby&In-Reply-To=%3C200603111859.k2BIx4OY001520%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000124.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r626 - in trunk: lib netpanzer ruby</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r626%20-%20in%20trunk%3A%20lib%20netpanzer%20ruby&In-Reply-To=%3C200603111859.k2BIx4OY001520%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r626 - in trunk: lib netpanzer ruby">grumbel at berlios.de
+       </A><BR>
+    <I>Sat Mar 11 19:59:04 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000124.html">[Flexlay-commit] r627 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#123">[ date ]</a>
+              <a href="thread.html#123">[ thread ]</a>
+              <a href="subject.html#123">[ subject ]</a>
+              <a href="author.html#123">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-03-11 19:58:58 +0100 (Sat, 11 Mar 2006)
+New Revision: 626
+
+Modified:
+   trunk/lib/SConstruct
+   trunk/netpanzer/SConstruct
+   trunk/ruby/SConstruct
+Log:
+- switched to ClanLib-0.8
+
+Modified: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2006-02-12 17:55:26 UTC (rev 625)
++++ trunk/lib/SConstruct	2006-03-11 18:58:58 UTC (rev 626)
+@@ -36,17 +36,17 @@
+ Help(opts.GenerateHelpText(env))
+ 
+ #env.Program('sharedptrtest', 'sharedptrtest.cxx',
+-#            CPPPATH=['/home/ingo/run/ClanLib-0.7-current/include/ClanLib-0.7/'])
++#            CPPPATH=['/home/ingo/run/ClanLib-0.8-current/include/ClanLib-0.8/'])
+ 
+ # env.Program('simpleed',
+ #             ['simpleed.cxx'],
+ #             CPPPATH=['.', 
+-#                     '/home/ingo/run/ClanLib-0.7-current//include/ClanLib-0.7/'],
+-#            LIBPATH=['.', '/home/ingo/run/ClanLib-0.7-current//lib/'],
++#                     '/home/ingo/run/ClanLib-0.8-current//include/ClanLib-0.8/'],
++#            LIBPATH=['.', '/home/ingo/run/ClanLib-0.8-current//lib/'],
+ #            LIBS=['flexlay'])
+ 
+ clanLib_env = Environment()
+-clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7&quot;)
++clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
+ 
+ libflexlay_env = env.Copy()
+ flexlay_lib = libflexlay_env.StaticLibrary(
+
+Modified: trunk/netpanzer/SConstruct
+===================================================================
+--- trunk/netpanzer/SConstruct	2006-02-12 17:55:26 UTC (rev 625)
++++ trunk/netpanzer/SConstruct	2006-03-11 18:58:58 UTC (rev 626)
+@@ -41,7 +41,7 @@
+             &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+ 
+ clanLib_env = Environment()
+-clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7&quot;)
++clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
+ 
+ libflexlay_ruby_env = env.Copy()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+
+Modified: trunk/ruby/SConstruct
+===================================================================
+--- trunk/ruby/SConstruct	2006-02-12 17:55:26 UTC (rev 625)
++++ trunk/ruby/SConstruct	2006-03-11 18:58:58 UTC (rev 626)
+@@ -54,7 +54,7 @@
+ #            &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+ 
+ clanLib_env = Environment()
+-clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7&quot;)
++clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
+ 
+ libflexlay_ruby_env = env.Copy()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000124.html">[Flexlay-commit] r627 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#123">[ date ]</a>
+              <a href="thread.html#123">[ thread ]</a>
+              <a href="subject.html#123">[ subject ]</a>
+              <a href="author.html#123">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r737 - in trunk/flexlay/lib: . gui
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r737%20-%20in%20trunk/flexlay/lib%3A%20.%20gui&In-Reply-To=%3C200911231527.nANFRi4S000705%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000229.html">
+   <LINK REL="Next"  HREF="000231.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r737 - in trunk/flexlay/lib: . gui</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r737%20-%20in%20trunk/flexlay/lib%3A%20.%20gui&In-Reply-To=%3C200911231527.nANFRi4S000705%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r737 - in trunk/flexlay/lib: . gui">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov 23 16:27:44 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000229.html">[Flexlay-commit] r736 - trunk/flexlay/lib
+</A></li>
+        <LI>Next message: <A HREF="000231.html">[Flexlay-commit] r738 - trunk/flexlay/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#230">[ date ]</a>
+              <a href="thread.html#230">[ thread ]</a>
+              <a href="subject.html#230">[ subject ]</a>
+              <a href="author.html#230">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-23 16:27:44 +0100 (Mon, 23 Nov 2009)
+New Revision: 737
+
+Modified:
+   trunk/flexlay/lib/generated_brush.cpp
+   trunk/flexlay/lib/gui/editor_map_component.cpp
+   trunk/flexlay/lib/onion_skin_layer.cpp
+   trunk/flexlay/lib/tilemap_layer.hpp
+   trunk/flexlay/lib/workspace.cpp
+   trunk/flexlay/lib/workspace.hpp
+Log:
+Reduced EditorMapComponent dependency, replaced some incorrect dynamic_cast&lt;&gt; hacks with boost::dynamic_pointer_cast&lt;&gt;
+
+
+Modified: trunk/flexlay/lib/generated_brush.cpp
+===================================================================
+--- trunk/flexlay/lib/generated_brush.cpp	2009-11-23 15:21:19 UTC (rev 736)
++++ trunk/flexlay/lib/generated_brush.cpp	2009-11-23 15:27:44 UTC (rev 737)
+@@ -39,8 +39,8 @@
+   BrushImpl* clone() const;
+ };
+ 
+-GeneratedBrush::GeneratedBrush(const Brush&amp; brush)
+-  : impl(dynamic_cast&lt;GeneratedBrushImpl*&gt;(brush.impl.get())) // FIXME: WANT WORK WITH REAL SMARTPTR!!!
++GeneratedBrush::GeneratedBrush(const Brush&amp; brush) :
++  impl(boost::dynamic_pointer_cast&lt;GeneratedBrushImpl&gt;(brush.impl))
+ {
+ }
+ 
+@@ -49,8 +49,8 @@
+                                int    spikes,        /* 2 - 20     */
+                                float  hardness,      /* 0.0 - 1.0  */
+                                float  aspect_ratio,  /* y/x        */
+-                               float  angle)
+-  : impl(new GeneratedBrushImpl())
++                               float  angle) :
++  impl(new GeneratedBrushImpl())
+ {
+   impl-&gt;shape        = shape;
+   impl-&gt;radius       = radius;
+
+Modified: trunk/flexlay/lib/gui/editor_map_component.cpp
+===================================================================
+--- trunk/flexlay/lib/gui/editor_map_component.cpp	2009-11-23 15:21:19 UTC (rev 736)
++++ trunk/flexlay/lib/gui/editor_map_component.cpp	2009-11-23 15:27:44 UTC (rev 737)
+@@ -18,6 +18,8 @@
+ #include &lt;ClanLib/Display/keyboard.h&gt;
+ #include &lt;ClanLib/Display/mouse.h&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
++#include &lt;ClanLib/Display/display_window.h&gt;
++
+ #include &quot;editor_map.hpp&quot;
+ #include &quot;scrollbar.hpp&quot;
+ #include &quot;editor_map_component.hpp&quot;
+@@ -163,7 +165,7 @@
+   scrollbar_h-&gt;set_pos(gc_state.get_pos().x);
+ 
+   gc_state.push();
+-  workspace.draw();
++  workspace.draw(gc_state, CL_Display::get_current_window()-&gt;get_gc());
+   gc_state.pop();
+ 
+   CL_Display::pop_modelview();
+
+Modified: trunk/flexlay/lib/onion_skin_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-23 15:21:19 UTC (rev 736)
++++ trunk/flexlay/lib/onion_skin_layer.cpp	2009-11-23 15:27:44 UTC (rev 737)
+@@ -55,8 +55,8 @@
+   }
+ };
+ 
+-OnionSkinLayer::OnionSkinLayer(Layer layer)
+-  : impl(dynamic_cast&lt;OnionSkinLayerImpl*&gt;(layer.impl.get())) // FIXME: WONT WORK WITH REAL SMARTPTR!!!
++OnionSkinLayer::OnionSkinLayer(Layer layer) :
++  impl(boost::dynamic_pointer_cast&lt;OnionSkinLayerImpl&gt;(layer.impl))
+ {
+ }
+ 
+
+Modified: trunk/flexlay/lib/tilemap_layer.hpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.hpp	2009-11-23 15:21:19 UTC (rev 736)
++++ trunk/flexlay/lib/tilemap_layer.hpp	2009-11-23 15:27:44 UTC (rev 737)
+@@ -27,7 +27,6 @@
+ class Tileset;
+ class TileBrush;
+ class TilemapLayerImpl;
+-class EditorMapComponent;
+ 
+ class TilemapLayer
+ {
+
+Modified: trunk/flexlay/lib/workspace.cpp
+===================================================================
+--- trunk/flexlay/lib/workspace.cpp	2009-11-23 15:21:19 UTC (rev 736)
++++ trunk/flexlay/lib/workspace.cpp	2009-11-23 15:27:44 UTC (rev 737)
+@@ -51,7 +51,7 @@
+ }
+ 
+ void
+-Workspace::draw()
++Workspace::draw(const GraphicContextState&amp; state, CL_GraphicContext* gc)
+ {
+   assert(impl.get());
+ 
+
+Modified: trunk/flexlay/lib/workspace.hpp
+===================================================================
+--- trunk/flexlay/lib/workspace.hpp	2009-11-23 15:21:19 UTC (rev 736)
++++ trunk/flexlay/lib/workspace.hpp	2009-11-23 15:27:44 UTC (rev 737)
+@@ -36,7 +36,7 @@
+ 
+   Workspace(bool create = false);
+ 
+-  void draw();
++  void draw(const GraphicContextState&amp; state, CL_GraphicContext* gc);
+ 
+   void mouse_up  (const CL_InputEvent&amp; event);
+   void mouse_down(const CL_InputEvent&amp; event);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000229.html">[Flexlay-commit] r736 - trunk/flexlay/lib
+</A></li>
+	<LI>Next message: <A HREF="000231.html">[Flexlay-commit] r738 - trunk/flexlay/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#230">[ date ]</a>
+              <a href="thread.html#230">[ thread ]</a>
+              <a href="subject.html#230">[ subject ]</a>
+              <a href="author.html#230">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

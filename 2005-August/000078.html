@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r583 - trunk/netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r583%20-%20trunk/netpanzer&In-Reply-To=%3C200508051318.j75DII4u021801%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000077.html">
+   <LINK REL="Next"  HREF="000079.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r583 - trunk/netpanzer</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r583%20-%20trunk/netpanzer&In-Reply-To=%3C200508051318.j75DII4u021801%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r583 - trunk/netpanzer">grumbel at berlios.de
+       </A><BR>
+    <I>Fri Aug  5 15:18:18 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000077.html">[Flexlay-commit] r582 - trunk/windstille
+</A></li>
+        <LI>Next message: <A HREF="000079.html">[Flexlay-commit] r584 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-05 15:18:16 +0200 (Fri, 05 Aug 2005)
+New Revision: 583
+
+Modified:
+   trunk/netpanzer/netpanzer.cxx
+   trunk/netpanzer/netpanzer.hxx
+   trunk/netpanzer/netpanzer.i
+   trunk/netpanzer/netpanzer.rb
+Log:
+- added move attributes
+
+Modified: trunk/netpanzer/netpanzer.cxx
+===================================================================
+--- trunk/netpanzer/netpanzer.cxx	2005-08-03 14:49:10 UTC (rev 582)
++++ trunk/netpanzer/netpanzer.cxx	2005-08-05 13:18:16 UTC (rev 583)
+@@ -127,7 +127,7 @@
+   datadir = datadir_;
+   std::cout &lt;&lt; &quot;NetPanzerData: Loading data from '&quot; &lt;&lt; datadir &lt;&lt; &quot;'&quot; &lt;&lt; std::endl;
+   palette = load_palette(datadir + &quot;/&quot; + &quot;wads/netp.act&quot;);
+-  tileset = load_tileset(datadir + &quot;/&quot; + &quot;wads/summer12mb.tls&quot;);
++  load_tileset(datadir + &quot;/&quot; + &quot;wads/summer12mb.tls&quot;);
+ }
+ 
+ CL_Surface
+@@ -142,16 +142,54 @@
+           {
+             const CL_Palette&amp; palette = NetPanzerData::instance()-&gt;get_palette();
+             unsigned char* data = NetPanzerData::instance()-&gt;get_tiledata() + (32*32) * (start + width*y + x);
+-            
++
++            NetPanzerTileHeader header = NetPanzerData::instance()-&gt;get_tile_headers()[start + width*y + x]; 
++           
+             CL_PixelBuffer tile(32, 32, 32*3, CL_PixelFormat::rgb888);
++
+             tile.lock();
+             unsigned char* target = static_cast&lt;unsigned char*&gt;(tile.get_data());
+ 
++            float r = 1.0f;
++            float g = 1.0f;
++            float b = 1.0f;
++
++            switch (header.move_value)
++              {
++              case 0: // streets, allowing faster movement
++                r = 1.0f;
++                g = 1.0f;
++                b = 0.0f;
++                break;
++
++              case 1: // normal ground which allows to move
++                r = 1.0f;
++                g = 1.0f;
++                b = 1.0f;
++                break;
++
++              case 4: // unpassable terrain
++                r = 0.0f;
++                g = 1.0;
++                b = 0.0f;
++                break;
++
++              case 5: // water
++                r = 0.0f;
++                g = 0.0f;
++                b = 1.0f;
++                break;
++
++              default:
++                std::cout &lt;&lt; &quot;Unknown header value: &quot; &lt;&lt; int(header.move_value) &lt;&lt; std::endl;
++                break;
++              }
++
+             for(int i = 0; i &lt; 32*32; ++i)
+               {
+-                target[3*i+0] = palette[data[i]].get_blue();
+-                target[3*i+1] = palette[data[i]].get_green();
+-                target[3*i+2] = palette[data[i]].get_red();
++                target[3*i+0] = int(palette[data[i]].get_blue()  * b);
++                target[3*i+1] = int(palette[data[i]].get_green() * g);
++                target[3*i+2] = int(palette[data[i]].get_red()   * r);
+               }
+             tile.unlock();
+                 
+@@ -211,6 +249,12 @@
+   return palette;
+ }
+ 
++const std::vector&lt;NetPanzerTileHeader&gt;&amp;
++NetPanzerData::get_tile_headers() const
++{
++  return tile_headers;
++}
++
+ unsigned char*
+ NetPanzerData::get_tiledata() const
+ {
+@@ -243,7 +287,7 @@
+   return palette;
+ }
+ 
+-Tileset
++void
+ NetPanzerData::load_tileset(const std::string&amp; filename)
+ {
+   unsigned char	netp_id_header[64];
+@@ -258,7 +302,6 @@
+   if (!file)
+     {
+       std::cout &lt;&lt; &quot;Couldn't load &quot; &lt;&lt; filename &lt;&lt; std::endl;
+-      return Tileset();
+     }
+   else
+     {
+@@ -269,9 +312,9 @@
+       file.read(reinterpret_cast&lt;char*&gt;(&amp;tile_count), sizeof(tile_count));
+       file.read(reinterpret_cast&lt;char*&gt;(raw_palette), sizeof(raw_palette));
+ 
+-      NetPanzerTileHeader* tile_headers = new NetPanzerTileHeader[tile_count];
++      tile_headers.resize(tile_count);
+ 
+-      file.read(reinterpret_cast&lt;char*&gt;(tile_headers), 
++      file.read(reinterpret_cast&lt;char*&gt;(&amp;*tile_headers.begin()), 
+                 sizeof(NetPanzerTileHeader)*tile_count);
+ 
+       cl_uint32 tilesize = width * height;
+@@ -287,14 +330,13 @@
+       
+       NetPanzerData::instance()-&gt;tiledata = tiledata;
+       
+-      Tileset tileset(width);
++      tileset = Tileset(width);
+ 
+       for(int i = 0; i &lt; tile_count; ++i)
+         {
+           Tile tile(TileProvider(new NetPanzerTileProviderImpl(i)));
+           tileset.add_tile(i, &amp;tile);
+         }
+-      return tileset;
+     }
+ }
+ 
+
+Modified: trunk/netpanzer/netpanzer.hxx
+===================================================================
+--- trunk/netpanzer/netpanzer.hxx	2005-08-03 14:49:10 UTC (rev 582)
++++ trunk/netpanzer/netpanzer.hxx	2005-08-05 13:18:16 UTC (rev 583)
+@@ -73,7 +73,7 @@
+   unsigned char* tiledata;
+   typedef std::vector&lt;NetPanzerTileGroup&gt; TileGroups;
+   TileGroups tilegroups;
+-
++  std::vector&lt;NetPanzerTileHeader&gt; tile_headers;
+ public:
+   NetPanzerData();
+ 
+@@ -89,15 +89,18 @@
+   void load_data(const std::string&amp; datadir_);
+   const CL_Palette&amp; get_palette() const;
+   const Tileset&amp;    get_tileset() const;
++  const std::vector&lt;NetPanzerTileHeader&gt;&amp; get_tile_headers() const;
+   unsigned char*    get_tiledata() const;
+ 
+   CL_Palette load_palette(const std::string&amp; filename);
+-  Tileset    load_tileset(const std::string&amp; filename);
+   CL_Sprite  get_tilegroup_sprite(int index);
+ 
+   /** Locate the tilegroup in which the tile with \a tileindex is
+       located */
+   NetPanzerTileGroup&amp; find_tilegroup(int tileindex);
++
++private:
++  void       load_tileset(const std::string&amp; filename);
+ };
+ 
+ class NetPanzerFileStruct
+
+Modified: trunk/netpanzer/netpanzer.i
+===================================================================
+--- trunk/netpanzer/netpanzer.i	2005-08-03 14:49:10 UTC (rev 582)
++++ trunk/netpanzer/netpanzer.i	2005-08-05 13:18:16 UTC (rev 583)
+@@ -11,4 +11,5 @@
+ %import  &quot;../lib/flexlay_wrap.i&quot;
+ %include &quot;netpanzer.hxx&quot;
+ 
++
+ // EOF //
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-08-03 14:49:10 UTC (rev 582)
++++ trunk/netpanzer/netpanzer.rb	2005-08-05 13:18:16 UTC (rev 583)
+@@ -51,8 +51,7 @@
+ 
+ $config = Config.new()
+ 
+-$datadir = &quot;/home/matze/projects/netpanzer&quot;
+-
++$datadir = &quot;/home/ingo/projects/netpanzer/netpanzer&quot;
+ $brushes.each_with_index{|(start, width, height, name), index|
+   NetPanzerData::instance().register_tilegroup(start, width, height)
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000077.html">[Flexlay-commit] r582 - trunk/windstille
+</A></li>
+	<LI>Next message: <A HREF="000079.html">[Flexlay-commit] r584 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

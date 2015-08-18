@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r521 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r521%20-%20trunk/supertux&In-Reply-To=%3C200503301818.j2UIIser016286%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000029.html">
+   <LINK REL="Next"  HREF="000031.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r521 - trunk/supertux</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r521%20-%20trunk/supertux&In-Reply-To=%3C200503301818.j2UIIser016286%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r521 - trunk/supertux">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Wed Mar 30 20:18:54 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000029.html">[Flexlay-commit] r520 - in trunk: lib netpanzer
+</A></li>
+        <LI>Next message: <A HREF="000031.html">[Flexlay-commit] r522 - trunk/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-30 20:18:52 +0200 (Wed, 30 Mar 2005)
+New Revision: 521
+
+Modified:
+   trunk/supertux/gui.rb
+Log:
+- increased size of object selector
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2005-03-30 17:45:18 UTC (rev 520)
++++ trunk/supertux/gui.rb	2005-03-30 18:18:52 UTC (rev 521)
+@@ -35,7 +35,7 @@
+     @tileselector.set_tiles($tileset.get_tiles())
+     @tileselector.show(false)
+     
+-    @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, 256), 42, 42, @selector_window)
++    @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, 552), 42, 42, @selector_window)
+     @objectselector.show(true)
+ 
+     # connect_v1_ObjMapObject
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000029.html">[Flexlay-commit] r520 - in trunk: lib netpanzer
+</A></li>
+	<LI>Next message: <A HREF="000031.html">[Flexlay-commit] r522 - trunk/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r638 - in trunk: clanlib/GL/GLX lib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r638%20-%20in%20trunk%3A%20clanlib/GL/GLX%20lib&In-Reply-To=%3C200607111433.k6BEXOav006524%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000134.html">
+   <LINK REL="Next"  HREF="000136.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r638 - in trunk: clanlib/GL/GLX lib</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r638%20-%20in%20trunk%3A%20clanlib/GL/GLX%20lib&In-Reply-To=%3C200607111433.k6BEXOav006524%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r638 - in trunk: clanlib/GL/GLX lib">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 16:33:24 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000134.html">[Flexlay-commit] r637 - in trunk: lib lib/tools supertux
+</A></li>
+        <LI>Next message: <A HREF="000136.html">[Flexlay-commit] r639 - in trunk: lib lib/tools supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-11 16:33:23 +0200 (Tue, 11 Jul 2006)
+New Revision: 638
+
+Modified:
+   trunk/clanlib/GL/GLX/input_device_x11mouse.cpp
+   trunk/lib/editor_map_component.cxx
+Log:
+- removed braindead dblclick handling
+
+Modified: trunk/clanlib/GL/GLX/input_device_x11mouse.cpp
+===================================================================
+--- trunk/clanlib/GL/GLX/input_device_x11mouse.cpp	2006-07-11 14:12:31 UTC (rev 637)
++++ trunk/clanlib/GL/GLX/input_device_x11mouse.cpp	2006-07-11 14:33:23 UTC (rev 638)
+@@ -150,62 +150,54 @@
+ 
+ void CL_InputDevice_X11Mouse::received_mouse_input(XEvent &amp;e)
+ {
+-	XButtonEvent event = (XButtonEvent&amp;)e;
++  XButtonEvent event = (XButtonEvent&amp;)e;
+ 	
+-	int id = 0;
+-	bool down = false;
+-	int repeat_count = 0;
++  int  id = 0;
++  bool down = false;
++  int  repeat_count = 0;
+ 	
+-	mouse_pos.x = event.x;
+-	mouse_pos.y = event.y;
++  mouse_pos.x = event.x;
++  mouse_pos.y = event.y;
+ 
+-	Time time_change = event.time - time_at_last_press;
++  switch(event.button)
++    {
++    case 1: id = 0; break; // left
++    case 3: id = 1; break; // right
++    case 2: id = 2; break; // middle
++    default: id = event.button-1;
++    }
++
++  CL_InputEvent::Type event_type;
++  
++  if (event.type == ButtonPress)
++    {
++      down = true;
++    } 
++  else if (event.type == ButtonRelease)
++    {
++      down = false;
++    }
+ 	
+-	switch(event.button)
+-	{
+-		case 1: id = 0; break; // left
+-		case 3: id = 1; break; // right
+-		case 2: id = 2; break; // middle
+-		default: id = event.button-1;
+-	}
+-	
+-	if (event.type == ButtonPress)
+-	{
+-		time_at_last_press = event.time;
+-		last_press_id = id;
+-	}
+-	
+-	CL_InputEvent::Type event_type = CL_InputEvent::released;
+-	
+-	if (event.type == ButtonPress)
+-	{
+-		event_type = CL_InputEvent::pressed;
+-		down = true;
+-		if(time_change &lt; 500)
+-			repeat_count = 2;
+-	}
+-	
+-	if( id &gt;= 0 &amp;&amp; id &lt; 5 )
+-		key_states[id] = down;
++  if( id &gt;= 0 &amp;&amp; id &lt; 5 )
++    key_states[id] = down;
+ 
+-	// Prepare event to be emitted:
+-	CL_InputEvent key;
+-	key.id        = id;
+-	key.type      = event_type;
+-	key.device    = owner-&gt;mouse;
+-	key.mouse_pos = mouse_pos;
+-	key.repeat_count = repeat_count;
+-	// Emit message:
+-	if(repeat_count &gt; 1)
+-	{
+-		owner-&gt;mouse.sig_key_dblclk().call(key);
+-	}
+-	else if (down)
+-	{
+-		owner-&gt;mouse.sig_key_down().call(key);
+-	}
+-	else
+-		owner-&gt;mouse.sig_key_up().call(key);
++  // Prepare event to be emitted:
++  CL_InputEvent key;
++  key.id           = id;
++  key.type         = down ? CL_InputEvent::pressed : CL_InputEvent::released;
++  key.device       = owner-&gt;mouse;
++  key.mouse_pos    = mouse_pos;
++  key.repeat_count = repeat_count;
++
++  // Emit message:
++  if (down)
++    {
++      owner-&gt;mouse.sig_key_down().call(key);
++    }
++  else
++    {
++      owner-&gt;mouse.sig_key_up().call(key);
++    }
+ }
+ 
+ void CL_InputDevice_X11Mouse::received_mouse_move(XEvent &amp;e)
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2006-07-11 14:12:31 UTC (rev 637)
++++ trunk/lib/editor_map_component.cxx	2006-07-11 14:33:23 UTC (rev 638)
+@@ -152,6 +152,7 @@
+ void
+ EditorMapComponentImpl::mouse_down(const CL_InputEvent&amp; event)
+ {
++  std::cout &lt;&lt; &quot;Event: &quot; &lt;&lt; event.id &lt;&lt; std::endl;
+   workspace.mouse_down(event);
+ }
+   
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000134.html">[Flexlay-commit] r637 - in trunk: lib lib/tools supertux
+</A></li>
+	<LI>Next message: <A HREF="000136.html">[Flexlay-commit] r639 - in trunk: lib lib/tools supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

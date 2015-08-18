@@ -1,0 +1,331 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r612 - in trunk: ruby windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r612%20-%20in%20trunk%3A%20ruby%20windstille&In-Reply-To=%3C200509211552.j8LFqH1m017214%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000108.html">
+   <LINK REL="Next"  HREF="000110.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r612 - in trunk: ruby windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r612%20-%20in%20trunk%3A%20ruby%20windstille&In-Reply-To=%3C200509211552.j8LFqH1m017214%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r612 - in trunk: ruby windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Wed Sep 21 17:52:17 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000108.html">[Flexlay-commit] r611 - in trunk: ruby windstille
+</A></li>
+        <LI>Next message: <A HREF="000110.html">[Flexlay-commit] r613 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-09-21 17:52:15 +0200 (Wed, 21 Sep 2005)
+New Revision: 612
+
+Modified:
+   trunk/ruby/command_line.rb
+   trunk/windstille/gui.rb
+   trunk/windstille/windstille.rb
+Log:
+- integrated command line parsing into windstille
+
+Modified: trunk/ruby/command_line.rb
+===================================================================
+--- trunk/ruby/command_line.rb	2005-09-20 09:30:45 UTC (rev 611)
++++ trunk/ruby/command_line.rb	2005-09-21 15:52:15 UTC (rev 612)
+@@ -72,6 +72,7 @@
+   end
+ 
+   def parse(args)
++    result = []
+     args = args.reverse()
+ 
+     @stop_parsing = false
+@@ -80,11 +81,11 @@
+       
+       if current == &quot;--&quot; then
+         while not args.empty?
+-          yield(:rest, args.pop)
++          result.push([:rest, args.pop])
+         end
+         
+       elsif current == &quot;-&quot; then
+-        yield(:rest, current)
++        result.push([:rest, current])
+ 
+       elsif current[0] == ?- then
+         if current[1] == ?- then
+@@ -98,10 +99,10 @@
+               if args.empty? then
+                 raise &quot;Error: Option '#{current}' requires argument of type '#{cmd.argument}'&quot;
+               else
+-                yield(cmd.short, args.pop())
++                result.push([cmd.short, args.pop()])
+               end
+             else
+-              yield(cmd.short, nil)
++              result.push([cmd.short, nil])
+             end
+           end
+ 
+@@ -120,17 +121,17 @@
+             else
+               if cmd.argument then
+                 if not short_options.empty? then
+-                  yield(cmd.short, short_options)
++                  result.push([cmd.short, short_options])
+                   short_options = &quot;&quot;
+                 else
+                   if args.empty? then
+                     raise CommandLineException, &quot;Error: Option '#{current}' requires argument of type '#{cmd.argument}'&quot;
+                   else
+-                    yield(cmd.short, args.pop())
++                    result.push([cmd.short, args.pop()])
+                   end    
+                 end
+               else
+-                yield(cmd.short, nil)
++                result.push([cmd.short, nil])
+               end
+             end
+           end
+@@ -138,14 +139,16 @@
+         end
+       else
+         # rest argument
+-        yield(:rest, current)
++        result.push([:rest, current])
+       end
+     end
++
++    return result
+   end
+ 
+   def print_help()
+     puts(@name) if @name
+-    puts(&quot;Usage: &quot; + @usage) if @usage
++    puts(&quot;Usage: #{$0} #{@usage}&quot;) if @usage
+     puts(&quot;&quot;)
+     puts(@description) if @description
+ 
+@@ -153,7 +156,24 @@
+       if item.is_a?(String)
+         puts(item)
+       elsif item.is_a?(CommandLineOption)
+-        puts(&quot;  %-20s   %s&quot; %[&quot;-#{item.short.chr}, --#{item.long}&quot;, item.description])
++        puts(&quot;  %-30s %s&quot; % 
++               [(&quot;%s%s %s&quot; % [if item.short.is_a?(Fixnum) then
++                            if item.long then
++                              &quot;-#{item.short.chr}, &quot; 
++                            else
++                              &quot;-#{item.short.chr}&quot; 
++                            end
++                          else
++                            &quot;&quot;
++                          end,
++                            if item.long then
++                              &quot;--#{item.long}&quot;
++                            else
++                              &quot;&quot;
++                            end,
++                   if item.argument then item.argument else &quot;&quot; end,
++                 ]),
++               item.description])
+       end
+     }
+   end
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-09-20 09:30:45 UTC (rev 611)
++++ trunk/windstille/gui.rb	2005-09-21 15:52:15 UTC (rev 612)
+@@ -39,7 +39,7 @@
+     
+     @components = LayoutComponent.create_from_sexpr(CL_Rect.new(0,0, $screen_width, $screen_height),
+                                                     SExpression.new($guilayout_spec),
+-                                                   @gui.get_component())
++                                                    @gui.get_component())
+     
+     connect_v2_graceful($flexlay.sig_resize(), proc{|w, h|
+                           @components.set_size(w, h)
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-09-20 09:30:45 UTC (rev 611)
++++ trunk/windstille/windstille.rb	2005-09-21 15:52:15 UTC (rev 612)
+@@ -25,6 +25,7 @@
+ require &quot;flexlay_wrap&quot;
+ include Flexlay_wrap
+ 
++require &quot;scanf.rb&quot;
+ require &quot;flexlay.rb&quot;
+ 
+ require &quot;controller.rb&quot;
+@@ -35,33 +36,32 @@
+ require &quot;sector.rb&quot;
+ require &quot;tileset.rb&quot;
+ 
+-$config = SExprConfigFile.new(&quot;windstille-editor&quot;) {
+-  register(&quot;datadir&quot;,       nil)
+-  register(&quot;screen-width&quot;,  800)
+-  register(&quot;screen-height&quot;, 600)
+-  register(&quot;fullscreen&quot;,    false)
+-  register(&quot;recent-files&quot;,  [])
+-}
++def parse_command_line()
++  cmd = CommandLine.new() {
++    name(&quot;Windstille Editor V0.1&quot;)
++    usage(&quot;[OPTION]... [FILE]...&quot;)
++    description(&quot;Editor for editing Windstille map files.&quot;)
++    
++    group(&quot;Display&quot;)
++    option(?f, &quot;fullscreen&quot;, nil,            &quot;Launch in fullscreen mode&quot;)
++    option(?w, &quot;window&quot;,     nil,            &quot;Launch in window mode&quot;)
++    option(?g, &quot;geometry&quot;,   &quot;WIDTHxHEIGHT&quot;, &quot;Launch in the given resolution&quot;)
+ 
+-cmd = CommandLine.new() {
+-  name(&quot;Windstille Editor V0.1&quot;)
+-  usage(&quot;windstille-editor [OPTION]... [FILE]...&quot;)
+-  description(&quot;Editor for editing Windstille map files.&quot;)
+-  
+-  group(&quot;Display&quot;)
+-  option(?f, &quot;fullscreen&quot;, nil,            &quot;Launch in fullscreen mode&quot;)
+-  option(?w, &quot;window&quot;,     nil,            &quot;Launch in window mode&quot;)
+-  option(?g, &quot;geometry&quot;,   &quot;WIDTHxHEIGHT&quot;, &quot;Launch in the given resolution&quot;)
++    group(&quot;Misc&quot;)
++    option(?d, &quot;datadir&quot;,    &quot;DIR&quot;,          &quot;Set the datadir to use&quot;)
++    option(?h, &quot;help&quot;,       nil,            &quot;Print this help&quot;)
+ 
+-  group(&quot;Misc&quot;)
+-  option(?d, &quot;datadir&quot;,    &quot;DIR&quot;,          &quot;Set the datadir to use&quot;)
+-  option(?h, &quot;help&quot;,       nil,            &quot;Print this help&quot;)
++    text(&quot;Report bugs to &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;.&quot;)
++  }
+ 
+-  text(&quot;Report bugs to &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;.&quot;)
+-}
++  begin
++    args = cmd.parse(ARGV)
++  rescue CommandLineException =&gt; err
++    puts('windstille-editor:' + err)
++    exit()
++  end
+ 
+-begin
+-  cmd.parse(ARGV) { |option, argument|
++  args.each { |option, argument|
+     case option
+     when ?w
+       $config.set(&quot;fullscreen&quot;, false)
+@@ -69,28 +69,38 @@
+     when ?f
+       $config.set(&quot;fullscreen&quot;, true)
+       
++    when ?d
++      $config.set(&quot;datadir&quot;, argument)
++
+     when ?g
+-      (width, height) = argument.scan(/([0-9]+)x([0-9]+)/)[0]
+-      $config.set(&quot;screen-width&quot;,  Integer(width))
+-      $config.set(&quot;screen-height&quot;, Integer(height))
++      (width, height) = argument.scanf(&quot;%dx%d&quot;)
++      $config.set(&quot;screen-width&quot;,  width)  if width
++      $config.set(&quot;screen-height&quot;, height) if height
+       
+     when ?h
+       cmd.print_help()
+       cmd.exit()
+       exit()
+ 
+-    when :rest
+-      $levelfile = argument
++    else
++      raise &quot;Bug: Unhandled option: -#{option} #{argument}&quot;
+     end
+   }
+-
+-rescue CommandLineException =&gt; err
+-  puts('windstille-editor:' + err)
+ end
+ 
+-$datadir    = $config.get(&quot;datadir&quot;)
+-$fullscreen = $config.get(&quot;fullscreen&quot;)
++$config = SExprConfigFile.new(&quot;windstille-editor&quot;) {
++  register(&quot;datadir&quot;,       nil)
++  register(&quot;screen-width&quot;,  800)
++  register(&quot;screen-height&quot;, 600)
++  register(&quot;fullscreen&quot;,    false)
++  register(&quot;recent-files&quot;,  [])
++}
+ 
++parse_command_line()
++
++$datadir       = $config.get(&quot;datadir&quot;)
++$fullscreen    = $config.get(&quot;fullscreen&quot;)
++
+ $screen_width  = $config.get(&quot;screen-width&quot;)
+ $screen_height = $config.get(&quot;screen-height&quot;)
+ 
+@@ -132,6 +142,20 @@
+   # datadir is ready, so startup
+   init()
+ end
++
++begin # Run user code if available
++  home = ENV['HOME']
++  if home then
++    user_rb = home + &quot;/.windstille-editor/user.rb&quot;
++  else 
++    user_rb = &quot;user.rb&quot;
++  end
++
++  if File.exists?(user_rb) then
++      require user_rb
++  end
++end
++
+ $gui.run()
+ 
+ $config.set(&quot;datadir&quot;, $datadir)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000108.html">[Flexlay-commit] r611 - in trunk: ruby windstille
+</A></li>
+	<LI>Next message: <A HREF="000110.html">[Flexlay-commit] r613 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

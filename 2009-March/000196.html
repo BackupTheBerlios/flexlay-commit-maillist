@@ -1,0 +1,523 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r703 - in trunk/flexlay: clanlib/API/Core/XML	clanlib/API/Display/Collision clanlib/API/GL	clanlib/Core/IOData clanlib/Core/IOData/Generic	clanlib/Core/IOData/Unix clanlib/Core/Math	clanlib/Core/System/Generic clanlib/Core/System/Unix	clanlib/Core/XML clanlib/Display clanlib/GL clanlib/GL/GLX	clanlib/GUIStyleSilver lib ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r703%20-%20in%20trunk/flexlay%3A%20clanlib/API/Core/XML%0A%09clanlib/API/Display/Collision%20clanlib/API/GL%0A%09clanlib/Core/IOData%20clanlib/Core/IOData/Generic%0A%09clanlib/Core/IOData/Unix%20clanlib/Core/Math%0A%09clanlib/Core/System/Generic%20clanlib/Core/System/Unix%0A%09clanlib/Core/XML%20clanlib/Display%20clanlib/GL%20clanlib/GL/GLX%0A%09clanlib/GUIStyleSilver%20lib%20ruby&In-Reply-To=%3C200903101958.n2AJwqdb000305%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000197.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r703 - in trunk/flexlay: clanlib/API/Core/XML	clanlib/API/Display/Collision clanlib/API/GL	clanlib/Core/IOData clanlib/Core/IOData/Generic	clanlib/Core/IOData/Unix clanlib/Core/Math	clanlib/Core/System/Generic clanlib/Core/System/Unix	clanlib/Core/XML clanlib/Display clanlib/GL clanlib/GL/GLX	clanlib/GUIStyleSilver lib ruby</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r703%20-%20in%20trunk/flexlay%3A%20clanlib/API/Core/XML%0A%09clanlib/API/Display/Collision%20clanlib/API/GL%0A%09clanlib/Core/IOData%20clanlib/Core/IOData/Generic%0A%09clanlib/Core/IOData/Unix%20clanlib/Core/Math%0A%09clanlib/Core/System/Generic%20clanlib/Core/System/Unix%0A%09clanlib/Core/XML%20clanlib/Display%20clanlib/GL%20clanlib/GL/GLX%0A%09clanlib/GUIStyleSilver%20lib%20ruby&In-Reply-To=%3C200903101958.n2AJwqdb000305%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r703 - in trunk/flexlay: clanlib/API/Core/XML	clanlib/API/Display/Collision clanlib/API/GL	clanlib/Core/IOData clanlib/Core/IOData/Generic	clanlib/Core/IOData/Unix clanlib/Core/Math	clanlib/Core/System/Generic clanlib/Core/System/Unix	clanlib/Core/XML clanlib/Display clanlib/GL clanlib/GL/GLX	clanlib/GUIStyleSilver lib ruby">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Tue Mar 10 20:58:52 CET 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000197.html">[Flexlay-commit] r704 - trunk/flexlay/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#196">[ date ]</a>
+              <a href="thread.html#196">[ thread ]</a>
+              <a href="subject.html#196">[ subject ]</a>
+              <a href="author.html#196">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-03-10 20:58:50 +0100 (Tue, 10 Mar 2009)
+New Revision: 703
+
+Modified:
+   trunk/flexlay/clanlib/API/Core/XML/xml_token_string.h
+   trunk/flexlay/clanlib/API/Display/Collision/outline_provider_file.h
+   trunk/flexlay/clanlib/API/GL/opengl_wrap.h
+   trunk/flexlay/clanlib/Core/IOData/Generic/datafile_inputprovider.cpp
+   trunk/flexlay/clanlib/Core/IOData/Generic/directory.cpp
+   trunk/flexlay/clanlib/Core/IOData/Generic/inputsource_file.cpp
+   trunk/flexlay/clanlib/Core/IOData/Generic/inputsource_memory_generic.cpp
+   trunk/flexlay/clanlib/Core/IOData/Generic/outputsource_memory_generic.cpp
+   trunk/flexlay/clanlib/Core/IOData/Unix/directory_scanner_unix.cpp
+   trunk/flexlay/clanlib/Core/IOData/inputsource_memory.cpp
+   trunk/flexlay/clanlib/Core/IOData/inputsource_zip_fileentry.cpp
+   trunk/flexlay/clanlib/Core/Math/matrix4x4.cpp
+   trunk/flexlay/clanlib/Core/System/Generic/clanstring.cpp
+   trunk/flexlay/clanlib/Core/System/Unix/init_linux.cpp
+   trunk/flexlay/clanlib/Core/System/Unix/thread_pthread.cpp
+   trunk/flexlay/clanlib/Core/XML/dom_document.cpp
+   trunk/flexlay/clanlib/Display/sprite_description.cpp
+   trunk/flexlay/clanlib/GL/GLX/display_window_opengl.cpp
+   trunk/flexlay/clanlib/GL/GLX/input_device_linuxevent.cpp
+   trunk/flexlay/clanlib/GL/GLX/input_device_linuxjoystick.cpp
+   trunk/flexlay/clanlib/GL/GLX/input_device_linuxusbmouse.cpp
+   trunk/flexlay/clanlib/GL/GLX/input_device_x11keyboard.cpp
+   trunk/flexlay/clanlib/GL/GLX/input_device_xinput.cpp
+   trunk/flexlay/clanlib/GL/canvas_opengl.cpp
+   trunk/flexlay/clanlib/GL/gl_state_checker.cpp
+   trunk/flexlay/clanlib/GL/graphic_context_opengl.cpp
+   trunk/flexlay/clanlib/GL/opengl_state_generic.cpp
+   trunk/flexlay/clanlib/GUIStyleSilver/inputbox_silver.cpp
+   trunk/flexlay/lib/SConscript
+   trunk/flexlay/lib/paint_command.cxx
+   trunk/flexlay/ruby/SConscript
+Log:
+Added a bunch of missing string.h header and some other small fixes to make it compile again
+
+Modified: trunk/flexlay/clanlib/API/Core/XML/xml_token_string.h
+===================================================================
+--- trunk/flexlay/clanlib/API/Core/XML/xml_token_string.h	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/API/Core/XML/xml_token_string.h	2009-03-10 19:58:50 UTC (rev 703)
+@@ -38,6 +38,7 @@
+ #endif
+ 
+ #include &lt;string&gt;
++#include &lt;string.h&gt;
+ #include &lt;algorithm&gt;
+ 
+ //: String class for XML Tokens.
+
+Modified: trunk/flexlay/clanlib/API/Display/Collision/outline_provider_file.h
+===================================================================
+--- trunk/flexlay/clanlib/API/Display/Collision/outline_provider_file.h	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/API/Display/Collision/outline_provider_file.h	2009-03-10 19:58:50 UTC (rev 703)
+@@ -48,6 +48,7 @@
+ #pragma once
+ #endif
+ 
++#include &lt;string&gt;
+ #include &quot;outline_provider.h&quot;
+ 
+ class CL_OutlineProviderFile_Generic;
+
+Modified: trunk/flexlay/clanlib/API/GL/opengl_wrap.h
+===================================================================
+--- trunk/flexlay/clanlib/API/GL/opengl_wrap.h	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/API/GL/opengl_wrap.h	2009-03-10 19:58:50 UTC (rev 703)
+@@ -2527,10 +2527,10 @@
+ 	typedef CLvoid (CL_GLFUNC *ptr_glDeleteObjectARB)(CLuint obj);
+ 	typedef CLuint (CL_GLFUNC *ptr_glGetHandleARB)(CLenum pname);
+ 	typedef CLvoid (CL_GLFUNC *ptr_glDetachObjectARB)(CLuint containerObj, CLuint attachedObj);
+-	typedef CLuint (CL_GLFUNC *ptr_glCreateShaderObjectARB )(CLenum shaderType);
++	typedef CLuint (CL_GLFUNC *ptr_glCreateShaderObjectARB)(CLenum shaderType);
+ 	typedef CLvoid (CL_GLFUNC *ptr_glShaderSourceARB)(CLuint shaderObj, CLsizei count, const CLchar* *string, const CLint *length);
+ 	typedef CLvoid (CL_GLFUNC *ptr_glCompileShaderARB)(CLuint shaderObj);
+-	typedef CLuint (CL_GLFUNC *ptr_glCreateProgramObjectARB)(CLvoid);
++	typedef CLuint (CL_GLFUNC *ptr_glCreateProgramObjectARB)();
+ 	typedef CLvoid (CL_GLFUNC *ptr_glAttachObjectARB)(CLuint containerObj, CLuint attachedObj);
+ 	typedef CLvoid (CL_GLFUNC *ptr_glLinkProgramARB)(CLuint programObj);
+ 	typedef CLvoid (CL_GLFUNC *ptr_glUseProgramObjectARB)(CLuint programObj);
+
+Modified: trunk/flexlay/clanlib/Core/IOData/Generic/datafile_inputprovider.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/IOData/Generic/datafile_inputprovider.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/IOData/Generic/datafile_inputprovider.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Core/precomp.h&quot;
+ #include &quot;datafile_inputprovider.h&quot;
+ #include &quot;API/Core/System/cl_assert.h&quot;
+
+Modified: trunk/flexlay/clanlib/Core/IOData/Generic/directory.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/IOData/Generic/directory.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/IOData/Generic/directory.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -34,6 +34,7 @@
+ #ifndef WIN32
+ #include &lt;unistd.h&gt;
+ #include &lt;stdio.h&gt;
++#include &lt;limits.h&gt;
+ #ifndef MAX_PATH
+ #define MAX_PATH PATH_MAX
+ #endif
+
+Modified: trunk/flexlay/clanlib/Core/IOData/Generic/inputsource_file.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/IOData/Generic/inputsource_file.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/IOData/Generic/inputsource_file.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -28,6 +28,7 @@
+ */
+ 
+ #include &lt;iostream&gt;
++#include &lt;string.h&gt;
+ #include &quot;Core/precomp.h&quot;
+ 
+ #ifdef WIN32
+
+Modified: trunk/flexlay/clanlib/Core/IOData/Generic/inputsource_memory_generic.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/IOData/Generic/inputsource_memory_generic.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/IOData/Generic/inputsource_memory_generic.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Core/precomp.h&quot;
+ 
+ #include &quot;API/Core/System/cl_assert.h&quot;
+
+Modified: trunk/flexlay/clanlib/Core/IOData/Generic/outputsource_memory_generic.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/IOData/Generic/outputsource_memory_generic.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/IOData/Generic/outputsource_memory_generic.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Core/precomp.h&quot;
+ 
+ #include &quot;API/Core/System/cl_assert.h&quot;
+
+Modified: trunk/flexlay/clanlib/Core/IOData/Unix/directory_scanner_unix.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/IOData/Unix/directory_scanner_unix.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/IOData/Unix/directory_scanner_unix.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -31,6 +31,7 @@
+ #ifdef HAVE_LIBGEN_H
+ #include &lt;libgen.h&gt;
+ #endif
++#include &lt;string.h&gt;
+ #include &lt;fnmatch.h&gt;
+ #include &lt;unistd.h&gt;
+ #include &quot;directory_scanner_unix.h&quot;
+
+Modified: trunk/flexlay/clanlib/Core/IOData/inputsource_memory.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/IOData/inputsource_memory.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/IOData/inputsource_memory.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Core/precomp.h&quot;
+ #include &lt;API/Core/System/cl_assert.h&gt;
+ #include &lt;API/Core/System/clanstring.h&gt;
+
+Modified: trunk/flexlay/clanlib/Core/IOData/inputsource_zip_fileentry.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/IOData/inputsource_zip_fileentry.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/IOData/inputsource_zip_fileentry.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Core/precomp.h&quot;
+ #include &quot;inputsource_zip_fileentry.h&quot;
+ #include &quot;zip_file_entry_generic.h&quot;
+
+Modified: trunk/flexlay/clanlib/Core/Math/matrix4x4.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/Math/matrix4x4.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/Math/matrix4x4.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Core/precomp.h&quot;
+ #include &quot;API/Core/Math/matrix4x4.h&quot;
+ 
+
+Modified: trunk/flexlay/clanlib/Core/System/Generic/clanstring.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/System/Generic/clanstring.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/System/Generic/clanstring.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -28,6 +28,7 @@
+ */
+ 
+ #include &quot;Core/precomp.h&quot;
++#include &lt;string.h&gt;
+ #include &quot;API/Core/System/clanstring.h&quot;
+ #include &quot;API/Core/Resources/resourcetype_string.h&quot;
+ #include &quot;API/Core/Resources/resource_manager.h&quot;
+
+Modified: trunk/flexlay/clanlib/Core/System/Unix/init_linux.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/System/Unix/init_linux.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/System/Unix/init_linux.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -29,6 +29,7 @@
+ 
+ #include &quot;Core/precomp.h&quot;
+ 
++#include &lt;string.h&gt;
+ #include &lt;libgen.h&gt;
+ #include &lt;unistd.h&gt;
+ #include &lt;dlfcn.h&gt;
+
+Modified: trunk/flexlay/clanlib/Core/System/Unix/thread_pthread.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/System/Unix/thread_pthread.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/System/Unix/thread_pthread.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -28,7 +28,7 @@
+ */
+ 
+ #include &quot;Core/precomp.h&quot;
+-
++#include &lt;string.h&gt;
+ #include &lt;pthread.h&gt;
+ #include &quot;API/Core/System/cl_assert.h&quot;
+ #include &quot;API/Core/System/log.h&quot;
+
+Modified: trunk/flexlay/clanlib/Core/XML/dom_document.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Core/XML/dom_document.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Core/XML/dom_document.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -45,6 +45,7 @@
+ #include &quot;API/Core/XML/xml_token.h&quot;
+ #include &quot;dom_document_generic.h&quot;
+ #include &lt;stack&gt;
++#include &lt;string.h&gt;
+ 
+ #include &quot;API/Core/XML/xml_token_load.h&quot;
+ #include &quot;API/Core/XML/xml_token_save.h&quot;
+
+Modified: trunk/flexlay/clanlib/Display/sprite_description.cpp
+===================================================================
+--- trunk/flexlay/clanlib/Display/sprite_description.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/Display/sprite_description.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Display/display_precomp.h&quot;
+ #include &quot;API/Display/sprite_description.h&quot;
+ #include &quot;API/Display/pixel_buffer.h&quot;
+
+Modified: trunk/flexlay/clanlib/GL/GLX/display_window_opengl.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/GLX/display_window_opengl.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/GLX/display_window_opengl.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -28,6 +28,7 @@
+ */
+ 
+ #include &lt;cstdio&gt;
++#include &lt;string.h&gt;
+ #include &lt;errno.h&gt;
+ 
+ #include &quot;display_window_opengl.h&quot;
+
+Modified: trunk/flexlay/clanlib/GL/GLX/input_device_linuxevent.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/GLX/input_device_linuxevent.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/GLX/input_device_linuxevent.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -28,6 +28,7 @@
+ */
+ 
+ #include &lt;assert.h&gt;
++#include &lt;string.h&gt;
+ #include &lt;linux/input.h&gt;
+ #include &lt;sys/ioctl.h&gt;
+ #include &lt;fcntl.h&gt;
+
+Modified: trunk/flexlay/clanlib/GL/GLX/input_device_linuxjoystick.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/GLX/input_device_linuxjoystick.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/GLX/input_device_linuxjoystick.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &lt;sys/ioctl.h&gt;
+ #include &lt;fcntl.h&gt;
+ #include &lt;unistd.h&gt;
+
+Modified: trunk/flexlay/clanlib/GL/GLX/input_device_linuxusbmouse.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/GLX/input_device_linuxusbmouse.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/GLX/input_device_linuxusbmouse.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &lt;sys/ioctl.h&gt;
+ #include &lt;fcntl.h&gt;
+ #include &lt;unistd.h&gt;
+
+Modified: trunk/flexlay/clanlib/GL/GLX/input_device_x11keyboard.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/GLX/input_device_x11keyboard.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/GLX/input_device_x11keyboard.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -28,6 +28,8 @@
+ */
+ 
+ #include &lt;cstdio&gt;
++#include &lt;string.h&gt;
++#include &lt;string&gt;
+ #include &quot;API/Display/input_device.h&quot;
+ #include &quot;API/Display/input_event.h&quot;
+ #include &quot;API/Display/keys.h&quot;
+
+Modified: trunk/flexlay/clanlib/GL/GLX/input_device_xinput.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/GLX/input_device_xinput.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/GLX/input_device_xinput.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -28,6 +28,7 @@
+ */
+ 
+ #include &lt;iostream&gt;
++#include &lt;string.h&gt;
+ #include &quot;API/Core/System/log.h&quot;
+ #include &quot;API/Display/input_device.h&quot;
+ #include &quot;API/Display/input_event.h&quot;
+
+Modified: trunk/flexlay/clanlib/GL/canvas_opengl.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/canvas_opengl.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/canvas_opengl.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Display/display_precomp.h&quot;
+ #include &quot;canvas_opengl.h&quot;
+ #include &quot;API/Core/System/error.h&quot;
+
+Modified: trunk/flexlay/clanlib/GL/gl_state_checker.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/gl_state_checker.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/gl_state_checker.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Display/display_precomp.h&quot;
+ #include &quot;Display/surface_target.h&quot;
+ #include &quot;Display/triangle_params.h&quot;
+
+Modified: trunk/flexlay/clanlib/GL/graphic_context_opengl.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/graphic_context_opengl.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/graphic_context_opengl.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;Display/display_precomp.h&quot;
+ #include &quot;Display/display_window_generic.h&quot;
+ #include &quot;Display/triangle_params.h&quot;
+
+Modified: trunk/flexlay/clanlib/GL/opengl_state_generic.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GL/opengl_state_generic.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GL/opengl_state_generic.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -41,6 +41,7 @@
+ #include &lt;GL/glu.h&gt;
+ #endif
+ 
++#include &lt;string.h&gt;
+ #include &lt;map&gt;
+ 
+ #define cl_pixelcenter_constant 0.375
+
+Modified: trunk/flexlay/clanlib/GUIStyleSilver/inputbox_silver.cpp
+===================================================================
+--- trunk/flexlay/clanlib/GUIStyleSilver/inputbox_silver.cpp	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/clanlib/GUIStyleSilver/inputbox_silver.cpp	2009-03-10 19:58:50 UTC (rev 703)
+@@ -27,6 +27,7 @@
+ **    (if your name is missing here, please add it)
+ */
+ 
++#include &lt;string.h&gt;
+ #include &quot;API/Display/font.h&quot;
+ #include &quot;API/Display/display.h&quot;
+ #include &quot;API/Core/System/system.h&quot;
+
+Modified: trunk/flexlay/lib/SConscript
+===================================================================
+--- trunk/flexlay/lib/SConscript	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/lib/SConscript	2009-03-10 19:58:50 UTC (rev 703)
+@@ -47,7 +47,7 @@
+ #            LIBPATH=['.', '/home/ingo/run/ClanLib-0.8-current//lib/'],
+ #            LIBS=['flexlay'])
+ 
+-libflexlay_env = env.Copy()
++libflexlay_env = env.Clone()
+ flexlay_lib = libflexlay_env.StaticLibrary(
+     target = 'libflexlay.a',
+     source = [
+
+Modified: trunk/flexlay/lib/paint_command.cxx
+===================================================================
+--- trunk/flexlay/lib/paint_command.cxx	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/lib/paint_command.cxx	2009-03-10 19:58:50 UTC (rev 703)
+@@ -75,6 +75,7 @@
+ void
+ PaintCommand::add_point(const CL_Point&amp; pos)
+ {
++  // FIXME: undo_field is unneeded, should just record the overwritten color
+   impl-&gt;points.push_back(pos);
+   impl-&gt;tilemap.draw_tile(impl-&gt;brush, pos);
+ }
+@@ -102,9 +103,10 @@
+   pos.y = rect.top;
+ 
+   redo_brush = new TileBrush(*(tilemap.get_field()), rect.get_width(), rect.get_height(),
+-                                   -pos.x, -pos.y);
++                             -pos.x, -pos.y);
++  // FIXME: undo_field is unneeded, should just record the overwritten color
+   undo_brush = new TileBrush(undo_field, rect.get_width(), rect.get_height(), 
+-                                   -pos.x, -pos.y);
++                             -pos.x, -pos.y);
+   
+   redo_brush-&gt;set_opaque();
+   undo_brush-&gt;set_opaque();
+
+Modified: trunk/flexlay/ruby/SConscript
+===================================================================
+--- trunk/flexlay/ruby/SConscript	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/ruby/SConscript	2009-03-10 19:58:50 UTC (rev 703)
+@@ -55,7 +55,7 @@
+ #env.Command('flexlay_ruby_wrap.cxx', '../lib/flexlay_wrap.i',
+ #            &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+ 
+-libflexlay_ruby_env = env.Copy()
++libflexlay_ruby_env = env.Clone()
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+     target = 'flexlay_wrap.so',
+     source = [
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000197.html">[Flexlay-commit] r704 - trunk/flexlay/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#196">[ date ]</a>
+              <a href="thread.html#196">[ thread ]</a>
+              <a href="subject.html#196">[ subject ]</a>
+              <a href="author.html#196">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

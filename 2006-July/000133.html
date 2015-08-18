@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r636 - in trunk: . clanlib lib lib/tools ruby supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r636%20-%20in%20trunk%3A%20.%20clanlib%20lib%20lib/tools%20ruby%20supertux&In-Reply-To=%3C200607110404.k6B44Kgb002372%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000132.html">
+   <LINK REL="Next"  HREF="000134.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r636 - in trunk: . clanlib lib lib/tools ruby supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r636%20-%20in%20trunk%3A%20.%20clanlib%20lib%20lib/tools%20ruby%20supertux&In-Reply-To=%3C200607110404.k6B44Kgb002372%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r636 - in trunk: . clanlib lib lib/tools ruby supertux">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 06:04:20 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000132.html">[Flexlay-commit] r635 - in trunk: . lib lib/tools ruby supertux
+</A></li>
+        <LI>Next message: <A HREF="000134.html">[Flexlay-commit] r637 - in trunk: lib lib/tools supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#133">[ date ]</a>
+              <a href="thread.html#133">[ thread ]</a>
+              <a href="subject.html#133">[ subject ]</a>
+              <a href="author.html#133">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-11 06:04:17 +0200 (Tue, 11 Jul 2006)
+New Revision: 636
+
+Modified:
+   trunk/
+   trunk/clanlib/
+   trunk/lib/
+   trunk/lib/editor_map_component.cxx
+   trunk/lib/tools/zoom_tool.cxx
+   trunk/lib/workspace.cxx
+   trunk/lib/workspace.hxx
+   trunk/ruby/
+   trunk/supertux/gui.rb
+Log:
+- added key-&gt;tool stuff
+
+
+Property changes on: trunk
+___________________________________________________________________
+Name: svn:ignore
+   - configure
+Makefile.in
+config.log
+depcomp
+config.h
+Makefile
+mkinstalldirs
+config.status
+stamp-h1
+config.h.in
+autom4te.cache
+missing
+install-sh
+.sconsign
+aclocal.m4
+
+   + 
+aclocal.m4
+autom4te.cache
+config.h
+config.h.in
+config.log
+config.status
+configure
+depcomp
+install-sh
+Makefile
+Makefile.in
+missing
+mkinstalldirs
+.sconsign
+.sconsign.dblite
+stamp-h1
+
+
+
+Property changes on: trunk/clanlib
+___________________________________________________________________
+Name: svn:ignore
+   + 
+libclanApp.a
+libclanCore.a
+libclanDisplay.a
+libclanGL.a
+libclanGUI.a
+libclanGUIStyleSilver.a
+libclanSignals.a
+.sconsign.dblite
+
+
+
+Property changes on: trunk/lib
+___________________________________________________________________
+Name: svn:ignore
+   - 
+custom.py
+libflexlay.a
+libflexlay.so
+old
+*.os
+.sconsign
+semantic.cache
+
+   + 
+custom.py
+libflexlay.a
+libflexlay.so
+old
+*.os
+.sconsign
+.sconsign.dblite
+semantic.cache
+
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2006-07-11 03:13:18 UTC (rev 635)
++++ trunk/lib/editor_map_component.cxx	2006-07-11 04:04:17 UTC (rev 636)
+@@ -52,6 +52,7 @@
+   void mouse_up  (const CL_InputEvent&amp; event);
+   void mouse_down(const CL_InputEvent&amp; event);
+   void mouse_move(const CL_InputEvent&amp; event);
++  void on_key_up(const CL_InputEvent&amp; event);
+   void on_key_down(const CL_InputEvent&amp; event);
+   void on_resize(int old_w, int old_h);
+ };
+@@ -83,6 +84,7 @@
+   impl-&gt;slots.connect(sig_mouse_down(), impl.get(), &amp;EditorMapComponentImpl::mouse_down);
+   impl-&gt;slots.connect(sig_mouse_move(), impl.get(), &amp;EditorMapComponentImpl::mouse_move);
+   impl-&gt;slots.connect(sig_key_down(),   impl.get(), &amp;EditorMapComponentImpl::on_key_down);
++  impl-&gt;slots.connect(sig_key_up(),     impl.get(), &amp;EditorMapComponentImpl::on_key_up);
+   impl-&gt;slots.connect(sig_resize(),     impl.get(), &amp;EditorMapComponentImpl::on_resize);
+ }
+ 
+@@ -112,9 +114,25 @@
+       key_bindings[event.id](CL_Mouse::get_x() - rect.left,
+                              CL_Mouse::get_y() - rect.top);
+     }
++
++  CL_Rect rect = parent-&gt;get_position();
++  CL_InputEvent ev2 = event;
++  ev2.mouse_pos = CL_Point(CL_Mouse::get_x() - rect.left,
++                           CL_Mouse::get_y() - rect.top);
++  workspace.key_down(ev2);
+ }
+ 
+ void
++EditorMapComponentImpl::on_key_up(const CL_InputEvent&amp; event)
++{
++  CL_Rect rect = parent-&gt;get_position();
++  CL_InputEvent ev2 = event;
++  ev2.mouse_pos = CL_Point(CL_Mouse::get_x() - rect.left,
++                          CL_Mouse::get_y() - rect.top);
++  workspace.key_up(ev2);
++}
++
++void
+ EditorMapComponentImpl::mouse_up(const CL_InputEvent&amp; event)
+ {
+   workspace.mouse_up(event);
+
+Modified: trunk/lib/tools/zoom_tool.cxx
+===================================================================
+--- trunk/lib/tools/zoom_tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
++++ trunk/lib/tools/zoom_tool.cxx	2006-07-11 04:04:17 UTC (rev 636)
+@@ -69,9 +69,8 @@
+ {
+   EditorMapComponent* parent = EditorMapComponent::current();
+ 
+-  switch(event.id)
++  if (event.id != CL_MOUSE_RIGHT)
+     {
+-    case CL_MOUSE_LEFT:
+       switch (state)
+         {
+         case CREATE_ZOOM_RECT:
+@@ -88,11 +87,7 @@
+                 parent-&gt;zoom_to(zoom_rect);
+               }
+           }
+-          break;
+-        default:
+-          break;
+         }
+-      break;
+     }
+ }
+ 
+@@ -103,10 +98,22 @@
+ 
+   switch(event.id)
+     {
+-    case CL_MOUSE_LEFT:
++    case CL_MOUSE_RIGHT:
+       switch (state)
+         {
+         case NONE:
++          parent-&gt;zoom_out(event.mouse_pos);
++          parent-&gt;zoom_out(event.mouse_pos);
++          break;
++        default:
++          break;
++        }
++      break;
++
++    default:
++      switch (state)
++        {
++        case NONE:
+           {
+             state = CREATE_ZOOM_RECT;
+             parent-&gt;capture_mouse();
+@@ -122,18 +129,6 @@
+           break;
+         }
+       break;
+-
+-    case CL_MOUSE_RIGHT:
+-      switch (state)
+-        {
+-        case NONE:
+-          parent-&gt;zoom_out(event.mouse_pos);
+-          parent-&gt;zoom_out(event.mouse_pos);
+-          break;
+-        default:
+-          break;
+-        }
+-      break;
+     }
+ }
+ 
+
+Modified: trunk/lib/workspace.cxx
+===================================================================
+--- trunk/lib/workspace.cxx	2006-07-11 03:13:18 UTC (rev 635)
++++ trunk/lib/workspace.cxx	2006-07-11 04:04:17 UTC (rev 636)
+@@ -104,6 +104,23 @@
+     }
+ }
+ 
++void
++Workspace::key_up(const CL_InputEvent&amp; event)
++{
++  WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
++  if (it != impl-&gt;tools.end())
++    it-&gt;second.on_mouse_up(event);
++}
++
++void
++Workspace::key_down(const CL_InputEvent&amp; event)
++{
++  std::cout &lt;&lt; &quot;Workspace: &quot; &lt;&lt; event.id &lt;&lt; std::endl;
++  WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
++  if (it != impl-&gt;tools.end())
++    it-&gt;second.on_mouse_down(event);
++}
++
+ EditorMap
+ Workspace::get_map()
+ {
+
+Modified: trunk/lib/workspace.hxx
+===================================================================
+--- trunk/lib/workspace.hxx	2006-07-11 03:13:18 UTC (rev 635)
++++ trunk/lib/workspace.hxx	2006-07-11 04:04:17 UTC (rev 636)
+@@ -46,6 +46,9 @@
+   void mouse_down(const CL_InputEvent&amp; event);
+   void mouse_move(const CL_InputEvent&amp; event);
+ 
++  void key_up(const CL_InputEvent&amp; event);
++  void key_down(const CL_InputEvent&amp; event);
++
+   EditorMap get_map();
+   void set_map(const EditorMap&amp; m);
+ 
+
+
+Property changes on: trunk/ruby
+___________________________________________________________________
+Name: svn:ignore
+   - 
+*.os
+*.so
+.sconsign
+flexlay_ruby_wrap.cxx
+semantic.cache
+swigrun_wrap.cxx
+
+   + 
+flexlay_ruby_wrap.cxx
+*.os
+.sconsign
+.sconsign.dblite
+semantic.cache
+*.so
+swigrun_wrap.cxx
+
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-07-11 03:13:18 UTC (rev 635)
++++ trunk/supertux/gui.rb	2006-07-11 04:04:17 UTC (rev 636)
+@@ -36,6 +36,10 @@
+     @workspace.set_tool(0, $tilemap_paint_tool.to_tool())
+     @workspace.set_tool(2, WorkspaceMoveTool.new().to_tool())
+     @workspace.set_tool(1, $tilemap_paint_tool.to_tool())
++    # 'x' key
++    @workspace.set_tool(120, $zoom_tool.to_tool())
++    # 'u' key
++    @workspace.set_tool(117, $objmap_select_tool.to_tool())
+ 
+     @minimap = Minimap.new(@editor_map, minimap_rect, @gui.get_component())
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000132.html">[Flexlay-commit] r635 - in trunk: . lib lib/tools ruby supertux
+</A></li>
+	<LI>Next message: <A HREF="000134.html">[Flexlay-commit] r637 - in trunk: lib lib/tools supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#133">[ date ]</a>
+              <a href="thread.html#133">[ thread ]</a>
+              <a href="subject.html#133">[ subject ]</a>
+              <a href="author.html#133">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

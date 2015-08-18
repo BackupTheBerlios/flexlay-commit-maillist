@@ -1,0 +1,575 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r652 - in trunk/netbrush: . widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r652%20-%20in%20trunk/netbrush%3A%20.%20widget&In-Reply-To=%3C200610191358.k9JDwQMm014201%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000147.html">
+   <LINK REL="Next"  HREF="000149.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r652 - in trunk/netbrush: . widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r652%20-%20in%20trunk/netbrush%3A%20.%20widget&In-Reply-To=%3C200610191358.k9JDwQMm014201%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r652 - in trunk/netbrush: . widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 19 15:58:26 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000147.html">[Flexlay-commit] r651 - in trunk/netbrush: . widget
+</A></li>
+        <LI>Next message: <A HREF="000149.html">[Flexlay-commit] r653 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#148">[ date ]</a>
+              <a href="thread.html#148">[ thread ]</a>
+              <a href="subject.html#148">[ subject ]</a>
+              <a href="author.html#148">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-19 15:58:26 +0200 (Thu, 19 Oct 2006)
+New Revision: 652
+
+Added:
+   trunk/netbrush/widget/scrollbar.cpp
+   trunk/netbrush/widget/scrollbar.hpp
+Removed:
+   trunk/netbrush/widget/callback.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/client.cpp
+   trunk/netbrush/globals.cpp
+   trunk/netbrush/globals.hpp
+   trunk/netbrush/screen_buffer.cpp
+   trunk/netbrush/widget/slider_widget.cpp
+   trunk/netbrush/widget/slider_widget.hpp
+Log:
+- added some scrollbars
+
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/SConstruct	2006-10-19 13:58:26 UTC (rev 652)
+@@ -19,34 +19,35 @@
+ client_env['CPPPATH'] += ['.']
+ client_env['LIBS'] += ['SDL_image', 'SDL_net']
+ client_env.Program('client', [
++        'alpha_picker.cpp',
++        'brush_widget.cpp',
++        'brushmask.cpp',
+         'client.cpp', 
+         'client_state.cpp',
+         'debug.cpp',
+         'drawing_context.cpp',
++        'drawing_parameter.cpp',
++        'generic_brush.cpp',
+         'globals.cpp',
+         'grayscale_buffer.cpp', 
+-        'screen_buffer.cpp',
+-        'stroke.cpp',
+-        'stroke_buffer.cpp',
+-        'video.cpp',
+-        'drawing_parameter.cpp',
+-        'widget/widget_manager.cpp',
+-        'widget/widget.cpp',
+-        'widget/button.cpp',
+-#        'widget/events.cpp',
++        'hue_picker.cpp',
+         'math/matrix.cpp',
+         'math/origin.cpp',
+         'math/quaternion.cpp',
+         'math/rect.cpp',
+         'math/vector.cpp',
+         'saturation_value_picker.cpp',
+-        'hue_picker.cpp',
+-        'alpha_picker.cpp',
++        'screen_buffer.cpp',
++        'server_connection.cpp',
++        'stroke.cpp',
++        'stroke_buffer.cpp',
++        'video.cpp',
++        'widget/button.cpp',
++        'widget/scrollbar.cpp',
+         'widget/slider_widget.cpp',
+-        'brushmask.cpp',
+-        'brush_widget.cpp',
+-        'generic_brush.cpp',
+-        'server_connection.cpp'
++        'widget/widget.cpp',
++        'widget/widget_manager.cpp',
++#        'widget/events.cpp',
+ ])
+ 
+ # EOF #
+
+Modified: trunk/netbrush/client.cpp
+===================================================================
+--- trunk/netbrush/client.cpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/client.cpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -16,12 +16,12 @@
+ #include &quot;screen_buffer.hpp&quot;
+ #include &quot;stroke_buffer.hpp&quot;
+ #include &quot;widget/widget_manager.hpp&quot;
++#include &quot;widget/scrollbar.hpp&quot;
+ #include &quot;widget/button.hpp&quot;
+ #include &quot;saturation_value_picker.hpp&quot;
+ #include &quot;hue_picker.hpp&quot;
+ #include &quot;alpha_picker.hpp&quot;
+ #include &quot;brush_widget.hpp&quot;
+-#include &quot;widget/callback.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
+ 
+@@ -137,7 +137,7 @@
+     }  
+ }
+ 
+-class RadiusCallback : public Callback
++class RadiusCallback : public SliderCallback
+ {
+ public:
+   void operator()(float v) 
+@@ -149,7 +149,7 @@
+   }
+ };
+ 
+-class SpikeCallback : public Callback
++class SpikeCallback : public SliderCallback
+ {
+ public:
+   void operator()(float v) 
+@@ -161,7 +161,7 @@
+   }
+ };
+ 
+-class HardnessCallback : public Callback
++class HardnessCallback : public SliderCallback
+ {
+ public:
+   void operator()(float v) 
+@@ -173,7 +173,7 @@
+   }
+ };
+ 
+-class AspectRatioCallback : public Callback
++class AspectRatioCallback : public SliderCallback
+ {
+ public:
+   void operator()(float v) 
+@@ -185,7 +185,7 @@
+   }
+ };
+ 
+-class AngleCallback : public Callback
++class AngleCallback : public SliderCallback
+ {
+ public:
+   void operator()(float v) 
+@@ -216,7 +216,8 @@
+     printf(&quot;SDL_SetVideoMode: %s\n&quot;, SDL_GetError());
+   SDL_WM_SetCaption(&quot;netBrush&quot;, &quot;netBrush&quot;);
+ 
+-  screen_buffer = new ScreenBuffer(Rect(68 + 16, 0 + 16, screen-&gt;w - 128 - 16, screen-&gt;h - 16));
++  // 18 is scrollbar
++  screen_buffer = new ScreenBuffer(Rect(68 + 16, 0 + 16, screen-&gt;w - 128 - 16 - 18, screen-&gt;h - 16 - 18)); 
+   draw_ctx      = new DrawingContext(2048, 2048);
+   stroke_buffer = new StrokeBuffer(2048, 2048);
+ 
+@@ -267,6 +268,16 @@
+ 
+   widget_manager-&gt;add(screen_buffer);
+ 
++  widget_manager-&gt;add(vertical_scrollbar = 
++                      new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_height(), Scrollbar::VERTICAL,
++                                    Rect(screen-&gt;w - 128 - 16 - 16, 0 + 16,
++                                         screen-&gt;w - 128 - 16, screen-&gt;h - 16 - 18)));
++
++  widget_manager-&gt;add(horizontal_scrollbar = 
++                      new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_width(), Scrollbar::HORIZONTAL,
++                                    Rect(68 + 16, screen-&gt;h - 16 - 16,
++                                         screen-&gt;w - 128 - 16 - 18, screen-&gt;h - 16)));
++
+   alpha_picker = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
+   saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
+   hue_picker   = new HuePicker(Rect(Point(screen-&gt;w-128, 128), Size(128, 24)));
+
+Modified: trunk/netbrush/globals.cpp
+===================================================================
+--- trunk/netbrush/globals.cpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/globals.cpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -40,4 +40,7 @@
+ Stroke*           current_stroke = 0;
+ ServerConnection* server = 0;
+ 
++Scrollbar* horizontal_scrollbar = 0;
++Scrollbar* vertical_scrollbar   = 0;
++
+ /* EOF */
+
+Modified: trunk/netbrush/globals.hpp
+===================================================================
+--- trunk/netbrush/globals.hpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/globals.hpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -44,9 +44,12 @@
+ class AlphaPicker;
+ class BrushWidget;
+ class ServerConnection;
++class Scrollbar;
+ 
+ extern SDLNet_SocketSet socketset;
+ 
++extern Scrollbar* horizontal_scrollbar;
++extern Scrollbar* vertical_scrollbar;
+ extern BrushWidget* brush_widget;
+ extern DrawingContext*   draw_ctx;
+ extern DrawingParameter* client_draw_param;
+
+Modified: trunk/netbrush/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/screen_buffer.cpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/screen_buffer.cpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -32,6 +32,7 @@
+ #include &quot;widget/widget_manager.hpp&quot;
+ #include &quot;globals.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
++#include &quot;widget/scrollbar.hpp&quot;
+ #include &quot;screen_buffer.hpp&quot;
+ 
+ ScreenBuffer::ScreenBuffer(const Rect&amp; rect)
+@@ -73,7 +74,7 @@
+       dirty_region.bottom = std::min(get_rect().bottom, dirty_region.bottom);
+     }
+ 
+-  if (0)
++  if (1)
+     std::cout &lt;&lt; &quot;Updating screen: &quot;
+               &lt;&lt; dirty_region.left  &lt;&lt; &quot; &quot;
+               &lt;&lt; dirty_region.top   &lt;&lt; &quot; &quot;
+@@ -93,14 +94,21 @@
+       SDL_UpdateRect(target, r.x, r.y, r.w, r.h);
+     }
+ 
+-  draw_ctx-&gt;draw(target, dirty_region, trans_x, trans_y);
+-  stroke_buffer-&gt;draw(target, dirty_region, trans_x, trans_y);
++  horizontal_scrollbar-&gt;set_pos(-scroll_offset_x);
++  vertical_scrollbar-&gt;set_pos(-scroll_offset_y);
++
++  // check for invalid dirty_regions (ie. canvas is completly outside of the view)
++  if (dirty_region.left &lt; dirty_region.right &amp;&amp;
++      dirty_region.top  &lt;  dirty_region.bottom)
++    {       draw_ctx-&gt;draw(target, dirty_region, trans_x, trans_y);
++      stroke_buffer-&gt;draw(target, dirty_region, trans_x, trans_y);
+   
+-  SDL_UpdateRect(target, 
+-                 dirty_region.left,        dirty_region.top, 
+-                 dirty_region.get_width(), dirty_region.get_height());
++      SDL_UpdateRect(target, 
++                     dirty_region.left,        dirty_region.top, 
++                     dirty_region.get_width(), dirty_region.get_height());
++    }
+ 
+-  if (0) 
++  if (1) 
+     std::cout &lt;&lt; &quot;Updating done&quot; &lt;&lt; std::endl;
+ }
+ 
+
+Deleted: trunk/netbrush/widget/callback.hpp
+===================================================================
+--- trunk/netbrush/widget/callback.hpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/widget/callback.hpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -1,44 +0,0 @@
+-/*  $Id$
+-**   __      __ __             ___        __   __ __   __
+-**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
+-**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
+-**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
+-**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
+-**         \/          \/      \/    \/                         \/
+-**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-**
+-**  This program is free software; you can redistribute it and/or
+-**  modify it under the terms of the GNU General Public License
+-**  as published by the Free Software Foundation; either version 2
+-**  of the License, or (at your option) any later version.
+-**
+-**  This program is distributed in the hope that it will be useful,
+-**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-**  GNU General Public License for more details.
+-** 
+-**  You should have received a copy of the GNU General Public License
+-**  along with this program; if not, write to the Free Software
+-**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+-**  02111-1307, USA.
+-*/
+-
+-#ifndef HEADER_CALLBACK_HPP
+-#define HEADER_CALLBACK_HPP
+-
+-/** */
+-class Callback
+-{
+-public:
+-  Callback() {}
+-  virtual ~Callback() {}
+-  virtual void operator()(float) =0;
+-
+-private:
+-  Callback (const Callback&amp;);
+-  Callback&amp; operator= (const Callback&amp;);
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Added: trunk/netbrush/widget/scrollbar.cpp
+===================================================================
+--- trunk/netbrush/widget/scrollbar.cpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/widget/scrollbar.cpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -0,0 +1,86 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &quot;scrollbar.hpp&quot;
++
++Scrollbar::Scrollbar(int min_, int max_, int page_step_, Orientation orientation_, const Rect&amp; rect)
++  : Widget(rect),
++    min(min_),
++    max(max_),
++    page_step(page_step_),
++    orientation(orientation_),
++    pos(min_ + (max_ - min_)/2)
++{
++  
++}
++  
++void
++Scrollbar::on_mouse_motion(const MouseMotionEvent&amp; motion)
++{ 
++}
++
++void
++Scrollbar::on_mouse_button(const MouseButtonEvent&amp; button)
++{
++}
++
++void
++Scrollbar::draw(SDL_Surface* target)
++{
++  SDL_Rect r;
++  r.x = get_rect().left;
++  r.y = get_rect().top;
++  r.w = get_rect().get_width();
++  r.h = get_rect().get_height();
++  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 200, 200, 200));
++
++  if (orientation == HORIZONTAL)
++    {
++      r.x = get_rect().left + 2 + ((pos-min) * (get_rect().get_width()-4) / (max - min));
++      r.y = get_rect().top + 2;
++      r.w = page_step * (get_rect().get_width()-4) / (max - min);
++      r.h = get_rect().get_height()-4;
++
++      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++    }
++  else // VERSION
++    {
++      r.x = get_rect().left + 2;
++      r.y = get_rect().top  + 2 + ((pos-min) * (get_rect().get_height()-4) / (max - min));
++      r.w = get_rect().get_width()-4;
++      r.h = page_step * (get_rect().get_height()-4) / (max - min);
++
++      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++    }
++}
++
++void
++Scrollbar::set_pos(int p)
++{
++  pos = p;
++  set_dirty(true);
++}
++
++/* EOF */
+
+Added: trunk/netbrush/widget/scrollbar.hpp
+===================================================================
+--- trunk/netbrush/widget/scrollbar.hpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/widget/scrollbar.hpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -0,0 +1,63 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_SCROLLBAR_HPP
++#define HEADER_SCROLLBAR_HPP
++
++#include &quot;widget.hpp&quot;
++
++/** */
++class Scrollbar : public Widget
++{
++public:
++  enum Orientation { HORIZONTAL, VERTICAL };
++
++private: 
++  int min;
++  int max;
++  int page_step;
++  Orientation orientation;
++  int pos; 
++
++public:
++  Scrollbar(int min, int max, int page_step, Orientation orientation, const Rect&amp; rect);
++  
++  void on_mouse_motion(const MouseMotionEvent&amp; motion);
++  void on_mouse_button(const MouseButtonEvent&amp; button);;
++
++  void on_enter() {}
++  void on_leave() {}
++
++  void draw(SDL_Surface* target);
++  
++  void set_pos(int p);
++private:
++  Scrollbar (const Scrollbar&amp;);
++  Scrollbar&amp; operator= (const Scrollbar&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/widget/slider_widget.cpp
+===================================================================
+--- trunk/netbrush/widget/slider_widget.cpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/widget/slider_widget.cpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -28,7 +28,7 @@
+ #include &quot;widget_manager.hpp&quot;
+ #include &quot;slider_widget.hpp&quot;
+ 
+-SliderWidget::SliderWidget(const Rect&amp; rect_, Callback* callback_)
++SliderWidget::SliderWidget(const Rect&amp; rect_, SliderCallback* callback_)
+   : Widget(rect_), callback(callback_), pos(0.5f), dragging(false)
+ {
+ }
+
+Modified: trunk/netbrush/widget/slider_widget.hpp
+===================================================================
+--- trunk/netbrush/widget/slider_widget.hpp	2006-10-19 13:10:34 UTC (rev 651)
++++ trunk/netbrush/widget/slider_widget.hpp	2006-10-19 13:58:26 UTC (rev 652)
+@@ -26,19 +26,31 @@
+ #ifndef HEADER_SLIDER_WIDGET_HPP
+ #define HEADER_SLIDER_WIDGET_HPP
+ 
+-#include &quot;callback.hpp&quot;
+ #include &quot;widget.hpp&quot;
+ 
+ /** */
++class SliderCallback
++{
++public:
++  SliderCallback() {}
++  virtual ~SliderCallback() {}
++  virtual void operator()(float) =0;
++
++private:
++  SliderCallback (const SliderCallback&amp;);
++  SliderCallback&amp; operator= (const SliderCallback&amp;);
++};
++
++/** */
+ class SliderWidget : public Widget
+ {
+ private:
+-  Callback* callback;
++  SliderCallback* callback;
+   float pos;
+   bool  dragging;
+   
+ public:
+-  SliderWidget(const Rect&amp; rect_, Callback* callback);
++  SliderWidget(const Rect&amp; rect_, SliderCallback* callback);
+   ~SliderWidget();
+ 
+   void on_mouse_motion(const MouseMotionEvent&amp; motion);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000147.html">[Flexlay-commit] r651 - in trunk/netbrush: . widget
+</A></li>
+	<LI>Next message: <A HREF="000149.html">[Flexlay-commit] r653 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#148">[ date ]</a>
+              <a href="thread.html#148">[ thread ]</a>
+              <a href="subject.html#148">[ subject ]</a>
+              <a href="author.html#148">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

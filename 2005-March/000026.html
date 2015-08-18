@@ -1,0 +1,545 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r517 - in trunk: lib netpanzer ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r517%20-%20in%20trunk%3A%20lib%20netpanzer%20ruby&In-Reply-To=%3C200503301249.j2UCnxj8028197%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000025.html">
+   <LINK REL="Next"  HREF="000027.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r517 - in trunk: lib netpanzer ruby</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r517%20-%20in%20trunk%3A%20lib%20netpanzer%20ruby&In-Reply-To=%3C200503301249.j2UCnxj8028197%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r517 - in trunk: lib netpanzer ruby">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Wed Mar 30 14:49:59 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000025.html">[Flexlay-commit] r516 - trunk/netpanzer/sprites
+</A></li>
+        <LI>Next message: <A HREF="000027.html">[Flexlay-commit] r518 - trunk/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-30 14:49:58 +0200 (Wed, 30 Mar 2005)
+New Revision: 517
+
+Modified:
+   trunk/lib/SConstruct
+   trunk/lib/clanlib.i
+   trunk/lib/object_layer.cxx
+   trunk/lib/objmap_sprite_object.cxx
+   trunk/lib/tile.cxx
+   trunk/lib/tile.hxx
+   trunk/netpanzer/gameobjects.rb
+   trunk/netpanzer/level.rb
+   trunk/netpanzer/netpanzer.cxx
+   trunk/netpanzer/netpanzer.rb
+   trunk/ruby/flexlay.rb
+Log:
+- added flatten/unflatten to netpanzer
+- added TileProvider
+
+Modified: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/lib/SConstruct	2005-03-30 12:49:58 UTC (rev 517)
+@@ -111,6 +111,7 @@
+     'tile.cxx',
+     'titlebar.cxx',
+     'tile_brush.cxx',
++    'tile_provider.cxx',
+     'tile_editor.cxx',
+     'tile_selection.cxx',
+     'tile_selector.cxx',
+
+Modified: trunk/lib/clanlib.i
+===================================================================
+--- trunk/lib/clanlib.i	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/lib/clanlib.i	2005-03-30 12:49:58 UTC (rev 517)
+@@ -8,6 +8,7 @@
+ 	CL_Component(CL_Component* parent, CL_StyleManager* style = NULL);
+         void show(bool show = true);
+        	bool is_visible(bool check_parents = true);
++        void set_focus();
+ 	void set_size(int new_width, int new_height);
+ 	void set_position(int new_x, int new_y);
+ 	const CL_Rect&amp; get_position();
+@@ -160,6 +161,8 @@
+ 		CL_Component *parent,
+ 		CL_StyleManager *style = NULL);
+ 
++	CL_Signal_v0&amp; sig_return_pressed();
++
+ 	void set_text(const std::string &amp;text);
+ 	const std::string &amp;get_text() const;        
+ };
+
+Modified: trunk/lib/object_layer.cxx
+===================================================================
+--- trunk/lib/object_layer.cxx	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/lib/object_layer.cxx	2005-03-30 12:49:58 UTC (rev 517)
+@@ -25,6 +25,7 @@
+ #include &quot;objmap_sprite_object.hxx&quot;
+ #include &quot;objmap_control_point.hxx&quot;
+ #include &quot;object_layer.hxx&quot;
++#include &quot;editor_map_component.hxx&quot;
+ #include &quot;layer_impl.hxx&quot;
+ 
+ ObjectLayer ObjectLayer::current_;
+@@ -57,7 +58,9 @@
+ {
+   for(ObjectLayer::Objects::iterator i = objects.begin(); i != objects.end(); ++i)
+     {
+-      (*i).draw(gc);
++      // FIXME: Add clipping here
++      if (parent-&gt;get_clip_rect().is_overlapped((*i).get_bound_rect()))
++        (*i).draw(gc);
+     }
+ 
+   for(ObjectLayer::ControlPoints::iterator i = control_points.begin(); i != control_points.end(); ++i)
+
+Modified: trunk/lib/objmap_sprite_object.cxx
+===================================================================
+--- trunk/lib/objmap_sprite_object.cxx	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/lib/objmap_sprite_object.cxx	2005-03-30 12:49:58 UTC (rev 517)
+@@ -74,12 +74,12 @@
+   if (scale_y &lt; 0)
+     align.y += sprite.get_height();
+       
+-  if (scale_x &gt; 1.0f &amp;&amp; scale_y &gt; 1.0f)
+-    return CL_Rectf(pos - origin - align,
+-                    CL_Sizef(sprite.get_width() * scale_x, sprite.get_height() * scale_y));
+-  else
+-    return CL_Rectf(pos - origin - align,
+-                    CL_Sizef(sprite.get_width(), sprite.get_height()));  
++  //  if (scale_x &gt; 1.0f &amp;&amp; scale_y &gt; 1.0f)
++  //    return CL_Rectf(pos - origin - align,
++  //                   CL_Sizef(sprite.get_width() * scale_x, sprite.get_height() * scale_y));
++//  else
++  return CL_Rectf(pos - origin - align,
++                  CL_Sizef(sprite.get_width(), sprite.get_height()));  
+ }
+ 
+ void
+
+Modified: trunk/lib/tile.cxx
+===================================================================
+--- trunk/lib/tile.cxx	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/lib/tile.cxx	2005-03-30 12:49:58 UTC (rev 517)
+@@ -48,6 +48,12 @@
+   std::string filename;
+ };
+ 
++Tile::Tile(const TileProvider&amp; provider)
++  : impl(new TileImpl())
++{
++  
++}
++
+ Tile::Tile(const CL_PixelBuffer&amp; pixelbuffer,
+            const CL_Sprite&amp; sprite)
+   : impl(new TileImpl())
+
+Modified: trunk/lib/tile.hxx
+===================================================================
+--- trunk/lib/tile.hxx	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/lib/tile.hxx	2005-03-30 12:49:58 UTC (rev 517)
+@@ -24,6 +24,7 @@
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ #include &lt;ClanLib/Display/pixel_buffer.h&gt;
+ #include &quot;shared_ptr.hxx&quot;
++#include &quot;tile_provider.hxx&quot;
+ 
+ class TileImpl;
+ 
+@@ -32,6 +33,8 @@
+ class Tile
+ {
+ public:
++  Tile(const TileProvider&amp; provider);
++  
+   Tile(const CL_PixelBuffer&amp; pixelbuffer);
+ 
+   Tile(const CL_PixelBuffer&amp; pixelbuffer,
+@@ -49,6 +52,7 @@
+       delete the pixelbuffer, the Tile will take care of that */
+   CL_PixelBuffer get_pixelbuffer();
+ 
++  // FIXME: Document all those functions
+   CL_Color   get_color();
+   CL_Color   get_attribute_color();
+ 
+
+Modified: trunk/netpanzer/gameobjects.rb
+===================================================================
+--- trunk/netpanzer/gameobjects.rb	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/netpanzer/gameobjects.rb	2005-03-30 12:49:58 UTC (rev 517)
+@@ -83,7 +83,7 @@
+ 
+       brush = TileBrush.new(width, height)
+       brush.set_data(Range.new(start, start + (width*height)-1).to_a)
+-      tilemap.draw_tile(brush, CL_Point.new(x(), y()))
++      tilemap.draw_tile(brush, CL_Point.new(x()-18, y()-6))
+     end
+   end
+   
+@@ -115,11 +115,6 @@
+   class TileObject &lt; GameObject
+     def initialize(brushindex)
+       @brushindex = brushindex
+-      (start, width, height, @name) = $brushes[brushindex]
+-      
+-      # FIXME: Could be shared among all TileObjects
+-      @brush = TileBrush.new(width, height)
+-      @brush.set_data(Range.new(start, start + (width*height)-1).to_a)
+     end
+ 
+     def x()
+@@ -131,18 +126,23 @@
+     end
+ 
+     def draw_to_tilemap(tilemap)
+-      tilemap.draw_tile(@brush, CL_Point.new(x(), y()))
++      (start, width, height, @name) = $brushes[@brushindex]
++      
++      brush = TileBrush.new(width, height)
++      brush.set_data(Range.new(start, start + (width*height)-1).to_a)
++
++      tilemap.draw_tile(brush, CL_Point.new(x(), y()))
+     end
+ 
+     def get_sprite()
+       sprite = make_sprite(&quot;sprites/#{@brushindex}.png&quot;)
+-      sprite.set_scale(4.0, 4.0)
+       return sprite
+     end
+ 
+     def TileObject.create(objmap, brushindex, x, y)
+       obj = TileObject.new(brushindex)
+-      sprite_obj = ObjMapSpriteObject.new(get_sprite(), CL_Pointf.new(x*32, y*32),
++      sprite_obj = ObjMapSpriteObject.new(make_sprite(&quot;sprites/#{brushindex}.png&quot;),
++                                          CL_Pointf.new(x*32, y*32),
+                                           make_metadata(obj))
+       obj.data = sprite_obj
+       objmap.add_object(sprite_obj.to_object)
+
+Modified: trunk/netpanzer/level.rb
+===================================================================
+--- trunk/netpanzer/level.rb	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/netpanzer/level.rb	2005-03-30 12:49:58 UTC (rev 517)
+@@ -47,14 +47,21 @@
+     @editormap.set_data(self)
+   end
+ 
++  def name()
++    return @data.get_name()
++  end
++
++  def name=(name)
++    @data.set_name(name)
++  end
++
+   def load_optfile(filename)
+     f = File.new(filename)
+     count = /ObjectiveCount: ([0-9]+)/.match(f.readline().chop)[1].to_i
+-    f.readline() # Skip empty line
+     count.times{|i|
++      f.readline() # Skip empty line
+       name = /Name: (.+)/.match(f.readline().chop)
+       loc  = /Location: ([0-9]+) ([0-9]+)/.match(f.readline().chop)
+-      f.readline() # Skip empty line
+       GameObjects::Outpost.create(@objects,
+                                   name,
+                                   loc[1].to_i, loc[2].to_i)
+@@ -65,7 +72,6 @@
+   def load_spnfile(filename)
+     f = File.new(filename)
+     count = /SpawnCount: ([0-9]+)/.match(f.readline().chop)[1].to_i
+-    f.readline() # Skip empty line
+     count.times{|i|
+       loc  = /Location: ([0-9]+) ([0-9]+)/.match(f.readline().chop)
+       GameObjects::SpawnPoint.create(@objects,
+@@ -95,7 +101,7 @@
+ 
+     f = open(filename, &quot;w&quot;)
+ 
+-    f.write(&quot;SpawnCount: %d\n\n&quot; % spawnpoints.length)
++    f.write(&quot;SpawnCount: %d\n&quot; % spawnpoints.length)
+     spawnpoints.each {|obj|
+       f.print(&quot;Location: %d %d\n&quot; % [obj.x, obj.y])
+     }
+@@ -114,16 +120,37 @@
+     end
+   end
+ 
++  def activate(workspace)
++    $workspace.set_map(@editormap)
++    TilemapLayer.set_current(@data.get_tilemap())
++    ObjectLayer.set_current(@objects)
++  end
++
++
+   def flatten()
++    # Converts all objects to the Tilemap
+     @objects.get_objects().each { |obj|
+       obj.get_data().draw_to_tilemap(@tilemap)
+     }
+   end
++  
++  def unflatten()
++    # Reconstructs objects from the Tilemap
++    data   = @tilemap.get_data()
++    width  = @tilemap.get_width()
++    height = @tilemap.get_height()
++    first_tiles = {}
++    $brushes.each_with_index{|i,index| first_tiles[i[0]] = index }
+ 
+-  def activate(workspace)
+-    $workspace.set_map(@editormap)
+-    TilemapLayer.set_current(@data.get_tilemap())
+-    ObjectLayer.set_current(@objects)
++    (0..height-1).each{|y|
++      (0..width-1).each{|x|
++        tile = data[width*y + x]
++        if tile != 0 &amp;&amp; first_tiles.has_key?(tile) then
++          # Insert checking for dups here
++          GameObjects::TileObject.create(@objects, first_tiles[data[width*y + x]], x, y)
++        end
++      }
++    }
+   end
+ end
+ 
+
+Modified: trunk/netpanzer/netpanzer.cxx
+===================================================================
+--- trunk/netpanzer/netpanzer.cxx	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/netpanzer/netpanzer.cxx	2005-03-30 12:49:58 UTC (rev 517)
+@@ -21,7 +21,11 @@
+ #include &lt;sstream&gt;
+ #include &lt;fstream&gt;
+ #include &lt;ClanLib/Display/palette.h&gt;
++#include &lt;ClanLib/Display/sprite.h&gt;
++#include &lt;ClanLib/Display/sprite_description.h&gt;
++#include &lt;ClanLib/Display/Providers/provider_factory.h&gt;
+ #include &quot;globals.hxx&quot;
++#include &quot;tile_provider.hxx&quot;
+ #include &quot;tile.hxx&quot;
+ #include &quot;tileset.hxx&quot;
+ #include &quot;tilemap_layer.hxx&quot;
+@@ -260,6 +264,37 @@
+   impl-&gt;description = description;
+ }
+ 
++class NetPanzerTileProviderImpl
++{
++private:
++  int id;
++  CL_Sprite sprite;
++
++public:
++  NetPanzerTileProviderImpl(int id_)
++    : id(id_)
++  {    
++  }
++
++  CL_Sprite get_sprite()
++  {
++    if (sprite)
++      {
++        return sprite;
++      }
++    else
++      {
++        char str[1024];
++        sprintf(str, &quot;netpanzertiles/tile%04d.png&quot;, id); 
++        
++        CL_SpriteDescription desc;
++        desc.add_frame(CL_ProviderFactory::load(str));
++        sprite = CL_Sprite(desc);
++        return sprite;
++      }
++  }
++};
++
+ void load_netpanzer_tiles(Tileset tileset)
+ {
+   char str[1024];
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/netpanzer/netpanzer.rb	2005-03-30 12:49:58 UTC (rev 517)
+@@ -28,8 +28,10 @@
+ require &quot;level.rb&quot;
+ require &quot;gameobjects.rb&quot;
+ 
++$screen = CL_Size.new(1024, 768)
++
+ flexlay = Flexlay.new()
+-flexlay.init()
++flexlay.init($screen.width, $screen.height)
+ 
+ $config = Config.new()
+ 
+@@ -39,18 +41,18 @@
+ $editor = Editor.new()
+ $gui = $editor.get_gui_manager()
+ 
+-myrect = CL_Rect.new(CL_Point.new(0, 56), CL_Size.new(665, 488+56))
++myrect = CL_Rect.new(CL_Point.new(0, 56), CL_Size.new($screen.width-134-1, ($screen.height-112)+56))
+ $editor_map = EditorMapComponent.new(myrect, $gui.get_component())
+ $workspace  = Workspace.new(myrect.get_width(), myrect.get_height())
+ $editor_map.set_workspace($workspace)
+ 
+-$option_panel = Panel.new(CL_Rect.new(CL_Point.new(666, 56), CL_Size.new(134, 488+56)), $gui.get_component())
++$option_panel = Panel.new(CL_Rect.new(CL_Point.new($screen.width-134, 56), CL_Size.new(134, $screen.height-112+56)), $gui.get_component())
+ 
+-$brushbox = CL_ListBox.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128, 488+56-128-9)), $option_panel)
++$brushbox = CL_ListBox.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128, $screen.height-112+56-128-9)), $option_panel)
+ $brushbox.show(false)
+ 
+-$objectselector = ObjectSelector.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128, 488+56-128-9)),
+-                                     42, 42, $option_panel)
++$objectselector = ObjectSelector.new(CL_Rect.new(CL_Point.new(3, 3), CL_Size.new(128, $screen.height-112+56-128-9)),
++                                     64, 64, $option_panel)
+ 
+ $resources = CL_ResourceManager.new(&quot;netpanzersprites.xml&quot;)
+ 
+@@ -60,7 +62,7 @@
+                                           make_metadata(proc{GameObjects::SpawnPoint.new()})))
+ 
+ $brushes.size.times {|i|
+-  $objectselector.add_brush(ObjectBrush.new(make_sprite(&quot;sprites/#{i}.png&quot;),
++  $objectselector.add_brush(ObjectBrush.new(make_sprite(&quot;thumbnails/#{i}.png&quot;),
+                                             make_metadata(proc{GameObjects::TileObject.new(i)})))
+ }
+ 
+@@ -116,15 +118,28 @@
+ #   end
+ end
+ 
+-$startlevel = Level.new(256, 256)
+-$startlevel.activate($workspace)
+-connect($startlevel.editormap.sig_change(), proc{on_map_change})
++# $startlevel = Level.new(256, 256)
++# $startlevel.activate($workspace)
++# connect($startlevel.editormap.sig_change(), proc{on_map_change})
+ 
+ def gui_level_save_as()
+   $save_dialog.set_filename(File::dirname($save_dialog.get_filename()) + &quot;/&quot;)
+   $save_dialog.run(method(:netpanzer_save_level))
+ end
+ 
++def gui_level_new()
++  dialog = GenericDialog.new(&quot;SecretArea Property Dialog&quot;, $gui.get_component())
++  dialog.add_string(&quot;Name: &quot;, &quot;New Level&quot;)
++  dialog.add_int(&quot;Width: &quot;, 128)
++  dialog.add_int(&quot;Height: &quot;, 128)
++  dialog.set_callback(proc{|name, width, height|
++                        level = Level.new(width, height)
++                        level.activate($workspace)
++                        level.name = name
++                        connect(level.editormap.sig_change(), proc{on_map_change})
++                      })
++end
++
+ def gui_level_save()
+   if $workspace.get_map().get_metadata().filename:
+       $save_dialog.set_filename($workspace.get_map().get_metadata().filename)
+@@ -139,7 +154,7 @@
+   $load_dialog.run(method(:netpanzer_load_level))
+ end
+ 
+-$button_panel = ButtonPanel.new(0, 23, 800, 33, true, $gui.get_component)
++$button_panel = ButtonPanel.new(0, 23, $screen.width, 33, true, $gui.get_component)
+ 
+ $button_panel.add_icon(&quot;../data/images/icons24/stock_new.png&quot;,
+                        proc{ gui_level_new() })
+@@ -270,6 +285,7 @@
+ end
+ 
+ menu = CL_Menu.new($gui.get_component())
++menu.add_item(&quot;File/New...&quot;, proc{gui_level_new})
+ menu.add_item(&quot;File/Open...&quot;, proc{gui_level_load})
+ menu.add_item(&quot;File/Save...&quot;, proc{gui_level_save})
+ menu.add_item(&quot;File/Save As...&quot;, proc{gui_level_save_as})
+@@ -304,8 +320,11 @@
+ menu.add_item(&quot;Zoom/2:1 (200%) &quot;, proc{ gui_set_zoom(2.0) })
+ menu.add_item(&quot;Zoom/4:1 (400%) &quot;, proc{ gui_set_zoom(4.0) })
+ 
++menu.add_item(&quot;Scripts/Flatten&quot;,  proc{ $workspace.get_map().get_data().flatten() })
++menu.add_item(&quot;Scripts/Unflatten&quot;,  proc{ $workspace.get_map().get_data().unflatten() })
++
+ # minimap_panel = Panel(CL_Rect(CL_Point(0, 600-56), CL_Size(800-134, 56)), $gui.get_component())
+-$minimap = Minimap.new($editor_map, CL_Rect.new(CL_Point.new(3, 488+56 - 128-3), CL_Size.new(128, 128)), $option_panel)
++$minimap = Minimap.new($editor_map, CL_Rect.new(CL_Point.new(3, ($screen.height-112)+56 - 128-3), CL_Size.new(128, 128)), $option_panel)
+ 
+ $load_dialog = SimpleFileDialog.new(&quot;Load netPanzer Level&quot;, &quot;Load&quot;, &quot;Cancel&quot;, $gui.get_component())
+ $load_dialog.set_filename($config.datadir + &quot;maps/&quot;)
+@@ -314,6 +333,8 @@
+ 
+ set_tilemap_paint_tool()
+ 
++gui_level_new()
++
+ # generate_sprites()
+ $gui.run()
+ 
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-03-30 12:43:32 UTC (rev 516)
++++ trunk/ruby/flexlay.rb	2005-03-30 12:49:58 UTC (rev 517)
+@@ -140,8 +140,10 @@
+   
+   def run(func)
+     connect(@ok_button.sig_clicked(), method(:on_ok))
++    connect(@inputbox.sig_return_pressed(), method(:on_ok))
+     connect(@cancel_button.sig_clicked(), method(:on_cancel))
+     @callback = func
++    @inputbox.set_focus()
+     @window.show()
+   end
+   
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000025.html">[Flexlay-commit] r516 - trunk/netpanzer/sprites
+</A></li>
+	<LI>Next message: <A HREF="000027.html">[Flexlay-commit] r518 - trunk/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

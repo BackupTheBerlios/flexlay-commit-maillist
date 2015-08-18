@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r573 - trunk/lib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r573%20-%20trunk/lib&In-Reply-To=%3C200507140214.j6E2ERS3024798%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000067.html">
+   <LINK REL="Next"  HREF="000069.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r573 - trunk/lib</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r573%20-%20trunk/lib&In-Reply-To=%3C200507140214.j6E2ERS3024798%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r573 - trunk/lib">grumbel at berlios.de
+       </A><BR>
+    <I>Thu Jul 14 04:14:27 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000067.html">[Flexlay-commit] r572 - in trunk: lib netpanzer ruby
+</A></li>
+        <LI>Next message: <A HREF="000069.html">[Flexlay-commit] r574 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#68">[ date ]</a>
+              <a href="thread.html#68">[ thread ]</a>
+              <a href="subject.html#68">[ subject ]</a>
+              <a href="author.html#68">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-07-14 04:14:08 +0200 (Thu, 14 Jul 2005)
+New Revision: 573
+
+Modified:
+   trunk/lib/tile_selector.cxx
+Log:
+- fixed width handling
+
+Modified: trunk/lib/tile_selector.cxx
+===================================================================
+--- trunk/lib/tile_selector.cxx	2005-07-02 16:43:20 UTC (rev 572)
++++ trunk/lib/tile_selector.cxx	2005-07-14 02:14:08 UTC (rev 573)
+@@ -234,6 +234,7 @@
+ TileSelector::set_scale(float s)
+ {
+   scale = s;
++  width  = static_cast&lt;int&gt;(get_width()/tileset.get_tile_size() * (1.0f/scale));
+ }
+ 
+ TileSelector::Tiles
+@@ -247,7 +248,7 @@
+ {
+   tileset = t;
+   // Recalc the number of tiles in a row
+-  width  = get_width()/tileset.get_tile_size();
++  width  = static_cast&lt;int&gt;(get_width()/tileset.get_tile_size() * (1.0f/scale));
+ }
+ 
+ void
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000067.html">[Flexlay-commit] r572 - in trunk: lib netpanzer ruby
+</A></li>
+	<LI>Next message: <A HREF="000069.html">[Flexlay-commit] r574 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#68">[ date ]</a>
+              <a href="thread.html#68">[ thread ]</a>
+              <a href="subject.html#68">[ subject ]</a>
+              <a href="author.html#68">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

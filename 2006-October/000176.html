@@ -1,0 +1,466 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r683 - in trunk/netbrush: data/icons src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r683%20-%20in%20trunk/netbrush%3A%20data/icons%20src&In-Reply-To=%3C200610301853.k9UIrPA5025185%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000175.html">
+   <LINK REL="Next"  HREF="000177.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r683 - in trunk/netbrush: data/icons src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r683%20-%20in%20trunk/netbrush%3A%20data/icons%20src&In-Reply-To=%3C200610301853.k9UIrPA5025185%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r683 - in trunk/netbrush: data/icons src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Oct 30 19:53:25 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000175.html">[Flexlay-commit] r681 - in trunk/netbrush: . src
+</A></li>
+        <LI>Next message: <A HREF="000177.html">[Flexlay-commit] r684 - in trunk/netbrush: . data/icons src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#176">[ date ]</a>
+              <a href="thread.html#176">[ thread ]</a>
+              <a href="subject.html#176">[ subject ]</a>
+              <a href="author.html#176">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-30 19:53:25 +0100 (Mon, 30 Oct 2006)
+New Revision: 683
+
+Added:
+   trunk/netbrush/data/icons/stock-tool-rect-22.png
+   trunk/netbrush/data/icons/stock-tool-rect-select-22.png
+   trunk/netbrush/src/region_tool.cpp
+   trunk/netbrush/src/region_tool.hpp
+Modified:
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/screen_buffer.hpp
+   trunk/netbrush/src/tool.hpp
+Log:
+- hooked up tools to GUI
+
+Added: trunk/netbrush/data/icons/stock-tool-rect-22.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/netbrush/data/icons/stock-tool-rect-22.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/netbrush/data/icons/stock-tool-rect-select-22.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/netbrush/data/icons/stock-tool-rect-select-22.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-30 17:32:08 UTC (rev 682)
++++ trunk/netbrush/src/controller.cpp	2006-10-30 18:53:25 UTC (rev 683)
+@@ -33,8 +33,10 @@
+ #include &quot;drawing_parameter.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
+ #include &quot;brush_widget.hpp&quot;
++#include &quot;screen_buffer.hpp&quot;
+ #include &quot;widget/button.hpp&quot;
+ #include &quot;text_view.hpp&quot;
++#include &quot;tool.hpp&quot;
+ #include &quot;widget/widget_manager.hpp&quot;
+ #include &quot;controller.hpp&quot;
+ 
+@@ -79,12 +81,13 @@
+   }
+ };
+ 
+-class ToolButtonCallback : public ButtonCallback
++class ToolParameterButtonCallback : public ButtonCallback
+ {
+ private:
+   DrawingParameter::Tool tool;
++
+ public:
+-  ToolButtonCallback(DrawingParameter::Tool tool_)
++  ToolParameterButtonCallback(DrawingParameter::Tool tool_)
+     : tool(tool_)
+   {
+   }
+@@ -103,22 +106,48 @@
+   {
+     //std::cout &lt;&lt; &quot;Setting tool: &quot; &lt;&lt; tool &lt;&lt; std::endl;
+     client_draw_param-&gt;tool = tool;
++    screen_buffer-&gt;set_tool(PAINTBRUSH_TOOL);
+   }
+ };
+ 
++class ToolButtonCallback : public ButtonCallback
++{
++private:
++  ToolName tool;
++
++public:
++  ToolButtonCallback(ToolName tool_)
++    : tool(tool_)
++  {
++  }
++
++  void on_press  (Button* button) {}
++  void on_release(Button* button) {}
++  
++  void on_click  (Button* button) 
++  {
++    screen_buffer-&gt;set_tool(tool);
++  }
++};
++
+ Controller::Controller()
+ {
+   // Toolbar
+     widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
+                                    Rect(Point(2, 2+0*34), Size(34, 34)),
+-                                   new ToolButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
++                                   new ToolParameterButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
+     widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-paintbrush-22.png&quot;), 
+                                    Rect(Point(2, 2+1*34), Size(34, 34)),
+-                                   new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
+-    //widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-color-picker-22.png&quot;), 
+-    //                               Rect(Point(2, 2+2*34), Size(34, 34)),
+-    //                               new ToolButtonCallback(DrawingParameter::TOOL_COLOR_PICKER)));
+-
++                                   new ToolParameterButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-color-picker-22.png&quot;), 
++                                   Rect(Point(2, 2+2*34), Size(34, 34)),
++                                   new ToolButtonCallback(COLOR_PICKER_TOOL)));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-rect-22.png&quot;), 
++                                   Rect(Point(2, 2+3*34), Size(34, 34)),
++                                   new ToolButtonCallback(RECT_TOOL)));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-rect-select-22.png&quot;), 
++                                   Rect(Point(2, 2+4*34), Size(34, 34)),
++                                   new ToolButtonCallback(REGION_TOOL)));
+     widget_manager-&gt;add(text_view = new TextView(Rect(38, screen-&gt;h - 38,
+                                                       screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h)));
+ 
+@@ -274,7 +303,7 @@
+ 
+ void
+ Controller::update_mouse_cursor()
+-{
++{ // FIXME: This could need some cleanup/feature enhancements
+   if (client_draw_param-&gt;generic_brush.radius &lt; 5.0f)
+     return ;
+ 
+
+Added: trunk/netbrush/src/region_tool.cpp
+===================================================================
+--- trunk/netbrush/src/region_tool.cpp	2006-10-30 17:32:08 UTC (rev 682)
++++ trunk/netbrush/src/region_tool.cpp	2006-10-30 18:53:25 UTC (rev 683)
+@@ -0,0 +1,86 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;sstream&gt;
++#include &quot;globals.hpp&quot;
++#include &quot;server_connection.hpp&quot;
++#include &quot;controller.hpp&quot;
++#include &quot;region_tool.hpp&quot;
++
++RegionTool::RegionTool()
++  : have_region(false)
++{
++}
++
++RegionTool::~RegionTool()
++{
++
++}
++
++void
++RegionTool::on_motion(const ToolMotionEvent&amp; ev)
++{
++}
++
++void
++RegionTool::on_button_press(const ToolButtonEvent&amp; ev)
++{
++  if (have_region)
++    {
++      controller-&gt;puts(&quot;region dropped&quot;);     
++      std::ostringstream str;
++      str &lt;&lt; &quot;copy_region &quot;
++          &lt;&lt; rect.left  &lt;&lt; &quot; &quot; &lt;&lt; rect.top &lt;&lt; &quot; &quot; 
++          &lt;&lt; rect.right &lt;&lt; &quot; &quot; &lt;&lt; rect.bottom &lt;&lt; &quot; &quot;
++          &lt;&lt; ev.x &lt;&lt; &quot; &quot; &lt;&lt; ev.y &lt;&lt; std::endl;
++      server-&gt;send(str.str());
++    }
++  else
++    {
++      rect.left = ev.x;
++      rect.top  = ev.y;
++      controller-&gt;puts(&quot;region select started&quot;);
++    }
++}
++
++void
++RegionTool::on_button_release(const ToolButtonEvent&amp; ev)
++{
++  if (!have_region)
++    {
++      rect.right  = ev.x;
++      rect.bottom = ev.y;
++
++      rect.normalize();
++      controller-&gt;puts(&quot;region selected&quot;);
++      have_region = true;
++    }
++  else
++    {
++      have_region = false;
++    }
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/region_tool.hpp
+===================================================================
+--- trunk/netbrush/src/region_tool.hpp	2006-10-30 17:32:08 UTC (rev 682)
++++ trunk/netbrush/src/region_tool.hpp	2006-10-30 18:53:25 UTC (rev 683)
+@@ -0,0 +1,53 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_REGION_TOOL_HPP
++#define HEADER_REGION_TOOL_HPP
++
++#include &quot;tool.hpp&quot;
++
++/** */
++class RegionTool : public Tool
++{
++private:
++  Rect rect;
++  bool have_region;
++
++public:
++  RegionTool();
++  ~RegionTool();
++
++  void on_motion(const ToolMotionEvent&amp; ev);
++  void on_button_press(const ToolButtonEvent&amp; ev);
++  void on_button_release(const ToolButtonEvent&amp; ev);
++  
++private:
++  RegionTool (const RegionTool&amp;);
++  RegionTool&amp; operator= (const RegionTool&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-30 17:32:08 UTC (rev 682)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-30 18:53:25 UTC (rev 683)
+@@ -47,16 +47,20 @@
+     scroll_offset_x(0),
+     scroll_offset_y(0)
+ {
+-  tools.push_back(new AirbrushTool());
+-  tools.push_back(new ScrollTool());
+-  tools.push_back(new ColorpickerTool());
+-  tools.push_back(new RectTool());
+-  tools.push_back(new RegionTool());
++  tools.push_back(airbrush_tool    = new AirbrushTool());
++  tools.push_back(scroll_tool      = new ScrollTool());
++  tools.push_back(colorpicker_tool = new ColorpickerTool());
++  tools.push_back(rect_tool        = new RectTool());
++  tools.push_back(region_tool      = new RegionTool());
+ }
+ 
+ ScreenBuffer::~ScreenBuffer()
+ {
+-  //  SDL_FreeSurface(buffer);
++  delete colorpicker_tool;
++  delete region_tool;
++  delete rect_tool;
++  delete scroll_tool;
++  delete airbrush_tool;
+ }
+ 
+ void
+@@ -269,4 +273,27 @@
+                get_rect().get_height()/2 - scroll_offset_y);
+ }
+ 
++void
++ScreenBuffer::set_tool(ToolName tool)
++{
++  switch(tool)
++    {
++    case PAINTBRUSH_TOOL:
++      tools[0] = airbrush_tool;
++      break;
++
++    case COLOR_PICKER_TOOL:
++      tools[0] = colorpicker_tool;
++      break;
++
++    case RECT_TOOL:
++      tools[0] = rect_tool;
++      break;
++
++    case REGION_TOOL:
++      tools[0] = region_tool;
++      break;
++    }
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/screen_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.hpp	2006-10-30 17:32:08 UTC (rev 682)
++++ trunk/netbrush/src/screen_buffer.hpp	2006-10-30 18:53:25 UTC (rev 683)
+@@ -27,10 +27,17 @@
+ #define HEADER_SCREEN_BUFFER_HPP
+ 
+ #include &quot;SDL.h&quot;
++#include &quot;tool.hpp&quot;
+ #include &quot;widget/widget.hpp&quot;
+ 
+ class Tool;
+ 
++class ColorpickerTool;
++class ScrollTool;
++class RegionTool;
++class RectTool;
++class AirbrushTool;
++
+ /** */
+ class ScreenBuffer : public Widget
+ {
+@@ -43,6 +50,12 @@
+   int scroll_offset_x;
+   int scroll_offset_y;
+ 
++  ColorpickerTool* colorpicker_tool;
++  RegionTool*      region_tool;
++  RectTool*        rect_tool;
++  ScrollTool*      scroll_tool;
++  AirbrushTool*    airbrush_tool;
++
+   typedef std::vector&lt;Tool*&gt; Tools;
+   Tools tools;
+ public:
+@@ -64,8 +77,9 @@
+ 
+   bool do_update() { return false; }
+ 
+-  void move_to(const Point&amp; p);
++  void  move_to(const Point&amp; p);
+   Point get_pos();
++  void  set_tool(ToolName tool);
+ private:
+   ScreenBuffer (const ScreenBuffer&amp;);
+   ScreenBuffer&amp; operator= (const ScreenBuffer&amp;);
+
+Modified: trunk/netbrush/src/tool.hpp
+===================================================================
+--- trunk/netbrush/src/tool.hpp	2006-10-30 17:32:08 UTC (rev 682)
++++ trunk/netbrush/src/tool.hpp	2006-10-30 18:53:25 UTC (rev 683)
+@@ -29,6 +29,8 @@
+ #include &quot;math/point.hpp&quot;
+ #include &quot;widget/events.hpp&quot;
+ 
++enum ToolName { PAINTBRUSH_TOOL, RECT_TOOL, REGION_TOOL, COLOR_PICKER_TOOL };
++
+ struct ToolMotionEvent
+ {
+   int x;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000175.html">[Flexlay-commit] r681 - in trunk/netbrush: . src
+</A></li>
+	<LI>Next message: <A HREF="000177.html">[Flexlay-commit] r684 - in trunk/netbrush: . data/icons src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#176">[ date ]</a>
+              <a href="thread.html#176">[ thread ]</a>
+              <a href="subject.html#176">[ subject ]</a>
+              <a href="author.html#176">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

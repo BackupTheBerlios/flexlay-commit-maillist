@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r592 - trunk/windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r592%20-%20trunk/windstille&In-Reply-To=%3C200508131709.j7DH9A2r001823%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000086.html">
+   <LINK REL="Next"  HREF="000088.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r592 - trunk/windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r592%20-%20trunk/windstille&In-Reply-To=%3C200508131709.j7DH9A2r001823%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r592 - trunk/windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Sat Aug 13 19:09:10 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000086.html">[Flexlay-commit] r591 - in trunk: lib netpanzer ruby supertux windstille
+</A></li>
+        <LI>Next message: <A HREF="000088.html">[Flexlay-commit] r593 - in trunk: lib ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#87">[ date ]</a>
+              <a href="thread.html#87">[ thread ]</a>
+              <a href="subject.html#87">[ subject ]</a>
+              <a href="author.html#87">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-13 19:08:45 +0200 (Sat, 13 Aug 2005)
+New Revision: 592
+
+Modified:
+   trunk/windstille/gui.rb
+Log:
+- moved GraphicContextState out of Workspace
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-13 17:04:23 UTC (rev 591)
++++ trunk/windstille/gui.rb	2005-08-13 17:08:45 UTC (rev 592)
+@@ -39,7 +39,7 @@
+     myrect      = CL_Rect.new(CL_Point.new(0, 56), CL_Size.new($screen_width - 800 +  665,
+                                                                $screen_height - 600 + 488+56))
+     @editor_map = EditorMapComponent.new(myrect, @gui.get_component())
+-    @workspace  = Workspace.new(myrect.get_width(), myrect.get_height())
++    @workspace  = Workspace.new()
+     @editor_map.set_workspace(@workspace)
+ 
+     @button_panel = ButtonPanel.new_from_spec(0, 23, $screen_width, 33, true, $buttonpanel_spec, @gui.get_component)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000086.html">[Flexlay-commit] r591 - in trunk: lib netpanzer ruby supertux windstille
+</A></li>
+	<LI>Next message: <A HREF="000088.html">[Flexlay-commit] r593 - in trunk: lib ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#87">[ date ]</a>
+              <a href="thread.html#87">[ thread ]</a>
+              <a href="subject.html#87">[ subject ]</a>
+              <a href="author.html#87">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r653 - trunk/netbrush
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r653%20-%20trunk/netbrush&In-Reply-To=%3C200610191608.k9JG8bom032383%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000148.html">
+   <LINK REL="Next"  HREF="000150.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r653 - trunk/netbrush</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r653%20-%20trunk/netbrush&In-Reply-To=%3C200610191608.k9JG8bom032383%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r653 - trunk/netbrush">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 19 18:08:37 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000148.html">[Flexlay-commit] r652 - in trunk/netbrush: . widget
+</A></li>
+        <LI>Next message: <A HREF="000150.html">[Flexlay-commit] r654 - trunk/netbrush/data/icons
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#149">[ date ]</a>
+              <a href="thread.html#149">[ thread ]</a>
+              <a href="subject.html#149">[ subject ]</a>
+              <a href="author.html#149">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-19 18:08:37 +0200 (Thu, 19 Oct 2006)
+New Revision: 653
+
+Modified:
+   trunk/netbrush/drawing_context.cpp
+   trunk/netbrush/screen_buffer.cpp
+   trunk/netbrush/screen_buffer.hpp
+   trunk/netbrush/stroke_buffer.cpp
+   trunk/netbrush/video.cpp
+   trunk/netbrush/video.hpp
+Log:
+- work around for crash (maybe)
+
+Modified: trunk/netbrush/drawing_context.cpp
+===================================================================
+--- trunk/netbrush/drawing_context.cpp	2006-10-19 13:58:26 UTC (rev 652)
++++ trunk/netbrush/drawing_context.cpp	2006-10-19 16:08:37 UTC (rev 653)
+@@ -76,6 +76,8 @@
+   rect.right  += param-&gt;thickness()/2;
+   rect.bottom += param-&gt;thickness()/2;
+ 
++  clip_to(rect, Rect(0, 0, get_width(), get_height()));
++
+   stroke_buffer-&gt;clear(rect);
+   stroke_buffer-&gt;set_param(param);
+   stroke_buffer-&gt;draw_stroke(stroke, param);
+@@ -113,7 +115,7 @@
+ 
+   SDL_FillRect(drawable, &amp;rect, SDL_MapRGB(drawable-&gt;format, 255, 255, 255));
+ 
+-  screen_buffer-&gt;mark_dirty(&amp;rect);
++  screen_buffer-&gt;mark_dirty(Rect(Point(0,0), Size(rect.w, rect.h)));
+ }
+ 
+ void
+
+Modified: trunk/netbrush/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/screen_buffer.cpp	2006-10-19 13:58:26 UTC (rev 652)
++++ trunk/netbrush/screen_buffer.cpp	2006-10-19 16:08:37 UTC (rev 653)
+@@ -74,7 +74,7 @@
+       dirty_region.bottom = std::min(get_rect().bottom, dirty_region.bottom);
+     }
+ 
+-  if (1)
++  if (0)
+     std::cout &lt;&lt; &quot;Updating screen: &quot;
+               &lt;&lt; dirty_region.left  &lt;&lt; &quot; &quot;
+               &lt;&lt; dirty_region.top   &lt;&lt; &quot; &quot;
+@@ -108,17 +108,11 @@
+                      dirty_region.get_width(), dirty_region.get_height());
+     }
+ 
+-  if (1) 
++  if (0) 
+     std::cout &lt;&lt; &quot;Updating done&quot; &lt;&lt; std::endl;
+ }
+ 
+ void
+-ScreenBuffer::mark_dirty(SDL_Rect* region)
+-{
+-  mark_dirty(region-&gt;x, region-&gt;y, region-&gt;w, region-&gt;h);
+-}
+-
+-void
+ ScreenBuffer::mark_dirty(const Rect&amp; region)
+ {
+   mark_dirty(region.left, region.top, region.get_width(), region.get_height());
+@@ -184,7 +178,7 @@
+       rect.right  += client_draw_param-&gt;thickness()/2;
+       rect.bottom += client_draw_param-&gt;thickness()/2;
+                   
+-      screen_buffer-&gt;mark_dirty(rect);
++      mark_dirty(rect);
+     }
+ 
+   if (scrolling)
+@@ -192,7 +186,6 @@
+       scroll_offset_x = old_scroll_offset_x + (motion.x - click_pos_x);
+       scroll_offset_y = old_scroll_offset_y + (motion.y - click_pos_y);
+ 
+-      // FIXME: JUCK?!
+       Rect r(0, 0, get_rect().get_width(), get_rect().get_height());
+       r.left   -= scroll_offset_x;
+       r.right  -= scroll_offset_x;
+@@ -200,7 +193,7 @@
+       r.bottom -= scroll_offset_y;
+       mark_dirty(r);
+ 
+-      std::cout &lt;&lt; &quot;Scrolling: &quot; &lt;&lt; scroll_offset_x &lt;&lt; &quot; &quot; &lt;&lt; scroll_offset_y &lt;&lt; std::endl;
++      //std::cout &lt;&lt; &quot;Scrolling: &quot; &lt;&lt; scroll_offset_x &lt;&lt; &quot; &quot; &lt;&lt; scroll_offset_y &lt;&lt; std::endl;
+     } 
+ }
+ 
+
+Modified: trunk/netbrush/screen_buffer.hpp
+===================================================================
+--- trunk/netbrush/screen_buffer.hpp	2006-10-19 13:58:26 UTC (rev 652)
++++ trunk/netbrush/screen_buffer.hpp	2006-10-19 16:08:37 UTC (rev 653)
+@@ -53,7 +53,6 @@
+ 
+   // Mark an region as dirty in canvas space, not screen space
+   void mark_dirty(int x, int y, int w, int h);
+-  void mark_dirty(SDL_Rect* region);
+   void mark_dirty(const Rect&amp; region);
+   
+   void draw(SDL_Surface* target);
+
+Modified: trunk/netbrush/stroke_buffer.cpp
+===================================================================
+--- trunk/netbrush/stroke_buffer.cpp	2006-10-19 13:58:26 UTC (rev 652)
++++ trunk/netbrush/stroke_buffer.cpp	2006-10-19 16:08:37 UTC (rev 653)
+@@ -109,6 +109,10 @@
+   Uint8* dst = static_cast&lt;Uint8*&gt;(target-&gt;pixels);
+   Uint8* src = buffer-&gt;get_data();
+   
++  assert(rect.left &gt;= 0);
++  std::cout &lt;&lt; &quot;StrokeBuffer::draw: &quot; &lt;&lt; rect.left &lt;&lt; &quot; &quot; &lt;&lt; rect.top &lt;&lt; &quot; &quot;
++            &lt;&lt; rect.right &lt;&lt; &quot; &quot; &lt;&lt; rect.bottom &lt;&lt; &quot; - &quot; &lt;&lt; x_of &lt;&lt; &quot; &quot; &lt;&lt; y_of &lt;&lt; std::endl;
++
+   if (target == screen) // FIXME: Ugly workaround
+     {
+       for(int y = rect.top; y &lt; rect.bottom; ++y)
+
+Modified: trunk/netbrush/video.cpp
+===================================================================
+--- trunk/netbrush/video.cpp	2006-10-19 13:58:26 UTC (rev 652)
++++ trunk/netbrush/video.cpp	2006-10-19 16:08:37 UTC (rev 653)
+@@ -24,6 +24,7 @@
+ */
+ 
+ #include &lt;algorithm&gt;
++#include &quot;math/rect.hpp&quot;
+ #include &quot;video.hpp&quot;
+ 
+ SDL_Surface* screen = 0;
+@@ -43,6 +44,14 @@
+   rect-&gt;h = y2 - y1;
+ }
+ 
++void clip_to(Rect&amp; rect, const Rect&amp; clip_rect)
++{
++  rect.left   = std::max(rect.left,   clip_rect.left);
++  rect.right  = std::min(rect.right,  clip_rect.right);
++  rect.top    = std::max(rect.top,    clip_rect.top);
++  rect.bottom = std::min(rect.bottom, clip_rect.bottom);
++}
++
+ SDL_Surface* create_surface(int w, int h)
+ {
+   Uint32 rmask, gmask, bmask, amask;
+
+Modified: trunk/netbrush/video.hpp
+===================================================================
+--- trunk/netbrush/video.hpp	2006-10-19 13:58:26 UTC (rev 652)
++++ trunk/netbrush/video.hpp	2006-10-19 16:08:37 UTC (rev 653)
+@@ -30,7 +30,10 @@
+ 
+ extern SDL_Surface* screen;
+ 
++class Rect;
++
+ void clip_to(SDL_Rect* rect, SDL_Rect* clip_rect);
++void clip_to(Rect&amp; rect, const Rect&amp; clip_rect);
+ SDL_Surface* create_surface(int w, int h);
+ 
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000148.html">[Flexlay-commit] r652 - in trunk/netbrush: . widget
+</A></li>
+	<LI>Next message: <A HREF="000150.html">[Flexlay-commit] r654 - trunk/netbrush/data/icons
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#149">[ date ]</a>
+              <a href="thread.html#149">[ thread ]</a>
+              <a href="subject.html#149">[ subject ]</a>
+              <a href="author.html#149">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

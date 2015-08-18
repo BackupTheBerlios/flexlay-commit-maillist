@@ -1,0 +1,789 @@
+From grumbel at sheep.berlios.de  Fri Apr  1 05:07:30 2005
+From: grumbel at sheep.berlios.de (Ingo Ruhnke at BerliOS)
+Date: Fri, 1 Apr 2005 05:07:30 +0200
+Subject: [Flexlay-commit] r529 - trunk/netpanzer
+Message-ID: <200504010307.j3137Ur2000850@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-04-01 05:06:55 +0200 (Fri, 01 Apr 2005)
+New Revision: 529
+
+Removed:
+   trunk/netpanzer/sprites/
+Modified:
+   trunk/netpanzer/gameobjects.rb
+   trunk/netpanzer/netpanzer.cxx
+   trunk/netpanzer/netpanzer.hxx
+   trunk/netpanzer/netpanzer.i
+   trunk/netpanzer/netpanzer.rb
+Log:
+- changed sprite and tilehandling so that it uses the netPanzer datafiles, hell of a lot faster now
+
+Modified: trunk/netpanzer/gameobjects.rb
+===================================================================
+--- trunk/netpanzer/gameobjects.rb	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/gameobjects.rb	2005-04-01 03:06:55 UTC (rev 529)
+@@ -135,13 +135,13 @@
+     end
+ 
+     def get_sprite()
+-      sprite = make_sprite("sprites/#{@brushindex}.png")
++      sprite = NetPanzerData::instance().get_tilegroup_sprite($brushes[@brushindex][0])
+       return sprite
+     end
+ 
+     def TileObject.create(objmap, brushindex, x, y)
+       obj = TileObject.new(brushindex)
+-      sprite_obj = ObjMapSpriteObject.new(make_sprite("sprites/#{brushindex}.png"),
++      sprite_obj = ObjMapSpriteObject.new(NetPanzerData::instance().get_tilegroup_sprite($brushes[brushindex][0]),
+                                           CL_Pointf.new(x*32, y*32),
+                                           make_metadata(obj))
+       obj.data = sprite_obj
+
+Modified: trunk/netpanzer/netpanzer.cxx
+===================================================================
+--- trunk/netpanzer/netpanzer.cxx	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/netpanzer.cxx	2005-04-01 03:06:55 UTC (rev 529)
+@@ -32,13 +32,13 @@
+ #include "tile_provider_impl.hxx"
+ #include "tile.hxx"
+ #include "tileset.hxx"
++#include "blitter.hxx"
+ #include "tilemap_layer.hxx"
+ #include "editor_map.hxx"
+ #include "netpanzer.hxx"
+ 
+ NetPanzerData* NetPanzerData::instance_ = 0;
+ 
+-
+ class NetPanzerTileProviderImpl : public TileProviderImpl
+ {
+ private:
+@@ -64,10 +64,13 @@
+       }
+     else
+       {
+-        CL_SpriteDescription desc;
+-        desc.add_frame(get_pixelbuffer());
+-        sprite = CL_Sprite(desc);
+-        
++        NetPanzerTileGroup& tilegroup = NetPanzerData::instance()->find_tilegroup(id);
++        int dist = id - tilegroup.start;
++
++        CL_Rect rect(CL_Point((dist % tilegroup.width) * 32,
++                              (dist / tilegroup.width) * 32),
++                     CL_Size(32, 32));
++        sprite.add_frame(tilegroup.get_surface(), rect);
+         return sprite;
+       }
+   }
+@@ -79,12 +82,13 @@
+         return buffer;
+       }
+     else
+-      {	
++      {
+         // FIXME: ClanLibs indexed handling seems broken, so we do
+         // the conversion ourself
+         const CL_Palette& palette = NetPanzerData::instance()->get_palette();
+         unsigned char* data = NetPanzerData::instance()->get_tiledata() + (32*32) * id;
+         buffer = CL_PixelBuffer(32, 32, 32*3, CL_PixelFormat::rgb888);
++
+         buffer.lock();
+         unsigned char* target = static_cast<unsigned char*>(buffer.get_data());
+ 
+@@ -106,13 +110,95 @@
+ }
+ 
+ void
+-NetPanzerData::init(const std::string& datadir_)
++NetPanzerData::register_tilegroup(int start, int width, int height)
+ {
++  NetPanzerTileGroup group;
++
++  group.start  = start;
++  group.width  = width;
++  group.height = height;
++
++  tilegroups.push_back(group);
++}
++
++void
++NetPanzerData::load_data(const std::string& datadir_)
++{
+   datadir = datadir_;
++  std::cout << "NetPanzerData: Loading data from '" << datadir << "'" << std::endl;
+   palette = load_palette(datadir + "/" + "wads/netp.act");
+   tileset = load_tileset(datadir + "/" + "wads/summer12mb.tls");
+ }
+ 
++CL_Surface
++NetPanzerTileGroup::get_surface()
++{
++  if (!surface)
++    {
++      CL_PixelBuffer buffer(width*32, height*32, width*32*4, CL_PixelFormat::rgba8888);
++
++      for(int y = 0; y < height; ++y)
++        for(int x = 0; x < width; ++x)
++          {
++            const CL_Palette& palette = NetPanzerData::instance()->get_palette();
++            unsigned char* data = NetPanzerData::instance()->get_tiledata() + (32*32) * (start + width*y + x);
++            
++            CL_PixelBuffer tile(32, 32, 32*3, CL_PixelFormat::rgb888);
++            tile.lock();
++            unsigned char* target = static_cast<unsigned char*>(tile.get_data());
++
++            for(int i = 0; i < 32*32; ++i)
++              {
++                target[3*i+0] = palette[data[i]].get_blue();
++                target[3*i+1] = palette[data[i]].get_green();
++                target[3*i+2] = palette[data[i]].get_red();
++              }
++            tile.unlock();
++                
++            blit(buffer, tile, x * 32, y * 32);
++          }
++      
++      surface = CL_Surface(buffer);
++    }
++
++  return surface;
++}
++
++CL_Sprite
++NetPanzerData::get_tilegroup_sprite(int index)
++{
++  for(TileGroups::iterator i = tilegroups.begin(); i != tilegroups.end(); ++i)
++    {
++      if (index == i->start)
++        {
++          CL_Sprite sprite;
++          sprite.add_frame(i->get_surface(), CL_Rect(CL_Point(0, 0),
++                                                     CL_Size(i->get_surface().get_width(),
++                                                             i->get_surface().get_height())));
++          return sprite;
++        }
++    }
++
++  std::cout << "NetPanzerData: Couldn't get tilegroup_sprite for '" << index << "'" << std::endl;
++  return CL_Sprite();
++}
++
++NetPanzerTileGroup&
++NetPanzerData::find_tilegroup(int index)
++{
++  for(TileGroups::iterator i = tilegroups.begin(); i != tilegroups.end(); ++i)
++    {
++      if (i->start <= index && index < i->start + (i->width*i->height))
++        {
++          return *i;
++        }
++    }
++
++  std::cout << "NetPanzerData: Couldn't find tilegroup for '" << index << "'" << std::endl;
++  // return some junk just to keep it running
++  return tilegroups.front();
++}
++
+ const Tileset&
+ NetPanzerData::get_tileset() const
+ {
+@@ -183,12 +269,6 @@
+       file.read(reinterpret_cast<char*>(&tile_count), sizeof(tile_count));
+       file.read(reinterpret_cast<char*>(raw_palette), sizeof(raw_palette));
+ 
+-      std::cout << "ID:      " << netp_id_header << std::endl;
+-      std::cout << "Version: " << version << std::endl;
+-      std::cout << "Width:   " << width << std::endl;
+-      std::cout << "Height:  " << height << std::endl;
+-      std::cout << "Count:   " << tile_count << std::endl;
+-
+       NetPanzerTileHeader* tile_headers = new NetPanzerTileHeader[tile_count];
+ 
+       file.read(reinterpret_cast<char*>(tile_headers), 
+@@ -200,44 +280,19 @@
+       file.read(reinterpret_cast<char*>(tiledata), tilesize*tile_count);
+       file.close();
+ 
+-      if (0)
+-        {
+-          // FIXME: The palette in the netpanzer 'summer12mb.tls' file
+-          // is either broken or otherwise corrupt, so we ignore it
+-          // and use the seperate palette file 'netp.act' which works
+-          // fine.
+-
+-          // Convert palette in native format
+-          CL_Palette palette;
+-          for(int i = 0; i < 256; ++i)
+-            {
+-              palette.colors[i].set_red  (raw_palette[3*i + 0]);
+-              palette.colors[i].set_green(raw_palette[3*i + 1]);
+-              palette.colors[i].set_blue (raw_palette[3*i + 2]);
+-              palette.colors[i].set_alpha(255);
+-
+-              if (0)
+-                {
+-                  std::cout << "Palette: "
+-                            << (int)raw_palette[3*i + 0] << " "
+-                            << (int)raw_palette[3*i + 1] << " "
+-                            << (int)raw_palette[3*i + 2]
+-                            << std::endl;
+-                }
+-            }
+-          
+-          NetPanzerData::instance()->palette  = palette;
+-        }
+-
++      // FIXME: The palette in the netpanzer 'summer12mb.tls' file
++      // is either broken or otherwise corrupt, so we ignore it
++      // and use the seperate palette file 'netp.act' which works
++      // fine.
++      
+       NetPanzerData::instance()->tiledata = tiledata;
+       
+       Tileset tileset(width);
+ 
+       for(int i = 0; i < tile_count; ++i)
+         {
+-          Tile* tile = new Tile(TileProvider(new NetPanzerTileProviderImpl(i)));
+-          tileset.add_tile(i, tile);
+-          delete tile;
++          Tile tile(TileProvider(new NetPanzerTileProviderImpl(i)));
++          tileset.add_tile(i, &tile);
+         }
+       return tileset;
+     }
+
+Modified: trunk/netpanzer/netpanzer.hxx
+===================================================================
+--- trunk/netpanzer/netpanzer.hxx	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/netpanzer.hxx	2005-04-01 03:06:55 UTC (rev 529)
+@@ -22,6 +22,8 @@
+ 
+ #include <string>
+ #include <ClanLib/Display/palette.h>
++#include <ClanLib/Display/surface.h>
++#include <ClanLib/Display/sprite.h>
+ #include "../lib/tileset.hxx"
+ #include "../lib/tilemap_layer.hxx"
+ #include "../lib/shared_ptr.hxx"
+@@ -38,6 +40,19 @@
+   char	avg_color;
+ };
+ 
++struct NetPanzerTileGroup
++{
++  int start;
++  int width;
++  int height;
++  
++  CL_Surface get_surface(); 
++
++private:
++  /** Surface holding the tilegroups image */
++  CL_Surface surface;
++};
++
+ class NetPanzerData
+ {
+ private:
+@@ -56,16 +71,33 @@
+   CL_Palette     palette;
+   Tileset        tileset;
+   unsigned char* tiledata;
+-  
++  typedef std::vector<NetPanzerTileGroup> TileGroups;
++  TileGroups tilegroups;
++
+ public:
+   NetPanzerData();
+-  void init(const std::string& datadir_);
++
++  /** Register a tilegroup, ie. a section of tiles that belong
++      together and form an building, lake, a section of trees, etc.
++
++      \param start the tile-id for the upper/left tile
++      \param width the width of tilegroup
++      \param height the height of the tilegroup
++  */
++  void register_tilegroup(int start, int width, int height);
++
++  void load_data(const std::string& datadir_);
+   const CL_Palette& get_palette() const;
+   const Tileset&    get_tileset() const;
+   unsigned char*    get_tiledata() const;
+ 
+   CL_Palette load_palette(const std::string& filename);
+   Tileset    load_tileset(const std::string& filename);
++  CL_Sprite  get_tilegroup_sprite(int index);
++
++  /** Locate the tilegroup in which the tile with \a tileindex is
++      located */
++  NetPanzerTileGroup& find_tilegroup(int tileindex);
+ };
+ 
+ class NetPanzerFileStruct
+
+Modified: trunk/netpanzer/netpanzer.i
+===================================================================
+--- trunk/netpanzer/netpanzer.i	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/netpanzer.i	2005-04-01 03:06:55 UTC (rev 529)
+@@ -4,11 +4,11 @@
+ %{
+ #include <iostream>
+ #include <ClanLib/Core/System/error.h>
++#include <ClanLib/Display/sprite.h>
+ #include "netpanzer.hxx"
+ %}
+ 
+ %import  "../lib/flexlay_wrap.i"
+ %include "netpanzer.hxx"
+ 
+-
+ // EOF //
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-03-30 22:16:02 UTC (rev 528)
++++ trunk/netpanzer/netpanzer.rb	2005-04-01 03:06:55 UTC (rev 529)
+@@ -45,8 +45,13 @@
+ $config = Config.new()
+ 
+ $datadir = "/home/ingo/games/netpanzer-0.1.5"
+-NetPanzerData::instance().init($datadir)
+ 
++$brushes.each_with_index{|(start, width, height, name), index|
++  NetPanzerData::instance().register_tilegroup(start, width, height)
++}
++
++NetPanzerData::instance().load_data($datadir)
++
+ $tileset = NetPanzerData::instance().get_tileset()
+ 
+ $editor = Editor.new()
+@@ -286,15 +291,6 @@
+     recent_files_menu.add_item(mysprite, filename, proc{ netpanzer_load_level(filename) })
+ end
+ 
+-def has_element(lst, el)
+-  lst.each {|i|
+-    if i == el then 
+-      return True
+-    end
+-  }
+-  return false
+-end
+-
+ menu = CL_Menu.new($gui.get_component())
+ menu.add_item("File/New...", proc{gui_level_new})
+ menu.add_item("File/Open...", proc{gui_level_load})
+@@ -327,14 +323,13 @@
+ 
+ menu.add_item("Zoom/1:4 (25%) ",  proc{ gui_set_zoom(0.25) })
+ menu.add_item("Zoom/1:2 (50%) ",  proc{ gui_set_zoom(0.5) })
+-menu.add_item("Zoom/1:1 (100%) ", proc{ gui_set_zoom(1.0) }) 
++menu.add_item("Zoom/1:1 (100%) ", proc{ gui_set_zoom(1.0) })
+ menu.add_item("Zoom/2:1 (200%) ", proc{ gui_set_zoom(2.0) })
+ menu.add_item("Zoom/4:1 (400%) ", proc{ gui_set_zoom(4.0) })
+ 
+ menu.add_item("Scripts/Flatten",  proc{ $workspace.get_map().get_data().flatten() })
+ menu.add_item("Scripts/Unflatten",  proc{ $workspace.get_map().get_data().unflatten() })
+ 
+-# minimap_panel = Panel(CL_Rect(CL_Point(0, 600-56), CL_Size(800-134, 56)), $gui.get_component())
+ $minimap = Minimap.new($editor_map, CL_Rect.new(CL_Point.new(3, ($screen.height-112)+56 - 128-3), CL_Size.new(128, 128)), $option_panel)
+ 
+ $load_dialog = SimpleFileDialog.new("Load netPanzer Level", "Load", "Cancel", $gui.get_component())
+
+
+
+From matzebraun at sheep.berlios.de  Fri Apr  1 16:16:54 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Fri, 1 Apr 2005 16:16:54 +0200
+Subject: [Flexlay-commit] r530 - in trunk: lib ruby supertux
+Message-ID: <200504011416.j31EGs4Q014536@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-04-01 16:16:53 +0200 (Fri, 01 Apr 2005)
+New Revision: 530
+
+Modified:
+   trunk/lib/clanlib.i
+   trunk/ruby/SConstruct
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/sector.rb
+Log:
+-Improved swig handling in SConstruct file
+-Fixed a bug for sequencetrigger objects
+-Added hatch object, added aliases for old object names
+
+
+
+Modified: trunk/lib/clanlib.i
+===================================================================
+--- trunk/lib/clanlib.i	2005-04-01 03:06:55 UTC (rev 529)
++++ trunk/lib/clanlib.i	2005-04-01 14:16:53 UTC (rev 530)
+@@ -22,6 +22,14 @@
+ 	int height;
+ };
+ 
++class CL_Sizef
++{
++public:
++	CL_Sizef(float w, float h);
++	float width;
++	float height;
++};
++
+ class CL_Pointf
+ {
+ public:
+@@ -55,8 +63,8 @@
+ {
+ public:
+ 	int left;
++	int top;
+ 	int right;
+-	int top;
+ 	int bottom;
+ 
+ 	CL_Rect(int, int, int, int);
+@@ -68,6 +76,24 @@
+ 	CL_Size get_size();
+ };
+ 
++class CL_Rectf
++{
++public:
++	float left;
++	float top;
++	float right;
++	float bottom;
++
++	CL_Rectf(float, float, float, float);
++	CL_Rectf(const CL_Pointf&, const CL_Sizef&);
++
++	float get_width() const;
++	float get_height() const;
++
++	CL_Sizef get_size();
++};
++	
++
+ class CL_Colorf
+ {
+ public:
+
+Modified: trunk/ruby/SConstruct
+===================================================================
+--- trunk/ruby/SConstruct	2005-04-01 03:06:55 UTC (rev 529)
++++ trunk/ruby/SConstruct	2005-04-01 14:16:53 UTC (rev 530)
+@@ -49,9 +49,9 @@
+     f.close()
+     return lst            
+ 
+-Depends('../lib/flexlay_wrap.i', gen_i_depends(Dir("../lib").abspath, File("../lib/flexlay_wrap.i").abspath))
+-env.Command('flexlay_ruby_wrap.cxx', '../lib/flexlay_wrap.i',
+-            "swig -c++ -ruby -o $TARGET $SOURCE")
++#Depends('../lib/flexlay_wrap.i', gen_i_depends(Dir("../lib").abspath, File("../lib/flexlay_wrap.i").abspath))
++#env.Command('flexlay_ruby_wrap.cxx', '../lib/flexlay_wrap.i',
++#            "swig -c++ -ruby -o $TARGET $SOURCE")
+ 
+ clanLib_env = Environment()
+ clanLib_env.ParseConfig("pkg-config --cflags --libs clanCore-0.7 clanDisplay-0.7 clanGL-0.7 clanSignals-0.7 clanGUI-0.7 clanGUIStyleSilver-0.7")
+@@ -60,17 +60,19 @@
+ flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+     target = 'flexlay_wrap.so',
+     source = [
+-    'flexlay_ruby_wrap.cxx',
++    env.CXXFile(target='flexlay_ruby_wrap.cxx', source='../lib/flexlay_wrap.i',
++      SWIGFLAGS="-ruby -c++", CXXFILESUFFIX=".cxx"),
+     'ruby_functor.cxx',
+     'ruby_meta_data.cxx',
+     'ruby_sexpr_parser.cxx',
+     'ruby_object.cxx',
+     'ruby_converter.cxx'
+     ],
+-    CPPPATH=['$USER_CPPPATH','$RUBYDIR','../lib/'] + clanLib_env['CPPPATH'],
++    CPPPATH=[".",'$USER_CPPPATH','$RUBYDIR','../lib/'] + clanLib_env['CPPPATH'],
+     LINKFLAGS = clanLib_env['LINKFLAGS'],
+     LIBPATH=['../lib', '.'] + clanLib_env['LIBPATH'],
+-    LIBS=['flexlay'] + clanLib_env['LIBS'])
++    LIBS=['flexlay'] + clanLib_env['LIBS'],
++    CXXFLAGS="-Wno-uninitialized")
+ 
+ # install_ruby = env.Alias('install_headers', Install(env['DESTDIR'] + env['PREFIX'] + '/include/flexlay', flexlay_headers))
+ # env.Alias('install', [install_ruby])
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-04-01 03:06:55 UTC (rev 529)
++++ trunk/supertux/data.rb	2005-04-01 14:16:53 UTC (rev 530)
+@@ -22,7 +22,9 @@
+   ["spawnpoint", "images/editor/spawnpoint.png", "sprite",
+     proc{|data, sexpr| SpawnPoint.new(data)}],
+   ["door", "images/shared/door-1.png", "sprite",
+-    proc{|data, sexpr| Door.new(data, sexpr)}],
++    proc{|data, sexpr| Door.new("door", data, sexpr)}],
++  ["hatch", "images/shared/hatch-1.png", "sprite",
++    proc{|data, sexpr| Door.new("hatch", data, sexpr)}],
+   ["trampoline", "images/shared/trampoline-1.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("trampoline")}],
+   ["bell", "images/shared/bell/bell-m.png", "sprite",
+@@ -36,7 +38,7 @@
+   ["secretarea", "images/editor/secretarea.png", "rect",
+     proc{|data, sexpr| SecretArea.new(data, sexpr)}],
+   ["sequencetrigger", "images/editor/sequencetrigger.png", "rect",
+-    proc{|data, sexpr| SequenceTrigger.new(sexpr)}],
++    proc{|data, sexpr| SequenceTrigger.new(data, sexpr)}],
+   ["background", "images/editor/background.png", "sprite",
+ 	proc{|data, sexpr| Background.new(sexpr)}],
+   ["particles-snow", "images/editor/snow.png", "sprite",
+@@ -82,7 +84,6 @@
+     raise "Error: Unknown object type droped: '#{data}'"
+   end
+   
+-  puts "Adding object to workspace: #{obj}"
+   cmd = ObjectAddCommand.new(objmap)
+   cmd.add_object(obj.to_object);
+   $gui.workspace.get_map().execute(cmd.to_command());
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-04-01 03:06:55 UTC (rev 529)
++++ trunk/supertux/gameobj.rb	2005-04-01 14:16:53 UTC (rev 530)
+@@ -258,7 +258,8 @@
+   attr_accessor :sector, :spawnpoint
+   attr_reader   :data
+ 
+-  def initialize(data, sexpr = [])
++  def initialize(type, data, sexpr = [])
++    @type = type
+     @data = data
+     @sector     = get_value_from_tree(["sector", "_"], sexpr, "main")
+     @spawnpoint = get_value_from_tree(["spawnpoint", "_"], sexpr, "main")
+@@ -276,7 +277,7 @@
+ 
+   def save(f, obj)
+     pos = obj.get_pos()
+-    f.write("       (door\n")
++    f.write("       (%s\n" % [@type])
+     f.write("         (x %d) (y %d)" % [pos.x, pos.y])
+     f.write("         (sector \"%s\")\n" % @sector)
+     f.write("         (spawnpoint \"%s\")\n" % @spawnpoint)
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2005-04-01 03:06:55 UTC (rev 529)
++++ trunk/supertux/sector.rb	2005-04-01 14:16:53 UTC (rev 530)
+@@ -22,6 +22,7 @@
+   
+   def initialize(parent)
+     @parent = parent
++    @cameramode = "normal"
+   end
+ 
+   def get_level()
+@@ -84,7 +85,13 @@
+     @objects = ObjectLayer.new()
+     for i in get_value_from_tree(["objects"], data, [])
+       (name, odata) = i[0], i[1..-1]
+-	  print "Create object: ", name, "\n"
++      # fix some old object names
++      if(name == "money")
++        name = "jumpy"
++      end
++      if(name == "laptop")
++        name = "mriceblock"
++      end
+       create_gameobject_from_data(@objects, name, odata)
+     end
+ 
+
+
+
+From matzebraun at sheep.berlios.de  Wed Apr  6 23:23:15 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Wed, 6 Apr 2005 23:23:15 +0200
+Subject: [Flexlay-commit] r545 - trunk/supertux
+Message-ID: <200504062123.j36LNFGI002085@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-04-06 23:23:09 +0200 (Wed, 06 Apr 2005)
+New Revision: 545
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+applied mareks patch for poisonivy, dispenser and mrtree
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-04-03 21:01:15 UTC (rev 544)
++++ trunk/supertux/data.rb	2005-04-06 21:23:09 UTC (rev 545)
+@@ -19,6 +19,14 @@
+     proc{|data, sexpr| BadGuy.new("bouncingsnowball")}],
+   ["spiky", "images/shared/spiky-left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("spiky")}],
++  ["mrtree", "images/shared/mrtree-walk-left-0.png", "sprite",
++    proc{|data, sexpr| BadGuy.new("mrtree")}],
++  ["poisonivy", "images/shared/poisonivy-left-0.png", "sprite",
++    proc{|data, sexpr| BadGuy.new("poisonivy")}],
++  ["dispenser", "images/shared/dispenser-working.png", "sprite",
++    proc{|data, sexpr| Dispenser.new(data, sexpr)}],
++  ["yeti", "images/shared/yeti/yeti.png", "sprite",
++    proc{|data, sexpr| BadGuy.new("yeti")}],
+   ["spawnpoint", "images/editor/spawnpoint.png", "sprite",
+     proc{|data, sexpr| SpawnPoint.new(data)}],
+   ["door", "images/shared/door-1.png", "sprite",
+@@ -47,6 +55,7 @@
+     proc{|data, sexpr| ParticleSystem.new("clouds", sexpr)}],
+   ["particles-rain", "images/editor/rain.png", "sprite",
+     proc{|data, sexpr| ParticleSystem.new("rain", sexpr)}],
++	
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-04-03 21:01:15 UTC (rev 544)
++++ trunk/supertux/gameobj.rb	2005-04-06 21:23:09 UTC (rev 545)
+@@ -87,6 +87,29 @@
+   end  
+ end
+ 
++class Dispenser<GameObj
++  def initialize(data, sexpr = [])
++    @data = data
++    @badguy = get_value_from_tree(["badguy", "_"], sexpr, "snowball")
++    @cycle = get_value_from_tree(["cycle", "_"], sexpr, 2)
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write("       (dispenser (x %d) (y %d) (badguy \"%s\") (cycle %d))\n" % [pos.x, pos.y, @badguy, @cycle])
++  end
++  
++  def property_dialog()
++    dialog = GenericDialog.new("Dispenser Property Dialog", $gui.get_component())
++    dialog.add_string("Badguy Type: ", @badguy)
++    dialog.add_int("Cycle Type: ", @cycle)
++    dialog.set_callback(proc{|badguy, cycle| 
++                          @badguy = badguy
++                          @cycle = cycle
++                        })
++  end  
++end
++
+ class SpawnPoint<GameObj
+   attr_accessor :name
+   attr_reader   :data
+@@ -187,16 +210,16 @@
+ 
+ class ParticleSystem<GameObj
+   def initialize(type, sexpr = [])
+-	@type = type
+-	@layer = get_value_from_tree(["layer", "_"], sexpr, -1)
++    @type = type
++    @layer = get_value_from_tree(["layer", "_"], sexpr, -1)
+   end
+ 
+   def save(f, obj)
+-	f.write("       (particles-%s\n" % [@type])
+-	if(@layer != -1)
++    f.write("       (particles-%s\n" % [@type])
++    if(@layer != -1)
+       f.write("         (layer %d)\n" % [@layer])
+-	end
+-	f.write("       )\n")
++    end
++    f.write("       )\n")
+   end
+ 
+   def property_dialog()
+@@ -327,7 +350,7 @@
+     f.write("         (x %d) (y %d)" % [pos.x, pos.y])
+     f.write("         (sector \"%s\")\n" % @sector)
+     f.write("         (spawnpoint \"%s\")\n" % @spawnpoint)
+-    f.write("         )\n")
++    f.write("       )\n")
+   end  
+ 
+   def property_dialog()
+@@ -352,5 +375,4 @@
+   end
+ end
+ 
+-
+ # EOF #
+
+
+
+From matzebraun at sheep.berlios.de  Thu Apr  7 01:09:47 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Thu, 7 Apr 2005 01:09:47 +0200
+Subject: [Flexlay-commit] r546 - trunk/supertux
+Message-ID: <200504062309.j36N9ler010016@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-04-07 01:09:20 +0200 (Thu, 07 Apr 2005)
+New Revision: 546
+
+Modified:
+   trunk/supertux/TODO
+Log:
+TODO update
+
+Modified: trunk/supertux/TODO
+===================================================================
+--- trunk/supertux/TODO	2005-04-06 21:23:09 UTC (rev 545)
++++ trunk/supertux/TODO	2005-04-06 23:09:20 UTC (rev 546)
+@@ -8,7 +8,7 @@
+  - get rid of 'mysprite'
+  - scrollbar in tileselector
+  - gui and some magic to set the supertux datadir
+- - paralax layers
++ - support additional layers (paralax and normal)
+  - doors/sector support needs improvement
+  - moving platforms + path
+  - camera path 
+
+
+
+From matzebraun at sheep.berlios.de  Thu Apr 28 16:05:26 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Thu, 28 Apr 2005 16:05:26 +0200
+Subject: [Flexlay-commit] r547 - trunk/supertux
+Message-ID: <200504281405.j3SE5QeP027205@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-04-28 16:05:23 +0200 (Thu, 28 Apr 2005)
+New Revision: 547
+
+Modified:
+   trunk/supertux/data.rb
+Log:
+fix reading of spawnpoints
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-04-06 23:09:20 UTC (rev 546)
++++ trunk/supertux/data.rb	2005-04-28 14:05:23 UTC (rev 547)
+@@ -27,8 +27,10 @@
+     proc{|data, sexpr| Dispenser.new(data, sexpr)}],
+   ["yeti", "images/shared/yeti/yeti.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("yeti")}],
++  ["stalactite_yeti", "images/editor/stalactite_yeti.png", "sprite",
++    proc{|data, sexpr| BadGuy.new("yeti_stalactite")}],
+   ["spawnpoint", "images/editor/spawnpoint.png", "sprite",
+-    proc{|data, sexpr| SpawnPoint.new(data)}],
++    proc{|data, sexpr| SpawnPoint.new(data, sexpr)}],
+   ["door", "images/shared/door-1.png", "sprite",
+     proc{|data, sexpr| Door.new("door", data, sexpr)}],
+   ["hatch", "images/shared/hatch-1.png", "sprite",
+
+
+

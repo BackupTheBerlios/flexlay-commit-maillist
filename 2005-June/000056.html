@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r561 - trunk/lib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r561%20-%20trunk/lib&In-Reply-To=%3C200506271238.j5RCcnCK003597%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000055.html">
+   <LINK REL="Next"  HREF="000057.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r561 - trunk/lib</H1>
+    <B>James Gregory at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r561%20-%20trunk/lib&In-Reply-To=%3C200506271238.j5RCcnCK003597%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r561 - trunk/lib">jamesgregory at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jun 27 14:38:49 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000055.html">[Flexlay-commit] r560 - trunk/lib
+</A></li>
+        <LI>Next message: <A HREF="000057.html">[Flexlay-commit] r562 - trunk/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#56">[ date ]</a>
+              <a href="thread.html#56">[ thread ]</a>
+              <a href="subject.html#56">[ subject ]</a>
+              <a href="author.html#56">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jamesgregory
+Date: 2005-06-27 14:38:47 +0200 (Mon, 27 Jun 2005)
+New Revision: 561
+
+Modified:
+   trunk/lib/flexlay.cxx
+Log:
+If in Windows, give ClanLib the dll's hInstance.
+
+Modified: trunk/lib/flexlay.cxx
+===================================================================
+--- trunk/lib/flexlay.cxx	2005-06-27 10:23:02 UTC (rev 560)
++++ trunk/lib/flexlay.cxx	2005-06-27 12:38:47 UTC (rev 561)
+@@ -49,7 +49,9 @@
+ 
+   std::cout &lt;&lt; &quot;Flexlay::init()&quot; &lt;&lt; std::endl;
+   try {
+-
++    #ifdef WIN32
++    CL_SetupCore::set_instance(GetModuleHandle(&quot;libflexlay.dll&quot;));
++    #endif
+     CL_SetupCore::init();
+ #ifdef HAVE_LIBSDL
+     if (use_opengl)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000055.html">[Flexlay-commit] r560 - trunk/lib
+</A></li>
+	<LI>Next message: <A HREF="000057.html">[Flexlay-commit] r562 - trunk/ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#56">[ date ]</a>
+              <a href="thread.html#56">[ thread ]</a>
+              <a href="subject.html#56">[ subject ]</a>
+              <a href="author.html#56">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

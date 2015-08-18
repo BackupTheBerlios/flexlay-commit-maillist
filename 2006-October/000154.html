@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r658 - trunk/netbrush
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r658%20-%20trunk/netbrush&In-Reply-To=%3C200610192101.k9JL1ToB012059%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000153.html">
+   <LINK REL="Next"  HREF="000155.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r658 - trunk/netbrush</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r658%20-%20trunk/netbrush&In-Reply-To=%3C200610192101.k9JL1ToB012059%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r658 - trunk/netbrush">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 19 23:01:29 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000153.html">[Flexlay-commit] r657 - trunk/netbrush
+</A></li>
+        <LI>Next message: <A HREF="000155.html">[Flexlay-commit] r659 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#154">[ date ]</a>
+              <a href="thread.html#154">[ thread ]</a>
+              <a href="subject.html#154">[ subject ]</a>
+              <a href="author.html#154">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-19 23:01:28 +0200 (Thu, 19 Oct 2006)
+New Revision: 658
+
+Added:
+   trunk/netbrush/navigation.cpp
+   trunk/netbrush/navigation.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/client.cpp
+   trunk/netbrush/drawing_context.hpp
+   trunk/netbrush/globals.cpp
+   trunk/netbrush/globals.hpp
+   trunk/netbrush/screen_buffer.cpp
+Log:
+- added navigation widget with thumbnail support
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-19 20:14:40 UTC (rev 657)
++++ trunk/netbrush/SConstruct	2006-10-19 21:01:28 UTC (rev 658)
+@@ -47,6 +47,7 @@
+         'widget/slider_widget.cpp',
+         'widget/widget.cpp',
+         'widget/widget_manager.cpp',
++        'navigation.cpp'
+ #        'widget/events.cpp',
+ ])
+ 
+
+Modified: trunk/netbrush/client.cpp
+===================================================================
+--- trunk/netbrush/client.cpp	2006-10-19 20:14:40 UTC (rev 657)
++++ trunk/netbrush/client.cpp	2006-10-19 21:01:28 UTC (rev 658)
+@@ -22,6 +22,7 @@
+ #include &quot;hue_picker.hpp&quot;
+ #include &quot;alpha_picker.hpp&quot;
+ #include &quot;brush_widget.hpp&quot;
++#include &quot;navigation.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
+ 
+@@ -120,6 +121,10 @@
+             {
+               client_draw_param-&gt;opacity = std::min(255, client_draw_param-&gt;opacity + 16);
+             }
++          else if (event.key.keysym.sym == SDLK_u)
++            {
++              navigation-&gt;update();
++            }
+           break;
+ 
+         case SDL_MOUSEBUTTONDOWN:
+@@ -274,6 +279,7 @@
+     }
+   
+   widget_manager = new WidgetManager();
++  widget_manager-&gt;add(navigation = new Navigation(Rect(screen-&gt;w - 128, screen-&gt;h - 128, screen-&gt;w, screen-&gt;h)));
+   widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
+                                  Rect(Point(2, 2+0*34), Size(34, 34)),
+                                  new ToolButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
+
+Modified: trunk/netbrush/drawing_context.hpp
+===================================================================
+--- trunk/netbrush/drawing_context.hpp	2006-10-19 20:14:40 UTC (rev 657)
++++ trunk/netbrush/drawing_context.hpp	2006-10-19 21:01:28 UTC (rev 658)
+@@ -52,6 +52,8 @@
+ 
+   int get_width()  const { return drawable-&gt;w; }
+   int get_height() const { return drawable-&gt;h; }
++
++  SDL_Surface* get_surface() { return drawable; }
+ };
+ 
+ #endif
+
+Modified: trunk/netbrush/globals.cpp
+===================================================================
+--- trunk/netbrush/globals.cpp	2006-10-19 20:14:40 UTC (rev 657)
++++ trunk/netbrush/globals.cpp	2006-10-19 21:01:28 UTC (rev 658)
+@@ -43,4 +43,6 @@
+ Scrollbar* horizontal_scrollbar = 0;
+ Scrollbar* vertical_scrollbar   = 0;
+ 
++Navigation* navigation = 0;
++
+ /* EOF */
+
+Modified: trunk/netbrush/globals.hpp
+===================================================================
+--- trunk/netbrush/globals.hpp	2006-10-19 20:14:40 UTC (rev 657)
++++ trunk/netbrush/globals.hpp	2006-10-19 21:01:28 UTC (rev 658)
+@@ -45,6 +45,7 @@
+ class BrushWidget;
+ class ServerConnection;
+ class Scrollbar;
++class Navigation;
+ 
+ extern SDLNet_SocketSet socketset;
+ 
+@@ -64,6 +65,8 @@
+ extern ServerConnection* server;
+ extern Stroke* current_stroke;
+ 
++extern Navigation* navigation;
++
+ #endif
+ 
+ /* EOF */
+
+Added: trunk/netbrush/navigation.cpp
+===================================================================
+--- trunk/netbrush/navigation.cpp	2006-10-19 20:14:40 UTC (rev 657)
++++ trunk/netbrush/navigation.cpp	2006-10-19 21:01:28 UTC (rev 658)
+@@ -0,0 +1,86 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;iostream&gt;
++#include &quot;video.hpp&quot;
++#include &quot;globals.hpp&quot;
++#include &quot;drawing_context.hpp&quot;
++#include &quot;navigation.hpp&quot;
++
++Navigation::Navigation(const Rect&amp; rect_)
++  : Widget(rect_)
++{
++  surface = create_surface(rect_.get_width(), rect_.get_height());  
++}
++
++void
++Navigation::on_mouse_motion(const MouseMotionEvent&amp; motion)
++{
++  set_dirty(true);
++}
++
++void
++Navigation::on_mouse_button(const MouseButtonEvent&amp; button)
++{
++  
++}
++
++void
++Navigation::draw(SDL_Surface* target)
++{
++  SDL_Rect pos;
++  pos.x = get_rect().left;
++  pos.y = get_rect().top;
++
++  SDL_BlitSurface(surface, 0, target, &amp;pos);  
++}
++
++void
++Navigation::update()
++{
++  std::cout &lt;&lt; &quot;Navigation::update&quot; &lt;&lt; std::endl;
++  SDL_Surface* drawable = draw_ctx-&gt;get_surface();
++  SDL_LockSurface(drawable);
++  SDL_LockSurface(surface);
++
++  Uint8* target = static_cast&lt;Uint8*&gt;(surface-&gt;pixels);
++  Uint8* source = static_cast&lt;Uint8*&gt;(drawable-&gt;pixels);
++
++  int sx = drawable-&gt;w / surface-&gt;w;
++  int sy = drawable-&gt;h / surface-&gt;h;
++  
++  for(int y = 0; y &lt; surface-&gt;h; ++y)
++    for(int x = 0; x &lt; surface-&gt;pitch; ++x)
++      {
++        target[y * surface-&gt;pitch + x] = source[(y*sy) * drawable-&gt;pitch + (x*sx)];
++      }
++
++  SDL_UnlockSurface(surface);
++  SDL_UnlockSurface(drawable);
++
++  set_dirty(true);
++}
++
++/* EOF */
+
+Added: trunk/netbrush/navigation.hpp
+===================================================================
+--- trunk/netbrush/navigation.hpp	2006-10-19 20:14:40 UTC (rev 657)
++++ trunk/netbrush/navigation.hpp	2006-10-19 21:01:28 UTC (rev 658)
+@@ -0,0 +1,55 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_NAVIGATION_HPP
++#define HEADER_NAVIGATION_HPP
++
++#include &quot;widget/widget.hpp&quot;
++
++/** */
++class Navigation : public Widget
++{
++private:
++  SDL_Surface* surface;
++
++public:
++  Navigation(const Rect&amp; rect);
++  
++  void on_mouse_motion(const MouseMotionEvent&amp; motion);
++  void on_mouse_button(const MouseButtonEvent&amp; button);
++
++  void on_enter() {};
++  void on_leave() {}
++
++  void draw(SDL_Surface* target);
++  void update();
++private:
++  Navigation (const Navigation&amp;);
++  Navigation&amp; operator= (const Navigation&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/screen_buffer.cpp	2006-10-19 20:14:40 UTC (rev 657)
++++ trunk/netbrush/screen_buffer.cpp	2006-10-19 21:01:28 UTC (rev 658)
+@@ -104,6 +104,39 @@
+       draw_ctx-&gt;draw(target, dirty_region, trans_x, trans_y);
+       if (!scrolling)
+         stroke_buffer-&gt;draw(target, dirty_region, trans_x, trans_y);
++
++      { // draw layer boundary
++        Uint32 color = SDL_MapRGB(target-&gt;format, 0, 0, 0);
++        SDL_Rect r;
++
++        r.x = trans_x;
++        r.y = trans_y;
++        r.w = draw_ctx-&gt;get_width();
++        r.h = 1;
++
++        SDL_FillRect(target, &amp;r, color);
++
++        r.x = trans_x;
++        r.y = draw_ctx-&gt;get_height()-1 + trans_y;
++        r.w = draw_ctx-&gt;get_width();
++        r.h = 1;
++
++        SDL_FillRect(target, &amp;r, color);
++
++        r.x = draw_ctx-&gt;get_width()-1 + trans_x;
++        r.y = trans_y;
++        r.w = 1;
++        r.h = draw_ctx-&gt;get_height();
++
++        SDL_FillRect(target, &amp;r, color);
++
++        r.x = trans_x;
++        r.y = trans_y;
++        r.w = 1;
++        r.h = draw_ctx-&gt;get_height();
++
++        SDL_FillRect(target, &amp;r, color);
++      }
+   
+       SDL_UpdateRect(target, 
+                      dirty_region.left,        dirty_region.top, 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000153.html">[Flexlay-commit] r657 - trunk/netbrush
+</A></li>
+	<LI>Next message: <A HREF="000155.html">[Flexlay-commit] r659 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#154">[ date ]</a>
+              <a href="thread.html#154">[ thread ]</a>
+              <a href="subject.html#154">[ subject ]</a>
+              <a href="author.html#154">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

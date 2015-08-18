@@ -1,0 +1,404 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r684 - in trunk/netbrush: . data/icons src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r684%20-%20in%20trunk/netbrush%3A%20.%20data/icons%20src&In-Reply-To=%3C200610302018.k9UKIGDd002836%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000176.html">
+   <LINK REL="Next"  HREF="000178.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r684 - in trunk/netbrush: . data/icons src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r684%20-%20in%20trunk/netbrush%3A%20.%20data/icons%20src&In-Reply-To=%3C200610302018.k9UKIGDd002836%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r684 - in trunk/netbrush: . data/icons src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Oct 30 21:18:16 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000176.html">[Flexlay-commit] r683 - in trunk/netbrush: data/icons src
+</A></li>
+        <LI>Next message: <A HREF="000178.html">[Flexlay-commit] r685 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#177">[ date ]</a>
+              <a href="thread.html#177">[ thread ]</a>
+              <a href="subject.html#177">[ subject ]</a>
+              <a href="author.html#177">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-30 21:18:15 +0100 (Mon, 30 Oct 2006)
+New Revision: 684
+
+Added:
+   trunk/netbrush/data/icons/stock-tool-circle-22.png
+   trunk/netbrush/src/circle_tool.cpp
+   trunk/netbrush/src/circle_tool.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/data/icons/stock-tool-rect-22.png
+   trunk/netbrush/src/client_connection.cpp
+   trunk/netbrush/src/client_state.cpp
+   trunk/netbrush/src/client_state.hpp
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/screen_buffer.hpp
+   trunk/netbrush/src/server_connection.cpp
+   trunk/netbrush/src/tool.hpp
+Log:
+- added circle drawing tool
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/SConstruct	2006-10-30 20:18:15 UTC (rev 684)
+@@ -69,6 +69,7 @@
+         'src/SDL_tty.c',
+         'src/text_view.cpp',
+         'src/rect_tool.cpp',
++        'src/circle_tool.cpp',
+         'src/SDL_gfx/SDL_gfxPrimitives.c',
+ #        'src/widget/events.cpp',
+ ])
+
+Added: trunk/netbrush/data/icons/stock-tool-circle-22.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/netbrush/data/icons/stock-tool-circle-22.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: trunk/netbrush/data/icons/stock-tool-rect-22.png
+===================================================================
+(Binary files differ)
+
+Added: trunk/netbrush/src/circle_tool.cpp
+===================================================================
+--- trunk/netbrush/src/circle_tool.cpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/circle_tool.cpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -0,0 +1,70 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;sstream&gt;
++#include &quot;globals.hpp&quot;
++#include &quot;drawing_parameter.hpp&quot;
++#include &quot;server_connection.hpp&quot;
++#include &quot;circle_tool.hpp&quot;
++
++CircleTool::CircleTool()
++{
++}
++
++void
++CircleTool::on_motion(const ToolMotionEvent&amp; ev)
++{
++}
++
++void
++CircleTool::on_button_press(const ToolButtonEvent&amp; ev)
++{
++  click_pos.x = ev.x;
++  click_pos.y = ev.y;
++}
++
++void
++CircleTool::on_button_release(const ToolButtonEvent&amp; ev)
++{
++  Vector pos(ev.x, ev.y);
++  float radius = (click_pos - pos).length();
++
++  std::ostringstream str;
++  str &lt;&lt; &quot;set_color &quot;
++      &lt;&lt; int(client_draw_param-&gt;color.r) &lt;&lt; &quot; &quot; 
++      &lt;&lt; int(client_draw_param-&gt;color.g) &lt;&lt; &quot; &quot; 
++      &lt;&lt; int(client_draw_param-&gt;color.b) &lt;&lt; std::endl;
++
++  str &lt;&lt; &quot;set_opacity &quot; &lt;&lt; int(client_draw_param-&gt;opacity) &lt;&lt; std::endl;
++
++  str &lt;&lt; &quot;fill_circle &quot;
++      &lt;&lt; int(click_pos.x) &lt;&lt; &quot; &quot; &lt;&lt; int(click_pos.y) &lt;&lt; &quot; &quot;
++      &lt;&lt; int(radius)
++      &lt;&lt; std::endl;
++
++  server-&gt;send(str.str());
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/circle_tool.hpp
+===================================================================
+--- trunk/netbrush/src/circle_tool.hpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/circle_tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -0,0 +1,52 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_CIRCLE_TOOL_HPP
++#define HEADER_CIRCLE_TOOL_HPP
++
++#include &quot;tool.hpp&quot;
++
++/** */
++class CircleTool : public Tool
++{
++private:
++  Vector click_pos;
++
++public:
++  CircleTool();
++  virtual ~CircleTool() {}
++
++  void on_motion(const ToolMotionEvent&amp; ev);
++  void on_button_press(const ToolButtonEvent&amp; ev);
++  void on_button_release(const ToolButtonEvent&amp; ev);
++
++private:
++  CircleTool (const CircleTool&amp;);
++  CircleTool&amp; operator= (const CircleTool&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/client_connection.cpp
+===================================================================
+--- trunk/netbrush/src/client_connection.cpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/client_connection.cpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -222,7 +222,8 @@
+             tokens[0] == &quot;set_color&quot;    ||
+             tokens[0] == &quot;set_tool&quot;     ||
+             tokens[0] == &quot;copy_region&quot;  ||
+-            tokens[0] == &quot;fill_rect&quot;  ||
++            tokens[0] == &quot;fill_rect&quot;    ||
++            tokens[0] == &quot;fill_circle&quot;  ||
+             tokens[0] == &quot;set_opacity&quot; 
+             ))
+     {
+
+Modified: trunk/netbrush/src/client_state.cpp
+===================================================================
+--- trunk/netbrush/src/client_state.cpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/client_state.cpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -141,4 +141,15 @@
+   screen_buffer-&gt;mark_dirty(rect);
+ }
+ 
++void
++ClientState::fill_circle(const Point&amp; pos, int radius)
++{
++  filledCircleRGBA(draw_ctx-&gt;get_surface(),
++             pos.x, pos.y, radius,
++             draw_param-&gt;color.r, draw_param-&gt;color.g, draw_param-&gt;color.b, 
++             draw_param-&gt;opacity);
++  screen_buffer-&gt;mark_dirty(Rect(pos.x - radius,   pos.y - radius, 
++                                 pos.x + radius+1, pos.y + radius+1));  
++}
++
+ /* EOF */
+
+Modified: trunk/netbrush/src/client_state.hpp
+===================================================================
+--- trunk/netbrush/src/client_state.hpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/client_state.hpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -62,6 +62,7 @@
+ 
+   void copy_region(const Rect&amp; rect, const Point&amp; target);
+   void fill_rect(const Rect&amp; rect);
++  void fill_circle(const Point&amp; pos, int radius);
+ 
+   void dab(unsigned int time, int x, int y);
+ };
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/controller.cpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -145,8 +145,11 @@
+     widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-rect-22.png&quot;), 
+                                    Rect(Point(2, 2+3*34), Size(34, 34)),
+                                    new ToolButtonCallback(RECT_TOOL)));
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-circle-22.png&quot;), 
++                                   Rect(Point(2, 2+4*34), Size(34, 34)),
++                                   new ToolButtonCallback(CIRCLE_TOOL)));
+     widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-rect-select-22.png&quot;), 
+-                                   Rect(Point(2, 2+4*34), Size(34, 34)),
++                                   Rect(Point(2, 2+5*34), Size(34, 34)),
+                                    new ToolButtonCallback(REGION_TOOL)));
+     widget_manager-&gt;add(text_view = new TextView(Rect(38, screen-&gt;h - 38,
+                                                       screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h)));
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -39,6 +39,7 @@
+ #include &quot;colorpicker_tool.hpp&quot;
+ #include &quot;region_tool.hpp&quot;
+ #include &quot;rect_tool.hpp&quot;
++#include &quot;circle_tool.hpp&quot;
+ #include &quot;screen_buffer.hpp&quot;
+ 
+ ScreenBuffer::ScreenBuffer(const Rect&amp; rect)
+@@ -52,6 +53,7 @@
+   tools.push_back(colorpicker_tool = new ColorpickerTool());
+   tools.push_back(rect_tool        = new RectTool());
+   tools.push_back(region_tool      = new RegionTool());
++  tools.push_back(circle_tool      = new CircleTool());
+ }
+ 
+ ScreenBuffer::~ScreenBuffer()
+@@ -61,6 +63,7 @@
+   delete rect_tool;
+   delete scroll_tool;
+   delete airbrush_tool;
++  delete circle_tool;
+ }
+ 
+ void
+@@ -282,6 +285,10 @@
+       tools[0] = airbrush_tool;
+       break;
+ 
++    case CIRCLE_TOOL:
++      tools[0] = circle_tool;
++      break;
++
+     case COLOR_PICKER_TOOL:
+       tools[0] = colorpicker_tool;
+       break;
+
+Modified: trunk/netbrush/src/screen_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.hpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/screen_buffer.hpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -36,6 +36,7 @@
+ class ScrollTool;
+ class RegionTool;
+ class RectTool;
++class CircleTool;
+ class AirbrushTool;
+ 
+ /** */
+@@ -53,6 +54,7 @@
+   ColorpickerTool* colorpicker_tool;
+   RegionTool*      region_tool;
+   RectTool*        rect_tool;
++  CircleTool*      circle_tool;
+   ScrollTool*      scroll_tool;
+   AirbrushTool*    airbrush_tool;
+ 
+
+Modified: trunk/netbrush/src/server_connection.cpp
+===================================================================
+--- trunk/netbrush/src/server_connection.cpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/server_connection.cpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -233,6 +233,12 @@
+                                                atoi(tokens[5].c_str()),
+                                                atoi(tokens[6].c_str())));
+                 }
++              else if (tokens.size() == 6 &amp;&amp; tokens[2] == &quot;fill_circle&quot;)
++                { // fill_circle X Y RADIUS
++                  client_state-&gt;fill_circle(Point(atoi(tokens[3].c_str()),
++                                                  atoi(tokens[4].c_str())),
++                                            atoi(tokens[5].c_str()));
++                }
+               else if (tokens.size() == 3 &amp;&amp; tokens[2] == &quot;stroke_end&quot;)
+                 {
+                   client_state-&gt;stroke_end();
+
+Modified: trunk/netbrush/src/tool.hpp
+===================================================================
+--- trunk/netbrush/src/tool.hpp	2006-10-30 18:53:25 UTC (rev 683)
++++ trunk/netbrush/src/tool.hpp	2006-10-30 20:18:15 UTC (rev 684)
+@@ -29,7 +29,7 @@
+ #include &quot;math/point.hpp&quot;
+ #include &quot;widget/events.hpp&quot;
+ 
+-enum ToolName { PAINTBRUSH_TOOL, RECT_TOOL, REGION_TOOL, COLOR_PICKER_TOOL };
++enum ToolName { PAINTBRUSH_TOOL, RECT_TOOL, REGION_TOOL, COLOR_PICKER_TOOL, CIRCLE_TOOL };
+ 
+ struct ToolMotionEvent
+ {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000176.html">[Flexlay-commit] r683 - in trunk/netbrush: data/icons src
+</A></li>
+	<LI>Next message: <A HREF="000178.html">[Flexlay-commit] r685 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#177">[ date ]</a>
+              <a href="thread.html#177">[ thread ]</a>
+              <a href="subject.html#177">[ subject ]</a>
+              <a href="author.html#177">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

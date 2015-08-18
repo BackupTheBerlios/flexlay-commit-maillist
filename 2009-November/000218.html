@@ -1,0 +1,207 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r726 - in trunk/flexlay: lib supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r726%20-%20in%20trunk/flexlay%3A%20lib%20supertux&In-Reply-To=%3C200911220618.nAM6IVeZ005449%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000217.html">
+   <LINK REL="Next"  HREF="000219.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r726 - in trunk/flexlay: lib supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r726%20-%20in%20trunk/flexlay%3A%20lib%20supertux&In-Reply-To=%3C200911220618.nAM6IVeZ005449%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r726 - in trunk/flexlay: lib supertux">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov 22 07:18:31 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000217.html">[Flexlay-commit] r725 - in trunk/flexlay: . ruby
+</A></li>
+        <LI>Next message: <A HREF="000219.html">[Flexlay-commit] r727 - trunk/flexlay/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#218">[ date ]</a>
+              <a href="thread.html#218">[ thread ]</a>
+              <a href="subject.html#218">[ subject ]</a>
+              <a href="author.html#218">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-22 07:18:27 +0100 (Sun, 22 Nov 2009)
+New Revision: 726
+
+Modified:
+   trunk/flexlay/lib/helper.cpp
+   trunk/flexlay/lib/helper.hpp
+   trunk/flexlay/lib/tile_selector.cpp
+   trunk/flexlay/supertux/tileset.rb
+Log:
+Fixed make_region_pixelbuffer_from_resource()
+
+
+Modified: trunk/flexlay/lib/helper.cpp
+===================================================================
+--- trunk/flexlay/lib/helper.cpp	2009-11-22 05:06:12 UTC (rev 725)
++++ trunk/flexlay/lib/helper.cpp	2009-11-22 06:18:27 UTC (rev 726)
+@@ -18,6 +18,7 @@
+ #include &lt;ClanLib/Display/pixel_format.h&gt;
+ #include &lt;ClanLib/Display/Providers/provider_factory.h&gt;
+ #include &lt;ClanLib/core.h&gt;
++
+ #include &quot;blitter.hpp&quot;
+ #include &quot;helper.hpp&quot;
+ 
+@@ -67,21 +68,22 @@
+ }
+ 
+ CL_PixelBuffer
+-make_region_pixelbuffer(const std::string&amp; filename, int x, int y, int w, int h)
++make_region_pixelbuffer_from_resource(const std::string&amp; filename, int x, int y, int w, int h)
+ {
+-  try {
++  try 
++  {
+     CL_PixelBuffer buffer = get_pixelbuffer(filename);
+-
+-    CL_PixelBuffer target(w, h, w * (buffer.get_format().get_depth()/8), buffer.get_format());
++    CL_PixelBuffer target(w, h, w * 4, CL_PixelFormat::rgba8888);
+     clear(target);
+     blit_opaque(target, buffer, -x, -y);
+ 
+     return target;
+-  } catch (CL_Error&amp; err) {
++  } 
++  catch (CL_Error&amp; err) 
++  {
+     std::cout &lt;&lt; &quot;CL_Error: &quot; &lt;&lt; err.message &lt;&lt; std::endl;
+     return CL_PixelBuffer();
+   }
+-
+ }
+ 
+ CL_Sprite
+@@ -118,7 +120,7 @@
+ make_region_pixelbuffer(const CL_PixelBuffer&amp; buffer, int x, int y, int w, int h)
+ {
+   try {
+-    CL_PixelBuffer target(w, h, w * (buffer.get_format().get_depth()/8), buffer.get_format());
++    CL_PixelBuffer target(w, h, w * 4, CL_PixelFormat::rgba8888);
+     clear(target);
+     blit_opaque(target, buffer, -x, -y);
+ 
+
+Modified: trunk/flexlay/lib/helper.hpp
+===================================================================
+--- trunk/flexlay/lib/helper.hpp	2009-11-22 05:06:12 UTC (rev 725)
++++ trunk/flexlay/lib/helper.hpp	2009-11-22 06:18:27 UTC (rev 726)
+@@ -22,7 +22,7 @@
+ CL_Sprite      pixelbuffer2sprite(const CL_PixelBuffer&amp; buffer);
+ CL_Sprite      make_sprite(const std::string&amp; filename);
+ CL_PixelBuffer make_pixelbuffer(const std::string&amp; filename);
+-CL_PixelBuffer make_region_pixelbuffer(const std::string&amp; filename, int x, int y, int w, int h);
++CL_PixelBuffer make_region_pixelbuffer_from_resource(const std::string&amp; filename, int x, int y, int w, int h);
+ CL_PixelBuffer make_region_pixelbuffer(const CL_PixelBuffer&amp; buffer, int x, int y, int w, int h);
+ CL_PixelBuffer make_pixelbuffer(int width, int height);
+ CL_PixelBuffer scale_pixelbuffer(CL_PixelBuffer buffer);
+
+Modified: trunk/flexlay/lib/tile_selector.cpp
+===================================================================
+--- trunk/flexlay/lib/tile_selector.cpp	2009-11-22 05:06:12 UTC (rev 725)
++++ trunk/flexlay/lib/tile_selector.cpp	2009-11-22 06:18:27 UTC (rev 726)
+@@ -14,18 +14,20 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program.  If not, see &lt;<A HREF="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</A>&gt;.
+ 
++#include &quot;tile_selector.hpp&quot;
++
+ #include &lt;iostream&gt;
+ #include &lt;ClanLib/display.h&gt;
+ #include &lt;ClanLib/core.h&gt;
++
+ #include &quot;math.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+ #include &quot;tile.hpp&quot;
+-#include &quot;tile_selector.hpp&quot;
+ #include &quot;tools/tilemap_paint_tool.hpp&quot;
+ 
+-TileSelector::TileSelector(const CL_Rect&amp; rect, CL_Component* parent)
+-  : CL_Component(rect, parent),
+-    width(1)
++TileSelector::TileSelector(const CL_Rect&amp; rect, CL_Component* parent) :
++  CL_Component(rect, parent),
++  width(1)
+ {
+   index = 0;
+ 
+
+Modified: trunk/flexlay/supertux/tileset.rb
+===================================================================
+--- trunk/flexlay/supertux/tileset.rb	2009-11-22 05:06:12 UTC (rev 725)
++++ trunk/flexlay/supertux/tileset.rb	2009-11-22 06:18:27 UTC (rev 726)
+@@ -39,8 +39,8 @@
+         x = 0
+         y = 0
+         ids.each{|id|
+-          pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image,
+-                                                x * 32, y * 32, 32, 32)
++          pixelbuffer = make_region_pixelbuffer_from_resource($datadir + 'images/' + image,
++                                                              x * 32, y * 32, 32, 32)
+           add_tile(id, Tile.new(pixelbuffer))
+           x += 1
+           if (x == width) then
+@@ -63,10 +63,8 @@
+           pixelbuffer = make_pixelbuffer($datadir + 'images/' + image)
+         elsif image.is_a?(Array) then
+           if image[0] == :region then
+-            # FIXME: Doesn't work, causes memory corruption
+-            # pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image[1],
+-            #                                       image[2], image[3], image[4], image[5])
+-            pixelbuffer = nil
++            pixelbuffer = make_region_pixelbuffer_from_resource($datadir + 'images/' + image[1],
++                                                                image[2], image[3], image[4], image[5])
+           end
+         end
+         
+@@ -87,7 +85,7 @@
+           @tilegroups = []
+         end
+         @tilegroups.push(TileGroup.new(name, tiles))
+-    
++        
+       end
+ 
+       counter += 1
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000217.html">[Flexlay-commit] r725 - in trunk/flexlay: . ruby
+</A></li>
+	<LI>Next message: <A HREF="000219.html">[Flexlay-commit] r727 - trunk/flexlay/lib
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#218">[ date ]</a>
+              <a href="thread.html#218">[ thread ]</a>
+              <a href="subject.html#218">[ subject ]</a>
+              <a href="author.html#218">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

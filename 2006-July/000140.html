@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r643 - in trunk: lib ruby supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r643%20-%20in%20trunk%3A%20lib%20ruby%20supertux&In-Reply-To=%3C200607111859.k6BIxkpm001466%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000139.html">
+   <LINK REL="Next"  HREF="000141.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r643 - in trunk: lib ruby supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r643%20-%20in%20trunk%3A%20lib%20ruby%20supertux&In-Reply-To=%3C200607111859.k6BIxkpm001466%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r643 - in trunk: lib ruby supertux">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 20:59:46 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000139.html">[Flexlay-commit] r642 - in trunk: lib supertux
+</A></li>
+        <LI>Next message: <A HREF="000141.html">[Flexlay-commit] r644 - trunk/paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#140">[ date ]</a>
+              <a href="thread.html#140">[ thread ]</a>
+              <a href="subject.html#140">[ subject ]</a>
+              <a href="author.html#140">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-11 20:59:31 +0200 (Tue, 11 Jul 2006)
+New Revision: 643
+
+Modified:
+   trunk/lib/clanlib.i
+   trunk/lib/flexlay_wrap.i
+   trunk/ruby/flexlay.rb
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+- fixed enum support for generic dialog
+
+Modified: trunk/lib/clanlib.i
+===================================================================
+--- trunk/lib/clanlib.i	2006-07-11 18:04:58 UTC (rev 642)
++++ trunk/lib/clanlib.i	2006-07-11 18:59:31 UTC (rev 643)
+@@ -152,6 +152,7 @@
+ 		CL_StyleManager *style = NULL);
+ 
+ 	CL_Signal_v0 &amp;sig_clicked();
++	const std::string &amp;get_text() const;
+ };
+ 
+ class CL_Menu : public CL_Component
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2006-07-11 18:04:58 UTC (rev 642)
++++ trunk/lib/flexlay_wrap.i	2006-07-11 18:59:31 UTC (rev 643)
+@@ -209,6 +209,6 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
+-// 7
++// 8
+ 
+ /* EOF */
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2006-07-11 18:04:58 UTC (rev 642)
++++ trunk/ruby/flexlay.rb	2006-07-11 18:59:31 UTC (rev 643)
+@@ -268,6 +268,13 @@
+           vals.push(comp.get_text())
+         elsif type == &quot;bool&quot;
+           vals.push(comp.is_checked())
++        elsif type == &quot;enum&quot;
++          comp.get_buttons().each{|button|
++            if (button.is_checked()) then
++              vals.push(button.get_text())
++              break;
++            end
++          }
+         end
+       }
+       @callback.call(*vals)
+@@ -315,13 +322,15 @@
+   def add_enum(name, types, value = &quot;foo&quot;)
+     group = CL_RadioGroup.new()
+     types.each {|type| 
+-      group.add(CL_RadioButton.new(CL_Point.new(0, 0),
+-                         type, @window.get_client_area()))
++      radio = CL_RadioButton.new(CL_Point.new(0, 0),
++                                 type, @window.get_client_area())
++      radio.set_checked(type == value)
++      group.add(radio)
+     }
+     @items.push([&quot;enum&quot;,
+                   CL_Label.new(CL_Point.new(10, 10), name,
+                                @window.get_client_area()),
+-                  group])
++                 group])
+     update()
+   end
+ 
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-07-11 18:04:58 UTC (rev 642)
++++ trunk/supertux/data.rb	2006-07-11 18:59:31 UTC (rev 643)
+@@ -107,6 +107,7 @@
+       obj = ObjMapSpriteObject.new(sprite, pos, make_metadata(nil))
+       gobj = func.call(obj, sexpr)
+       obj.to_object.set_metadata(make_metadata(gobj))
++      gobj.set_obj(obj)
+     
+     when :rect
+       print &quot;NewRect&quot;, pos.x, &quot; -&quot;, pos.y, &quot;\n&quot;
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2006-07-11 18:04:58 UTC (rev 642)
++++ trunk/supertux/gameobj.rb	2006-07-11 18:59:31 UTC (rev 643)
+@@ -2,6 +2,10 @@
+   def property_dialog()
+     print &quot;Object &quot;, self.class, &quot; has no properties\n&quot;
+   end
++
++  def set_obj(obj)
++    @obj = obj
++  end
+ end
+ 
+ class SecretArea&lt;GameObj
+@@ -130,20 +134,34 @@
+ 
+ class BadGuy&lt;GameObj
+   def initialize(type)
+-    @type = type
++    @type      = type
++    @direction = &quot;auto&quot;
+   end
+ 
+   def save(f, obj)
+     pos = obj.get_pos()
+-    f.write(&quot;       (%s (x %d) (y %d))\n&quot; % [@type, pos.x, pos.y])
++    f.write(&quot;       (%s (x %d) (y %d) (direction \&quot;%s\&quot;)\n&quot; % [@type, pos.x, pos.y, direction])
+   end  
++
++  def property_dialog()
++    dialog = GenericDialog.new(&quot;BadGuy Property Dialog&quot;, $gui.get_component())
++
++    dialog.add_enum(&quot;Direction: &quot;, [&quot;left&quot;, &quot;right&quot;, &quot;auto&quot;], @direction)
++    
++    dialog.set_callback(proc{|direction| 
++                          if (@direction != &quot;auto&quot; and direction != &quot;auto&quot; and @direction != direction)
++                            @obj.flip_horizontal()
++                          end
++                          @direction = direction
++                        })
++  end
+ end
+ 
+ class Dispenser&lt;GameObj
+   def initialize(data, sexpr = [])
+     @data = data
+     @badguy = get_value_from_tree([&quot;badguy&quot;, &quot;_&quot;], sexpr, &quot;snowball&quot;)
+-    @cycle = get_value_from_tree([&quot;cycle&quot;, &quot;_&quot;], sexpr, 2)
++    @cycle  = get_value_from_tree([&quot;cycle&quot;, &quot;_&quot;], sexpr, 2)
+   end
+ 
+   def save(f, obj)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000139.html">[Flexlay-commit] r642 - in trunk: lib supertux
+</A></li>
+	<LI>Next message: <A HREF="000141.html">[Flexlay-commit] r644 - trunk/paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#140">[ date ]</a>
+              <a href="thread.html#140">[ thread ]</a>
+              <a href="subject.html#140">[ subject ]</a>
+              <a href="author.html#140">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

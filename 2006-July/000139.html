@@ -1,0 +1,416 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r642 - in trunk: lib supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r642%20-%20in%20trunk%3A%20lib%20supertux&In-Reply-To=%3C200607111805.k6BI5QlR015620%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000138.html">
+   <LINK REL="Next"  HREF="000140.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r642 - in trunk: lib supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r642%20-%20in%20trunk%3A%20lib%20supertux&In-Reply-To=%3C200607111805.k6BI5QlR015620%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r642 - in trunk: lib supertux">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 20:05:26 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000138.html">[Flexlay-commit] r641 - trunk/lib
+</A></li>
+        <LI>Next message: <A HREF="000140.html">[Flexlay-commit] r643 - in trunk: lib ruby supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#139">[ date ]</a>
+              <a href="thread.html#139">[ thread ]</a>
+              <a href="subject.html#139">[ subject ]</a>
+              <a href="author.html#139">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-11 20:04:58 +0200 (Tue, 11 Jul 2006)
+New Revision: 642
+
+Modified:
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/tilemap_layer.cxx
+   trunk/lib/tilemap_layer.hxx
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/gui.rb
+   trunk/supertux/level.rb
+   trunk/supertux/sector.rb
+Log:
+- made the transparent tile a special case again, speeds up drawing a lot (might break netpanzer a bit)
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2006-07-11 16:34:02 UTC (rev 641)
++++ trunk/lib/flexlay_wrap.i	2006-07-11 18:04:58 UTC (rev 642)
+@@ -209,6 +209,6 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
+-// 6
++// 7
+ 
+ /* EOF */
+
+Modified: trunk/lib/tilemap_layer.cxx
+===================================================================
+--- trunk/lib/tilemap_layer.cxx	2006-07-11 16:34:02 UTC (rev 641)
++++ trunk/lib/tilemap_layer.cxx	2006-07-11 18:04:58 UTC (rev 642)
+@@ -57,7 +57,6 @@
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
+   void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
+-  void draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc);
+ };
+ 
+ TilemapLayer::TilemapLayer()
+@@ -95,53 +94,12 @@
+ }
+ 
+ void
+-TilemapLayer::draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc)
+-{
+-  Tile* tile = impl-&gt;tileset.create(id);
+-
+-  if (tile)
+-    {
+-      CL_Sprite sprite = tile-&gt;get_sprite();
+-      sprite.set_alignment (origin_top_left, 0, 0);
+-
+-      sprite.set_color(impl-&gt;foreground_color);
+-      sprite.draw(x, y, gc);
+-      
+-      if (attribute)
+-        gc-&gt;fill_rect(CL_Rect(CL_Point(x, y), CL_Size(impl-&gt;tileset.get_tile_size(),
+-                                                      impl-&gt;tileset.get_tile_size())),
+-                      tile-&gt;get_attribute_color());
+-    }
+-}
+-
+-void
+ TilemapLayer::draw(EditorMapComponent* parent, CL_GraphicContext* gc)
+ {
+   impl-&gt;draw(parent, gc);
+ }
+ 
+ void
+-TilemapLayerImpl::draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc)
+-{
+-  Tile* tile = tileset.create(id);
+-
+-  if (tile)
+-    {
+-      CL_Sprite sprite = tile-&gt;get_sprite();
+-      sprite.set_alignment (origin_top_left, 0, 0);
+-
+-      sprite.set_color(foreground_color);
+-
+-      sprite.draw(x, y, gc);
+-      
+-      if (attribute)
+-        CL_Display::fill_rect(CL_Rect(CL_Point(x, y), CL_Size(tileset.get_tile_size(),
+-                                                              tileset.get_tile_size())),
+-                              tile-&gt;get_attribute_color());
+-    }
+-}
+-
+-void
+ TilemapLayerImpl::draw(EditorMapComponent* parent, CL_GraphicContext* gc)
+ {
+   int tile_size = this-&gt;tileset.get_tile_size();
+@@ -160,14 +118,50 @@
+   int end_x   = std::min(this-&gt;field.get_width(),  rect.right  / tile_size + 1);
+   int end_y   = std::min(this-&gt;field.get_height(), rect.bottom / tile_size + 1);
+ 
+-  for (int y = start_y; y &lt; end_y; ++y)
+-    for (int x = start_x; x &lt; end_x; ++x)
+-      {
+-        draw_tile(this-&gt;field.at(x, y), 
+-                  x * tile_size, y * tile_size,
+-                  this-&gt;draw_attribute,
+-                  gc);
+-      }
++  if (foreground_color != CL_Color(255, 255, 255, 255))
++    {
++      for (int y = start_y; y &lt; end_y; ++y)
++        for (int x = start_x; x &lt; end_x; ++x)
++          {
++            int tile_id = this-&gt;field.at(x, y);
++            if (tile_id)
++              {
++                Tile* tile = tileset.create(tile_id);
++                if (tile) // skip transparent tile for faster draw
++                  {           
++                    CL_Sprite sprite = tile-&gt;get_sprite();
++                    sprite.set_color(foreground_color);
++                    sprite.draw(x * tile_size, y * tile_size, gc);
++      
++                    if (draw_attribute)
++                      CL_Display::fill_rect(CL_Rect(CL_Point(x, y), CL_Size(tileset.get_tile_size(),
++                                                                            tileset.get_tile_size())),
++                                            tile-&gt;get_attribute_color());
++                  }
++              }
++          }
++    }
++  else
++    {
++      for (int y = start_y; y &lt; end_y; ++y)
++        for (int x = start_x; x &lt; end_x; ++x)
++          {
++            int tile_id = this-&gt;field.at(x, y);
++            if (tile_id) // skip transparent tile for faster draw
++              {
++                Tile* tile = tileset.create(this-&gt;field.at(x, y));
++                if (tile)
++                  {           
++                    tile-&gt;get_sprite().draw(x * tile_size, y * tile_size, gc);
++      
++                    if (draw_attribute)
++                      CL_Display::fill_rect(CL_Rect(CL_Point(x, y), CL_Size(tileset.get_tile_size(),
++                                                                            tileset.get_tile_size())),
++                                            tile-&gt;get_attribute_color());
++                  }
++              }
++          }
++    }
+ 
+   if (this-&gt;draw_grid)
+     {
+
+Modified: trunk/lib/tilemap_layer.hxx
+===================================================================
+--- trunk/lib/tilemap_layer.hxx	2006-07-11 16:34:02 UTC (rev 641)
++++ trunk/lib/tilemap_layer.hxx	2006-07-11 18:04:58 UTC (rev 642)
+@@ -68,9 +68,6 @@
+   /** Draw the given single tile to the map */
+   void draw_tile(int id, const CL_Point&amp; pos);
+ 
+-  /** FIXME: Very bad naming */
+-  void draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc);
+-
+   int get_width()  const;
+   int get_height() const;
+ 
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-07-11 16:34:02 UTC (rev 641)
++++ trunk/supertux/data.rb	2006-07-11 18:04:58 UTC (rev 642)
+@@ -79,7 +79,7 @@
+     proc{|data, sexpr| ScriptedObject.new(data, sexpr)}]
+ ]
+ 
+-def create_gameobject_from_data(objmap, name, sexpr)
++def create_gameobject_from_data(editormap, objmap, name, sexpr)
+   # Creates a gameobject from the given sexpr: &quot;snowball&quot;, ((x 5) (y 5))
+   
+   object = $game_objects.find {|x| x[0].to_sym == name}
+@@ -89,14 +89,14 @@
+     x = get_value_from_tree([&quot;x&quot;, &quot;_&quot;], sexpr, 0)
+     y = get_value_from_tree([&quot;y&quot;, &quot;_&quot;], sexpr, 0)
+     
+-    create_gameobject(objmap, object, CL_Pointf.new(x, y), sexpr)
++    create_gameobject(editormap, objmap, object, CL_Pointf.new(x, y), sexpr)
+   else
+     print &quot;Error: Couldn't resolve object type: &quot;, name, &quot;\n&quot;
+ 	print &quot;Sector: Unhandled tag: &quot;, name, &quot;\n&quot;
+   end
+ end
+ 
+-def create_gameobject(objmap, data, pos, sexpr = [])
++def create_gameobject(editormap, objmap, data, pos, sexpr = [])
+   (name, spritefile, type, func) = data
+   
+   # Creates a gameobject the given position, data is the entry in the $game_objects table
+@@ -121,7 +121,7 @@
+   
+   cmd = ObjectAddCommand.new(objmap)
+   cmd.add_object(obj.to_object);
+-  $gui.workspace.get_map().execute(cmd.to_command());
++  editormap.execute(cmd.to_command());
+   return obj
+ end
+ 
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2006-07-11 16:34:02 UTC (rev 641)
++++ trunk/supertux/gameobj.rb	2006-07-11 18:04:58 UTC (rev 642)
+@@ -17,7 +17,8 @@
+     width  = get_value_from_tree([&quot;width&quot;, &quot;_&quot;],  sexpr, 64)
+     height = get_value_from_tree([&quot;height&quot;, &quot;_&quot;], sexpr, 64)
+     if x != nil and y != nil then
+-      @data.set_rect(CL_Rect.new(CL_Point.new(x, y), CL_Size.new(width, height)))
++      @data.set_rect(CL_Rect.new(CL_Point.new(x.to_i, y.to_i),
++                                 CL_Size.new(width.to_i, height.to_i)))
+     end
+   end
+ 
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-07-11 16:34:02 UTC (rev 641)
++++ trunk/supertux/gui.rb	2006-07-11 18:04:58 UTC (rev 642)
+@@ -254,7 +254,7 @@
+   def on_object_drop(brush, pos)
+     pos = @editor_map.screen2world(pos)
+     data = get_ruby_object(brush.get_data())
+-    create_gameobject($gui.workspace.get_map().get_metadata().objects, data, pos)
++    create_gameobject($gui.workspace.get_map(), $gui.workspace.get_map().get_metadata().objects, data, pos)
+   end
+ 
+   def run()
+@@ -735,6 +735,7 @@
+     supertux_load_worldmap(filename)
+     return
+   end
++
+   print &quot;Loading: &quot;, filename, &quot;\n&quot;
+   level = Level.new(filename)
+   level.activate($gui.workspace)
+
+Modified: trunk/supertux/level.rb
+===================================================================
+--- trunk/supertux/level.rb	2006-07-11 16:34:02 UTC (rev 641)
++++ trunk/supertux/level.rb	2006-07-11 18:04:58 UTC (rev 642)
+@@ -30,7 +30,7 @@
+ 
+       data = tree[1..-1]
+       
+-      @version = get_value_from_tree([&quot;version&quot;, &quot;_&quot;], data, 0)
++      @version = get_value_from_tree([&quot;version&quot;, &quot;_&quot;], data, 0);
+       
+       print &quot;VERSION: &quot;, @filename, &quot; &quot;,  @version, &quot;\n&quot;
+       
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2006-07-11 16:34:02 UTC (rev 641)
++++ trunk/supertux/sector.rb	2006-07-11 18:04:58 UTC (rev 642)
+@@ -82,7 +82,10 @@
+ 
+     @cameramode = &quot;normal&quot;
+ 
++    @editormap = EditorMap.new(true)
++
+     @objects = ObjectLayer.new()
++
+     for i in get_value_from_tree([&quot;objects&quot;], data, [])
+       (name, odata) = i[0], i[1..-1]
+       # fix some old object names
+@@ -92,18 +95,18 @@
+       if(name == :laptop)
+         name = :mriceblock
+       end
+-      create_gameobject_from_data(@objects, name, odata)
++      create_gameobject_from_data(@editormap, @objects, name, odata)
+     end
+ 
+     start_pos_x = get_value_from_tree([&quot;start_pos_x&quot;, &quot;_&quot;], data, 0)
+     start_pos_y = get_value_from_tree([&quot;start_pos_y&quot;, &quot;_&quot;], data, 0)
+     sexpr = [[&quot;name&quot;, &quot;main&quot;], [&quot;x&quot;, start_pos_x], [&quot;y&quot;, start_pos_y]]
+-    create_gameobject_from_data(@objects, &quot;spawnpoint&quot;, sexpr)
++    create_gameobject_from_data(@editormap, @objects, &quot;spawnpoint&quot;, sexpr)
+ 
+     background = get_value_from_tree([&quot;background&quot;, &quot;_&quot;], data, &quot;&quot;)
+     if(background != &quot;&quot;)
+       sexpr = [[&quot;image&quot;, background], [&quot;speed&quot;, 0.5]]
+-      create_gameobject_from_data(@objects, :background, sexpr)
++      create_gameobject_from_data(@editormap, @objects, :background, sexpr)
+     else
+       sexpr = [[&quot;top_color&quot;,
+         get_value_from_tree([&quot;bkgd_red_top&quot;, &quot;_&quot;], data, 0),
+@@ -114,25 +117,24 @@
+         get_value_from_tree([&quot;bkgd_green_bottom&quot;, &quot;_&quot;], data, 0),
+         get_value_from_tree([&quot;bkgd_blue_bottom&quot;, &quot;_&quot;], data, 0)],
+               [&quot;speed&quot;, 0.5]]
+-      create_gameobject_from_data(@objects, :background, sexpr)
++      create_gameobject_from_data(@editormap, @objects, :background, sexpr)
+     end
+ 
+     partsys = get_value_from_tree([&quot;particle_system&quot;, &quot;_&quot;], data, &quot;&quot;)
+     if(partsys == &quot;snow&quot;)
+       sexpr = []
+-      create_gameobject_from_data(@objects, :'particles-snow', sexpr)
++      create_gameobject_from_data(@editormap, @objects, :'particles-snow', sexpr)
+     elsif(partsys == &quot;rain&quot;)
+       sexpr = []
+-      create_gameobject_from_data(@objects, :'particles-rain', sexpr)
++      create_gameobject_from_data(@editormap, @objects, :'particles-rain', sexpr)
+     elsif(partsys == &quot;clouds&quot;)
+       sexpr = []
+-      create_gameobject_from_data(@objects, :'particles-clouds', sexpr)
++      create_gameobject_from_data(@editormap, @objects, :'particles-clouds', sexpr)
+     elsif(partsys == &quot;&quot;)
+     else
+       print &quot;Unknown particle system type '&quot;, partsys, &quot;'\n&quot;
+     end
+ 	    
+-    @editormap = EditorMap.new(true)
+     @editormap.add_layer(@background.to_layer())
+     @editormap.add_layer(@interactive.to_layer())
+     @editormap.add_layer(@objects.to_layer())
+@@ -154,6 +156,8 @@
+     @background  = nil
+     @interactive = nil
+     @foreground  = nil
++
++    @editormap = EditorMap.new(true)
+     
+     @objects = ObjectLayer.new()
+ #    @sketch = SketchLayer.new()
+@@ -192,7 +196,7 @@
+ 	@cameramode = &quot;normal&quot;
+ 	# TODO...
+       else
+-	create_gameobject_from_data(@objects, name, data)
++	create_gameobject_from_data(@editormap, @objects, name, data)
+       end
+     end
+     
+@@ -210,7 +214,6 @@
+       @foreground = TilemapLayer.new($tileset, @width, @height)
+     end
+ 
+-    @editormap = EditorMap.new(true)
+     @editormap.add_layer(@background.to_layer()) if @background
+     @editormap.add_layer(@interactive.to_layer()) if @interactive
+     @editormap.add_layer(@foreground.to_layer()) if @foreground
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000138.html">[Flexlay-commit] r641 - trunk/lib
+</A></li>
+	<LI>Next message: <A HREF="000140.html">[Flexlay-commit] r643 - in trunk: lib ruby supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#139">[ date ]</a>
+              <a href="thread.html#139">[ thread ]</a>
+              <a href="subject.html#139">[ subject ]</a>
+              <a href="author.html#139">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

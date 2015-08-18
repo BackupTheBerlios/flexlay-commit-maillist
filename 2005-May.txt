@@ -1,0 +1,2888 @@
+From matzebraun at sheep.berlios.de  Sun May  8 23:16:59 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Sun, 8 May 2005 23:16:59 +0200
+Subject: [Flexlay-commit] r548 - trunk/supertux
+Message-ID: <200505082116.j48LGx85029942@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-05-08 23:16:58 +0200 (Sun, 08 May 2005)
+New Revision: 548
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/supertux.rb
+   trunk/supertux/supertux.scm
+   trunk/supertux/tileset.rb
+Log:
+some images moved around in supertux
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/data.rb	2005-05-08 21:16:58 UTC (rev 548)
+@@ -1,61 +1,63 @@
+ $game_objects = [
+-  ["jumpy", "images/shared/jumpy-left-middle-0.png", "sprite",
++  ["jumpy", "images/creatures/jumpy/left-middle.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("jumpy")}],
+-  ["snowball", "images/shared/snowball-left-0.png", "sprite",
++  ["snowball", "images/creatures/snowball/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("snowball")}],
+-  ["mriceblock", "images/shared/mriceblock-left-0.png", "sprite",
++  ["mriceblock", "images/creatures/mr_iceblock/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("mriceblock")}],
+-  ["mrbomb", "images/shared/mrbomb-left-0.png", "sprite",
++  ["mrbomb", "images/creatures/mr_bomb/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("mrbomb")}],
+-  ["flame", "images/shared/flame-0.png", "sprite",
++  ["flame", "images/creatures/flame/flame-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("flame")}], 
+-  ["stalactite", "images/shared/stalactite.png", "sprite",
++  ["stalactite", "images/creatures/stalactite/falling.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("stalactite")}],
+-  ["fish", "images/shared/fish-left-0.png", "sprite",
++  ["fish", "images/creatures/fish/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("fish")}],
+-  ["flyingsnowball", "images/shared/flyingsnowball-left-0.png", "sprite",
++  ["flyingsnowball", "images/creatures/flying_snowball/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("flyingsnowball")}],
+-  ["bouncingsnowball", "images/shared/bouncingsnowball-left-0.png", "sprite",
++  ["bouncingsnowball", "images/creatures/bouncing_snowball/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("bouncingsnowball")}],
+-  ["spiky", "images/shared/spiky-left-0.png", "sprite",
++  ["spiky", "images/creatures/spiky/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("spiky")}],
+-  ["mrtree", "images/shared/mrtree-walk-left-0.png", "sprite",
++  ["mrtree", "images/creatures/mr_tree/walk-left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("mrtree")}],
+-  ["poisonivy", "images/shared/poisonivy-left-0.png", "sprite",
++  ["poisonivy", "images/creatures/poison_ivy/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("poisonivy")}],
+-  ["dispenser", "images/shared/dispenser-working.png", "sprite",
++  ["dispenser", "images/creatures/dispenser/working.png", "sprite",
+     proc{|data, sexpr| Dispenser.new(data, sexpr)}],
+-  ["yeti", "images/shared/yeti/yeti.png", "sprite",
++  ["yeti", "images/creatures/yeti/yeti.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("yeti")}],
+-  ["stalactite_yeti", "images/editor/stalactite_yeti.png", "sprite",
++  ["stalactite_yeti", "images/engine/editor/stalactite_yeti.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("yeti_stalactite")}],
+-  ["spawnpoint", "images/editor/spawnpoint.png", "sprite",
++  ["spawnpoint", "images/engine/editor/spawnpoint.png", "sprite",
+     proc{|data, sexpr| SpawnPoint.new(data, sexpr)}],
+-  ["door", "images/shared/door-1.png", "sprite",
++  ["ambient_sound", "images/engine/editor/ambientsound.png", "sprite",
++    proc{|data, sexpr| AmbientSound.new(data, sexpr)}],
++  ["door", "images/objects/door/door-0.png", "sprite",
+     proc{|data, sexpr| Door.new("door", data, sexpr)}],
+-  ["hatch", "images/shared/hatch-1.png", "sprite",
++  ["hatch", "images/objects/hatch/hatch-0.png", "sprite",
+     proc{|data, sexpr| Door.new("hatch", data, sexpr)}],
+-  ["trampoline", "images/shared/trampoline-1.png", "sprite",
++  ["trampoline", "images/objects/trampoline/trampoline1-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("trampoline")}],
+-  ["bell", "images/shared/bell/bell-m.png", "sprite",
++  ["bell", "images/objects/bell/bell-m.png", "sprite",
+     proc{|data, sexpr| SimpleObject.new("bell")}],
+-  ["rock", "images/tilesets/block11.png", "sprite",
++  ["rock", "images/tiles/blocks/block11.png", "sprite",
+     proc{|data, sexpr| SimpleObject.new("rock")}],
+-  ["unstable_tile", "images/shared/unstable_tile.png", "sprite",
++  ["unstable_tile", "images/objects/unstable_tile/unstable_tile.png", "sprite",
+     proc{|data, sexpr| SimpleTileObject.new(data, "unstable_tile")}],
+-  ["infoblock", "images/editor/infoblock.png", "sprite",
++  ["infoblock", "images/engine/editor/infoblock.png", "sprite",
+     proc{|data, sexpr| InfoBlock.new(data, sexpr)}],
+-  ["secretarea", "images/editor/secretarea.png", "rect",
++  ["secretarea", "images/engine/editor/secretarea.png", "rect",
+     proc{|data, sexpr| SecretArea.new(data, sexpr)}],
+-  ["sequencetrigger", "images/editor/sequencetrigger.png", "rect",
++  ["sequencetrigger", "images/engine/editor/sequencetrigger.png", "rect",
+     proc{|data, sexpr| SequenceTrigger.new(data, sexpr)}],
+-  ["background", "images/editor/background.png", "sprite",
++  ["background", "images/engine/editor/background.png", "sprite",
+     proc{|data, sexpr| Background.new(data, sexpr)}],
+-  ["particles-snow", "images/editor/snow.png", "sprite",
++  ["particles-snow", "images/engine/editor/snow.png", "sprite",
+     proc{|data, sexpr| ParticleSystem.new("snow", sexpr)}],
+-  ["particles-clouds", "images/editor/clouds.png", "sprite",
++  ["particles-clouds", "images/engine/editor/clouds.png", "sprite",
+     proc{|data, sexpr| ParticleSystem.new("clouds", sexpr)}],
+-  ["particles-rain", "images/editor/rain.png", "sprite",
++  ["particles-rain", "images/engine/editor/rain.png", "sprite",
+     proc{|data, sexpr| ParticleSystem.new("rain", sexpr)}],
+ 	
+ ]
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/gameobj.rb	2005-05-08 21:16:58 UTC (rev 548)
+@@ -142,6 +142,41 @@
+   end
+ end
+ 
++class AmbientSound<GameObj
++  def initialize(data, sexpr = [])
++    @data = data
++    @factor = get_value_from_tree(["distance_factor", "_"],  sexpr, 0.1)
++    @bias = get_value_from_tree(["distance_bias", "_"],  sexpr, 200)
++    @sample = get_value_from_tree(["sample", "_"],  sexpr, "waterfall")
++    connect_v1_ObjMapObject(data.to_object.sig_move(), method(:on_move))
++    on_move(data)
++  end
++
++  def on_move(data)
++    pos = @data.to_object.get_pos()
++    pos.x = (((pos.x+16)/32).to_i)*32
++    pos.y = (((pos.y+16)/32).to_i)*32
++    @data.to_object.set_pos(pos)
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write("       (ambient_sound (x %d) (y %d) (distance_factor \"%s\") (distance_bias \"%s\") (sample \"%s\"))\n" % [pos.x, pos.y, @factor, @bias, @sample])
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new("AmbientSound Property Dialog", $gui.get_component())
++    dialog.add_float("Distance Factor: ", @factor)
++    dialog.add_float("Distance Bias: ", @bias)
++    dialog.add_string("Sample: ", @sample)
++    dialog.set_callback(proc{|factor, bias, sample| 
++                          @factor = factor
++			  @bias = bias
++			  @sample = sample
++                        })
++  end
++end
++
+ class SimpleObject<GameObj
+   def initialize(type)
+     @type = type
+@@ -262,9 +297,9 @@
+ 
+   def set_icon()
+     if(@type == "image")
+-      @object.set_sprite(make_sprite($datadir + "images/editor/background.png"))
++      @object.set_sprite(make_sprite($datadir + "images/engine/editor/background.png"))
+     else
+-      @object.set_sprite(make_sprite($datadir + "images/editor/gradient.png"))
++      @object.set_sprite(make_sprite($datadir + "images/engine/editor/gradient.png"))
+     end
+   end
+ 
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/supertux.rb	2005-05-08 21:16:58 UTC (rev 548)
+@@ -23,11 +23,12 @@
+ def find_supertux_datadir()
+   # try to automatically detect the supertux datadir
+   possible_locations = [
+-    "~/cvs/supertux/supertux/data",
+-    "~/cvs/supertux/data",
+-    "/usr/share/games/supertux",
+-    "/usr/local/share/games/supertux",
+-    "/opt/supertux/data",
++    "~/cvs/supertux/supertux/data/",
++    "~/cvs/supertux/data/",
++    "/usr/share/games/supertux/",
++    "/usr/local/share/games/supertux/",
++    "/opt/supertux/data/",
++    "~projects/supertux/trunk/supertux/data/",
+   ]
+   # `which supertux`
+ end
+@@ -92,7 +93,7 @@
+ 
+ $config  = Config.new()
+ if !$datadir then
+-  $datadir = File.expand_path("~/projects/supertux/data/")+"/"
++  $datadir = File.expand_path("~/projects/supertux/trunk/supertux/data/")+"/"
+ end
+ 
+ require "data.rb"
+@@ -101,7 +102,7 @@
+ require "tileset.rb"
+ 
+ $tileset = Tileset.new(32)
+-$tileset.load($datadir + "images/tilesets/supertux.stgt")
++$tileset.load($datadir + "images/tiles.strf")
+ $tileset.create_ungrouped_tiles_group()
+ 
+ $gui = SuperTuxGUI.new(width, height)
+
+Modified: trunk/supertux/supertux.scm
+===================================================================
+--- trunk/supertux/supertux.scm	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/supertux.scm	2005-05-08 21:16:58 UTC (rev 548)
+@@ -24,7 +24,7 @@
+                                    (list (list 'id   
+                                                (get-value-from-tree '(id _) (cdr el) -1))
+                                          (list 'image 
+-                                               (string-append *supertux:datadir* "images/tilesets/" 
++                                               (string-append *supertux:datadir* "images/tiles/" 
+                                                               (or (get-value-from-tree '(editor-images _) (cdr el) #f)
+                                                                   (get-value-from-tree '(images _) (cdr el) "notile.png"))))
+                                          )))))
+@@ -44,15 +44,15 @@
+                                    (list (list 'id   
+                                                (get-value-from-tree '(id _) (cdr el) -1))
+                                          (list 'image 
+-                                               (string-append *supertux:datadir* "images/worldmap/"
+-                                                              (get-value-from-tree '(image _) (cdr el) "notile.png"))))
++                                               (string-append *supertux:datadir* "images/tiles/worldmap/"
++                                                              (get-value-from-tree '(image _) (cdr el) "auxiliary/notile.png"))))
+                                    ))))
+                          (cdr data)))
+               (else
+                (error "Not a supertux worldmap tileset")))))))
+ 
+-(supertux:load-worldmap-tiles (string-append *supertux:datadir* "images/worldmap/antarctica.stwt"))
+-(supertux:load-tiles (string-append *supertux:datadir* "images/tilesets/supertux.stgt"))
++(supertux:load-worldmap-tiles (string-append *supertux:datadir* "images/tiles/worldmap/antarctica.stwt"))
++(supertux:load-tiles (string-append *supertux:datadir* "images/tiles/supertux.stgt"))
+ 
+ ;;(tileset-add-tile '((id 6)
+ ;;                    (image "/home/ingo/projects/windstille/trunk/data/images/tuxsprites/mrbomb.png")
+@@ -370,7 +370,7 @@
+     (set! (supertux:author level)     (get-value-from-tree '(author _) data ""))
+     (set! (supertux:theme level)      (get-value-from-tree '(theme _) data "antarctica"))
+     (set! (supertux:music level)      (get-value-from-tree '(music _) data "Mortimers_chipdisko.mod"))
+-    (set! (supertux:background level) (get-value-from-tree '(background _)   data "arctis.png"))
++    (set! (supertux:background level) (get-value-from-tree '(background _)   data "arctis.jpg"))
+ 
+     (set! (supertux:start-pos-x level) (get-value-from-tree '(start_pos_x  _) data 100))
+     (set! (supertux:start-pos-y level) (get-value-from-tree '(start_pos_y  _) data 170))
+
+Modified: trunk/supertux/tileset.rb
+===================================================================
+--- trunk/supertux/tileset.rb	2005-04-28 14:05:23 UTC (rev 547)
++++ trunk/supertux/tileset.rb	2005-05-08 21:16:58 UTC (rev 548)
+@@ -45,10 +45,10 @@
+         end
+         
+         if image.is_a?(String) then
+-          pixelbuffer = make_pixelbuffer($datadir + 'images/tilesets/' + image)
++          pixelbuffer = make_pixelbuffer($datadir + 'images/' + image)
+         elsif image.is_a?(Array) then
+           if image[0] == "region" then
+-            pixelbuffer = make_region_pixelbuffer($datadir + 'images/tilesets/' + image[1],
++            pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image[1],
+                                                   image[2], image[3], image[4], image[5])
+           end
+         end
+
+
+
+From matzebraun at sheep.berlios.de  Sun May  8 23:52:55 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Sun, 8 May 2005 23:52:55 +0200
+Subject: [Flexlay-commit] r549 - trunk/supertux
+Message-ID: <200505082152.j48LqtJ2031809@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-05-08 23:52:53 +0200 (Sun, 08 May 2005)
+New Revision: 549
+
+Removed:
+   trunk/supertux/supertux.scm
+   trunk/supertux/tuxtiles.scm
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/supertux.rb
+Log:
+applied another patch from marek, remove old files
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-05-08 21:16:58 UTC (rev 548)
++++ trunk/supertux/data.rb	2005-05-08 21:52:53 UTC (rev 549)
+@@ -23,6 +23,8 @@
+     proc{|data, sexpr| BadGuy.new("mrtree")}],
+   ["poisonivy", "images/creatures/poison_ivy/left-0.png", "sprite",
+     proc{|data, sexpr| BadGuy.new("poisonivy")}],
++  ["zeekling", "images/creatures/zeekling/left-0.png", "sprite",
++    proc{|data, sexpr| BadGuy.new("zeekling")}],
+   ["dispenser", "images/creatures/dispenser/working.png", "sprite",
+     proc{|data, sexpr| Dispenser.new(data, sexpr)}],
+   ["yeti", "images/creatures/yeti/yeti.png", "sprite",
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-05-08 21:16:58 UTC (rev 548)
++++ trunk/supertux/supertux.rb	2005-05-08 21:52:53 UTC (rev 549)
+@@ -29,6 +29,7 @@
+     "/usr/local/share/games/supertux/",
+     "/opt/supertux/data/",
+     "~projects/supertux/trunk/supertux/data/",
++    "~/data/projects/supertux/trunk/supertux/data",
+   ]
+   # `which supertux`
+ end
+
+Deleted: trunk/supertux/supertux.scm
+===================================================================
+--- trunk/supertux/supertux.scm	2005-05-08 21:16:58 UTC (rev 548)
++++ trunk/supertux/supertux.scm	2005-05-08 21:52:53 UTC (rev 549)
+@@ -1,568 +0,0 @@
+-(use-modules (oop goops))
+-(load "helper.scm")
+-(display "SuperTux Startup Script\n")
+-
+-(define *game* 'supertux)
+-(define *tile-size* 32)
+-(define *supertux:datadir* "/home/ingo/cvs/supertux/supertux/data/")
+-(game-load-resources "tuxtiles.xml")
+-(game-load-resources "tuxsprites.xml")
+-
+-(define *worldmap-tileset* (tileset-create *tile-size*))
+-(define *level-tileset*    (tileset-create *tile-size*))
+-
+-(define (supertux:load-tiles filename)
+-  (with-input-from-file filename
+-    (lambda ()
+-      (let* ((data (read))
+-             (ident (car data)))
+-        (cond ((equal? ident 'supertux-tiles)
+-               (for-each (lambda (el)
+-                           (cond ((equal? (car el) 'tile)
+-                                  ;;(display (cdr el))(newline)
+-                                  (tileset-add-tile *level-tileset*
+-                                   (list (list 'id   
+-                                               (get-value-from-tree '(id _) (cdr el) -1))
+-                                         (list 'image 
+-                                               (string-append *supertux:datadir* "images/tiles/" 
+-                                                              (or (get-value-from-tree '(editor-images _) (cdr el) #f)
+-                                                                  (get-value-from-tree '(images _) (cdr el) "notile.png"))))
+-                                         )))))
+-                         (cdr data)))
+-              (else
+-               (error "Not a supertux tileset")))))))
+-
+-(define (supertux:load-worldmap-tiles filename)
+-  (with-input-from-file filename
+-    (lambda ()
+-      (let* ((data (read))
+-             (ident (car data)))
+-        (cond ((equal? ident 'supertux-worldmap-tiles)
+-               (for-each (lambda (el)
+-                           (cond ((equal? (car el) 'tile)
+-                                  (tileset-add-tile *worldmap-tileset*
+-                                   (list (list 'id   
+-                                               (get-value-from-tree '(id _) (cdr el) -1))
+-                                         (list 'image 
+-                                               (string-append *supertux:datadir* "images/tiles/worldmap/"
+-                                                              (get-value-from-tree '(image _) (cdr el) "auxiliary/notile.png"))))
+-                                   ))))
+-                         (cdr data)))
+-              (else
+-               (error "Not a supertux worldmap tileset")))))))
+-
+-(supertux:load-worldmap-tiles (string-append *supertux:datadir* "images/tiles/worldmap/antarctica.stwt"))
+-(supertux:load-tiles (string-append *supertux:datadir* "images/tiles/supertux.stgt"))
+-
+-;;(tileset-add-tile '((id 6)
+-;;                    (image "/home/ingo/projects/windstille/trunk/data/images/tuxsprites/mrbomb.png")
+-;;                    (colmap   0   0   0   0   0   0   0   0)))
+-
+-(set-window-title "Flexlay - SuperTux Mode")
+-
+-;; Metadata for a SuperTux level
+-(define-class <supertux-level> ()
+-  (name   #:init-value "Hello World"
+-          #:accessor supertux:name)
+-  (author #:init-value ""
+-          #:accessor supertux:author)
+-  ;;  (width  #:init-value 20
+-  ;;          #:accessor supertux:width)
+-  ;;  (height #:init-value 15
+-  ;;          #:accessor supertux:height)
+-  (background #:init-value "" 
+-              #:accessor supertux:background)
+-  (music      #:init-value "Mortimers_chipdisko.mod"
+-              #:accessor supertux:music)
+-
+-  (start-pos-x #:accessor supertux:start-pos-x
+-               #:init-value 100)
+-  (start-pos-y #:accessor supertux:start-pos-y
+-               #:init-value 100)
+-
+-  (bkgd_red_bottom   #:init-value 150
+-                  #:accessor supertux:bkgd_red_bottom)
+-  (bkgd_green_bottom #:init-value 200
+-              #:accessor supertux:bkgd_green_bottom)
+-  (bkgd_blue_bottom  #:init-value 255
+-              #:accessor supertux:bkgd_blue_bottom)
+-
+-  (bkgd_red_top   #:init-value 150
+-                  #:accessor supertux:bkgd_red_top)
+-  (bkgd_green_top #:init-value 200
+-              #:accessor supertux:bkgd_green_top)
+-  (bkgd_blue_top  #:init-value 255
+-              #:accessor supertux:bkgd_blue_top)
+-
+-  (time       #:init-value 500
+-              #:accessor supertux:time)
+-  (gravity    #:init-value 10
+-              #:accessor supertux:gravity)
+-  (particle_system #:init-value ""
+-                   #:accessor supertux:particle-system)
+-  (theme      #:init-value "antarctica"
+-              #:accessor supertux:theme)
+-  (interactive-tm #:init-value #f
+-                  #:accessor supertux:interactive-tm)
+-  (foreground-tm  #:init-value #f
+-                  #:accessor supertux:foreground-tm)
+-  (background-tm  #:init-value #f 
+-                  #:accessor supertux:background-tm)
+-  (objmap #:init-value #f 
+-          #:accessor supertux:objmap))
+-
+-(define-class <supertux-worldmap> ()
+-  (tilemap #:init-value #f
+-           #:init-keyword #:tilemap
+-           #:accessor stwm:tilemap))
+-
+-(define-generic supertux:activate)
+-
+-(define-method (supertux:activate (stwm <supertux-worldmap>))
+-  (let ((tilemap (stwm:tilemap stwm)))
+-    (tilemap-paint-tool-set-tilemap tilemap)
+-    (set! *tilemap* tilemap)
+-    (editor-tilemap-set-current tilemap)
+-    (tileset-set-current *worldmap-tileset*)
+-    (tile-selector-set-tileset *tileselector* *worldmap-tileset*)
+-    ))
+-
+-(define-method (supertux:activate (stlv <supertux-level>))
+-  (tilemap-paint-tool-set-tilemap (supertux:interactive-tm stlv))
+-  (editor-tilemap-set-current     (supertux:interactive-tm stlv))
+-  (editor-objectmap-set-current   (supertux:objmap stlv))
+-  (set! *tilemap* (supertux:interactive-tm stlv))
+-  (set! *objmap* (supertux:objmap stlv))
+-  (tileset-set-current *level-tileset*)
+-  (tile-selector-set-tileset *tileselector* *level-tileset*))
+-
+-(define (supertux:new-map width height)
+-  (let ((levelmap (supertux:create-levelmap width height)))
+-    (editor-map-activate levelmap)
+-    (add-buffer levelmap)))
+-
+-(define (supertux:create-levelmap width height)
+-  (let ((level    (make <supertux-level>))
+-        (levelmap (editor-map-create)))
+-    
+-    (set! (supertux:foreground-tm  level) (editor-tilemap-create *level-tileset*
+-                                                                 width height *tile-size*))
+-    (set! (supertux:interactive-tm level) (editor-tilemap-create *level-tileset*
+-                                                                 width height *tile-size*))
+-    (set! (supertux:background-tm  level) (editor-tilemap-create *level-tileset*
+-                                                                 width height *tile-size*))
+-    (set! (supertux:objmap         level) (editor-objmap-create))
+-    
+-    (editor-map-add-layer levelmap (supertux:background-tm  level))
+-    (editor-map-add-layer levelmap (supertux:interactive-tm level))
+-    (editor-map-add-layer levelmap (supertux:foreground-tm  level))
+-    (editor-map-add-layer levelmap (supertux:objmap         level))
+-
+-    (supertux:activate level)
+-    (editor-toggle-grid *tilemap*)
+-    
+-    (editor-map-set-filename levelmap "/tmp/foobar.stlv")
+-    (editor-map-set-metadata levelmap level)
+-    levelmap))
+-
+-(define-method (supertux:resize (stwm <supertux-worldmap>) w h x y)
+-  (editor-tilemap-resize (stwm:tilemap stwm) w h x y))
+-
+-(define-method (supertux:resize (stlv <supertux-level>) w h x y)
+-  (editor-tilemap-resize (supertux:background-tm  stlv) w h x y)
+-  (editor-tilemap-resize (supertux:interactive-tm stlv) w h x y)
+-  (editor-tilemap-resize (supertux:foreground-tm  stlv) w h x y))
+-
+-(define-method (supertux:save-map (stlv <supertux-level>) filename)
+-  ;; FIXME: This is old style singleton code
+-  (if (access? filename F_OK)
+-      (rename-file filename (string-append filename "~")))
+-
+-  (let* ((levelmap (editor-map-get-current))
+-         (level    (editor-map-get-metadata levelmap)))
+-    (format #t "Level: ~a~%" level)
+-    (with-output-to-file filename
+-      (lambda ()
+-               ;; New style save code
+-               (display   ";; Generated by Flexlay Editor\n")
+-               (display   "(supertux-level\n")
+-
+-               (display   "  (version 1)\n")
+-               (format #t "  (author ~s)\n" (supertux:author level))
+-               (format #t "  (name ~s)~%"   (supertux:name level))
+-               (format #t "  (width  ~a)~%" (editor-tilemap-get-width  (supertux:interactive-tm level)))
+-               (format #t "  (height ~a)~%" (editor-tilemap-get-height (supertux:interactive-tm level)))
+-
+-               (format #t "  (start_pos_x    ~a)~%" (supertux:start-pos-x level))
+-               (format #t "  (start_pos_y    ~a)~%" (supertux:start-pos-y level))
+-
+-               (format #t "  (background ~s)~%" (supertux:background level))
+-               (format #t "  (music ~s)~%" (supertux:music level))
+-
+-               (format #t "  (bkgd_red_top    ~a)~%" (supertux:bkgd_red_top level))
+-               (format #t "  (bkgd_green_top  ~a)~%" (supertux:bkgd_green_top level))
+-               (format #t "  (bkgd_blue_top   ~a)~%" (supertux:bkgd_blue_top level))
+-
+-               (format #t "  (bkgd_red_bottom    ~a)~%" (supertux:bkgd_red_bottom level))
+-               (format #t "  (bkgd_green_bottom  ~a)~%" (supertux:bkgd_green_bottom level))
+-               (format #t "  (bkgd_blue_bottom   ~a)~%" (supertux:bkgd_blue_bottom level))
+-
+-               (format #t "  (time  ~a)~%" (supertux:time level))
+-               (format #t "  (gravity  ~a)~%" (supertux:gravity level))
+-               (format #t "  (particle_system ~s)~%" (supertux:particle-system level))
+-               (format #t "  (theme ~s)~%" (supertux:theme level))
+-
+-               (let ((width (editor-tilemap-get-width (supertux:interactive-tm level))))
+-                 (display     "  (interactive-tm\n")
+-                 (write-field "   " width
+-                              (editor-tilemap-get-data (supertux:interactive-tm level)))
+-                 (display     "   )\n\n")
+-
+-                 (display     "  (background-tm\n")
+-                 (write-field "   " width
+-                              (editor-tilemap-get-data (supertux:background-tm level)))
+-                 (display     "   )\n\n")
+-
+-                 (display     "  (foreground-tm\n")
+-                 (write-field "   " width
+-                              (editor-tilemap-get-data (supertux:foreground-tm level)))
+-                 (display     "   )\n\n"))
+-               
+-               (format #t "  (reset-points\n")
+-               (for-each (lambda (el)
+-                           (let* ((obj (editor-objectmap-get-object (supertux:objmap level) el)))
+-                             (cond ((equal? (caaddr obj) 'resetpoint)
+-                                    (format #t "    (point (x ~a) (y ~a))~%" 
+-                                            (car obj)
+-                                            (cadr obj)
+-                                            )))))
+-                         (editor-objectmap-get-objects (supertux:objmap level)))
+-               (format #t "   )\n")
+-
+-               (format #t "  (objects\n")
+-               (for-each (lambda (el)
+-                           (let* ((obj (editor-objectmap-get-object (supertux:objmap level) el)))
+-                             (cond ((not (equal? (caaddr obj) 'resetpoint))
+-                                    (format #t "    (~a  (x ~a) (y ~a))~%" 
+-                                            (caaddr obj)
+-                                            (car obj)
+-                                            (cadr obj)
+-                                            )))))
+-                         (editor-objectmap-get-objects (supertux:objmap level)))
+-               (format #t "  )\n")
+-
+-               (format #t "   )\n\n")
+-
+-               (newline)
+-               (display ";; EOF ;;\n")))
+-    (editor-map-set-unmodified levelmap)))
+-
+-(define (supertux:load-map filename)
+-  (catch #t
+-         (lambda ()
+-           (let ((levelmap (supertux:create-level-map-from-file filename)))
+-             (editor-map-activate levelmap)
+-             (add-buffer levelmap)
+-             ))
+-         (lambda args
+-           (editor-error args)))
+-  (push-last-file filename))
+-
+-(define (supertux:translate-v0-tiles num)
+-  (let ((transtbl '(
+-                    (#\! 103)
+-                    (#\# 11)
+-                    (#\$ 82)
+-                    (#\& 75)
+-                    (#\* 80)
+-                    (#\. 0)
+-                    (#\0 0)
+-                    (#\1 0)
+-                    (#\2 0)
+-                    (#\= 14)
+-                    (#\A 83)
+-                    (#\B 102)
+-                    (#\C 85)
+-                    (#\D 86)
+-                    (#\E 87)
+-                    (#\F 88)
+-                    (#\G 93)
+-                    (#\H 94)
+-                    (#\I 95)
+-                    (#\J 96)
+-                    (#\X 77)
+-                    (#\Y 105)
+-                    (#\[ 13 )
+-                    (#\\ 81)
+-                    (#\] 15)
+-                    (#\^ 76)
+-                    (#\a 84)
+-                    (#\c 89)
+-                    (#\d 90)
+-                    (#\e 91)
+-                    (#\f 92)
+-                    (#\g 97)
+-                    (#\h 98)
+-                    (#\i 99)
+-                    (#\j 100)
+-                    (#\x 104)
+-                    (#\y 78)
+-                    (#\| 79)
+-                    )))
+-    (let ((ret (assoc-ref transtbl (integer->char num))))
+-      (cond (ret
+-             (car ret))
+-            (else
+-             (format #t "couldn't translate ~a~%" num)
+-             0)))))
+-
+-
+-(define (supertux:create-worldmap-from-file filename)
+-  (let* ((m       (editor-map-create))
+-         (data    (with-input-from-file filename
+-                    (lambda () (cdr (read)))))
+-         (width   (get-value-from-tree '(tilemap width  _) data 19))
+-         (height  (get-value-from-tree '(tilemap height _) data 14))
+-         (tilemap (editor-tilemap-create *worldmap-tileset*
+-                                         width height 32))
+-         (stwm    (make <supertux-worldmap> #:tilemap tilemap)))
+-    (format #t "Size: ~ax~a~%" width height)
+-    (editor-tilemap-set-data tilemap (get-value-from-tree '(tilemap data) data '()))
+-    (editor-map-add-layer m tilemap)
+-    (editor-map-set-metadata m stwm)
+-    (editor-toggle-grid *tilemap*)
+-    (supertux:activate stwm)
+-    m))
+-
+-(define-method (supertux:save-map (stwm <supertux-worldmap>) filename)
+-  (if (access? filename F_OK)
+-      (rename-file filename (string-append filename "~")))
+-
+-  (let* ((m       (editor-map-get-current))
+-         (stwm    (editor-map-get-metadata m))
+-         (tilemap (stwm:tilemap stwm)))
+-    (with-output-to-file filename
+-      (lambda ()
+-        (display ";; Generated with Flexlay Editor\n")
+-        (display "(supertux-worldmap\n")
+-        (display "  (tilemap \n")
+-        (format #t "    (width  ~a)~%" (editor-tilemap-get-width  tilemap))
+-        (format #t "    (height ~a)~%" (editor-tilemap-get-height tilemap))
+-        (display "    (data\n")
+-        (write-field "       " 
+-                     (editor-tilemap-get-width tilemap)
+-                     (editor-tilemap-get-data  tilemap))
+-        (display "    ))\n")
+-        (display ")\n")
+-        (newline)
+-        ))))
+-
+-(define (supertux:create-level-map-from-file filename)
+-  (display "Loading SuperTux level: ")
+-  (display filename)
+-  (newline)
+-  (let* ((data (with-input-from-file filename
+-                 (lambda () (cdr (read)))))
+-         (level   (make <supertux-level>))
+-         (version (get-value-from-tree '(version _) data 0)))
+-    ;; read in the level metadata
+-    (set! (supertux:name  level)      (get-value-from-tree '(name _) data 20))
+-    (set! (supertux:author level)     (get-value-from-tree '(author _) data ""))
+-    (set! (supertux:theme level)      (get-value-from-tree '(theme _) data "antarctica"))
+-    (set! (supertux:music level)      (get-value-from-tree '(music _) data "Mortimers_chipdisko.mod"))
+-    (set! (supertux:background level) (get-value-from-tree '(background _)   data "arctis.jpg"))
+-
+-    (set! (supertux:start-pos-x level) (get-value-from-tree '(start_pos_x  _) data 100))
+-    (set! (supertux:start-pos-y level) (get-value-from-tree '(start_pos_y  _) data 170))
+-
+-    (set! (supertux:bkgd_red_bottom   level) (get-value-from-tree '(bkgd_red_bottom   _) data 150))
+-    (set! (supertux:bkgd_green_bottom level) (get-value-from-tree '(bkgd_green_bottom _) data 200))
+-    (set! (supertux:bkgd_blue_bottom  level) (get-value-from-tree '(bkgd_blue_bottom  _) data 255))
+-
+-    (set! (supertux:bkgd_red_top   level) (get-value-from-tree '(bkgd_red_top   _) data 150))
+-    (set! (supertux:bkgd_green_top level) (get-value-from-tree '(bkgd_green_top _) data 200))
+-    (set! (supertux:bkgd_blue_top  level) (get-value-from-tree '(bkgd_blue_top  _) data 255))
+-
+-    (set! (supertux:time  level)      (get-value-from-tree '(time _)         data 250))
+-    (set! (supertux:particle-system level)     (get-value-from-tree '(particle_system _) data ""))
+-    (set! (supertux:gravity         level)     (get-value-from-tree '(gravity _)      data 10))
+-
+-    (let ((width   (get-value-from-tree '(width _)    data 20))
+-          (height  (get-value-from-tree '(height _)   data 15))
+-          (objects (get-value-from-tree '(objects)   data '()))
+-          (reset-points (get-value-from-tree '(reset-points)  data '()))
+-          (interactive-tm (get-value-from-tree '(interactive-tm) data '()))
+-          (background-tm  (get-value-from-tree '(background-tm)  data '()))
+-          (foreground-tm  (get-value-from-tree '(foreground-tm)  data '())))
+-
+-      ;; load level file and extract tiledata and w/h
+-      (let* ((m       (editor-map-create))
+-             (objmap  (editor-objmap-create)))
+-
+-        (set! (supertux:objmap          level) objmap)
+-        (set! (supertux:interactive-tm  level) (editor-tilemap-create *level-tileset*
+-                                                                      width height *tile-size*))
+-        (set! (supertux:background-tm   level) (editor-tilemap-create *level-tileset*
+-                                                                      width height *tile-size*))
+-        (set! (supertux:foreground-tm   level) (editor-tilemap-create *level-tileset*
+-                                                                      width height *tile-size*))
+-        (set! *tilemap* (supertux:interactive-tm  level))
+-        (set! *objmap*  (supertux:objmap level))
+-
+-        ;; set data to the tilemap
+-        (if (not (null? interactive-tm))
+-            (editor-tilemap-set-data (supertux:interactive-tm level) interactive-tm)
+-            (display "Error: interactive-tm missing\n"))
+-        (if (not (null? foreground-tm))
+-            (editor-tilemap-set-data (supertux:foreground-tm level) foreground-tm)
+-            (display "Error: foreground-tm missing\n"))
+-        (if (not (null? background-tm))
+-            (editor-tilemap-set-data (supertux:background-tm level) background-tm)
+-            (display "Error: background-tm missing\n"))
+-
+-        (cond ((= version 0)
+-               (let ((tilemap (get-value-from-tree '(interactive-tm) data 
+-                                                   (get-value-from-tree '(tilemap) data '()))))
+-
+-                 (let ((i 0))
+-                   (for-each (lambda (el)
+-                               (let ((x (* 32 (remainder i width)))
+-                                     (y (* 32 (quotient  i width))))
+-                                 (cond ((= el 48) ;; 0
+-                                        (objectmap-add-object objmap 
+-                                                              (string-append *supertux:datadir* "images/shared/snowball-left-0.png")
+-                                                              x y '(snowball)))
+-                                       ((= el 49) ;; 1
+-                                        (objectmap-add-object objmap 
+-                                                              (string-append *supertux:datadir* "images/shared/mriceblock-left-0.png")
+-                                                              x y '(mriceblock)))
+-                                       ((= el 50) ;; 2
+-                                        (objectmap-add-object objmap
+-                                                              (string-append *supertux:datadir* "images/shared/jumpy-left-middle-0.png")
+-                                                              x y '(money)))))
+-                               (set! i (+ i 1)))
+-                             tilemap))
+-                 (editor-tilemap-set-data (supertux:interactive-tm level)
+-                                          (map supertux:translate-v0-tiles tilemap)))))
+-
+-        (display (supertux:interactive-tm level))(newline)
+-
+-        (for-each (lambda (el)
+-                    (let ((x (get-value-from-tree '(x _) (cdr el) 0))
+-                          (y (get-value-from-tree '(y _) (cdr el) 0)))
+-                      (objectmap-add-object objmap
+-                                            (string-append *supertux:datadir* "images/shared/resetpoint.png")
+-                                            x y '(resetpoint))))
+-                  reset-points)
+-
+-        (for-each (lambda (el)
+-                    (let ((x (get-value-from-tree '(x _) (cdr el) 0))
+-                          (y (get-value-from-tree '(y _) (cdr el) 0)))
+-                      (case (car el)
+-                        ((money jumpy)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/jumpy-left-middle-0.png")
+-                                               x y '(money)))
+-                        ((mriceblock laptop)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/mriceblock-left-0.png")
+-                                               x y '(mriceblock)))
+-                        ((snowball bsod)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/snowball-left-0.png")
+-                                               x y '(snowball)))
+-                        ((mrbomb)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/mrbomb-left-0.png")
+-                                               x y '(mrbomb)))
+-                        ((stalactite)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/stalactite.png")
+-                                               x y '(stalactite)))
+-                        ((flame)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/flame-0.png")
+-                                               x y '(flame)))
+-                        ((fish)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/fish-left-0.png")
+-                                               x y '(fish)))
+-                        ((flyingsnowball)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/flyingsnowball-left-0.png")
+-                                               x y '(flyingsnowball)))
+-                        ((bouncingsnowball)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/bouncingsnowball-left-0.png")
+-                                               x y '(bouncingsnowball)))
+-                        ((spiky)
+-                         (objectmap-add-object objmap
+-                                               (string-append *supertux:datadir* "images/shared/spiky-left-0.png")
+-                                               x y '(spiky)))
+-                        )))
+-                  objects)
+-        
+-        (editor-map-add-layer m (supertux:background-tm  level))
+-        (editor-map-add-layer m (supertux:interactive-tm level))
+-        (editor-map-add-layer m (supertux:foreground-tm  level))
+-
+-        (editor-tilemap-set-bgcolor (supertux:background-tm  level) 150 200 255 255)
+-
+-        (editor-map-add-layer m (supertux:objmap         level))
+-
+-        (supertux:activate level)
+-
+-        (editor-map-set-filename m filename)
+-        (editor-map-set-metadata m level)
+-        m))))
+-
+-(define (supertux:set-background-layer-only)
+-  (let ((level (editor-map-get-metadata (editor-map-get-current))))
+-    (editor-tilemap-set-fgcolor (supertux:background-tm  level) 255 255 255 255)
+-    (editor-tilemap-set-fgcolor (supertux:interactive-tm level)   0   0   0  10)
+-    (editor-tilemap-set-fgcolor (supertux:foreground-tm  level)   0   0   0  10)
+-    (tilemap-paint-tool-set-tilemap (supertux:background-tm level))))
+-
+-(define (supertux:set-interactive-layer-only)
+-  (let ((level (editor-map-get-metadata (editor-map-get-current))))
+-    (editor-tilemap-set-fgcolor (supertux:background-tm  level)   0   0   0  10)
+-    (editor-tilemap-set-fgcolor (supertux:interactive-tm level) 255 255 255 255)
+-    (editor-tilemap-set-fgcolor (supertux:foreground-tm  level)   0   0   0  10)
+-    (tilemap-paint-tool-set-tilemap (supertux:interactive-tm level))))
+-
+-(define (supertux:set-foreground-layer-only)
+-  (let ((level (editor-map-get-metadata (editor-map-get-current))))
+-    (editor-tilemap-set-fgcolor (supertux:background-tm  level)   0   0   0  10)
+-    (editor-tilemap-set-fgcolor (supertux:interactive-tm level)   0   0   0  10)
+-    (editor-tilemap-set-fgcolor (supertux:foreground-tm  level) 255 255 255 255)
+-    (tilemap-paint-tool-set-tilemap (supertux:foreground-tm level))))
+-
+-
+-(define (supertux:set-background-layer-active)
+-  (let ((level (editor-map-get-metadata (editor-map-get-current))))
+-    (editor-tilemap-set-fgcolor (supertux:background-tm  level) 255 255 255 255)
+-    (editor-tilemap-set-fgcolor (supertux:interactive-tm level) 150 250 150 150)
+-    (editor-tilemap-set-fgcolor (supertux:foreground-tm  level) 255 150 150 150)
+-    (tilemap-paint-tool-set-tilemap (supertux:background-tm level))))
+-
+-(define (supertux:set-interactive-layer-active)
+-  (let ((level (editor-map-get-metadata (editor-map-get-current))))
+-    (editor-tilemap-set-fgcolor (supertux:background-tm  level) 150 150 250 150)
+-    (editor-tilemap-set-fgcolor (supertux:interactive-tm level) 255 255 255 255)
+-    (editor-tilemap-set-fgcolor (supertux:foreground-tm  level) 255 150 150 150)
+-    (tilemap-paint-tool-set-tilemap (supertux:interactive-tm level))))
+-
+-(define (supertux:set-foreground-layer-active)
+-  (let ((level (editor-map-get-metadata (editor-map-get-current))))
+-    (editor-tilemap-set-fgcolor (supertux:background-tm  level) 150 150 250 150)
+-    (editor-tilemap-set-fgcolor (supertux:interactive-tm level) 255 150 150 150)
+-    (editor-tilemap-set-fgcolor (supertux:foreground-tm  level) 255 255 255 255)
+-    (tilemap-paint-tool-set-tilemap (supertux:foreground-tm level))))
+-
+-(define (supertux:show-all-layers)
+-  (let ((level (editor-map-get-metadata (editor-map-get-current))))
+-    (editor-tilemap-set-fgcolor (supertux:background-tm  level) 255 255 255 255)
+-    (editor-tilemap-set-fgcolor (supertux:interactive-tm level) 255 255 255 255)
+-    (editor-tilemap-set-fgcolor (supertux:foreground-tm  level) 255 255 255 255)))
+-
+-;; EOF ;;
+
+Deleted: trunk/supertux/tuxtiles.scm
+===================================================================
+--- trunk/supertux/tuxtiles.scm	2005-05-08 21:16:58 UTC (rev 548)
++++ trunk/supertux/tuxtiles.scm	2005-05-08 21:52:53 UTC (rev 549)
+@@ -1,236 +0,0 @@
+-(windstille-tiles
+- (tile (id 1)
+-       (image "tiles/background1")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 2)
+-       (image "tiles/background2")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 3)
+-       (image "tiles/background3")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 4)
+-       (image "tiles/background4")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 5)
+-       (image "tiles/background5")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 6)
+-       (image "tiles/background6")
+-       (colmap   0   0   0   0   0   0   0   0))
+-
+- (tile (id 7)
+-       (image "tiles/snow1")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 8)
+-       (image "tiles/snow2")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 9)
+-       (image "tiles/snow3")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 10)
+-       (image "tiles/snow4")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 11)
+-       (image "tiles/snow5")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 12)
+-       (image "tiles/snow6")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 13)
+-       (image "tiles/snow7")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 14)
+-       (image "tiles/snow8")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 15)
+-       (image "tiles/snow9")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 16)
+-       (image "tiles/snow10")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 17)
+-       (image "tiles/snow11")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 18)
+-       (image "tiles/snow12")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 19)
+-       (image "tiles/snow13")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 20)
+-       (image "tiles/snow14")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 21)
+-       (image "tiles/snow15")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 22)
+-       (image "tiles/snow16")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 23)
+-       (image "tiles/snow17")
+-       (colmap 255 255 255 255 255 255 255 255))
+-
+- (tile (id 24)
+-       (image "tiles/background7")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 25)
+-       (image "tiles/background8")
+-       (colmap   0   0   0   0   0   0   0   0))
+-
+- (tile (id 26)
+-       (image "tiles/bonus1")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 27)
+-       (image "tiles/block1")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 28)
+-       (image "tiles/block2")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 29)
+-       (image "tiles/block3")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 30)
+-       (image "tiles/snow18")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 31)
+-       (image "tiles/snow19")
+-       (colmap 255 255 255 255 255 255 255 255))
+-
+- (tile (id 32)
+-       (image "tiles/darksnow1")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 33)
+-       (image "tiles/darksnow2")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 34)
+-       (image "tiles/darksnow3")
+-       (colmap   0   0   0   0   0   0   0   0))
+- (tile (id 35)
+-       (image "tiles/darksnow4")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 36)
+-       (image "tiles/darksnow5")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 37)
+-       (image "tiles/darksnow6")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 38)
+-       (image "tiles/darksnow7")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 39)
+-       (image "tiles/darksnow8")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 40)
+-       (image "tiles/darksnow9")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 41)
+-       (image "tiles/darksnow10")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 42)
+-       (image "tiles/darksnow11")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 43)
+-       (image "tiles/darksnow12")
+-       (colmap 255 255 255 255 255 255 255 255))
+-
+- (tile (id 44)
+-       (image "tiles/coin1")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 45)
+-       (image "tiles/coin2")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 46)
+-       (image "tiles/coin3")
+-       (colmap 255 255 255 255 255 255 255 255))
+-
+-
+- (tile (id 47)
+-       (image "tiles/block4")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 48)
+-       (image "tiles/block5")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 49)
+-       (image "tiles/block6")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 50)
+-       (image "tiles/block7")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 51)
+-       (image "tiles/block8")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 52)
+-       (image "tiles/block9")
+-       (colmap 255 255 255 255 255 255 255 255))
+-
+- (tile (id 53)
+-       (image "tiles/pipe1")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 54)
+-       (image "tiles/pipe2")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 55)
+-       (image "tiles/pipe3")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 56)
+-       (image "tiles/pipe4")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 57)
+-       (image "tiles/pipe5")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 58)
+-       (image "tiles/pipe6")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 59)
+-       (image "tiles/pipe7")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 60)
+-       (image "tiles/pipe8")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 61)
+-       (image "tiles/block10")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 62)
+-       (image "tiles/block11")
+-       (colmap 255 255 255 255 255 255 255 255))
+-; (tile (id 63)
+-;       (image "tiles/backgroundtile1")
+-;       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 64)
+-       (image "tiles/grey")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 65)
+-       (image "tiles/grey2")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 66)
+-       (image "tiles/grey3")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 67)
+-       (image "tiles/grey4")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 68)
+-       (image "tiles/grey5")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 69)
+-       (image "tiles/grey6")
+-       (colmap 255 255 255 255 255 255 255 255))
+-
+- (tile (id 70)
+-       (image "tiles/backgroundtile1")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 71)
+-       (image "tiles/backgroundtile2")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 72)
+-       (image "tiles/backgroundtile3")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 73)
+-       (image "tiles/backgroundtile4")
+-       (colmap 255 255 255 255 255 255 255 255))
+- (tile (id 74)
+-       (image "tiles/backgroundtile5")
+-       (colmap 255 255 255 255 255 255 255 255))
+-
+- )
+-
+-;; EOF ;;
+
+
+
+From matzebraun at sheep.berlios.de  Tue May 10 13:29:54 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Tue, 10 May 2005 13:29:54 +0200
+Subject: [Flexlay-commit] r550 - in trunk: ruby supertux
+Message-ID: <200505101129.j4ABTsB9011972@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-05-10 13:29:51 +0200 (Tue, 10 May 2005)
+New Revision: 550
+
+Added:
+   trunk/supertux/LispWriter.rb
+   trunk/supertux/TileMap.rb
+   trunk/supertux/WorldMap.rb
+   trunk/supertux/WorldMapObject.rb
+   trunk/supertux/supertux-worldmap
+   trunk/supertux/supertux-worldmap.rb
+Modified:
+   trunk/ruby/flexlay.rb
+   trunk/supertux/data.rb
+   trunk/supertux/gui.rb
+   trunk/supertux/sector.rb
+   trunk/supertux/supertux.rb
+Log:
+added suppport for supertux worldmaps
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/ruby/flexlay.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -215,6 +215,8 @@
+           vals.push(comp.get_text().to_f)
+         elsif type == "string"
+           vals.push(comp.get_text())
++        elsif type == "bool"
++          vals.push(comp.is_checked())
+         end
+       }
+       @callback.call(*vals)
+@@ -253,7 +255,9 @@
+                   CL_CheckBox.new(CL_Point.new(110, 10), 
+                                   "",
+                                   @window.get_client_area())])
+-    # @items[-1][2].set_text(value.to_s)
++    if value == true
++      @items[-1][2].set_checked()
++    end
+     update()
+   end
+ 
+
+Added: trunk/supertux/LispWriter.rb
+===================================================================
+--- trunk/supertux/LispWriter.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/LispWriter.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -0,0 +1,66 @@
++class LispWriter
++  def initialize(file)
++    @file = file
++    @indent_depth = 0
++  end
++
++  def write_comment(comment)
++    @file.write("; " + comment + "\n")
++  end
++
++  def start_list(listname)
++    indent()
++    @file.write("(" + listname + "\n")
++    @indent_depth += 2
++  end
++
++  def end_list(listname)
++    @indent_depth -= 2
++    indent()
++    @file.write(")\n")
++  end
++
++  def write_int(name, value)
++    indent()
++    @file.write("(%s %d)\n" % [name, value])
++  end
++
++  def write_float(name, value)
++    indent()
++    @file.write("(%s %f)\n" % [name, value])  
++  end                                            
++
++  def write_string(name, value, translatable = false)
++    indent()
++    @file.write("(" + name)
++    if (translatable == true)
++      @file.write(" (_ \"" + value + "\"))\n")
++    else
++      @file.write(" \"" + value + "\")\n")
++    end
++  end
++
++  def write_bool(name, value)
++    indent()
++    @file.write("(" + name + " ")
++    if(value == true)
++      @file.write("#t")
++    else
++      @file.write("#f")
++    end
++    @file.write(")\n")
++  end
++
++  def write_int_vector(name, value)
++    indent()
++    @file.write("(" + name)
++    for i in value
++      @file.write(" %d" % [i])
++    end
++    @file.write(")\n")
++  end
++
++  def indent()
++    @file.write(" " * @indent_depth)
++  end
++end
+
+Added: trunk/supertux/TileMap.rb
+===================================================================
+--- trunk/supertux/TileMap.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/TileMap.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -0,0 +1,33 @@
++class TileMap
++  attr_reader :tilemaplayer
++
++  def initialize()
++  end
++
++  def new_from_size(width, height)
++    @width = width
++    @height = height
++    @tilemaplayer = TilemapLayer.new($tileset, @width, @height)
++  end
++
++  def parse(data)
++    @width = get_value_from_tree(["width", "_"], data, 10)
++    @height = get_value_from_tree(["height", "_"], data, 10)
++    @layer = get_value_from_tree(["layer", "_"], data, "interactive")
++    @solid = get_value_from_tree(["solid", "_"], data, true)
++    @speed = get_value_from_tree(["speed", "_"], data, 1.0)
++    @tilemaplayer = TilemapLayer.new($tileset, @width, @height)
++    @tilemaplayer.set_data(get_value_from_tree(["tiles"], data, []))
++  end
++
++  def save(writer)
++    writer.start_list("tilemap")
++    writer.write_int("width", @width)
++    writer.write_int("height", @height)
++    writer.write_string("layer", @layer)
++    writer.write_bool("solid", @solid)
++    writer.write_float("speed", @speed)
++    writer.write_int_vector("tiles", @tilemaplayer.get_data())
++    writer.end_list("tilemap")
++  end
++end
+
+Added: trunk/supertux/WorldMap.rb
+===================================================================
+--- trunk/supertux/WorldMap.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/WorldMap.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -0,0 +1,99 @@
++class WorldMap
++  attr_reader :name, :music, :intro_filename, :start_pos_x, :start_pos_y, :filename
++  attr_writer :name, :music, :intro_filename, :start_pos_x, :start_pos_y, :filename
++  attr_accessor :objects
++  
++  def initialize(*params)
++    @name     = "No Name"
++    @music    = ""
++    @intro_filename = ""
++    @start_pos_x = 0
++    @start_pos_y = 0
++    @filename = nil
++    @width = 0
++    @height = 0
++    @objects = ObjectLayer.new()
++
++    if params.length() == 2 then
++      # New Level
++      (width, height) = params
++      
++      @width  = width
++      @height = height
++      @tilemap = TileMap.new()
++      @tilemap.new_from_size(@width, @height)
++    elsif params.length() == 1 then
++      # Load Level from file
++      (@filename,) = params
++      
++      tree = sexpr_read_from_file(@filename)
++      if tree == nil
++        raise("Couldn't load worldmap: %s" % filename)
++      end
++      
++      data = tree[1..-1]
++      parse(data)
++    else
++      raise "Wrong arguments for SuperTux::___init__"
++    end
++  end
++  
++  def parse(data)
++    for i in data
++      (name, data) = i[0], i[1..-1]
++
++      if name == "properties"
++        @name = get_value_from_tree(["name", "_"], data, "No Name")
++        @music = get_value_from_tree(["music", "_"], data, "salcon.mod")
++        @intro_filename = get_value_from_tree(["intro-filename", "_"], data, "")
++        @start_pos_x = get_value_from_tree(["start_pos_x", "_"], data, 0)
++        @start_pos_y = get_value_from_tree(["start_pos_y", "_"], data, 0)
++      elsif name == "tilemap"
++        @tilemap = TileMap.new()
++        @tilemap.parse(data)
++      else
++        create_worldmapobject_from_data(@objects, name, data)
++      end
++    end
++  end
++
++  def save(filename)
++    f = File.new(filename, "w")
++    writer = LispWriter.new(f)
++
++    writer.write_comment("Generated by Flexlay Editor")
++    writer.start_list("supertux-worldmap")
++
++    writer.start_list("properties")
++    writer.write_string("name", @name, true)
++    if @intro_filename != ""
++      writer.write_string("intro-filename", @intro_filename)
++    end
++    writer.write_string("music", @music)
++    writer.write_int("start_pos_x", @start_pos_x)
++    writer.write_int("start_pos_y", @start_pos_y)
++    writer.end_list("properties")
++
++    @tilemap.save(writer)
++
++    for o in @objects.get_objects()
++      object = o.get_metadata()
++      object.save(writer)
++    end
++    writer.end_list("supertux-worldmap")
++    f.close()
++  end
++  
++  def activate(workspace)
++    @editormap = EditorMap.new()
++    @editormap.add_layer(@tilemap.tilemaplayer.to_layer())
++    @editormap.add_layer(@objects.to_layer())
++    @editormap.set_metadata(self)
++
++    workspace.set_map(@editormap)
++    TilemapLayer.set_current(@tilemap.tilemaplayer)
++    ObjectLayer.set_current(@objects)
++    connect(@editormap.sig_change(), proc{$gui.on_map_change()})
++  end
++end
++
+
+Added: trunk/supertux/WorldMapObject.rb
+===================================================================
+--- trunk/supertux/WorldMapObject.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/WorldMapObject.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -0,0 +1,182 @@
++
++class WorldmapObject
++  attr_accessor :obj
++
++  def initialize()
++    @obj = nil
++  end
++end
++
++class WorldmapLevel<WorldmapObject
++  def initialize()
++    @name = ""
++    @extro_filename = ""
++    @quit_worldmap = false
++    @obj = ObjMapSpriteObject.new(
++            make_sprite($datadir + "images/tiles/worldmap/leveldot_green.png"),
++            CL_Pointf.new(0, 0), make_metadata(self))
++    connect_v1_ObjMapObject(@obj.to_object.sig_move(), method(:on_move))
++  end
++
++  def parse(data)
++    x = get_value_from_tree(["x", "_"], data, 0)
++    y = get_value_from_tree(["y", "_"], data, 0)
++    @obj.to_object.set_pos(CL_Pointf.new(x * 32, y * 32))
++    @name = get_value_from_tree(["name", "_"], data, "")
++    @extro_filename = get_value_from_tree(["extro-filename", "_"], data, "")
++    @quit_worldmap = get_value_from_tree(["quit-worldmap", "_"], data, false)
++  end
++
++  def save(writer)
++    writer.start_list("level")
++    pos = @obj.to_object.get_pos()
++    writer.write_int("x", pos.x / 32)
++    writer.write_int("y", pos.y / 32)
++    writer.write_string("name", @name)
++    if @extro_filename != ""
++      writer.write_string("extro-filename", @extro_filename)
++    end
++    if @quit_worldmap == true
++      writer.write_bool("quit-worldmap", @quit_worldmap)
++    end
++    writer.end_list("level")
++  end
++
++  def on_move(data)
++    pos = @obj.to_object.get_pos()
++    pos.x = (((pos.x+16)/32).to_i)*32
++    pos.y = (((pos.y+16)/32).to_i)*32
++    @obj.to_object.set_pos(pos)
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new("LevelTile Property Dialog",
++        $gui.get_component())
++    dialog.add_string("level", @name)
++    dialog.add_string("extro-filename", @extro_filename)
++    dialog.add_bool("quit-worldmap", @quit_worldmap)
++    dialog.set_callback(proc{|name, extro_filename, quit_worldmap|
++          @name = name
++          @extro_filename = extro_filename
++          @quit_worldmap = quit_worldmap
++        })
++  end
++end
++
++class SpecialTile<WorldmapObject
++  def initialize()
++    @map_message = ""
++    @apply_to_direction = ""
++    @passive_message = false
++    @teleport_x = 0
++    @teleport_y = 0
++    @invisible_tile = false
++    @obj = ObjMapSpriteObject.new(
++            make_sprite($datadir + "images/tiles/worldmap/teleporterdot.png"),
++            CL_Pointf.new(0, 0), make_metadata(self))
++    connect_v1_ObjMapObject(@obj.to_object.sig_move(), method(:on_move))
++  end
++
++  def parse(data)
++    x = get_value_from_tree(["x", "_"], data, 0)
++    y = get_value_from_tree(["y", "_"], data, 0)
++    @obj.to_object.set_pos(CL_Pointf.new(x * 32, y * 32))
++    @map_message = get_value_from_tree(["map-message", "_"], data, "")
++    @passive_message = get_value_from_tree(["passive-message", "_"], data, false)
++    @teleport_x = get_value_from_tree(["teleport-to-x", "_"], data, -1)
++    @teleport_y = get_value_from_tree(["teleport-to-y", "_"], data, -1)
++    @invisible_tile = get_value_from_tree(["invisible_tile", "_"], data, false)
++    @apply_to_direction = get_value_from_tree(["apply-to-direction", "_"],
++        data, "")
++  end
++
++  def save(writer)
++    writer.start_list("special-tile")
++    pos = @obj.to_object.get_pos()
++    writer.write_int("x", pos.x / 32)
++    writer.write_int("y", pos.y / 32)
++    if(@map_message != "")
++      writer.write_string("map-message", @map_message, true)
++    end
++    if(@passive_message != false)
++      writer.write_bool("passive-message", @passive_message)
++    end
++    if(@invisible_tile != false)
++      writer.write_bool("invisible-tile", @invisible_tile)
++    end
++    if(@apply_to_direction != "")
++      writer.write_string("apply-to-direction", @apply_to_direction)
++    end
++    if(@teleport_x != -1)
++      writer.write_int("teleport-to-x", @teleport_x)
++      writer.write_int("teleport-to-y", @teleport_y)
++    end
++    writer.end_list("special-tile")
++  end
++
++  def on_move(data)
++    pos = @obj.to_object.get_pos()
++    pos.x = (((pos.x+16)/32).to_i)*32
++    pos.y = (((pos.y+16)/32).to_i)*32
++    @obj.to_object.set_pos(pos)
++  end                                  
++
++  def property_dialog()
++    dialog = GenericDialog.new("SpecialTile Property Dialog",
++        $gui.get_component())
++    dialog.add_string("map-message", @map_message)
++    dialog.add_bool("passive-message", @passive_message)
++    dialog.add_bool("invisible-tile", @invisible_tile)
++    dialog.add_string("apply-to-direction", @apply_to_direction)
++    dialog.add_int("teleport-to-x", @teleport_x)
++    dialog.add_int("teleport-to-y", @teleport_y)
++    
++    dialog.set_callback(proc{|map_message, passive_message, invisible_tile,
++        apply_to_direction, teleport_x, teleport_y|
++          @map_message = map_message
++          @passive_message = passive_message
++          @invisible_tile = invisible_tile
++          @apply_to_direction = apply_to_direction
++          @teleport_x = teleport_x
++          @teleport_y = teleport_y
++        })
++  end
++end
++
++$worldmap_objects = [
++  ["level", "images/tiles/worldmap/leveldot_green.png", WorldmapLevel],
++  ["special-tile", "images/tiles/worldmap/teleporterdot.png", SpecialTile]
++]
++
++def create_worldmapobject_at_pos(objmap, name, pos)
++  objectclass = $worldmap_objects.find {|x| x[0] == name}
++  if objectclass == nil 
++    print "Error: Couldn't resolve object type: " , name, "\n"  
++    return
++  end
++
++  (name, image, _class) = objectclass
++  object = _class.new()
++  object.obj.to_object.set_pos(pos)
++  cmd = ObjectAddCommand.new(objmap)
++  cmd.add_object(object.obj.to_object);
++  $gui.workspace.get_map().execute(cmd.to_command());
++  return object
++end
++
++def create_worldmapobject_from_data(objmap, name, sexpr)
++  objectclass = $worldmap_objects.find {|x| x[0] == name}
++  if objectclass == nil 
++    print "Error: Couldn't resolve object type: " , name, "\n"
++    return
++  end
++
++  (name, image, _class) = objectclass
++  object = _class.new()
++  object.parse(sexpr)
++  cmd = ObjectAddCommand.new(objmap)
++  cmd.add_object(object.obj.to_object);
++  $gui.workspace.get_map().execute(cmd.to_command());
++  return object
++end
++
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/data.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -61,7 +61,6 @@
+     proc{|data, sexpr| ParticleSystem.new("clouds", sexpr)}],
+   ["particles-rain", "images/engine/editor/rain.png", "sprite",
+     proc{|data, sexpr| ParticleSystem.new("rain", sexpr)}],
+-	
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+@@ -106,7 +105,6 @@
+ end
+ 
+ $solid_itiles = [10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 30, 31, 113, 114]
+-$air_itiles   = [7, 8, 9, 16, 17, 18, 0]
+ 
+ $itile_conditions = [
+   [0, 0, 0, 0, 0, 1, 0, 1, 1, 7],
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/gui.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -40,12 +40,12 @@
+                         selector_rect.get_height() - 3)), @selector_window)
+     @tileselector.set_tileset($tileset)
+     @tileselector.set_tiles($tileset.get_tiles())
+-    @tileselector.show(false)
+     
+-    @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, 552), 42, 42, @selector_window)
+-    @objectselector.show(true)
++    @objectselector = ObjectSelector.new(CL_Rect.new(CL_Point.new(3, 3),
++                CL_Size.new(selector_rect.get_width()-3,
++                            selector_rect.get_height() - 3)),
++                42, 42, @selector_window)
+ 
+-    # connect_v1_ObjMapObject
+     connect_v2_ObjectBrush_Point(@objectselector.sig_drop(), method(:on_object_drop))
+ 
+     $game_objects.each { |object|
+@@ -53,6 +53,18 @@
+                                                 make_metadata(object)))
+     }
+ 
++    @worldmapobjectselector = ObjectSelector.new(CL_Rect.new(CL_Point.new(3, 3),
++            CL_Size.new(selector_rect.get_width()-3,
++                        selector_rect.get_height() - 3)),
++            42, 42, @selector_window);
++    connect_v2_ObjectBrush_Point(@worldmapobjectselector.sig_drop(),
++            method(:on_worldmap_object_drop))
++    $worldmap_objects.each { |object|
++      @worldmapobjectselector.add_brush(ObjectBrush.new(
++            make_sprite($datadir + object[1]),
++            make_metadata(object[0])))
++    }
++
+     create_button_panel(buttonpanel_rect)
+ 
+     # FIXME: Having position in the Menus here is EXTREMLY ugly
+@@ -112,8 +124,7 @@
+                                  $objmap_select_tool.get_selection().each {|i|
+                                    puts i
+                                    puts i.get_data()
+-                                   # FIXME: Not sure why we need get_ruby_object() here
+-                                   get_ruby_object(i.get_data()).property_dialog()
++                                   i.get_data().property_dialog()
+                                  }
+                                })
+                  menu.run()
+@@ -125,6 +136,7 @@
+     connect_v2(@editor_map.sig_on_key("m"),  proc{ |x, y| gui_toggle_minimap()})
+     connect_v2(@editor_map.sig_on_key("g"),  proc{ |x, y| gui_toggle_grid()})
+     connect_v2(@editor_map.sig_on_key("4"),  proc{ |x, y| gui_toggle_display_props()})
++
+     connect_v2(@editor_map.sig_on_key("3"),  proc{ |x, y| gui_show_foreground()})
+     connect_v2(@editor_map.sig_on_key("2"),  proc{ |x, y| gui_show_interactive()})
+     connect_v2(@editor_map.sig_on_key("1"),  proc{ |x, y| gui_show_background()})
+@@ -217,6 +229,13 @@
+     button_panel.add_icon("../data/images/icons24/eye.png", proc{ @tilegroup_menu.run() })
+   end
+ 
++  def on_worldmap_object_drop(brush, pos)
++    pos = @editor_map.screen2world(pos)
++    object_type = get_ruby_object(brush.get_data())
++    create_worldmapobject_at_pos(
++            $gui.workspace.get_map().get_metadata().objects, object_type, pos)
++  end
++
+   def on_object_drop(brush, pos)
+     pos = @editor_map.screen2world(pos)
+     data = get_ruby_object(brush.get_data())
+@@ -230,24 +249,33 @@
+ #   def show_colorpicker()
+ #     @tileselector.show(false)        
+ #     @objectselector.show(false)
++#     @worldmapobjectselector.show(false)
+ # #    @colorpicker.show(true)
+ #   end
+ 
+   def show_objects()
+-    @tileselector.show(false)        
+-    @objectselector.show(true)
++    @tileselector.show(false)
++    if $use_worldmap
++      @worldmapobjectselector.show(true)
++      @objectselector.show(false)
++    else
++      @worldmapobjectselector.show(false)
++      @objectselector.show(true)
++    end
+ #    @colorpicker.show(false)
+   end
+ 
+   def show_tiles()
+     @tileselector.show(true)        
+     @objectselector.show(false)
++    @worldmapobjectselector.show(false)
+ #    @colorpicker.show(false)
+   end
+ 
+   def show_none()
+     @tileselector.show(false)        
+     @objectselector.show(false)
++    @worldmapobjectselector.show(false)
+ #    @colorpicker.show(false)
+   end
+ 
+@@ -380,10 +408,14 @@
+ 
+   def gui_run_level()
+     puts "Run this level..."
+-    # FIXME: use real tmpfile
+-    tmpfile = "/tmp/tmpflexlay-supertux.stl"
+-    supertux_save_level(tmpfile)
+-    # FIXME: doesn't work with latest supertux...
++    if $use_worldmap
++      tmpfile = "/tmp/tmpflexlay-worldmap.stwm"
++      supertux_save_level(tmpfile)
++    else
++      # FIXME: use real tmpfile
++      tmpfile = "/tmp/tmpflexlay-supertux.stl"
++      supertux_save_level(tmpfile)
++    end
+     fork { exec("#{$datadir}/../supertux", tmpfile) }
+   end
+ 
+@@ -573,7 +605,11 @@
+   end
+ 
+   def gui_level_save()
+-    filename = @workspace.get_map().get_metadata().parent.filename
++    if $use_worldmap
++      filename = @workspace.get_map().get_metadata().filename
++    else
++      filename = @workspace.get_map().get_metadata().parent.filename
++    end
+     print "Filename: ", filename, "\n"
+     if filename
+       @save_dialog.set_filename(filename)
+@@ -633,7 +669,10 @@
+   end
+   
+   def set(map)
+-
++    if map == nil || !map.instance_of?(Sector)
++      return
++    end
++  
+     if @current_only
+       active   = CL_Color.new(255, 255, 255)
+       deactive = CL_Color.new(0, 0, 0, 10)
+@@ -683,8 +722,27 @@
+   $gui.minimap.update_minimap()
+ end
+ 
++def supertux_load_worldmap(filename)
++  print "Loading: ", filename, "\n"
++  worldmap = WorldMap.new(filename)
++  worldmap.activate($gui.workspace)
++
++  if not($recent_files.find{|el| el == filename}) then
++    $recent_files.push(filename)
++    $gui.recent_files_menu.add_item($mysprite, filename,
++        proc { supertux_load_worldmap(filename) })
++  end
++  $gui.minimap.update_minimap()
++  $use_worldmap = true
++end
++
+ def supertux_save_level(filename)
+-  level = $gui.workspace.get_map().get_metadata().parent
++  if $use_worldmap
++    level = $gui.workspace.get_map().get_metadata()
++  else
++    level = $gui.workspace.get_map().get_metadata().parent
++  end
++  
+   # Do backup save
+   if File.exists?(filename) then
+     File.rename(filename, filename + "~")
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/sector.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -145,7 +145,7 @@
+     @name = "<No Name>"
+     @music = ""
+     @gravity = 10.0
+-	@cameramode = "normal"
++    @cameramode = "normal"
+     
+     @width  = 0
+     @height = 0
+
+Added: trunk/supertux/supertux-worldmap
+===================================================================
+--- trunk/supertux/supertux-worldmap	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/supertux-worldmap	2005-05-10 11:29:51 UTC (rev 550)
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd`/../lib:`pwd`/../ruby"
++export LD_LIBRARY_PATH
++
++RUBYLIB=$RUBYLIB:`pwd`/../ruby
++export RUBYLIB
++
++exec ruby ./supertux-worldmap.rb "$@"
++
++# EOF #
+
+
+Property changes on: trunk/supertux/supertux-worldmap
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/supertux/supertux-worldmap.rb
+===================================================================
+--- trunk/supertux/supertux-worldmap.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/supertux-worldmap.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -0,0 +1,155 @@
++#!/usr/bin/ruby
++##  $Id$
++##
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2004 Ingo Ruhnke <grumbel at gmx.de>
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++##
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++$config_file = File.expand_path("~/.flexlay/supertux-worldmap.rb")
++
++def find_supertux_datadir()
++  # try to automatically detect the supertux datadir
++  possible_locations = [
++    "~/cvs/supertux/supertux/data/",
++    "~/cvs/supertux/data/",
++    "/usr/share/games/supertux/",
++    "/usr/local/share/games/supertux/",
++    "/opt/supertux/data/",
++    "~/project/supertux/data/",
++    "~/projects/supertux/trunk/supertux/data/",
++    "~/data/projects/supertux/trunk/supertux/data",
++  ]
++  # `which supertux`
++end
++
++# Config file loading hack
++if File.exist?($config_file) then
++  require $config_file
++end
++
++BACKGROUND_LAYER  = 1
++INTERACTIVE_LAYER = 2
++FOREGROUND_LAYER  = 3
++
++require "flexlay_wrap"
++include Flexlay_wrap
++
++require "flexlay.rb"
++require "gameobj.rb"
++require "sexpr.rb"
++
++flexlay = Flexlay.new()
++width = 1024
++height = 768
++flexlay.init(width, height)
++
++# Tools
++$tilemap_paint_tool  = TileMapPaintTool.new()
++$tilemap_select_tool = TileMapSelectTool.new()
++$zoom_tool           = ZoomTool.new()
++$objmap_select_tool  = ObjMapSelectTool.new()
++# $sketch_stroke_tool  = SketchStrokeTool.new()
++
++# $console = Console.new(CL_Rect.new(CL_Point.new(50, 100), CL_Size.new(400, 200)),
++#                        $gui.get_component())
++# $console.write("Hello World\n");
++# $console.write("blabl\n");
++# $console.write("blabl\naoeuau\naeouau");
++
++require "gui.rb"
++
++class Config
++  attr_accessor :datadir, :recent_files
++
++  def initialize()
++    @recent_files = []
++  end
++
++  def save(filename)
++    dir = File.expand_path("~/.flexlay/")
++    if not File.exists?(dir) then
++      Dir.mkdir(dir)
++    end
++    f = File.new(filename, "w")
++    f.write("# Autogenerated Script, don't edit by hand!\n\n")
++    f.write("$datadir      = " + $datadir.inspect() + "\n")
++    f.write("$recent_files = " + $recent_files.inspect() + "\n")
++    f.write("\n# EOF #\n")
++  end
++end
++
++$config  = Config.new()
++if !$datadir then
++  $datadir = File.expand_path("~/projects/supertux/data/")+"/"
++end
++
++require "data.rb"
++require "WorldMap.rb"
++require "WorldMapObject.rb"
++require "TileMap.rb"
++require "LispWriter.rb"
++require "tileset.rb"
++require "level.rb"
++require "sector.rb"
++
++$tileset = Tileset.new(32)
++$tileset.load($datadir + "images/worldmap.strf")
++$tileset.create_ungrouped_tiles_group()
++
++$mysprite = make_sprite("../data/images/icons16/stock_paste-16.png")
++$gui = SuperTuxGUI.new(width, height)
++
++if !$recent_files then
++  $recent_files = []
++end
++
++$recent_files.each do |filename|
++  $gui.recent_files_menu.add_item($mysprite, filename, proc{ supertux_load_level(filename) })
++end
++
++if ARGV == []
++  WorldMap.new(70, 50).activate($gui.workspace)
++  $use_worldmap = true
++else
++  supertux_load_worldmap(ARGV[0])
++end
++
++# Init the GUI, so that button state is in sync with internal state
++$gui.gui_toggle_minimap()
++$gui.gui_toggle_minimap()
++#$gui.gui_show_interactive()
++$gui.gui_show_current()
++$gui.set_tilemap_paint_tool()
++
++if not File.exist?($datadir) then
++  dialog = GenericDialog.new("Specify the SuperTux data directory and restart", $gui.gui.get_component())
++  dialog.add_label("You need to specify the datadir where SuperTux is located")
++  dialog.add_string("Datadir:", $datadir)
++  
++  dialog.set_block { |datadir|
++    $datadir = datadir 
++  }
++end
++
++$gui.run()
++
++$config.save($config_file)
++
++# FIXME: Can't deinit flexlay, since we would crash then
++# flexlay.deinit()
++# puts "And now we crash"
++
++# EOF #
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-05-08 21:52:53 UTC (rev 549)
++++ trunk/supertux/supertux.rb	2005-05-10 11:29:51 UTC (rev 550)
+@@ -28,7 +28,8 @@
+     "/usr/share/games/supertux/",
+     "/usr/local/share/games/supertux/",
+     "/opt/supertux/data/",
+-    "~projects/supertux/trunk/supertux/data/",
++    "~/projects/supertux/data/",
++    "~/projects/supertux/trunk/supertux/data/",
+     "~/data/projects/supertux/trunk/supertux/data",
+   ]
+   # `which supertux`
+@@ -94,7 +95,7 @@
+ 
+ $config  = Config.new()
+ if !$datadir then
+-  $datadir = File.expand_path("~/projects/supertux/trunk/supertux/data/")+"/"
++  $datadir = File.expand_path("~/projects/supertux/data/")+"/"
+ end
+ 
+ require "data.rb"
+
+
+
+From matzebraun at sheep.berlios.de  Tue May 10 18:35:16 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Tue, 10 May 2005 18:35:16 +0200
+Subject: [Flexlay-commit] r551 - trunk/supertux
+Message-ID: <200505101635.j4AGZGhA025223@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-05-10 18:35:06 +0200 (Tue, 10 May 2005)
+New Revision: 551
+
+Modified:
+   trunk/supertux/supertux.rb
+Log:
+fix normal level editor after creating the worldmap mode
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-05-10 11:29:51 UTC (rev 550)
++++ trunk/supertux/supertux.rb	2005-05-10 16:35:06 UTC (rev 551)
+@@ -99,9 +99,13 @@
+ end
+ 
+ require "data.rb"
++require "WorldMap.rb"
++require "WorldMapObject.rb"
++require "TileMap.rb"
++require "LispWriter.rb"
++require "tileset.rb"
+ require "level.rb"
+ require "sector.rb"
+-require "tileset.rb"
+ 
+ $tileset = Tileset.new(32)
+ $tileset.load($datadir + "images/tiles.strf")
+
+
+
+From grumbel at sheep.berlios.de  Tue May 10 22:07:51 2005
+From: grumbel at sheep.berlios.de (Ingo Ruhnke at BerliOS)
+Date: Tue, 10 May 2005 22:07:51 +0200
+Subject: [Flexlay-commit] r552 - in trunk: ruby supertux
+Message-ID: <200505102007.j4AK7pTa008316@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-05-10 22:07:49 +0200 (Tue, 10 May 2005)
+New Revision: 552
+
+Modified:
+   trunk/ruby/flexlay.rb
+   trunk/supertux/WorldMap.rb
+   trunk/supertux/gui.rb
+   trunk/supertux/level.rb
+   trunk/supertux/sector.rb
+Log:
+- cleaned up some metadata vs data mess
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/ruby/flexlay.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -31,24 +31,13 @@
+ end
+ 
+ class ObjMapObject
+-  alias orig_get_metadata get_metadata
+-  alias orig_set_metadata set_metadata
+-
+   def get_data()
+-    return get_ruby_object(orig_get_metadata())
++    return get_ruby_object(get_metadata())
+   end
+ 
+   def set_data(data)
+-    orig_set_metadata(make_metadata(data))
++    set_metadata(make_metadata(data))
+   end
+-
+-  def get_metadata()
+-    return get_ruby_object(orig_get_metadata())
+-  end
+-
+-  def set_metadata(data)
+-    orig_set_metadata(make_metadata(data))
+-  end
+ end
+ 
+ 
+
+Modified: trunk/supertux/WorldMap.rb
+===================================================================
+--- trunk/supertux/WorldMap.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/supertux/WorldMap.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -77,7 +77,7 @@
+     @tilemap.save(writer)
+ 
+     for o in @objects.get_objects()
+-      object = o.get_metadata()
++      object = o.get_data()
+       object.save(writer)
+     end
+     writer.end_list("supertux-worldmap")
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/supertux/gui.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -1,3 +1,5 @@
++require "flexlay.rb"
++
+ class SuperTuxGUI
+   quit_button = nil
+   menu        = nil
+@@ -166,12 +168,12 @@
+ 
+   def create_menu()
+     @menu = CL_Menu.new(@gui.get_component())
+-    @menu.add_item("Level/Open...", method(:gui_level_load))
+-    @menu.add_item("Level/Save...", method(:gui_level_save))
++    @menu.add_item("File/Open...", method(:gui_level_load))
++    @menu.add_item("File/Save...", method(:gui_level_save))
+     # @menu.add_item("File/Save Commands...", menu_file_save_commands)
+     # @menu.add_item("File/Save As...", method(:gui_level_save_as))
+-    @menu.add_item("Level/Properties...", method(:gui_edit_level))
+-    @menu.add_item("Level/Quit",  proc{ @gui.quit })
++    @menu.add_item("File/Properties...", method(:gui_edit_level))
++    @menu.add_item("File/Quit",  proc{ @gui.quit })
+     
+     @menu.add_item("Edit/Smooth Selection", method(:gui_smooth_level_struct))
+     @menu.add_item("Edit/Resize", method(:gui_resize_level))
+@@ -573,7 +575,7 @@
+     if selection.length() > 1 then
+       print "Warning: Selection to large"
+     elsif selection.length() == 1 then
+-      obj = get_ruby_object(selection[0].get_metadata())
++      obj = get_ruby_object(selection[0].get_data())
+       obj.property_dialog()
+     else
+       print "Warning: Selection is empty\n"
+@@ -642,7 +644,7 @@
+     print "Connecting path nodes"
+     pathnodes = []
+     for i in $objmap_select_tool.get_selection()
+-      obj = i.get_metadata()
++      obj = i.get_data()
+       if obj.is_a?(PathNode)
+         pathnodes.push(obj.node)
+       end
+
+Modified: trunk/supertux/level.rb
+===================================================================
+--- trunk/supertux/level.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/supertux/level.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -147,7 +147,7 @@
+     f.write("    (mode \"autoscroll\")\n")
+     f.write("    (path\n")
+     for obj in @objects.get_objects()
+-      pathnode = obj.get_metadata()
++      pathnode = obj.get_data()
+       if (pathnode.class() == PathNode)
+         f.write("     (point (x %d) (y %d) (speed 1))\n" % obj.get_pos().x, obj.get_pos().y)
+       end
+@@ -156,7 +156,7 @@
+     
+     f.write("  (objects\n")
+     for obj in @objects.get_objects()
+-      badguy = obj.get_metadata()
++      badguy = obj.get_data()
+       if (badguy.class == BadGuy)
+         pos    = obj.get_pos()
+         if (badguy.type != "resetpoint")
+@@ -168,7 +168,7 @@
+     
+     f.write("  (reset-points\n")
+     for obj in @objects.get_objects()
+-      badguy = obj.get_metadata()
++      badguy = obj.get_data()
+       if (badguy.class == BadGuy)
+         pos    = obj.get_pos()
+         if (badguy.type == "resetpoint")
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2005-05-10 16:35:06 UTC (rev 551)
++++ trunk/supertux/sector.rb	2005-05-10 20:07:49 UTC (rev 552)
+@@ -261,7 +261,7 @@
+     f.write("      (mode \"%s\")\n" % [@cameramode])
+ #    f.write("      (path\n")
+ #    @objects.get_objects().each {|obj|
+-#      pathnode = obj.get_metadata()
++#      pathnode = obj.get_data()
+ #      if (pathnode.is_a?(PathNode))
+ #        f.write("       (point (x %d) (y %d) (speed 1))\n" % obj.get_pos().x, obj.get_pos().y)
+ #      end
+@@ -270,8 +270,7 @@
+ 	f.write("    )\n\n")
+ 
+     for obj in @objects.get_objects()
+-      # FIXME: not sure why I need get_ruby_object() here
+-      object = get_ruby_object(obj.get_metadata())
++      object = obj.get_data()
+       object.save(f, obj)
+     end
+   end
+
+
+
+From wansti at sheep.berlios.de  Wed May 11 15:41:13 2005
+From: wansti at sheep.berlios.de (Marek Moeckel at BerliOS)
+Date: Wed, 11 May 2005 15:41:13 +0200
+Subject: [Flexlay-commit] r553 - trunk/supertux
+Message-ID: <200505111341.j4BDfD36008971@sheep.berlios.de>
+
+Author: wansti
+Date: 2005-05-11 15:41:12 +0200 (Wed, 11 May 2005)
+New Revision: 553
+
+Modified:
+   trunk/supertux/gameobj.rb
+Log:
+fixed saving ambient sound object
+
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-05-10 20:07:49 UTC (rev 552)
++++ trunk/supertux/gameobj.rb	2005-05-11 13:41:12 UTC (rev 553)
+@@ -147,7 +147,7 @@
+     @data = data
+     @factor = get_value_from_tree(["distance_factor", "_"],  sexpr, 0.1)
+     @bias = get_value_from_tree(["distance_bias", "_"],  sexpr, 200)
+-    @sample = get_value_from_tree(["sample", "_"],  sexpr, "waterfall")
++    @sample = get_value_from_tree(["sample", "_"],  sexpr, "")
+     connect_v1_ObjMapObject(data.to_object.sig_move(), method(:on_move))
+     on_move(data)
+   end
+@@ -161,7 +161,7 @@
+ 
+   def save(f, obj)
+     pos = obj.get_pos()
+-    f.write("       (ambient_sound (x %d) (y %d) (distance_factor \"%s\") (distance_bias \"%s\") (sample \"%s\"))\n" % [pos.x, pos.y, @factor, @bias, @sample])
++    f.write("       (ambient_sound (x %d) (y %d) (distance_factor %f) (distance_bias %f) (sample \"%s\"))\n" % [pos.x, pos.y, @factor, @bias, @sample])
+   end
+ 
+   def property_dialog()
+
+
+
+From matzebraun at sheep.berlios.de  Thu May 12 16:01:20 2005
+From: matzebraun at sheep.berlios.de (Matthias Braun at BerliOS)
+Date: Thu, 12 May 2005 16:01:20 +0200
+Subject: [Flexlay-commit] r554 - in trunk: lib supertux
+Message-ID: <200505121401.j4CE1KAM012786@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2005-05-12 16:01:19 +0200 (Thu, 12 May 2005)
+New Revision: 554
+
+Modified:
+   trunk/lib/brush_impl.hxx
+   trunk/lib/command_impl.hxx
+   trunk/lib/objmap_object.cxx
+   trunk/lib/objmap_object.hxx
+   trunk/lib/tile_provider_impl.hxx
+   trunk/supertux/WorldMapObject.rb
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/gui.rb
+   trunk/supertux/level.rb
+Log:
+- Updated for latest supertux
+- Some gcc4 warning fixes
+- Fixed some more bugs I introduced when working on the worldmap code
+
+
+
+Modified: trunk/lib/brush_impl.hxx
+===================================================================
+--- trunk/lib/brush_impl.hxx	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/lib/brush_impl.hxx	2005-05-12 14:01:19 UTC (rev 554)
+@@ -26,6 +26,9 @@
+ class BrushImpl
+ {
+ public:
++  virtual ~BrushImpl()
++  { }
++
+   virtual CL_Sprite get_sprite() =0;
+   virtual BrushImpl* clone() const =0;
+ };
+
+Modified: trunk/lib/command_impl.hxx
+===================================================================
+--- trunk/lib/command_impl.hxx	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/lib/command_impl.hxx	2005-05-12 14:01:19 UTC (rev 554)
+@@ -16,7 +16,6 @@
+ //  You should have received a copy of the GNU General Public License
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+ #ifndef HEADER_COMMAND_IMPL_HXX
+ #define HEADER_COMMAND_IMPL_HXX
+ 
+@@ -25,6 +24,9 @@
+ {
+ private:
+ public:
++  virtual ~CommandImpl()
++  {}
++  
+   /** Execute the command */
+   virtual void execute() =0;
+ 
+
+Modified: trunk/lib/objmap_object.cxx
+===================================================================
+--- trunk/lib/objmap_object.cxx	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/lib/objmap_object.cxx	2005-05-12 14:01:19 UTC (rev 554)
+@@ -29,13 +29,6 @@
+ {
+ }
+ 
+-ObjMapObject::ObjMapObject(const CL_Pointf& pos_,
+-                           const MetaData& data_)
+-{  
+-  impl->pos  = pos_;
+-  impl->data = data_;
+-}
+-
+ CL_Pointf
+ ObjMapObject::get_pos() const 
+ {
+@@ -64,7 +57,7 @@
+ }
+ 
+ void
+-ObjMapObject::set_metadata(MetaData data_)
++ObjMapObject::set_metadata(const MetaData& data_)
+ {
+   if (impl.get())
+     impl->data = data_;
+
+Modified: trunk/lib/objmap_object.hxx
+===================================================================
+--- trunk/lib/objmap_object.hxx	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/lib/objmap_object.hxx	2005-05-12 14:01:19 UTC (rev 554)
+@@ -34,14 +34,13 @@
+ public:
+   ObjMapObject();
+   ObjMapObject(const SharedPtr<ObjMapObjectImpl>& impl_);
+-  ObjMapObject(const CL_Pointf& pos, const MetaData& data);
+   virtual ~ObjMapObject() {}
+ 
+   CL_Pointf get_pos() const;
+   void     set_pos(const CL_Pointf& p);
+ 
+   MetaData get_metadata() const;
+-  void     set_metadata(MetaData data_);
++  void     set_metadata(const MetaData& data_);
+ 
+   CL_Signal_v1<ObjMapObject>& sig_move();
+   CL_Signal_v1<ObjMapObject>& sig_select();
+
+Modified: trunk/lib/tile_provider_impl.hxx
+===================================================================
+--- trunk/lib/tile_provider_impl.hxx	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/lib/tile_provider_impl.hxx	2005-05-12 14:01:19 UTC (rev 554)
+@@ -27,6 +27,8 @@
+ {
+ public:
+   TileProviderImpl() {}
++  virtual ~TileProviderImpl()
++  { }
+ 
+   virtual CL_Sprite      get_sprite()      const =0;
+   virtual CL_PixelBuffer get_pixelbuffer() const =0;
+
+Modified: trunk/supertux/WorldMapObject.rb
+===================================================================
+--- trunk/supertux/WorldMapObject.rb	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/supertux/WorldMapObject.rb	2005-05-12 14:01:19 UTC (rev 554)
+@@ -7,6 +7,48 @@
+   end
+ end
+ 
++class WMSpawnPoint<WorldmapObject
++  def initialize()
++    @name = ""
++    @obj = ObjMapSpriteObject.new(
++        make_sprite($datadir + "images/tiles/worldmap/tux.png"),
++        CL_Pointf.new(0, 0), make_metadata(self))
++     connect_v1_ObjMapObject(@obj.to_object.sig_move(), method(:on_move))
++  end
++
++  def on_move(data)
++    pos = @obj.to_object.get_pos()
++    pos.x = (((pos.x+16)/32).to_i)*32                               
++    pos.y = (((pos.y+16)/32).to_i)*32
++    @obj.to_object.set_pos(pos)
++  end
++
++  def parse(data)
++    x = get_value_from_tree(["x", "_"], data, 0)
++    y = get_value_from_tree(["y", "_"], data, 0)
++    @obj.to_object.set_pos(CL_Pointf.new(x * 32, y * 32))
++    @name = get_value_from_tree(["name", "_"], data, "")
++  end
++                                                                               
++  def save(writer)
++    writer.start_list("spawnpoint")
++    pos = @obj.to_object.get_pos()
++    writer.write_int("x", pos.x / 32)
++    writer.write_int("y", pos.y / 32)
++    writer.write_string("name", @name)
++    writer.end_list("level")
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new("SpawnPoint Property Dialog",
++        $gui.get_component())
++    dialog.add_string("Name", @name)
++    dialog.set_callback(proc{|name|
++          @name = name
++      })                                                          
++  end
++end
++
+ class WorldmapLevel<WorldmapObject
+   def initialize()
+     @name = ""
+@@ -145,7 +187,8 @@
+ 
+ $worldmap_objects = [
+   ["level", "images/tiles/worldmap/leveldot_green.png", WorldmapLevel],
+-  ["special-tile", "images/tiles/worldmap/teleporterdot.png", SpecialTile]
++  ["special-tile", "images/tiles/worldmap/teleporterdot.png", SpecialTile],
++  ["spawnpoint", "images/tiles/worldmap/tux.png", WMSpawnPoint],
+ ]
+ 
+ def create_worldmapobject_at_pos(objmap, name, pos)
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/supertux/data.rb	2005-05-12 14:01:19 UTC (rev 554)
+@@ -61,6 +61,8 @@
+     proc{|data, sexpr| ParticleSystem.new("clouds", sexpr)}],
+   ["particles-rain", "images/engine/editor/rain.png", "sprite",
+     proc{|data, sexpr| ParticleSystem.new("rain", sexpr)}],
++  ["leveltime", "images/engine/editor/clock.png", "sprite",
++    proc{|data, sexpr| LevelTime.new(sexpr)}],
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+@@ -86,13 +88,15 @@
+     
+   when "sprite" 
+     obj = ObjMapSpriteObject.new(make_sprite($datadir + data[1]), pos, make_metadata(nil))
+-    obj.to_object.set_metadata(make_metadata(data[3].call(obj, sexpr)))
++    gobj = data[3].call(obj, sexpr)
++    obj.to_object.set_metadata(make_metadata(gobj))
+     
+   when "rect"
+ 	print "NewRect", pos.x, " -", pos.y, "\n"
+     obj = ObjMapRectObject.new(CL_Rect.new(CL_Point.new(pos.x.to_i, pos.y.to_i), CL_Size.new(64, 64)),
+                                CL_Color.new(0, 0, 255, 128), make_metadata(nil))
+-    obj.to_object.set_metadata(make_metadata(data[3].call(obj, sexpr)))
++    gobj = data[3].call(obj, sexpr)
++    obj.to_object.set_metadata(make_metadata(gobj))
+ 
+   else
+     raise "Error: Unknown object type droped: '#{data}'"
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/supertux/gameobj.rb	2005-05-12 14:01:19 UTC (rev 554)
+@@ -358,6 +358,27 @@
+   end
+ end
+ 
++class LevelTime<GameObj
++  def initialize(sexpr = [])
++    @time = get_value_from_tree(["time", "_"], sexpr, 999)
++  end
++
++  def save(f, obj)
++    f.write("       (leveltime\n");
++    f.write("         (time %f)\n" % [@time]);
++    f.write("       )\n");
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new("LevelTime Property Dialog",
++        $gui.get_component())
++    dialog.add_float("Time: ", @time)
++    dialog.set_callback(proc{|time| 
++                          @time = time
++                        })
++  end
++end
++
+ class Door<GameObj
+   attr_accessor :sector, :spawnpoint
+   attr_reader   :data
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/supertux/gui.rb	2005-05-12 14:01:19 UTC (rev 554)
+@@ -711,6 +711,10 @@
+ 
+ 
+ def supertux_load_level(filename)
++  if filename.scan(/.stwm$/) != []
++    supertux_load_worldmap(filename)
++    return
++  end
+   print "Loading: ", filename, "\n"
+   level = Level.new(filename)
+   level.activate($gui.workspace)
+
+Modified: trunk/supertux/level.rb
+===================================================================
+--- trunk/supertux/level.rb	2005-05-11 13:41:12 UTC (rev 553)
++++ trunk/supertux/level.rb	2005-05-12 14:01:19 UTC (rev 554)
+@@ -1,12 +1,11 @@
+ class Level
+-  attr_reader :version, :filename, :name, :author, :theme, :time, :objects, :sectors, :current_sector
+-  attr_writer :version, :filename, :name, :author, :theme, :time, :objects, :sectors, :current_sector
++  attr_reader :version, :filename, :name, :author, :theme, :objects, :sectors, :current_sector
++  attr_writer :version, :filename, :name, :author, :theme, :objects, :sectors, :current_sector
+   
+   def initialize(*params)
+     @name     = "No Name"
+     @author   = "No Author"
+     @theme    = "antarctica"
+-    @time     = 999 
+     @filename = nil
+     @music    = ""
+     @version  = 2
+@@ -51,7 +50,6 @@
+   def parse_v2(data)
+     @name    = get_value_from_tree(["name", "_"], data, "no name")
+     @author  = get_value_from_tree(["author", "_"], data, "no author")
+-    @time    = get_value_from_tree(["time", "_"], data, 999)
+     
+     @current_sector = nil
+     @sectors = []
+@@ -80,7 +78,6 @@
+     
+     @name    = get_value_from_tree(["name", "_"], data, "no name")
+     @author  = get_value_from_tree(["author", "_"], data, "no author")
+-    @time    = get_value_from_tree(["time", "_"], data, 999)
+   end
+   
+   def save(filename)
+@@ -94,9 +91,6 @@
+     f.write("  (version 2)\n")
+     f.write("  (name   (_ \"%s\"))\n" % @name)
+     f.write("  (author \"%s\")\n" % @author)
+-	if(@time != 999)
+-      f.write("  (time   %d)\n" % @time)
+-	end
+     
+     for sector in @sectors
+       f.write("  (sector\n")
+@@ -119,7 +113,6 @@
+     f.write("  (height  %d)\n" % @height)
+     
+     f.write("  (music  \"%s\")\n" % @music)
+-    f.write("  (time   %d)\n" % @time)
+     
+     f.write("  (gravity %f)\n" % @gravity)
+     
+
+
+
+From wansti at sheep.berlios.de  Tue May 17 23:41:09 2005
+From: wansti at sheep.berlios.de (Marek Moeckel at BerliOS)
+Date: Tue, 17 May 2005 23:41:09 +0200
+Subject: [Flexlay-commit] r555 - trunk/supertux
+Message-ID: <200505172141.j4HLf9aM022086@sheep.berlios.de>
+
+Author: wansti
+Date: 2005-05-17 23:41:08 +0200 (Tue, 17 May 2005)
+New Revision: 555
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+added powerup object
+
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-05-12 14:01:19 UTC (rev 554)
++++ trunk/supertux/data.rb	2005-05-17 21:41:08 UTC (rev 555)
+@@ -49,6 +49,8 @@
+     proc{|data, sexpr| SimpleTileObject.new(data, "unstable_tile")}],
+   ["infoblock", "images/engine/editor/infoblock.png", "sprite",
+     proc{|data, sexpr| InfoBlock.new(data, sexpr)}],
++  ["powerup", "images/engine/editor/powerup.png", "sprite",
++    proc{|data, sexpr| Powerup.new(data, sexpr)}],
+   ["secretarea", "images/engine/editor/secretarea.png", "rect",
+     proc{|data, sexpr| SecretArea.new(data, sexpr)}],
+   ["sequencetrigger", "images/engine/editor/sequencetrigger.png", "rect",
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-05-12 14:01:19 UTC (rev 554)
++++ trunk/supertux/gameobj.rb	2005-05-17 21:41:08 UTC (rev 555)
+@@ -243,6 +243,40 @@
+   end
+ end 
+ 
++class Powerup<GameObj
++  attr_accessor :type
++
++  def initialize(data, sexpr = [])
++   @data = data
++   @type = get_value_from_tree(["type", "_"], sexpr, "egg")
++   connect_v1_ObjMapObject(@data.to_object.sig_move(), method(:on_move))
++   on_move(data)
++  end
++
++  def on_move(data)
++    pos = @data.to_object.get_pos()    
++    pos.x = (((pos.x+16)/32).to_i)*32
++    pos.y = (((pos.y+16)/32).to_i)*32
++    @data.to_object.set_pos(pos)       
++  end
++
++  def save(f, obj)
++   pos = obj.get_pos()
++   f.write("      (powerup (x %d) (y %d)\n" % [pos.x, pos.y]);
++   f.write("        (type (_ \"%s\"))\n" % [@type]);
++   f.write("      )\n");
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new("Powerup Property Dialog" % [@type],
++         $gui.get_component())
++    dialog.add_string("Type: ", @type)
++    dialog.set_callback(proc{|type| 
++                          @type = type
++                        })
++  end
++end 
++
+ class ParticleSystem<GameObj
+   def initialize(type, sexpr = [])
+     @type = type
+
+
+
+From wansti at sheep.berlios.de  Wed May 18 12:14:02 2005
+From: wansti at sheep.berlios.de (Marek Moeckel at BerliOS)
+Date: Wed, 18 May 2005 12:14:02 +0200
+Subject: [Flexlay-commit] r556 - trunk/supertux
+Message-ID: <200505181014.j4IAE2G9015653@sheep.berlios.de>
+
+Author: wansti
+Date: 2005-05-18 12:14:00 +0200 (Wed, 18 May 2005)
+New Revision: 556
+
+Modified:
+   trunk/supertux/gameobj.rb
+Log:
+renamed "type" to "sprite" in poweup object
+
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-05-17 21:41:08 UTC (rev 555)
++++ trunk/supertux/gameobj.rb	2005-05-18 10:14:00 UTC (rev 556)
+@@ -244,11 +244,11 @@
+ end 
+ 
+ class Powerup<GameObj
+-  attr_accessor :type
++  attr_accessor :sprite
+ 
+   def initialize(data, sexpr = [])
+    @data = data
+-   @type = get_value_from_tree(["type", "_"], sexpr, "egg")
++   @sprite = get_value_from_tree(["sprite", "_"], sexpr, "egg")
+    connect_v1_ObjMapObject(@data.to_object.sig_move(), method(:on_move))
+    on_move(data)
+   end
+@@ -263,16 +263,16 @@
+   def save(f, obj)
+    pos = obj.get_pos()
+    f.write("      (powerup (x %d) (y %d)\n" % [pos.x, pos.y]);
+-   f.write("        (type (_ \"%s\"))\n" % [@type]);
++   f.write("        (sprite (_ \"%s\"))\n" % [@sprite]);
+    f.write("      )\n");
+   end
+ 
+   def property_dialog()
+-    dialog = GenericDialog.new("Powerup Property Dialog" % [@type],
++    dialog = GenericDialog.new("Powerup Property Dialog" % [@sprite],
+          $gui.get_component())
+-    dialog.add_string("Type: ", @type)
+-    dialog.set_callback(proc{|type| 
+-                          @type = type
++    dialog.add_string("Sprite: ", @sprite)
++    dialog.set_callback(proc{|sprite| 
++                          @sprite = sprite
+                         })
+   end
+ end 
+
+
+
+From wansti at sheep.berlios.de  Wed May 18 14:27:11 2005
+From: wansti at sheep.berlios.de (Marek Moeckel at BerliOS)
+Date: Wed, 18 May 2005 14:27:11 +0200
+Subject: [Flexlay-commit] r557 - trunk/supertux
+Message-ID: <200505181227.j4ICRBnd006959@sheep.berlios.de>
+
+Author: wansti
+Date: 2005-05-18 14:27:10 +0200 (Wed, 18 May 2005)
+New Revision: 557
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+updated ambient_sound
+
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-05-18 10:14:00 UTC (rev 556)
++++ trunk/supertux/data.rb	2005-05-18 12:27:10 UTC (rev 557)
+@@ -33,7 +33,7 @@
+     proc{|data, sexpr| BadGuy.new("yeti_stalactite")}],
+   ["spawnpoint", "images/engine/editor/spawnpoint.png", "sprite",
+     proc{|data, sexpr| SpawnPoint.new(data, sexpr)}],
+-  ["ambient_sound", "images/engine/editor/ambientsound.png", "sprite",
++  ["ambient_sound", "images/engine/editor/ambientsound.png", "rect",
+     proc{|data, sexpr| AmbientSound.new(data, sexpr)}],
+   ["door", "images/objects/door/door-0.png", "sprite",
+     proc{|data, sexpr| Door.new("door", data, sexpr)}],
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-05-18 10:14:00 UTC (rev 556)
++++ trunk/supertux/gameobj.rb	2005-05-18 12:27:10 UTC (rev 557)
+@@ -40,6 +40,57 @@
+   end
+ end
+ 
++class AmbientSound<GameObj
++  attr_accessor :factor, :bias, :sample, :volume
++  
++  def initialize(data, sexpr = [])
++    @data = data
++    @data.set_color(CL_Color.new(200, 200, 200, 128))
++    @factor = get_value_from_tree(["distance_factor", "_"],  sexpr, 0.1)
++    @bias = get_value_from_tree(["distance_bias", "_"],  sexpr, 200)
++    @sample = get_value_from_tree(["sample", "_"],  sexpr, "waterfall")
++    @volume = get_value_from_tree(["volume", "_"],  sexpr, 1)
++
++    x  = get_value_from_tree(["x", "_"],  sexpr, nil)
++    y  = get_value_from_tree(["y", "_"],  sexpr, nil)
++    width  = get_value_from_tree(["width", "_"],  sexpr, 64)
++    height = get_value_from_tree(["height", "_"], sexpr, 64)
++    if x != nil and y != nil then
++      @data.set_rect(CL_Rect.new(CL_Point.new(x, y), CL_Size.new(width, height)))
++    end
++  end
++
++  def save(f, obj)
++    rect = @data.get_rect()
++    f.write("        (ambient_sound (x #{rect.left})\n" \
++            "                       (y #{rect.top})\n"  \
++            "                       (width #{rect.get_width()})\n" \
++            "                       (height #{rect.get_height()})\n" \
++            "                       (sample #{@sample.inspect})\n" \
++	    "                       (distance_factor #{@factor.inspect})\n" \
++	    "                       (distance_bias #{@bias.inspect})\n" \
++	    "                       (volume #{@volume.inspect}))\n")
++  end
++
++  def property_dialog()
++    puts @factor.inspect
++    puts @bias.inspect
++    puts @sample.inspect
++    puts @volume.inspect
++    dialog = GenericDialog.new("AmbientSound Property Dialog", $gui.get_component())
++    dialog.add_float("Distance Factor: ", @factor)
++    dialog.add_float("Distance Bias: ", @bias)
++    dialog.add_string("Sample: ", @sample)
++    dialog.add_int("Max Volume: ", at volume)
++    dialog.set_callback(proc{|factor, bias, sample, volume| 
++                          @factor = factor
++			  @bias = bias
++			  @sample = sample
++			  @volume = volume
++                        })
++  end
++end
++
+ class SequenceTrigger<GameObj
+   attr_accessor :sequence, :data
+   
+@@ -68,7 +119,7 @@
+ 
+   def property_dialog()
+     puts @sequence.inspect
+-    dialog = GenericDialog.new("SecretArea Property Dialog", $gui.get_component())
++    dialog = GenericDialog.new("SequenceTrigger Property Dialog", $gui.get_component())
+     dialog.add_string("Sequence: ", @sequence)
+     dialog.set_callback(proc{|sequence| 
+                           @sequence = sequence
+@@ -142,41 +193,6 @@
+   end
+ end
+ 
+-class AmbientSound<GameObj
+-  def initialize(data, sexpr = [])
+-    @data = data
+-    @factor = get_value_from_tree(["distance_factor", "_"],  sexpr, 0.1)
+-    @bias = get_value_from_tree(["distance_bias", "_"],  sexpr, 200)
+-    @sample = get_value_from_tree(["sample", "_"],  sexpr, "")
+-    connect_v1_ObjMapObject(data.to_object.sig_move(), method(:on_move))
+-    on_move(data)
+-  end
+-
+-  def on_move(data)
+-    pos = @data.to_object.get_pos()
+-    pos.x = (((pos.x+16)/32).to_i)*32
+-    pos.y = (((pos.y+16)/32).to_i)*32
+-    @data.to_object.set_pos(pos)
+-  end
+-
+-  def save(f, obj)
+-    pos = obj.get_pos()
+-    f.write("       (ambient_sound (x %d) (y %d) (distance_factor %f) (distance_bias %f) (sample \"%s\"))\n" % [pos.x, pos.y, @factor, @bias, @sample])
+-  end
+-
+-  def property_dialog()
+-    dialog = GenericDialog.new("AmbientSound Property Dialog", $gui.get_component())
+-    dialog.add_float("Distance Factor: ", @factor)
+-    dialog.add_float("Distance Bias: ", @bias)
+-    dialog.add_string("Sample: ", @sample)
+-    dialog.set_callback(proc{|factor, bias, sample| 
+-                          @factor = factor
+-			  @bias = bias
+-			  @sample = sample
+-                        })
+-  end
+-end
+-
+ class SimpleObject<GameObj
+   def initialize(type)
+     @type = type
+
+
+

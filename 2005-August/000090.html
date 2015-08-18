@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r595 - in trunk: lib windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r595%20-%20in%20trunk%3A%20lib%20windstille&In-Reply-To=%3C200508142230.j7EMUWXn024602%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000089.html">
+   <LINK REL="Next"  HREF="000091.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r595 - in trunk: lib windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r595%20-%20in%20trunk%3A%20lib%20windstille&In-Reply-To=%3C200508142230.j7EMUWXn024602%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r595 - in trunk: lib windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Mon Aug 15 00:30:32 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000089.html">[Flexlay-commit] r594 - trunk/windstille
+</A></li>
+        <LI>Next message: <A HREF="000091.html">[Flexlay-commit] r596 - in trunk: lib ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#90">[ date ]</a>
+              <a href="thread.html#90">[ thread ]</a>
+              <a href="subject.html#90">[ subject ]</a>
+              <a href="author.html#90">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-15 00:30:18 +0200 (Mon, 15 Aug 2005)
+New Revision: 595
+
+Modified:
+   trunk/lib/editor_map_component.cxx
+   trunk/lib/flexlay.cxx
+   trunk/lib/flexlay.hxx
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/scrollbar.cxx
+   trunk/windstille/gui.rb
+   trunk/windstille/layout_manager.rb
+   trunk/windstille/windstille.rb
+Log:
+- fixed editormap scrollbars
+- added resize handling (doesn't work yet due to clanlib bug)
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2005-08-14 21:59:51 UTC (rev 594)
++++ trunk/lib/editor_map_component.cxx	2005-08-14 22:30:18 UTC (rev 595)
+@@ -49,6 +49,7 @@
+   void mouse_down(const CL_InputEvent&amp; event);
+   void mouse_move(const CL_InputEvent&amp; event);
+   void on_key_down(const CL_InputEvent&amp; event);
++  void on_resize(int old_w, int old_h);
+ };
+ 
+ EditorMapComponent::EditorMapComponent(const CL_Rect&amp; rect, CL_Component* parent)
+@@ -79,6 +80,7 @@
+   impl-&gt;slots.connect(sig_mouse_down(), impl.get(), &amp;EditorMapComponentImpl::mouse_down);
+   impl-&gt;slots.connect(sig_mouse_move(), impl.get(), &amp;EditorMapComponentImpl::mouse_move);
+   impl-&gt;slots.connect(sig_key_down(),   impl.get(), &amp;EditorMapComponentImpl::on_key_down);
++  impl-&gt;slots.connect(sig_resize(),     impl.get(), &amp;EditorMapComponentImpl::on_resize);
+ }
+ 
+ EditorMapComponent::~EditorMapComponent()
+@@ -207,6 +209,18 @@
+   impl-&gt;gc_state.set_pos(CL_Pointf(impl-&gt;gc_state.get_pos().x, y));
+ }
+ 
++void
++EditorMapComponentImpl::on_resize(int old_w, int old_h)
++{
++  CL_Rect rect = parent-&gt;get_screen_rect();
++
++  scrollbar_v-&gt;set_position(rect.get_width() - 14 + rect.left,  2 + rect.top);
++  scrollbar_v-&gt;set_size(12, rect.get_height() - 4 - 14);
++  
++  scrollbar_h-&gt;set_position(2 + rect.left, rect.get_height() - 14 + rect.top);
++  scrollbar_h-&gt;set_size(rect.get_width() - 4 - 14, 12);
++}
++
+ CL_Signal_v2&lt;int, int&gt;&amp;
+ EditorMapComponent::sig_on_key(const std::string&amp; str)
+ {
+
+Modified: trunk/lib/flexlay.cxx
+===================================================================
+--- trunk/lib/flexlay.cxx	2005-08-14 21:59:51 UTC (rev 594)
++++ trunk/lib/flexlay.cxx	2005-08-14 22:30:18 UTC (rev 595)
+@@ -40,6 +40,12 @@
+   current_ = this;
+ }
+ 
++CL_Signal_v2&lt;int, int&gt;&amp;
++Flexlay::sig_resize()
++{
++  return window-&gt;sig_resize();
++}
++
+ void
+ Flexlay::init(int width, int height, bool fullscreen_, bool allow_resize_)
+ {
+
+Modified: trunk/lib/flexlay.hxx
+===================================================================
+--- trunk/lib/flexlay.hxx	2005-08-14 21:59:51 UTC (rev 594)
++++ trunk/lib/flexlay.hxx	2005-08-14 22:30:18 UTC (rev 595)
+@@ -95,6 +95,8 @@
+ 
+   Flexlay();
+ 
++  CL_Signal_v2&lt;int, int&gt;&amp; sig_resize();
++
+   void init(int width = 800, int height = 600, bool fullscreen = false, bool allow_resize = false);
+   void deinit();
+ };
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-08-14 21:59:51 UTC (rev 594)
++++ trunk/lib/flexlay_wrap.i	2005-08-14 22:30:18 UTC (rev 595)
+@@ -205,4 +205,5 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
++
+ /* EOF */
+
+Modified: trunk/lib/scrollbar.cxx
+===================================================================
+--- trunk/lib/scrollbar.cxx	2005-08-14 21:59:51 UTC (rev 594)
++++ trunk/lib/scrollbar.cxx	2005-08-14 22:30:18 UTC (rev 595)
+@@ -88,6 +88,7 @@
+ void 
+ ScrollbarImpl::draw()
+ {
++  CL_Display::push_cliprect(parent-&gt;get_screen_rect());
+   CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+ 
+   CL_Rect rect = CL_Rect(CL_Point(0, 0), 
+@@ -117,6 +118,7 @@
+                         CL_Color(155, 155, 155));
+ 
+   CL_Display::pop_modelview();
++  CL_Display::pop_cliprect();
+ }
+ 
+ void
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-14 21:59:51 UTC (rev 594)
++++ trunk/windstille/gui.rb	2005-08-14 22:30:18 UTC (rev 595)
+@@ -40,8 +40,11 @@
+     components = LayoutComponent.create_from_sexpr(CL_Rect.new(0,0, $screen_width, $screen_height),
+                                                    SExpression.new($guilayout_spec),
+                                                    @gui.get_component())
++    
++    connect_v2($flexlay.sig_resize(), proc{|w, h|
++                 components.set_size(w, h)
++               })
+ 
+-
+     @editor_map = components.get('editormap').component
+     @workspace  = Workspace.new()
+     @editor_map.set_workspace(@workspace)
+
+Modified: trunk/windstille/layout_manager.rb
+===================================================================
+--- trunk/windstille/layout_manager.rb	2005-08-14 21:59:51 UTC (rev 594)
++++ trunk/windstille/layout_manager.rb	2005-08-14 22:30:18 UTC (rev 595)
+@@ -37,8 +37,6 @@
+     @expand    = params[:expand]
+     @fill      = params[:fill]
+     @padding   = params[:padding]
+-
+-    puts &quot;LayoutComponent.new: name=#{@name} type=#{@component}&quot;
+   end
+ 
+   def get(name)
+@@ -69,8 +67,6 @@
+   end
+   
+   def LayoutComponent.create(type, rect, sexpr, parent)
+-    puts &quot;Creating: '#{type}'&quot;
+-
+     case type
+     when :vbox
+       box = LayoutBox.new(type, rect, sexpr, parent)
+@@ -95,7 +91,6 @@
+     when :panel     
+ 
+     when :editormap
+-      puts sexpr.get(:name, nil)
+       return EditorMapComponent.new(rect, parent)      
+       
+     when :menubar
+@@ -172,7 +167,6 @@
+     @components = []
+     @homogenus  = false
+ 
+-    puts &quot;Box: #{sexpr}&quot;
+     sexpr.get(:components, SExpression.new()).each_pair() { |name, value|
+       @components.push(LayoutComponent.create(name, CL_Rect.new(0, 0, 256, 256), value, @parent))
+     }
+@@ -199,7 +193,6 @@
+   def set_pos(x, y)
+     @x = x
+     @y = y
+-    layout()
+   end
+ 
+   def set_size(width, height)
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-08-14 21:59:51 UTC (rev 594)
++++ trunk/windstille/windstille.rb	2005-08-14 22:30:18 UTC (rev 595)
+@@ -41,12 +41,12 @@
+ require &quot;sector.rb&quot;
+ require &quot;tileset.rb&quot;
+ 
+-$screen_width  = 1024
+-$screen_height = 768
++$screen_width  = 400
++$screen_height = 300
+ 
+ ## Init Flexlay itself
+-flexlay = Flexlay.new()
+-flexlay.init($screen_width, $screen_height, false, true)
++$flexlay = Flexlay.new()
++$flexlay.init($screen_width, $screen_height, false, true)
+ 
+ ## Initialize Tools
+ 
+@@ -70,6 +70,6 @@
+ 
+ $gui.run()
+ 
+-# flexlay.deinit()
++# $flexlay.deinit()
+ 
+ # EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000089.html">[Flexlay-commit] r594 - trunk/windstille
+</A></li>
+	<LI>Next message: <A HREF="000091.html">[Flexlay-commit] r596 - in trunk: lib ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#90">[ date ]</a>
+              <a href="thread.html#90">[ thread ]</a>
+              <a href="subject.html#90">[ subject ]</a>
+              <a href="author.html#90">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

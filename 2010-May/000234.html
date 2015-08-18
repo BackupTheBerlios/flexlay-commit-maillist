@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r741 - in trunk/netbrush: . src src/widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r741%20-%20in%20trunk/netbrush%3A%20.%20src%20src/widget&In-Reply-To=%3C201005121713.o4CHDgQa019462%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000233.html">
+   <LINK REL="Next"  HREF="000235.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r741 - in trunk/netbrush: . src src/widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r741%20-%20in%20trunk/netbrush%3A%20.%20src%20src/widget&In-Reply-To=%3C201005121713.o4CHDgQa019462%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r741 - in trunk/netbrush: . src src/widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Wed May 12 19:13:42 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000233.html">[Flexlay-commit] r740 - trunk/netbrush/src
+</A></li>
+        <LI>Next message: <A HREF="000235.html">[Flexlay-commit] r742 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#234">[ date ]</a>
+              <a href="thread.html#234">[ thread ]</a>
+              <a href="subject.html#234">[ subject ]</a>
+              <a href="author.html#234">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2010-05-12 19:13:41 +0200 (Wed, 12 May 2010)
+New Revision: 741
+
+Removed:
+   trunk/netbrush/src/Makefile
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/text_view.cpp
+   trunk/netbrush/src/widget/button.cpp
+Log:
+Added missing png library and DATADIR handling
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2010-05-12 17:13:10 UTC (rev 740)
++++ trunk/netbrush/SConstruct	2010-05-12 17:13:41 UTC (rev 741)
+@@ -4,8 +4,15 @@
+ # netbrush_env['CXXFLAGS'] += ['-O2', '-Wall', '-g']
+ # netbrush_env.Program('netbrush', ['net.cpp', 'vector.cpp'])
+ 
++if ARGUMENTS.has_key('DATADIR'):
++    g_datadir = '&quot;\\&quot;' + ARGUMENTS['DATADIR'] + '\\&quot;&quot;'
++else:
++    g_datadir = '\\&quot;data\\&quot;'
++    
++
+ common_env = Environment()
+-common_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
++common_env['CXXFLAGS'] += ['-O3', '-Wall', '-g']
++common_env['CPPDEFINES'] = { 'DATADIR': g_datadir }
+ libcommon = common_env.StaticLibrary('common', [
+         'src/command_line.cpp',
+         'src/command_line_generic.cpp',
+@@ -13,7 +20,8 @@
+ 
+ server_env = Environment()
+ server_env.ParseConfig('sdl-config --cflags --libs')
+-server_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
++server_env['CPPDEFINES'] = { 'DATADIR': g_datadir }
++server_env['CXXFLAGS'] += ['-O3', '-Wall', '-g']
+ server_env['LIBS'] += ['SDL_net'] + libcommon
+ server_env['LIBPATH'] += ['.']
+ server_env.Program('netbrush-server', [
+@@ -23,10 +31,11 @@
+ 
+ client_env = Environment()
+ client_env.ParseConfig('sdl-config --cflags --libs')
+-client_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
++client_env['CPPDEFINES'] = { 'DATADIR': g_datadir }
++client_env['CXXFLAGS'] += ['-O3', '-Wall', '-g']
+ client_env['CPPPATH'] += ['src/']
+ client_env['LIBPATH'] += ['.']
+-client_env['LIBS'] += ['SDL_image', 'SDL_net', 'Xi'] + libcommon
++client_env['LIBS'] += ['SDL_image', 'SDL_net', 'Xi', 'png'] + libcommon
+ client_env.Program('netbrush-client', [
+         'src/alpha_picker.cpp',
+         'src/brush_widget.cpp',
+
+Deleted: trunk/netbrush/src/Makefile
+===================================================================
+--- trunk/netbrush/src/Makefile	2010-05-12 17:13:10 UTC (rev 740)
++++ trunk/netbrush/src/Makefile	2010-05-12 17:13:41 UTC (rev 741)
+@@ -1,4 +0,0 @@
+-all:
+-	scons -D
+-
+-# EOF #
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2010-05-12 17:13:10 UTC (rev 740)
++++ trunk/netbrush/src/controller.cpp	2010-05-12 17:13:41 UTC (rev 741)
+@@ -128,25 +128,25 @@
+ Controller::Controller()
+ {
+   // Toolbar
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
++    widget_manager-&gt;add(new Button(IMG_Load(DATADIR &quot;/icons/stock-tool-airbrush-22.png&quot;), 
+                                    Rect(Point(2, 2+0*34), Size(34, 34)),
+                                    new ToolParameterButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-paintbrush-22.png&quot;), 
++    widget_manager-&gt;add(new Button(IMG_Load(DATADIR &quot;/icons/stock-tool-paintbrush-22.png&quot;), 
+                                    Rect(Point(2, 2+1*34), Size(34, 34)),
+                                    new ToolParameterButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-color-picker-22.png&quot;), 
++    widget_manager-&gt;add(new Button(IMG_Load(DATADIR &quot;/icons/stock-tool-color-picker-22.png&quot;), 
+                                    Rect(Point(2, 2+2*34), Size(34, 34)),
+                                    new ToolButtonCallback(COLOR_PICKER_TOOL)));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-rect-22.png&quot;), 
++    widget_manager-&gt;add(new Button(IMG_Load(DATADIR &quot;/icons/stock-tool-rect-22.png&quot;), 
+                                    Rect(Point(2, 2+3*34), Size(34, 34)),
+                                    new ToolButtonCallback(RECT_TOOL)));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-circle-22.png&quot;), 
++    widget_manager-&gt;add(new Button(IMG_Load(DATADIR &quot;/icons/stock-tool-circle-22.png&quot;), 
+                                    Rect(Point(2, 2+4*34), Size(34, 34)),
+                                    new ToolButtonCallback(CIRCLE_TOOL)));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-line-22.png&quot;), 
++    widget_manager-&gt;add(new Button(IMG_Load(DATADIR &quot;/icons/stock-tool-line-22.png&quot;), 
+                                    Rect(Point(2, 2+5*34), Size(34, 34)),
+                                    new ToolButtonCallback(LINE_TOOL)));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-rect-select-22.png&quot;), 
++    widget_manager-&gt;add(new Button(IMG_Load(DATADIR &quot;/icons/stock-tool-rect-select-22.png&quot;), 
+                                    Rect(Point(2, 2+6*34), Size(34, 34)),
+                                    new ToolButtonCallback(REGION_TOOL)));
+     widget_manager-&gt;add(text_view = new TextView(Rect(38, screen-&gt;h - 38,
+
+Modified: trunk/netbrush/src/text_view.cpp
+===================================================================
+--- trunk/netbrush/src/text_view.cpp	2010-05-12 17:13:10 UTC (rev 740)
++++ trunk/netbrush/src/text_view.cpp	2010-05-12 17:13:41 UTC (rev 741)
+@@ -19,6 +19,9 @@
+ */
+ 
+ #include &lt;iostream&gt;
++#include &lt;stdexcept&gt;
++#include &lt;sstream&gt;
++
+ #include &quot;SDL_tty.h&quot;
+ #include &quot;SDL_image.h&quot;
+ #include &quot;text_view.hpp&quot;
+@@ -26,7 +29,14 @@
+ TextView::TextView(const Rect&amp; rect)
+   : Widget(rect)
+ {
+-  SDL_Surface* temp = IMG_Load(&quot;data/fonts/8x8font.png&quot;);
++  SDL_Surface* temp = IMG_Load(DATADIR &quot;/fonts/8x8font.png&quot;);
++  if (!temp)
++  {
++    std::ostringstream out;
++    out &lt;&lt; &quot;Couldn't open &quot; &lt;&lt; DATADIR &quot;/fonts/8x8font.png&quot;;
++    throw std::runtime_error(out.str());
++  }
++
+   font = TTY_CreateFont(temp, 8, 8, 
+                         &quot;\x7f                                &quot;
+                         &quot;!\&quot;#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;
+
+Modified: trunk/netbrush/src/widget/button.cpp
+===================================================================
+--- trunk/netbrush/src/widget/button.cpp	2010-05-12 17:13:10 UTC (rev 740)
++++ trunk/netbrush/src/widget/button.cpp	2010-05-12 17:13:41 UTC (rev 741)
+@@ -31,9 +31,9 @@
+     hover(false),
+     icon(icon_)
+ {
+-  up_surface    = IMG_Load(&quot;data/icons/up.png&quot;);
+-  down_surface  = IMG_Load(&quot;data/icons/down.png&quot;);
+-  hover_surface = IMG_Load(&quot;data/icons/hover.png&quot;);
++  up_surface    = IMG_Load(DATADIR &quot;/icons/up.png&quot;);
++  down_surface  = IMG_Load(DATADIR &quot;/icons/down.png&quot;);
++  hover_surface = IMG_Load(DATADIR &quot;/icons/hover.png&quot;);
+ }
+ 
+ Button::~Button()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000233.html">[Flexlay-commit] r740 - trunk/netbrush/src
+</A></li>
+	<LI>Next message: <A HREF="000235.html">[Flexlay-commit] r742 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#234">[ date ]</a>
+              <a href="thread.html#234">[ thread ]</a>
+              <a href="subject.html#234">[ subject ]</a>
+              <a href="author.html#234">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

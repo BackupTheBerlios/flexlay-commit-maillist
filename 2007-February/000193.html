@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r700 - in trunk/flexlay: lib netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r700%20-%20in%20trunk/flexlay%3A%20lib%20netpanzer&In-Reply-To=%3C200702261507.l1QF7QoN024487%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000192.html">
+   <LINK REL="Next"  HREF="000194.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r700 - in trunk/flexlay: lib netpanzer</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r700%20-%20in%20trunk/flexlay%3A%20lib%20netpanzer&In-Reply-To=%3C200702261507.l1QF7QoN024487%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r700 - in trunk/flexlay: lib netpanzer">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Feb 26 16:07:26 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000192.html">[Flexlay-commit] r699 - trunk/flexlay/netpanzer
+</A></li>
+        <LI>Next message: <A HREF="000194.html">[Flexlay-commit] r701 - trunk/flexlay/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#193">[ date ]</a>
+              <a href="thread.html#193">[ thread ]</a>
+              <a href="subject.html#193">[ subject ]</a>
+              <a href="author.html#193">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2007-02-26 16:07:25 +0100 (Mon, 26 Feb 2007)
+New Revision: 700
+
+Modified:
+   trunk/flexlay/lib/editor_map.hxx
+   trunk/flexlay/lib/editor_map_component.cxx
+   trunk/flexlay/lib/minimap.cxx
+   trunk/flexlay/lib/workspace.cxx
+   trunk/flexlay/netpanzer/gui.rb
+   trunk/flexlay/netpanzer/level.rb
+   trunk/flexlay/netpanzer/netpanzer.rb
+Log:
+- made netpanzer editor usable again
+
+Modified: trunk/flexlay/lib/editor_map.hxx
+===================================================================
+--- trunk/flexlay/lib/editor_map.hxx	2007-02-26 14:17:19 UTC (rev 699)
++++ trunk/flexlay/lib/editor_map.hxx	2007-02-26 15:07:25 UTC (rev 700)
+@@ -87,6 +87,8 @@
+   int redo_stack_size();
+ 
+   CL_Signal_v0&amp; sig_change();
++
++  bool is_null() const { return !impl.get(); }
+ private:
+   CL_SharedPtr&lt;EditorMapImpl&gt; impl;
+ };
+
+Modified: trunk/flexlay/lib/editor_map_component.cxx
+===================================================================
+--- trunk/flexlay/lib/editor_map_component.cxx	2007-02-26 14:17:19 UTC (rev 699)
++++ trunk/flexlay/lib/editor_map_component.cxx	2007-02-26 15:07:25 UTC (rev 700)
+@@ -156,6 +156,8 @@
+ void
+ EditorMapComponentImpl::draw ()
+ {
++  if (workspace.get_map().is_null()) return;
++
+   CL_Display::push_cliprect(parent-&gt;get_screen_rect());
+ 
+   CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+
+Modified: trunk/flexlay/lib/minimap.cxx
+===================================================================
+--- trunk/flexlay/lib/minimap.cxx	2007-02-26 14:17:19 UTC (rev 699)
++++ trunk/flexlay/lib/minimap.cxx	2007-02-26 15:07:25 UTC (rev 700)
+@@ -65,6 +65,8 @@
+ void
+ Minimap::draw()
+ {
++  if (impl-&gt;parent-&gt;get_workspace().get_map().is_null()) return;
++
+   if (!impl-&gt;parent || impl-&gt;parent-&gt;get_workspace().is_null())
+     return;
+ 
+
+Modified: trunk/flexlay/lib/workspace.cxx
+===================================================================
+--- trunk/flexlay/lib/workspace.cxx	2007-02-26 14:17:19 UTC (rev 699)
++++ trunk/flexlay/lib/workspace.cxx	2007-02-26 15:07:25 UTC (rev 700)
+@@ -54,6 +54,8 @@
+ void
+ Workspace::draw()
+ {
++  assert(impl.get());
++
+   CL_Display::clear(CL_Color(100, 0, 100));
+ 
+   impl-&gt;editor_map.draw_gui(CL_Display::get_current_window()-&gt;get_gc());
+@@ -70,6 +72,8 @@
+ void
+ Workspace::mouse_up(const CL_InputEvent&amp; event)
+ {
++  assert(impl.get());
++
+   WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
+   if (it != impl-&gt;tools.end())
+     it-&gt;second.on_mouse_up(event);
+@@ -78,6 +82,8 @@
+ void
+ Workspace::mouse_move(const CL_InputEvent&amp; event)
+ {
++  assert(impl.get());
++
+   for(WorkspaceImpl::Tools::iterator it = impl-&gt;tools.begin();
+       it != impl-&gt;tools.end(); ++it)
+     {
+@@ -88,6 +94,8 @@
+ void
+ Workspace::mouse_down(const CL_InputEvent&amp; event)
+ {
++  assert(impl.get());
++
+   WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
+   if (it != impl-&gt;tools.end())
+     it-&gt;second.on_mouse_down(event);
+@@ -107,6 +115,8 @@
+ void
+ Workspace::key_up(const CL_InputEvent&amp; event)
+ {
++  assert(impl.get());
++
+   WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
+   if (it != impl-&gt;tools.end())
+     it-&gt;second.on_mouse_up(event);
+@@ -115,6 +125,8 @@
+ void
+ Workspace::key_down(const CL_InputEvent&amp; event)
+ {
++  assert(impl.get());
++
+   WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
+   if (it != impl-&gt;tools.end())
+     it-&gt;second.on_mouse_down(event);
+@@ -125,18 +137,25 @@
+ EditorMap
+ Workspace::get_map()
+ {
++  assert(impl.get());
++
+   return impl-&gt;editor_map;
+ }
+ 
+ void
+ Workspace::set_map(const EditorMap&amp; m)
+ {
++  assert(impl.get());
++
+   impl-&gt;editor_map = m;
++  std::cout &lt;&lt; &quot;Workspace:set_map&quot; &lt;&lt; std::endl;
+ }
+ 
+ void
+ Workspace::set_tool(int button, const Tool&amp; tool)
+ {
++  assert(impl.get());
++
+   impl-&gt;tools[button] = tool;
+ }
+ 
+
+Modified: trunk/flexlay/netpanzer/gui.rb
+===================================================================
+--- trunk/flexlay/netpanzer/gui.rb	2007-02-26 14:17:19 UTC (rev 699)
++++ trunk/flexlay/netpanzer/gui.rb	2007-02-26 15:07:25 UTC (rev 700)
+@@ -63,8 +63,7 @@
+                         })
+ 
+     @editor_map = components.get('editormap').component
+-    @workspace  = Workspace.new()
+-    @editor_map.set_workspace(@workspace)
++    @workspace = @editor_map.get_workspace()
+ 
+     @brushbox = components.get('brushbox').component
+     @brushbox.show(false)
+@@ -87,7 +86,9 @@
+     connect_v1(@brushbox.sig_highlighted(), method(:brushbox_change))
+ 
+     @workspace.set_tool(0, $tilemap_paint_tool.to_tool());
++    @workspace.set_tool(2, $workspace_move_tool.to_tool());
+ 
++
+     @button_panel = components.get('buttonpanel').component
+ 
+     @button_panel.add_icon(&quot;../data/images/icons24/stock_new.png&quot;,
+
+Modified: trunk/flexlay/netpanzer/level.rb
+===================================================================
+--- trunk/flexlay/netpanzer/level.rb	2007-02-26 14:17:19 UTC (rev 699)
++++ trunk/flexlay/netpanzer/level.rb	2007-02-26 15:07:25 UTC (rev 700)
+@@ -33,8 +33,8 @@
+       @data = NetPanzerFileStruct.new($tileset, @filename)
+     end      
+ 
++    @editormap = EditorMap.new(true)
+     @objects   = ObjectLayer.new()
+-    @editormap = EditorMap.new()
+     @editormap.add_layer(@data.get_tilemap().to_layer())
+     @editormap.add_layer(@objects.to_layer())
+     @tilemap = @data.get_tilemap()
+@@ -134,6 +134,7 @@
+   end
+ 
+   def activate(workspace)
++    puts &quot;Level activate&quot;
+     workspace.set_map(@editormap)
+     TilemapLayer.set_current(@data.get_tilemap())
+     ObjectLayer.set_current(@objects)
+
+Modified: trunk/flexlay/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/flexlay/netpanzer/netpanzer.rb	2007-02-26 14:17:19 UTC (rev 699)
++++ trunk/flexlay/netpanzer/netpanzer.rb	2007-02-26 15:07:25 UTC (rev 700)
+@@ -65,6 +65,7 @@
+ # Tools
+ $tilemap_paint_tool  = TileMapPaintTool.new()
+ $tilemap_select_tool = TileMapSelectTool.new()
++$workspace_move_tool = WorkspaceMoveTool.new()
+ $zoom_tool           = ZoomTool.new()
+ $objmap_select_tool  = ObjMapSelectTool.new()
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000192.html">[Flexlay-commit] r699 - trunk/flexlay/netpanzer
+</A></li>
+	<LI>Next message: <A HREF="000194.html">[Flexlay-commit] r701 - trunk/flexlay/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#193">[ date ]</a>
+              <a href="thread.html#193">[ thread ]</a>
+              <a href="subject.html#193">[ subject ]</a>
+              <a href="author.html#193">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

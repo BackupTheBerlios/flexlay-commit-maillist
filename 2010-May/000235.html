@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r742 - trunk/flexlay
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r742%20-%20trunk/flexlay&In-Reply-To=%3C201005142031.o4EKVdcj027180%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000234.html">
+   <LINK REL="Next"  HREF="000236.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r742 - trunk/flexlay</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r742%20-%20trunk/flexlay&In-Reply-To=%3C201005142031.o4EKVdcj027180%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r742 - trunk/flexlay">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Fri May 14 22:31:39 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000234.html">[Flexlay-commit] r741 - in trunk/netbrush: . src src/widget
+</A></li>
+        <LI>Next message: <A HREF="000236.html">[Flexlay-commit] r743 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#235">[ date ]</a>
+              <a href="thread.html#235">[ thread ]</a>
+              <a href="subject.html#235">[ subject ]</a>
+              <a href="author.html#235">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2010-05-14 22:31:39 +0200 (Fri, 14 May 2010)
+New Revision: 742
+
+Modified:
+   trunk/flexlay/SConstruct
+Log:
+Use ClanLib-1.0 instead of 0.8
+
+Modified: trunk/flexlay/SConstruct
+===================================================================
+--- trunk/flexlay/SConstruct	2010-05-12 17:13:41 UTC (rev 741)
++++ trunk/flexlay/SConstruct	2010-05-14 20:31:39 UTC (rev 742)
+@@ -4,7 +4,7 @@
+ if True:
+     clanLib_env = Environment(LIBPATH=[])
+     clanLib_env.ParseConfig(&quot;pkg-config --cflags --libs &quot; +
+-                            &quot;clanCore-0.8 clanDisplay-0.8 clanGL-0.8 clanSignals-0.8 clanGUI-0.8 clanGUIStyleSilver-0.8&quot;)
++                            &quot;clanCore-1.0 clanDisplay-1.0 clanGL-1.0 clanSignals-1.0 clanGUI-1.0 clanGUIStyleSilver-1.0&quot;)
+ else:
+     # FIXME: replace the X11 stuff with a proper X11 configure check and
+     # make them somehow part of the clanlib libraries themself
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000234.html">[Flexlay-commit] r741 - in trunk/netbrush: . src src/widget
+</A></li>
+	<LI>Next message: <A HREF="000236.html">[Flexlay-commit] r743 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#235">[ date ]</a>
+              <a href="thread.html#235">[ thread ]</a>
+              <a href="subject.html#235">[ subject ]</a>
+              <a href="author.html#235">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

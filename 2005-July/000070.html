@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r575 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r575%20-%20trunk/supertux&In-Reply-To=%3C200507181652.j6IGqBnT009319%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000069.html">
+   <LINK REL="Next"  HREF="000071.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r575 - trunk/supertux</H1>
+    <B>Marek Moeckel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r575%20-%20trunk/supertux&In-Reply-To=%3C200507181652.j6IGqBnT009319%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r575 - trunk/supertux">wansti at berlios.de
+       </A><BR>
+    <I>Mon Jul 18 18:52:11 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000069.html">[Flexlay-commit] r574 - trunk/supertux
+</A></li>
+        <LI>Next message: <A HREF="000071.html">[Flexlay-commit] r576 - in trunk: lib windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wansti
+Date: 2005-07-18 18:51:17 +0200 (Mon, 18 Jul 2005)
+New Revision: 575
+
+Modified:
+   trunk/supertux/data.rb
+Log:
+added kugelblitz badguy
+
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-07-16 21:39:33 UTC (rev 574)
++++ trunk/supertux/data.rb	2005-07-18 16:51:17 UTC (rev 575)
+@@ -25,6 +25,8 @@
+     proc{|data, sexpr| BadGuy.new(&quot;poisonivy&quot;)}],
+   [&quot;zeekling&quot;, &quot;images/creatures/zeekling/left-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| BadGuy.new(&quot;zeekling&quot;)}],
++  [&quot;kugelblitz&quot;, &quot;images/creatures/kugelblitz/flying-0.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| BadGuy.new(&quot;kugelblitz&quot;)}],
+   [&quot;dispenser&quot;, &quot;images/creatures/dispenser/working.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| Dispenser.new(data, sexpr)}],
+   [&quot;yeti&quot;, &quot;images/creatures/yeti/yeti.png&quot;, &quot;sprite&quot;,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000069.html">[Flexlay-commit] r574 - trunk/supertux
+</A></li>
+	<LI>Next message: <A HREF="000071.html">[Flexlay-commit] r576 - in trunk: lib windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

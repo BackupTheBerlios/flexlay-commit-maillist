@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r708 - in trunk/flexlay: . netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r708%20-%20in%20trunk/flexlay%3A%20.%20netpanzer&In-Reply-To=%3C200908011759.n71HxSB8004892%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000200.html">
+   <LINK REL="Next"  HREF="000202.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r708 - in trunk/flexlay: . netpanzer</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r708%20-%20in%20trunk/flexlay%3A%20.%20netpanzer&In-Reply-To=%3C200908011759.n71HxSB8004892%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r708 - in trunk/flexlay: . netpanzer">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Aug  1 19:59:28 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000200.html">[Flexlay-commit] r707 - in trunk/flexlay: . lib
+</A></li>
+        <LI>Next message: <A HREF="000202.html">[Flexlay-commit] r709 - in trunk/flexlay: guile netpanzer python	ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-08-01 19:59:27 +0200 (Sat, 01 Aug 2009)
+New Revision: 708
+
+Added:
+   trunk/flexlay/netpanzer/SConscript
+Removed:
+   trunk/flexlay/netpanzer/SConstruct
+Modified:
+   trunk/flexlay/SConstruct
+Log:
+Renamed from SConstruct to SConscript
+
+Modified: trunk/flexlay/SConstruct
+===================================================================
+--- trunk/flexlay/SConstruct	2009-08-01 17:57:43 UTC (rev 707)
++++ trunk/flexlay/SConstruct	2009-08-01 17:59:27 UTC (rev 708)
+@@ -23,7 +23,7 @@
+ SConscript(['lib/SConscript'])
+ SConscript(['ruby/SConscript'])
+ SConscript(['supertux/SConstruct'])
+-SConscript(['netpanzer/SConstruct'])
++SConscript(['netpanzer/SConscript'])
+ 
+ # EOF #
+ 
+
+Copied: trunk/flexlay/netpanzer/SConscript (from rev 702, trunk/flexlay/netpanzer/SConstruct)
+===================================================================
+--- trunk/flexlay/netpanzer/SConstruct	2008-02-08 20:16:51 UTC (rev 702)
++++ trunk/flexlay/netpanzer/SConscript	2009-08-01 17:59:27 UTC (rev 708)
+@@ -0,0 +1,60 @@
++## -*- mode: python -*-
++##  $Id$
++##
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++##
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++import os
++import glob
++
++Import('clanLib_env')
++
++opts = Options('custom.py')
++opts.Add('CXX', 'The C++ compiler.', 'g++')
++opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall -fPIC')
++opts.Add('CPPPATH', 'additional header path', '')
++opts.Add('LIBPATH', 'additional library path', '')
++opts.Add('RUBYDIR', 'Ruby directory', os.popen('ruby -e &quot;require \'rbconfig\'; puts Config::CONFIG[\'archdir\']&quot;').read()[:-1])
++
++opts.Add('DESTDIR', 'destination directory which gets appended to PREFIX', '')
++opts.Add('PREFIX',  'PREFIX, ie. /usr/local', '/usr/local')
++
++env = Environment(SHLIBPREFIX='',
++                  ENV = os.environ,
++                  options=opts)
++Help(opts.GenerateHelpText(env))
++
++Depends('netpanzer.i', ['netpanzer.hxx'])
++env.Command('netpanzer_wrap.cxx', 'netpanzer.i',
++            &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
++
++libflexlay_ruby_env = env.Clone()
++flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
++    target = 'netpanzer_wrap.so',
++    source = [
++    'netpanzer_wrap.cxx',
++    'netpanzer.cxx'
++    ],
++    CPPPATH=['$USER_CPPPATH','$RUBYDIR','../lib/'] + clanLib_env['CPPPATH'],
++    LINKFLAGS = clanLib_env['LINKFLAGS'],
++    LIBPATH=['../lib', '../ruby'] + clanLib_env['LIBPATH'],
++    LIBS=['flexlay'] + clanLib_env['LIBS'])
++
++# install_ruby = env.Alias('install_headers', Install(env['DESTDIR'] + env['PREFIX'] + '/include/flexlay', flexlay_headers))
++# env.Alias('install', [install_ruby])
++
++# EOF #
+
+
+Property changes on: trunk/flexlay/netpanzer/SConscript
+___________________________________________________________________
+Name: svn:mergeinfo
+   + 
+
+Deleted: trunk/flexlay/netpanzer/SConstruct
+===================================================================
+--- trunk/flexlay/netpanzer/SConstruct	2009-08-01 17:57:43 UTC (rev 707)
++++ trunk/flexlay/netpanzer/SConstruct	2009-08-01 17:59:27 UTC (rev 708)
+@@ -1,60 +0,0 @@
+-## -*- mode: python -*-
+-##  $Id$
+-##
+-##  Flexlay - A Generic 2D Game Editor
+-##  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-##
+-##  This program is free software; you can redistribute it and/or
+-##  modify it under the terms of the GNU General Public License
+-##  as published by the Free Software Foundation; either version 2
+-##  of the License, or (at your option) any later version.
+-##
+-##  This program is distributed in the hope that it will be useful,
+-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-##  GNU General Public License for more details.
+-##
+-##  You should have received a copy of the GNU General Public License
+-##  along with this program; if not, write to the Free Software
+-##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-import os
+-import glob
+-
+-Import('clanLib_env')
+-
+-opts = Options('custom.py')
+-opts.Add('CXX', 'The C++ compiler.', 'g++')
+-opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall -fPIC')
+-opts.Add('CPPPATH', 'additional header path', '')
+-opts.Add('LIBPATH', 'additional library path', '')
+-opts.Add('RUBYDIR', 'Ruby directory', os.popen('ruby -e &quot;require \'rbconfig\'; puts Config::CONFIG[\'archdir\']&quot;').read()[:-1])
+-
+-opts.Add('DESTDIR', 'destination directory which gets appended to PREFIX', '')
+-opts.Add('PREFIX',  'PREFIX, ie. /usr/local', '/usr/local')
+-
+-env = Environment(SHLIBPREFIX='',
+-                  ENV = os.environ,
+-                  options=opts)
+-Help(opts.GenerateHelpText(env))
+-
+-Depends('netpanzer.i', ['netpanzer.hxx'])
+-env.Command('netpanzer_wrap.cxx', 'netpanzer.i',
+-            &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+-
+-libflexlay_ruby_env = env.Copy()
+-flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+-    target = 'netpanzer_wrap.so',
+-    source = [
+-    'netpanzer_wrap.cxx',
+-    'netpanzer.cxx'
+-    ],
+-    CPPPATH=['$USER_CPPPATH','$RUBYDIR','../lib/'] + clanLib_env['CPPPATH'],
+-    LINKFLAGS = clanLib_env['LINKFLAGS'],
+-    LIBPATH=['../lib', '../ruby'] + clanLib_env['LIBPATH'],
+-    LIBS=['flexlay'] + clanLib_env['LIBS'])
+-
+-# install_ruby = env.Alias('install_headers', Install(env['DESTDIR'] + env['PREFIX'] + '/include/flexlay', flexlay_headers))
+-# env.Alias('install', [install_ruby])
+-
+-# EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000200.html">[Flexlay-commit] r707 - in trunk/flexlay: . lib
+</A></li>
+	<LI>Next message: <A HREF="000202.html">[Flexlay-commit] r709 - in trunk/flexlay: guile netpanzer python	ruby
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#201">[ date ]</a>
+              <a href="thread.html#201">[ thread ]</a>
+              <a href="subject.html#201">[ subject ]</a>
+              <a href="author.html#201">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

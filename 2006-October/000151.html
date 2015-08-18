@@ -1,0 +1,540 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r655 - in trunk/netbrush: . widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r655%20-%20in%20trunk/netbrush%3A%20.%20widget&In-Reply-To=%3C200610191822.k9JIMaCV020569%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000150.html">
+   <LINK REL="Next"  HREF="000152.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r655 - in trunk/netbrush: . widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r655%20-%20in%20trunk/netbrush%3A%20.%20widget&In-Reply-To=%3C200610191822.k9JIMaCV020569%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r655 - in trunk/netbrush: . widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Thu Oct 19 20:22:36 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000150.html">[Flexlay-commit] r654 - trunk/netbrush/data/icons
+</A></li>
+        <LI>Next message: <A HREF="000152.html">[Flexlay-commit] r656 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#151">[ date ]</a>
+              <a href="thread.html#151">[ thread ]</a>
+              <a href="subject.html#151">[ subject ]</a>
+              <a href="author.html#151">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-19 20:22:36 +0200 (Thu, 19 Oct 2006)
+New Revision: 655
+
+Modified:
+   trunk/netbrush/client.cpp
+   trunk/netbrush/client_state.cpp
+   trunk/netbrush/client_state.hpp
+   trunk/netbrush/drawing_context.cpp
+   trunk/netbrush/drawing_parameter.cpp
+   trunk/netbrush/drawing_parameter.hpp
+   trunk/netbrush/server.cpp
+   trunk/netbrush/server_connection.cpp
+   trunk/netbrush/stroke_buffer.cpp
+   trunk/netbrush/widget/button.cpp
+   trunk/netbrush/widget/button.hpp
+Log:
+- bit GUI cleanup
+- added way to change tools
+
+Modified: trunk/netbrush/client.cpp
+===================================================================
+--- trunk/netbrush/client.cpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/client.cpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -197,6 +197,33 @@
+   }
+ };
+ 
++class ToolButtonCallback : public ButtonCallback
++{
++private:
++  DrawingParameter::Tool tool;
++public:
++  ToolButtonCallback(DrawingParameter::Tool tool_)
++    : tool(tool_)
++  {
++  }
++
++  void on_press  (Button* button) 
++  {
++    std::cout &lt;&lt; &quot;Press: &quot; &lt;&lt; button &lt;&lt; std::endl;
++  }
++
++  void on_release(Button* button) 
++  {
++    std::cout &lt;&lt; &quot;Release: &quot; &lt;&lt; button &lt;&lt; std::endl;
++  }
++  
++  void on_click  (Button* button) 
++  {
++    std::cout &lt;&lt; &quot;Setting tool: &quot; &lt;&lt; tool &lt;&lt; std::endl;
++    client_draw_param-&gt;tool = tool;
++  }
++};
++
+ int main(int argc, char** argv)
+ {
+   if(SDL_Init(SDL_INIT_VIDEO)== -1) {
+@@ -217,7 +244,7 @@
+   SDL_WM_SetCaption(&quot;netBrush&quot;, &quot;netBrush&quot;);
+ 
+   // 18 is scrollbar
+-  screen_buffer = new ScreenBuffer(Rect(68 + 16, 0 + 16, screen-&gt;w - 128 - 16 - 18, screen-&gt;h - 16 - 18)); 
++  screen_buffer = new ScreenBuffer(Rect(38, 2, screen-&gt;w - 128 - 16 - 18, screen-&gt;h - 16 - 4)); 
+   draw_ctx      = new DrawingContext(2048, 2048);
+   stroke_buffer = new StrokeBuffer(2048, 2048);
+ 
+@@ -247,13 +274,16 @@
+     }
+   
+   widget_manager = new WidgetManager();
+-  {
+-    for(int y = 0; y &lt; 10; ++y)
+-      for(int x = 0; x &lt; 2; ++x)
+-        {
+-          widget_manager-&gt;add(new Button(Rect(Point(x*34, y*34), Size(34, 34))));
+-        }
+-  }
++  widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-airbrush-22.png&quot;), 
++                                 Rect(Point(2, 2+0*34), Size(34, 34)),
++                                 new ToolButtonCallback(DrawingParameter::TOOL_AIRBRUSH)));
++  widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-paintbrush-22.png&quot;), 
++                                 Rect(Point(2, 2+1*34), Size(34, 34)),
++                                 new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
++  if (0)
++    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-zoom-22.png&quot;), 
++                                   Rect(Point(2, 2+2*34), Size(34, 34)),
++                                   new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
+ 
+   {
+     SDL_Rect color_rect;
+@@ -270,13 +300,13 @@
+ 
+   widget_manager-&gt;add(vertical_scrollbar = 
+                       new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_height(), Scrollbar::VERTICAL,
+-                                    Rect(screen-&gt;w - 128 - 16 - 16, 0 + 16,
+-                                         screen-&gt;w - 128 - 16, screen-&gt;h - 16 - 18)));
++                                    Rect(screen-&gt;w - 128 - 16 - 16, 2,
++                                         screen-&gt;w - 128 - 16, screen-&gt;h - 16 - 4)));
+ 
+   widget_manager-&gt;add(horizontal_scrollbar = 
+                       new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_width(), Scrollbar::HORIZONTAL,
+-                                    Rect(68 + 16, screen-&gt;h - 16 - 16,
+-                                         screen-&gt;w - 128 - 16 - 18, screen-&gt;h - 16)));
++                                    Rect(38, screen-&gt;h - 16 - 2,
++                                         screen-&gt;w - 128 - 16 - 18, screen-&gt;h - 2)));
+ 
+   alpha_picker = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
+   saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
+
+Modified: trunk/netbrush/client_state.cpp
+===================================================================
+--- trunk/netbrush/client_state.cpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/client_state.cpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -43,6 +43,12 @@
+ }
+ 
+ void
++ClientState::set_tool(DrawingParameter::Tool tool)
++{
++  draw_param-&gt;tool = tool;
++}
++
++void
+ ClientState::set_color(const Color&amp; color)
+ {
+   draw_param-&gt;color = color;
+
+Modified: trunk/netbrush/client_state.hpp
+===================================================================
+--- trunk/netbrush/client_state.hpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/client_state.hpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -28,6 +28,7 @@
+ 
+ #include &lt;string&gt;
+ #include &quot;brushmask.hpp&quot;
++#include &quot;drawing_parameter.hpp&quot;
+ 
+ class Color;
+ class Stroke;
+@@ -44,6 +45,7 @@
+   ClientState(int id_);
+   ~ClientState();
+ 
++  void set_tool(DrawingParameter::Tool tool);
+   void set_opacity(Uint8 o);
+   void set_color(const Color&amp; color);
+   void set_generic_brush(BrushShape shape,
+
+Modified: trunk/netbrush/drawing_context.cpp
+===================================================================
+--- trunk/netbrush/drawing_context.cpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/drawing_context.cpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -83,23 +83,6 @@
+   stroke_buffer-&gt;draw_stroke(stroke, param);
+   stroke_buffer-&gt;draw(drawable, rect, 0, 0);
+ 
+-  if (0)
+-    {
+-      SDL_Surface* brush = param-&gt;get_brush_surface();
+-  
+-      Stroke::Dabs dabs = stroke.get_interpolated_dabs(param-&gt;spacing, param-&gt;spacing);
+-      for(Stroke::Dabs::iterator i = dabs.begin(); i != dabs.end(); ++i)
+-        {
+-          SDL_Rect rect;
+-          rect.x = int(i-&gt;pos.x)-(brush-&gt;w/2);
+-          rect.y = int(i-&gt;pos.y)-(brush-&gt;h/2);
+-          rect.w = brush-&gt;w;
+-          rect.h = brush-&gt;h;
+-                  
+-          SDL_BlitSurface(brush, 0, drawable, &amp;rect);
+-        }
+-    }
+-
+   screen_buffer-&gt;mark_dirty(rect);
+ }
+ 
+
+Modified: trunk/netbrush/drawing_parameter.cpp
+===================================================================
+--- trunk/netbrush/drawing_parameter.cpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/drawing_parameter.cpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -27,7 +27,9 @@
+ #include &quot;drawing_parameter.hpp&quot;
+ 
+ DrawingParameter::DrawingParameter()
+-  : brush_surface(0), brush_buffer(0), 
++  : tool(TOOL_AIRBRUSH),
++    brush_surface(0), 
++    brush_buffer(0), 
+     color(0, 0, 0), 
+     opacity(128),
+     spacing(1.0f)
+
+Modified: trunk/netbrush/drawing_parameter.hpp
+===================================================================
+--- trunk/netbrush/drawing_parameter.hpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/drawing_parameter.hpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -37,6 +37,8 @@
+ class DrawingParameter
+ {
+ public:
++  enum Tool { TOOL_AIRBRUSH, TOOL_PAINTBRUSH };
++  Tool             tool;
+   std::string      brush_file;
+   GenericBrush     generic_brush;
+   SDL_Surface*     brush_surface;
+
+Modified: trunk/netbrush/server.cpp
+===================================================================
+--- trunk/netbrush/server.cpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/server.cpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -211,8 +211,9 @@
+               tokens[0] == &quot;stroke_begin&quot; ||
+               tokens[0] == &quot;stroke_end&quot;   ||
+               tokens[0] == &quot;set_brush&quot;    ||
+-              tokens[0] == &quot;set_generic_brush&quot;    ||
++              tokens[0] == &quot;set_generic_brush&quot; ||
+               tokens[0] == &quot;set_color&quot;    ||
++              tokens[0] == &quot;set_tool&quot;     ||
+               tokens[0] == &quot;set_opacity&quot; 
+               ))
+       {
+
+Modified: trunk/netbrush/server_connection.cpp
+===================================================================
+--- trunk/netbrush/server_connection.cpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/server_connection.cpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -237,6 +237,10 @@
+                 {
+                   client_state-&gt;set_opacity(atoi(tokens[3].c_str()));
+                 }
++              else if (tokens.size() == 4 &amp;&amp; tokens[2] == &quot;set_tool&quot;)
++                {
++                  client_state-&gt;set_tool(static_cast&lt;DrawingParameter::Tool&gt;(atoi(tokens[3].c_str())));
++                }
+               else if (tokens.size() == 6 &amp;&amp; tokens[2] == &quot;set_color&quot;)
+                 {
+                   client_state-&gt;set_color(Color(atoi(tokens[3].c_str()), 
+@@ -310,6 +314,7 @@
+         &lt;&lt; std::endl;
+   else
+     str &lt;&lt; &quot;set_brush &quot; &lt;&lt; param-&gt;get_brush() &lt;&lt; std::endl;
++  str &lt;&lt; &quot;set_tool &quot; &lt;&lt; param-&gt;tool &lt;&lt; std::endl; 
+   str &lt;&lt; &quot;set_opacity &quot; &lt;&lt; int(param-&gt;opacity) &lt;&lt; std::endl;
+   str &lt;&lt; &quot;set_color &quot;
+       &lt;&lt; int(param-&gt;color.r) &lt;&lt; &quot; &quot; 
+
+Modified: trunk/netbrush/stroke_buffer.cpp
+===================================================================
+--- trunk/netbrush/stroke_buffer.cpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/stroke_buffer.cpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -89,68 +89,82 @@
+ {
+   GrayscaleBuffer* brush = param-&gt;get_brush_buffer();
+ 
+-  //Stroke::Dabs dabs = stroke.get_interpolated_dabs(param-&gt;spacing, param-&gt;spacing);
+-  Stroke::Dabs dabs = stroke.get_dabs();
+-  for(Stroke::Dabs::iterator i = dabs.begin(); i != dabs.end(); ++i)
++  if (param-&gt;tool == DrawingParameter::TOOL_AIRBRUSH)
+     {
+-      buffer-&gt;blit(brush,
+-                   static_cast&lt;int&gt;(i-&gt;pos.x - brush-&gt;get_width()/2), 
+-                   static_cast&lt;int&gt;(i-&gt;pos.y - brush-&gt;get_height()/2), 
+-                   GrayscaleBuffer::ALPHA);
++      Stroke::Dabs dabs = stroke.get_dabs();
++      for(Stroke::Dabs::iterator i = dabs.begin(); i != dabs.end(); ++i)
++        {
++          buffer-&gt;blit(brush,
++                       static_cast&lt;int&gt;(i-&gt;pos.x - brush-&gt;get_width()/2), 
++                       static_cast&lt;int&gt;(i-&gt;pos.y - brush-&gt;get_height()/2), 
++                       GrayscaleBuffer::ALPHA);
++        }
+     }
++  else if (param-&gt;tool == DrawingParameter::TOOL_PAINTBRUSH)
++    {
++      Stroke::Dabs dabs = stroke.get_interpolated_dabs(param-&gt;spacing, param-&gt;spacing);
++      for(Stroke::Dabs::iterator i = dabs.begin(); i != dabs.end(); ++i)
++        {
++          buffer-&gt;blit(brush,
++                       static_cast&lt;int&gt;(i-&gt;pos.x - brush-&gt;get_width()/2), 
++                       static_cast&lt;int&gt;(i-&gt;pos.y - brush-&gt;get_height()/2), 
++                       GrayscaleBuffer::ALPHA);
++        }      
++    }
+ }
+ 
+-void
+-StrokeBuffer::draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of)
+-{ 
+-  // rect is in screenspace, x_of, y_of tell how to go from canvas to screenspace
+-  SDL_LockSurface(target);
++  void
++    StrokeBuffer::draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of)
++  { 
++    // rect is in screenspace, x_of, y_of tell how to go from canvas to screenspace
++    SDL_LockSurface(target);
+ 
+-  Uint8* dst = static_cast&lt;Uint8*&gt;(target-&gt;pixels);
+-  Uint8* src = buffer-&gt;get_data();
++    Uint8* dst = static_cast&lt;Uint8*&gt;(target-&gt;pixels);
++    Uint8* src = buffer-&gt;get_data();
+   
+-  assert(rect.left &gt;= 0);
+-  std::cout &lt;&lt; &quot;StrokeBuffer::draw: &quot; &lt;&lt; rect.left &lt;&lt; &quot; &quot; &lt;&lt; rect.top &lt;&lt; &quot; &quot;
+-            &lt;&lt; rect.right &lt;&lt; &quot; &quot; &lt;&lt; rect.bottom &lt;&lt; &quot; - &quot; &lt;&lt; x_of &lt;&lt; &quot; &quot; &lt;&lt; y_of &lt;&lt; std::endl;
++    assert(rect.left &gt;= 0);
++    if (0)
++      std::cout &lt;&lt; &quot;StrokeBuffer::draw: &quot; &lt;&lt; target &lt;&lt; &quot; &quot; &lt;&lt; rect.left &lt;&lt; &quot; &quot; &lt;&lt; rect.top &lt;&lt; &quot; &quot;
++                &lt;&lt; rect.right &lt;&lt; &quot; &quot; &lt;&lt; rect.bottom &lt;&lt; &quot; - &quot; &lt;&lt; x_of &lt;&lt; &quot; &quot; &lt;&lt; y_of &lt;&lt; std::endl;
+ 
+-  if (target == screen) // FIXME: Ugly workaround
+-    {
+-      for(int y = rect.top; y &lt; rect.bottom; ++y)
+-        for(int x = rect.left; x &lt; rect.right; ++x)
+-          {
+-            Uint8* d = dst + (y * target-&gt;pitch + target-&gt;format-&gt;BytesPerPixel * x);
+-            Uint8  s = src[(y - y_of) * buffer-&gt;get_width() + (x - x_of)];
++    if (target == screen) // FIXME: Ugly workaround
++      {
++        for(int y = rect.top; y &lt; rect.bottom; ++y)
++          for(int x = rect.left; x &lt; rect.right; ++x)
++            {
++              Uint8* d = dst + (y * target-&gt;pitch + target-&gt;format-&gt;BytesPerPixel * x);
++              Uint8  s = src[(y - y_of) * buffer-&gt;get_width() + (x - x_of)];
+ 
+-            s = (s * param-&gt;opacity)/255;
++              s = (s * param-&gt;opacity)/255;
+ 
+-            d[0] = ((255 - s) * d[0] + (s * param-&gt;color.b))/255;
+-            d[1] = ((255 - s) * d[1] + (s * param-&gt;color.g))/255;
+-            d[2] = ((255 - s) * d[2] + (s * param-&gt;color.r))/255;
+-          }
+-    }
+-  else
+-    {
+-      for(int y = rect.top; y &lt; rect.bottom; ++y)
+-        for(int x = rect.left; x &lt; rect.right; ++x)
+-          {
+-            Uint8* d = dst + (y * target-&gt;pitch + target-&gt;format-&gt;BytesPerPixel * x);
+-            Uint8  s = src[(y - y_of) * buffer-&gt;get_width() + (x - x_of)];
++              d[0] = ((255 - s) * d[0] + (s * param-&gt;color.b))/255;
++              d[1] = ((255 - s) * d[1] + (s * param-&gt;color.g))/255;
++              d[2] = ((255 - s) * d[2] + (s * param-&gt;color.r))/255;
++            }
++      }
++    else
++      {
++        for(int y = rect.top; y &lt; rect.bottom; ++y)
++          for(int x = rect.left; x &lt; rect.right; ++x)
++            {
++              Uint8* d = dst + (y * target-&gt;pitch + target-&gt;format-&gt;BytesPerPixel * x);
++              Uint8  s = src[(y - y_of) * buffer-&gt;get_width() + (x - x_of)];
+ 
+-            s = (s * param-&gt;opacity)/255;
++              s = (s * param-&gt;opacity)/255;
+ 
+-            d[0] = ((255 - s) * d[0] + (s * param-&gt;color.r))/255;
+-            d[1] = ((255 - s) * d[1] + (s * param-&gt;color.g))/255;
+-            d[2] = ((255 - s) * d[2] + (s * param-&gt;color.b))/255;
+-          }
+-    }
++              d[0] = ((255 - s) * d[0] + (s * param-&gt;color.r))/255;
++              d[1] = ((255 - s) * d[1] + (s * param-&gt;color.g))/255;
++              d[2] = ((255 - s) * d[2] + (s * param-&gt;color.b))/255;
++            }
++      }
+ 
+-  SDL_UnlockSurface(target);
+-}
++    SDL_UnlockSurface(target);
++  }
+ 
+-void
+-StrokeBuffer::set_param(DrawingParameter* param_)
+-{
+-  param = param_;
+-}
++  void
++    StrokeBuffer::set_param(DrawingParameter* param_)
++  {
++    param = param_;
++  }
+ 
+-/* EOF */
++  /* EOF */
+
+Modified: trunk/netbrush/widget/button.cpp
+===================================================================
+--- trunk/netbrush/widget/button.cpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/widget/button.cpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -29,10 +29,12 @@
+ #include &quot;../globals.hpp&quot;
+ #include &quot;button.hpp&quot;
+ 
+-Button::Button(const Rect&amp; rect_)
++Button::Button(SDL_Surface* icon_, const Rect&amp; rect_, ButtonCallback* callback_)
+   : Widget(rect_),
++    callback(callback_),
+     state(UP),
+-    hover(false)
++    hover(false),
++    icon(icon_)
+ {
+   up_surface    = IMG_Load(&quot;data/icons/up.png&quot;);
+   down_surface  = IMG_Load(&quot;data/icons/down.png&quot;);
+@@ -73,12 +75,17 @@
+       state = DOWN;
+       set_dirty(true);
+       widget_manager-&gt;grab(this);
++      callback-&gt;on_press(this);
++      
+     }
+   else if (button.button == 1 &amp;&amp; button.state == SDL_RELEASED)
+     {
+       state = UP;
+       widget_manager-&gt;ungrab(this);
+       set_dirty(true);
++      callback-&gt;on_release(this);
++      // FIXME: Need to check if inside button rectangle
++      callback-&gt;on_click(this);
+     }
+ }
+ 
+@@ -109,6 +116,11 @@
+       break;
+     }
+ 
++  r.x = get_rect().left + 6;
++  r.y = get_rect().top  + 6;
++
++  SDL_BlitSurface(icon, NULL, target, &amp;r);
++
+   //SDL_FillRect(target, get_rect(), color);
+ }
+ 
+
+Modified: trunk/netbrush/widget/button.hpp
+===================================================================
+--- trunk/netbrush/widget/button.hpp	2006-10-19 17:48:52 UTC (rev 654)
++++ trunk/netbrush/widget/button.hpp	2006-10-19 18:22:36 UTC (rev 655)
+@@ -28,10 +28,24 @@
+ 
+ #include &quot;widget.hpp&quot;
+ 
++class Button;
++
++class ButtonCallback
++{
++public:
++  ButtonCallback() {}
++  virtual ~ButtonCallback() {}
++  virtual void on_press  (Button* button) =0;
++  virtual void on_release(Button* button) =0;
++  virtual void on_click  (Button* button) =0;
++};
++
+ /** */
+ class Button : public Widget
+ {
+ private:
++  ButtonCallback* callback;
++  
+   enum State { UP, DOWN };
+   State state;
+   bool  hover;
+@@ -40,8 +54,10 @@
+   SDL_Surface* down_surface;
+   SDL_Surface* hover_surface;
+ 
++  SDL_Surface* icon;
++
+ public:
+-  Button(const Rect&amp; rect);
++  Button(SDL_Surface* icon, const Rect&amp; rect, ButtonCallback* callback_);
+   ~Button();
+ 
+   void on_mouse_motion(const MouseMotionEvent&amp; motion);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000150.html">[Flexlay-commit] r654 - trunk/netbrush/data/icons
+</A></li>
+	<LI>Next message: <A HREF="000152.html">[Flexlay-commit] r656 - trunk/netbrush
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#151">[ date ]</a>
+              <a href="thread.html#151">[ thread ]</a>
+              <a href="subject.html#151">[ subject ]</a>
+              <a href="author.html#151">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

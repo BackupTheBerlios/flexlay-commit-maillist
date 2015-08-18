@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r513 - in trunk: lib ruby
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r513%20-%20in%20trunk%3A%20lib%20ruby&In-Reply-To=%3C200503292326.j2TNQWa2013283%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000022.html">
+   <LINK REL="Next"  HREF="000099.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r513 - in trunk: lib ruby</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r513%20-%20in%20trunk%3A%20lib%20ruby&In-Reply-To=%3C200503292326.j2TNQWa2013283%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r513 - in trunk: lib ruby">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Wed Mar 30 01:26:32 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000022.html">[Flexlay-commit] r512 - trunk/netpanzer
+</A></li>
+        <LI>Next message: <A HREF="000099.html">[Flexlay-commit] r514 - in trunk: lib netpanzer netpanzer/sprites
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#23">[ date ]</a>
+              <a href="thread.html#23">[ thread ]</a>
+              <a href="subject.html#23">[ subject ]</a>
+              <a href="author.html#23">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-30 01:26:08 +0200 (Wed, 30 Mar 2005)
+New Revision: 513
+
+Modified:
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/paint_command.cxx
+   trunk/lib/tilemap_layer.cxx
+   trunk/lib/tilemap_layer.hxx
+   trunk/ruby/flexlay.rb
+Log:
+- some little fixes and renaming
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-03-29 23:24:54 UTC (rev 512)
++++ trunk/lib/flexlay_wrap.i	2005-03-29 23:26:08 UTC (rev 513)
+@@ -205,5 +205,4 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
+-
+ /* EOF */
+
+Modified: trunk/lib/paint_command.cxx
+===================================================================
+--- trunk/lib/paint_command.cxx	2005-03-29 23:24:54 UTC (rev 512)
++++ trunk/lib/paint_command.cxx	2005-03-29 23:26:08 UTC (rev 513)
+@@ -115,13 +115,13 @@
+ void
+ PaintCommandImpl::redo()
+ {
+-  TilemapLayer::draw_tile(tilemap.get_field(), *redo_brush, pos);
++  TilemapLayer::draw_tiles(tilemap.get_field(), *redo_brush, pos);
+ }
+ 
+ void
+ PaintCommandImpl::undo()
+ {
+-  TilemapLayer::draw_tile(tilemap.get_field(), *undo_brush, pos);
++  TilemapLayer::draw_tiles(tilemap.get_field(), *undo_brush, pos);
+ }
+ 
+ std::string
+
+Modified: trunk/lib/tilemap_layer.cxx
+===================================================================
+--- trunk/lib/tilemap_layer.cxx	2005-03-29 23:24:54 UTC (rev 512)
++++ trunk/lib/tilemap_layer.cxx	2005-03-29 23:26:08 UTC (rev 513)
+@@ -218,11 +218,11 @@
+ void
+ TilemapLayer::draw_tile(const TileBrush&amp; brush, const CL_Point&amp; pos)
+ {
+-  draw_tile(&amp;impl-&gt;field, brush, pos);
++  draw_tiles(&amp;impl-&gt;field, brush, pos);
+ }
+ 
+ void
+-TilemapLayer::draw_tile(Field&lt;int&gt;* field, const TileBrush&amp; brush, const CL_Point&amp; pos)
++TilemapLayer::draw_tiles(Field&lt;int&gt;* field, const TileBrush&amp; brush, const CL_Point&amp; pos)
+ {
+   int start_x = std::max(0, -pos.x);
+   int start_y = std::max(0, -pos.y);
+
+Modified: trunk/lib/tilemap_layer.hxx
+===================================================================
+--- trunk/lib/tilemap_layer.hxx	2005-03-29 23:24:54 UTC (rev 512)
++++ trunk/lib/tilemap_layer.hxx	2005-03-29 23:26:08 UTC (rev 513)
+@@ -64,6 +64,7 @@
+   /** Draw the given single tile to the map */
+   void draw_tile(int id, const CL_Point&amp; pos);
+ 
++  /** FIXME: Very bad naming */
+   void draw_tile(int id, int x, int y, bool attribute, CL_GraphicContext* gc);
+ 
+   int get_width()  const;
+@@ -80,7 +81,7 @@
+ 
+   CL_PixelBuffer create_pixelbuffer();
+ 
+-  static void draw_tile(Field&lt;int&gt;* field, const TileBrush&amp; brush, const CL_Point&amp; pos);
++  static void draw_tiles(Field&lt;int&gt;* field, const TileBrush&amp; brush, const CL_Point&amp; pos);
+ 
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-03-29 23:24:54 UTC (rev 512)
++++ trunk/ruby/flexlay.rb	2005-03-29 23:26:08 UTC (rev 513)
+@@ -2,6 +2,14 @@
+   alias orig_get_metadata get_metadata
+   alias orig_set_metadata set_metadata
+ 
++  def set_data(data)
++    orig_set_metadata(make_metadata(data))
++  end
++
++  def get_data()
++    return get_ruby_object(orig_get_metadata())
++  end
++
+   def set_metadata(data)
+     orig_set_metadata(make_metadata(data))
+   end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000022.html">[Flexlay-commit] r512 - trunk/netpanzer
+</A></li>
+	<LI>Next message: <A HREF="000099.html">[Flexlay-commit] r514 - in trunk: lib netpanzer netpanzer/sprites
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#23">[ date ]</a>
+              <a href="thread.html#23">[ thread ]</a>
+              <a href="subject.html#23">[ subject ]</a>
+              <a href="author.html#23">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r688 - trunk/netbrush/experimental
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r688%20-%20trunk/netbrush/experimental&In-Reply-To=%3C200611041803.kA4I3lOo010476%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000180.html">
+   <LINK REL="Next"  HREF="000182.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r688 - trunk/netbrush/experimental</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r688%20-%20trunk/netbrush/experimental&In-Reply-To=%3C200611041803.kA4I3lOo010476%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r688 - trunk/netbrush/experimental">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Nov  4 19:03:47 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000180.html">[Flexlay-commit] r687 - trunk/netbrush/experimental
+</A></li>
+        <LI>Next message: <A HREF="000182.html">[Flexlay-commit] r689 - trunk/netbrush/experimental
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#181">[ date ]</a>
+              <a href="thread.html#181">[ thread ]</a>
+              <a href="subject.html#181">[ subject ]</a>
+              <a href="author.html#181">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-04 19:03:46 +0100 (Sat, 04 Nov 2006)
+New Revision: 688
+
+Modified:
+   trunk/netbrush/experimental/input_device_xinput.cpp
+   trunk/netbrush/experimental/input_device_xinput.hpp
+   trunk/netbrush/experimental/wacom.cpp
+Log:
+- some cleanup
+
+Modified: trunk/netbrush/experimental/input_device_xinput.cpp
+===================================================================
+--- trunk/netbrush/experimental/input_device_xinput.cpp	2006-11-04 03:21:02 UTC (rev 687)
++++ trunk/netbrush/experimental/input_device_xinput.cpp	2006-11-04 18:03:46 UTC (rev 688)
+@@ -1,30 +1,24 @@
+-/*
+-**  ClanLib SDK
+-**  Copyright (c) 1997-2005 The ClanLib Team
++/*  $Id$
++**            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+-**  This software is provided 'as-is', without any express or implied
+-**  warranty.  In no event will the authors be held liable for any damages
+-**  arising from the use of this software.
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
+ **
+-**  Permission is granted to anyone to use this software for any purpose,
+-**  including commercial applications, and to alter it and redistribute it
+-**  freely, subject to the following restrictions:
+-**
+-**  1. The origin of this software must not be misrepresented; you must not
+-**     claim that you wrote the original software. If you use this software
+-**     in a product, an acknowledgment in the product documentation would be
+-**     appreciated but is not required.
+-**  2. Altered source versions must be plainly marked as such, and must not be
+-**     misrepresented as being the original software.
+-**  3. This notice may not be removed or altered from any source distribution.
+-**
+-**  Note: Some of the libraries ClanLib may link to may have additional
+-**  requirements or restrictions.
+-**
+-**  File Author(s):
+-**
+-**    Magnus Norddahl
+-**    (if your name is missing here, please add it)
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
+ */
+ 
+ #include &lt;iostream&gt;
+@@ -32,394 +26,421 @@
+ #include &quot;SDL.h&quot;
+ #include &quot;SDL_syswm.h&quot;
+ 
+-extern SDL_SysWMinfo syswm;
++/*
++  static void print_bits(unsigned int n)
++  {
++  int i;
++  for(i = 31; i &gt;= 0; --i)
++  {
++  if (i == 29)
++  putchar(' ');
+ 
++  if (i == 21)
++  putchar(' ');
++
++  if (n &amp; (1 &lt;&lt; i))
++  putchar('1');
++  else
++  putchar('0');
++  }
++  putchar(' ');
++  }
++*/
++
+ #define INVALID_EVENT_TYPE	-1
++#define verbose true
+ 
+-CL_InputDevice_XInput::CL_InputDevice_XInput()
+-	: 
+-	  absolute(false),
+-	  num_keys   (0),
+-	  motion_type        (INVALID_EVENT_TYPE),
+-	  button_press_type  (INVALID_EVENT_TYPE),
+-	  button_release_type(INVALID_EVENT_TYPE),
+-	  key_press_type     (INVALID_EVENT_TYPE),
+-	  key_release_type   (INVALID_EVENT_TYPE),
+-	  proximity_in_type  (INVALID_EVENT_TYPE),
+-	  proximity_out_type (INVALID_EVENT_TYPE)
++InputDevice_XInput::InputDevice_XInput(Display* dpy, const std::string&amp; name_)
++  : name(name_),
++    absolute(false),
++    num_keys   (0),
++    motion_type        (INVALID_EVENT_TYPE),
++    button_press_type  (INVALID_EVENT_TYPE),
++    button_release_type(INVALID_EVENT_TYPE),
++    key_press_type     (INVALID_EVENT_TYPE),
++    key_release_type   (INVALID_EVENT_TYPE),
++    proximity_in_type  (INVALID_EVENT_TYPE),
++    proximity_out_type (INVALID_EVENT_TYPE)
+ 
+ {
+-	name = &quot;gstylus&quot;;
+-	XDeviceInfo* info = find_device_info(syswm.info.x11.display, name.c_str(), True);
+-	if (!info)
+-		std::cout &lt;&lt; &quot;CL_InputDeviceXInput Error: Couldn't find device: &quot; &lt;&lt; name &lt;&lt; std::endl;
+-	name = info-&gt;name;
+-	get_info(info);
++  XDeviceInfo* info = find_device_info(dpy, name.c_str(), True);
++  if (!info)
++    std::cout &lt;&lt; &quot;InputDeviceXInput Error: Couldn't find device: &quot; &lt;&lt; name &lt;&lt; std::endl;
++  get_info(info);
+ 
+-  if (!register_events(syswm.info.x11.display, info, name.c_str(), True))
+-  {
+-	  std::cout &lt;&lt; &quot;debug&quot; &lt;&lt; &quot;CL_InputDeviceXInput: Couldn't find device: &quot; &lt;&lt; name &lt;&lt; std::endl;
+-  }
++  if (!register_events(dpy, info, name.c_str(), True))
++    {
++      std::cout &lt;&lt; &quot;debug&quot; &lt;&lt; &quot;InputDeviceXInput: Couldn't find device: &quot; &lt;&lt; name &lt;&lt; std::endl;
++    }
+   else
+-  {
+-	  //slot_xevent = owner-&gt;sig_unknown_xevent.connect(this, &amp;CL_InputDevice_XInput::on_xevent);
+-  }
++    {
++      //slot_xevent = owner-&gt;sig_unknown_xevent.connect(this, &amp;InputDevice_XInput::on_xevent);
++    }
+ }
+ 
+-CL_InputDevice_XInput::~CL_InputDevice_XInput()
++InputDevice_XInput::~InputDevice_XInput()
+ {
+ 	
+ }
+ 
+ void
+-CL_InputDevice_XInput::get_info(XDeviceInfo	*info)
++InputDevice_XInput::get_info(XDeviceInfo	*info)
+ {
+-	int			i,j;
+-	XAnyClassPtr	any;
+-	XKeyInfoPtr		k;
+-	XButtonInfoPtr	b;
+-	XValuatorInfoPtr	v;
+-	XAxisInfoPtr	a;
++  int			i,j;
++  XAnyClassPtr	any;
++  XKeyInfoPtr		k;
++  XButtonInfoPtr	b;
++  XValuatorInfoPtr	v;
++  XAxisInfoPtr	a;
+ 
+-	printf(&quot;\&quot;%s\&quot;\tid=%ld\t[%s]\n&quot;, info-&gt;name, info-&gt;id,
+-			 (info-&gt;use == IsXExtensionDevice) ? &quot;XExtensionDevice&quot; :
+-			 ((info-&gt;use == IsXPointer) ? &quot;XPointer&quot; : &quot;XKeyboard&quot;));
++  printf(&quot;\&quot;%s\&quot;\tid=%ld\t[%s]\n&quot;, info-&gt;name, info-&gt;id,
++         (info-&gt;use == IsXExtensionDevice) ? &quot;XExtensionDevice&quot; :
++         ((info-&gt;use == IsXPointer) ? &quot;XPointer&quot; : &quot;XKeyboard&quot;));
+ 
+-	if (info-&gt;num_classes &gt; 0) {
+-		any = (XAnyClassPtr) (info-&gt;inputclassinfo);
+-		for (i=0; i&lt;info-&gt;num_classes; i++) {
+-			switch (any-&gt;c_class) {
+-			case KeyClass:
+-				k = (XKeyInfoPtr) any;
+-				printf(&quot;\tNum_keys is %d\n&quot;, k-&gt;num_keys);
+-				printf(&quot;\tMin_keycode is %d\n&quot;, k-&gt;min_keycode);
+-				printf(&quot;\tMax_keycode is %d\n&quot;, k-&gt;max_keycode);
++  if (info-&gt;num_classes &gt; 0) {
++    any = (XAnyClassPtr) (info-&gt;inputclassinfo);
++    for (i=0; i&lt;info-&gt;num_classes; i++) {
++      switch (any-&gt;c_class) {
++      case KeyClass:
++        k = (XKeyInfoPtr) any;
++        printf(&quot;\tNum_keys is %d\n&quot;,    k-&gt;num_keys);
++        printf(&quot;\tMin_keycode is %d\n&quot;, k-&gt;min_keycode);
++        printf(&quot;\tMax_keycode is %d\n&quot;, k-&gt;max_keycode);
+ 
+-				num_keys = k-&gt;num_keys;
+-				break;
++        num_keys = k-&gt;num_keys;
++        break;
+ 
+-			case ButtonClass:
+-				b = (XButtonInfoPtr) any;
+-				printf(&quot;\tNum_buttons is %d\n&quot;, b-&gt;num_buttons);
++      case ButtonClass:
++        b = (XButtonInfoPtr) any;
++        printf(&quot;\tNum_buttons is %d\n&quot;, b-&gt;num_buttons);
+ 
+-				buttons.resize(b-&gt;num_buttons, false);
+-				break;
++        buttons.resize(b-&gt;num_buttons, false);
++        break;
+ 
+-			case ValuatorClass:
+-				v = (XValuatorInfoPtr) any;
+-				a = (XAxisInfoPtr) ((char *) v + 
+-										  sizeof (XValuatorInfo));
++      case ValuatorClass:
++        v = (XValuatorInfoPtr) any;
++        a = (XAxisInfoPtr) ((char *) v + 
++                            sizeof (XValuatorInfo));
+ 
+-				printf(&quot;\tNum_axes is %d\n&quot;, v-&gt;num_axes);
+-				printf(&quot;\tMode is %s\n&quot;, (v-&gt;mode == Absolute) ? &quot;Absolute&quot; : &quot;Relative&quot;);
+-				printf(&quot;\tMotion_buffer is %ld\n&quot;, v-&gt;motion_buffer);
++        printf(&quot;\tNum_axes is %d\n&quot;, v-&gt;num_axes);
++        printf(&quot;\tMode is %s\n&quot;, (v-&gt;mode == Absolute) ? &quot;Absolute&quot; : &quot;Relative&quot;);
++        printf(&quot;\tMotion_buffer is %ld\n&quot;, v-&gt;motion_buffer);
+ 
+-				absolute = (v-&gt;mode == Absolute);
++        absolute = (v-&gt;mode == Absolute);
+ 
+-				for (j=0; j&lt;v-&gt;num_axes; j++, a++) 
+-				{
+-					printf(&quot;\tAxis %d :\n&quot;, j);
+-					printf(&quot;\t\tMin_value is %d\n&quot;, a-&gt;min_value);
+-					printf(&quot;\t\tMax_value is %d\n&quot;, a-&gt;max_value);
+-					printf (&quot;\t\tResolution is %d\n&quot;, a-&gt;resolution);
++        for (j=0; j&lt;v-&gt;num_axes; j++, a++) 
++          {
++            printf(&quot;\tAxis %d :\n&quot;, j);
++            printf(&quot;\t\tMin_value is %d\n&quot;, a-&gt;min_value);
++            printf(&quot;\t\tMax_value is %d\n&quot;, a-&gt;max_value);
++            printf (&quot;\t\tResolution is %d\n&quot;, a-&gt;resolution);
+ 					
+-					axis.push_back(AxisInfo(a-&gt;min_value, a-&gt;max_value, a-&gt;resolution));
+-				}
++            axis.push_back(AxisInfo(a-&gt;min_value, a-&gt;max_value, a-&gt;resolution));
++          }
+ 
+-				break;
++        break;
+ 		
+-			default:
+-				printf (&quot;unknown class\n&quot;);
+-			}
+-			any = (XAnyClassPtr) ((char *) any + any-&gt;length);
+-		}
+-	}
++      default:
++        printf (&quot;unknown class\n&quot;);
++      }
++      any = (XAnyClassPtr) ((char *) any + any-&gt;length);
++    }
++  }
+ }
+ 
+ XDeviceInfo*
+-CL_InputDevice_XInput::find_device_info(Display	*display,
+-													 const char		*name,
+-													 Bool		only_extended)
++InputDevice_XInput::find_device_info(Display	*display,
++                                     const char	*name,
++                                     Bool	only_extended)
+ {
+-	// FIXME: Not really needed could simply pass XDeviceInfo to the
+-	// constructor, might however make a nicer interface
+-	XDeviceInfo	*devices;
+-	int		loop;
+-	int		num_devices;
+-	int		len = strlen(name);
+-	Bool     is_id = True;
+-	XID		id = 0;
++  // FIXME: Not really needed could simply pass XDeviceInfo to the
++  // constructor, might however make a nicer interface
++  XDeviceInfo	*devices;
++  int		loop;
++  int		num_devices;
++  int		len = strlen(name);
++  Bool     is_id = True;
++  XID		id = 0;
+     
+-	for(loop=0; loop&lt;len; loop++) {
+-		if (!isdigit(name[loop])) {
+-			is_id = False;
+-			break;
+-		}
+-	}
++  for(loop=0; loop&lt;len; loop++) {
++    if (!isdigit(name[loop])) {
++      is_id = False;
++      break;
++    }
++  }
+ 
+-	if (is_id) {
+-		id = atoi(name);
+-	}
++  if (is_id) {
++    id = atoi(name);
++  }
+     
+-	devices = XListInputDevices(display, &amp;num_devices);
++  devices = XListInputDevices(display, &amp;num_devices);
+ 
+-	for(loop=0; loop&lt;num_devices; loop++) {
+-		if ((!only_extended || (devices[loop].use == IsXExtensionDevice)) &amp;&amp;
+-			 ((!is_id &amp;&amp; strcmp(devices[loop].name, name) == 0) ||
+-			  (is_id &amp;&amp; devices[loop].id == id))) {
+-			return &amp;devices[loop];
+-		}
+-	}
+-	return NULL;
++  for(loop=0; loop&lt;num_devices; loop++) {
++    if ((!only_extended || (devices[loop].use == IsXExtensionDevice)) &amp;&amp;
++        ((!is_id &amp;&amp; strcmp(devices[loop].name, name) == 0) ||
++         (is_id &amp;&amp; devices[loop].id == id))) {
++      return &amp;devices[loop];
++    }
++  }
++  return NULL;
+ }
+ 
+ int
+-CL_InputDevice_XInput::register_events(Display		*dpy,
+-													XDeviceInfo	*info,
+-													const char		*dev_name,
+-													Bool		handle_proximity)
++InputDevice_XInput::register_events(Display		*dpy,
++                                    XDeviceInfo	*info,
++                                    const char		*dev_name,
++                                    Bool		handle_proximity)
+ {
+-	int             number = 0;	/* number of events registered */
+-	XEventClass     event_list[7];
+-	int             i;
+-	XDevice         *device;
+-	Window          root_win;
+-	unsigned long   screen;
+-	XInputClassInfo *ip;
++  int             number = 0;	/* number of events registered */
++  XEventClass     event_list[7];
++  int             i;
++  XDevice         *device;
++  Window          root_win;
++  unsigned long   screen;
++  XInputClassInfo *ip;
+ 
+-	screen   = DefaultScreen(dpy);
+-	root_win = RootWindow(dpy, screen);
++  screen   = DefaultScreen(dpy);
++  root_win = RootWindow(dpy, screen);
+ 
+-	device = XOpenDevice(dpy, info-&gt;id);
++  device = XOpenDevice(dpy, info-&gt;id);
+ 
+-	if (!device) {
+-		fprintf(stderr, &quot;unable to open device %s\n&quot;, dev_name);
+-		return 0;
+-	}
++  if (!device) {
++    fprintf(stderr, &quot;unable to open device %s\n&quot;, dev_name);
++    return 0;
++  }
+     
+-	if (device-&gt;num_classes &gt; 0) {
+-		for (ip = device-&gt;classes, i=0; i&lt;info-&gt;num_classes; ip++, i++) {
+-			switch (ip-&gt;input_class) {
+-			case KeyClass:
+-				DeviceKeyPress  (device, key_press_type,   event_list[number]); number++;
+-				DeviceKeyRelease(device, key_release_type, event_list[number]); number++;
+-				break;
++  if (device-&gt;num_classes &gt; 0) 
++    {
++      for (ip = device-&gt;classes, i=0; i&lt;info-&gt;num_classes; ip++, i++) 
++        {
++          switch (ip-&gt;input_class) {
++          case KeyClass:
++            DeviceKeyPress  (device, key_press_type,   event_list[number]); number++;
++            DeviceKeyRelease(device, key_release_type, event_list[number]); number++;
++            break;
+ 
+-			case ButtonClass:
+-				DeviceButtonPress  (device, button_press_type,   event_list[number]); number++;
+-				DeviceButtonRelease(device, button_release_type, event_list[number]); number++;
+-				break;
++          case ButtonClass:
++            DeviceButtonPress  (device, button_press_type,   event_list[number]); number++;
++            DeviceButtonRelease(device, button_release_type, event_list[number]); number++;
++            break;
+ 
+-			case ValuatorClass:
+-				DeviceMotionNotify(device, motion_type, event_list[number]); number++;
+-				if (handle_proximity) {
+-					ProximityIn (device, proximity_in_type,  event_list[number]); number++;
+-					ProximityOut(device, proximity_out_type, event_list[number]); number++;
+-				}
+-				break;
++          case ValuatorClass:
++            DeviceMotionNotify(device, motion_type, event_list[number]); number++;
++            if (handle_proximity) {
++              ProximityIn (device, proximity_in_type,  event_list[number]); number++;
++              ProximityOut(device, proximity_out_type, event_list[number]); number++;
++            }
++            break;
+ 		
+-			default:
+-				fprintf(stderr, &quot;unknown class\n&quot;);
+-				break;
+-			}
+-		}
++          default:
++            fprintf(stderr, &quot;unknown class\n&quot;);
++            break;
++          }
++        }
+ 
+-		if (XSelectExtensionEvent(dpy, root_win, event_list, number)) {
+-			fprintf(stderr, &quot;error selecting extended events\n&quot;);
+-			return 0;
+-		}
+-	}
++      if (XSelectExtensionEvent(dpy, root_win, event_list, number)) 
++        {
++          fprintf(stderr, &quot;error selecting extended events\n&quot;);
++          return 0;
++        }
++    }
+ 
+-	//std::cout &lt;&lt; &quot;### Registered events: &quot; &lt;&lt; number &lt;&lt; std::endl;
+-	return number;
++  //std::cout &lt;&lt; &quot;### Registered events: &quot; &lt;&lt; number &lt;&lt; std::endl;
++  return number;
+ }
+ 
+ void
+-CL_InputDevice_XInput::on_xevent(XEvent &amp;event)
++InputDevice_XInput::on_xevent(XEvent &amp;event)
+ {
+-	if (0)
+-		std::cout &lt;&lt; this &lt;&lt; &quot; event: &quot; 
+-					 &lt;&lt; event.type &lt;&lt; &quot; Defs: &quot;
+-					 &lt;&lt; motion_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; button_press_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; button_release_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; key_press_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; key_release_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; proximity_out_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; proximity_in_type &lt;&lt; &quot; &quot; 
+-					 &lt;&lt; std::endl;
++  if (0)
++    std::cout &lt;&lt; this &lt;&lt; &quot; event: &quot; 
++              &lt;&lt; event.type &lt;&lt; &quot; Defs: &quot;
++              &lt;&lt; motion_type &lt;&lt; &quot; &quot; 
++              &lt;&lt; button_press_type &lt;&lt; &quot; &quot; 
++              &lt;&lt; button_release_type &lt;&lt; &quot; &quot; 
++              &lt;&lt; key_press_type &lt;&lt; &quot; &quot; 
++              &lt;&lt; key_release_type &lt;&lt; &quot; &quot; 
++              &lt;&lt; proximity_out_type &lt;&lt; &quot; &quot; 
++              &lt;&lt; proximity_in_type &lt;&lt; &quot; &quot; 
++              &lt;&lt; std::endl;
+ 
+-	std::vector&lt;AxisInfo&gt; old_axis = axis;
+-	std::vector&lt;bool&gt;     old_buttons = buttons;
++  std::vector&lt;AxisInfo&gt; old_axis    = axis;
++  std::vector&lt;bool&gt;     old_buttons = buttons;
+ 
+-  	if (event.type == motion_type) 
+-	{
+-		XDeviceMotionEvent *motion = (XDeviceMotionEvent *) &event;
++  if (event.type == motion_type) 
++    {
++      on_device_motion_event((XDeviceMotionEvent *)&amp;event);
++    } 
++  else if ((event.type == button_press_type) ||
++           (event.type == button_release_type)) 
++    {
++      on_device_button_event((XDeviceButtonEvent *)&amp;event);
++    } 
++  else if ((event.type == key_press_type) ||
++           (event.type == key_release_type)) 
++    {
++      on_device_key_event((XDeviceKeyEvent*)&amp;event);
++    }
++  else if ((event.type == proximity_out_type) ||
++           (event.type == proximity_in_type))
++    {
++      on_proximity_notify_event((XProximityNotifyEvent*)&amp;event);
++    }
++  else 
++    {  // Events that aren't XInput events lang here (focus and stuff)
++      if (verbose) printf(&quot;InputDevice_XInput: what's that %d\n&quot;, event.type);
++    }
+ 
+-		printf(&quot;motion &quot;);
+-	    
+-		for(int loop=0; loop&lt;motion-&gt;axes_count; loop++) {
+-			printf(&quot;a[%d]=%d &quot;, motion-&gt;first_axis + loop, motion-&gt;axis_data[loop]);
+-			axis[loop + motion-&gt;first_axis].pos = motion-&gt;axis_data[loop];
+-		}
+-		//printf(&quot;\n&quot;);
+-	} 
+-	else if ((event.type == button_press_type) ||
+-				(event.type == button_release_type)) 
+-	{
+-		int	loop;
+-		XDeviceButtonEvent *button = (XDeviceButtonEvent *) &event;
+-	    
+-		printf(&quot;button %s %d &quot;, (event.type == button_release_type) ? &quot;release&quot; : &quot;press  &quot;, button-&gt;button);
++  for (std::vector&lt;bool&gt;::size_type i = 0; i &lt; buttons.size(); ++i)
++    {
++      if (buttons[i] != old_buttons[i])
++        {
++          //InputEvent ie;
++			
++          //ie.id           = i;
++          //ie.type         = InputEvent::pressed;
++          //ie.device       = InputDevice(this);
++          //ie.mouse_pos    = Point(0, 0);
++          //ie.axis_pos     = 0;
++          //ie.repeat_count = false;
+ 
+-		buttons[button-&gt;button] = (event.type == button_press_type);
+-	    
+-		for(loop=0; loop&lt;button-&gt;axes_count; loop++) {
+-			printf(&quot;a[%d]=%d &quot;, button-&gt;first_axis + loop, button-&gt;axis_data[loop]);
+-			axis[loop + button-&gt;first_axis].pos = button-&gt;axis_data[loop];
+-		}
+-		printf(&quot;\n&quot;);
+-	} 
+-	else if ((event.type == key_press_type) ||
+-				(event.type == key_release_type)) 
+-	{
+-		int	loop;
+-		XDeviceKeyEvent *key = (XDeviceKeyEvent *) &event;
+-	   
+-		printf(&quot;key %s %d &quot;, (event.type == key_release_type) ? &quot;release&quot; : &quot;press  &quot;, key-&gt;keycode);
+-	    
+-		for(loop=0; loop&lt;key-&gt;axes_count; loop++) {
+-			printf(&quot;a[%d]=%d &quot;, key-&gt;first_axis + loop, key-&gt;axis_data[loop]);
+-			axis[loop + key-&gt;first_axis].pos = key-&gt;axis_data[loop];
+-		}
+-		printf(&quot;\n&quot;);
+-	}
+-	else if ((event.type == proximity_out_type) ||
+-				(event.type == proximity_in_type))
+-	{
+-		int	loop;
+-		XProximityNotifyEvent *prox = (XProximityNotifyEvent *) &event;
+-	    
+-		printf(&quot;proximity %s &quot;, (event.type == proximity_in_type) ? &quot;in &quot; : &quot;out&quot;);
+-	    
+-		for(loop=0; loop&lt;prox-&gt;axes_count; loop++) {
+-			printf(&quot;a[%d]=%d &quot;, prox-&gt;first_axis + loop, prox-&gt;axis_data[loop]);
+-			axis[loop + prox-&gt;first_axis].pos = prox-&gt;axis_data[loop];
+-		}
+-		printf(&quot;\n&quot;);
+-	}
+-	else 
+-	{
+-		printf(&quot;CL_InputDevice_XInput: what's that %d\n&quot;, event.type);
+-	}
++          //sig_axis_move(ie);
++          //std::cout &lt;&lt; &quot;Wacom: Button&quot; &lt;&lt; std::endl;
++        }
++    }
+ 
++  for (std::vector&lt;AxisInfo&gt;::size_type i = 0; i &lt; axis.size(); ++i)
++    {
++      if (axis[i].pos != old_axis[i].pos)
++        {
++          //			InputEvent ie;
++          //		
++          //			ie.id           = i;
++          //			ie.type         = InputEvent::axis_moved;
++          //			ie.device       = InputDevice(this);
++          //			ie.mouse_pos    = Point(0, 0);
++          //			ie.axis_pos     = get_axis(i);
++          //ie.repeat_count = false;
+ 
+-	for (std::vector&lt;bool&gt;::size_type i = 0; i &lt; buttons.size(); ++i)
+-	{
+-		if (buttons[i] != old_buttons[i])
+-		{
+-			//CL_InputEvent ie;
+-			
+-			//ie.id           = i;
+-			//ie.type         = CL_InputEvent::pressed;
+-			//ie.device       = CL_InputDevice(this);
+-			//ie.mouse_pos    = CL_Point(0, 0);
+-			//ie.axis_pos     = 0;
+-			//ie.repeat_count = false;
++          //sig_axis_move(ie);
+ 
+-			//sig_axis_move(ie);
+-			std::cout &lt;&lt; &quot;Wacom: Button&quot; &lt;&lt; std::endl;
+-		}
+-	}
++          //std::cout &lt;&lt; &quot;Wacom: Axis moved &quot; &lt;&lt; std::endl;
++        }
++    }
++}
+ 
+-	for (std::vector&lt;AxisInfo&gt;::size_type i = 0; i &lt; axis.size(); ++i)
+-	{
+-		if (axis[i].pos != old_axis[i].pos)
+-		{
+-//			CL_InputEvent ie;
+-			//		
+-//			ie.id           = i;
+-//			ie.type         = CL_InputEvent::axis_moved;
+-//			ie.device       = CL_InputDevice(this);
+-//			ie.mouse_pos    = CL_Point(0, 0);
+-//			ie.axis_pos     = get_axis(i);
+-			//ie.repeat_count = false;
++void
++InputDevice_XInput::on_device_button_event(XDeviceButtonEvent *button)
++{
++  if (verbose) printf(&quot;button %s %d &quot;, (button-&gt;type == button_release_type) ? &quot;release&quot; : &quot;press  &quot;, button-&gt;button);
+ 
+-			//sig_axis_move(ie);
++  buttons[button-&gt;button] = (button-&gt;type == button_press_type);
++	    
++  for(int loop = 0; loop &lt; button-&gt;axes_count; loop++) {
++    if (verbose)  printf(&quot;a[%d]=%d &quot;, button-&gt;first_axis + loop, button-&gt;axis_data[loop]);
++    axis[loop + button-&gt;first_axis].pos = button-&gt;axis_data[loop];
++  }
++  if (verbose) printf(&quot;\n&quot;);
++}
+ 
+-			std::cout &lt;&lt; &quot;Wacom: Axis moved &quot; &lt;&lt; std::endl;
+-		}
+-	}
++void
++InputDevice_XInput::on_device_key_event(XDeviceKeyEvent* key)
++{   
++  if (verbose) printf(&quot;key %s %d &quot;, (key-&gt;type == key_release_type) ? &quot;release&quot; : &quot;press  &quot;, key-&gt;keycode);
++	    
++  for(int loop = 0; loop &lt; key-&gt;axes_count; loop++) 
++    {
++      if (verbose) printf(&quot;a[%d]=%d &quot;, key-&gt;first_axis + loop, key-&gt;axis_data[loop]);
++      axis[loop + key-&gt;first_axis].pos = key-&gt;axis_data[loop];
++    }
++  if (verbose) printf(&quot;\n&quot;);
+ }
+ 
+-int
+-CL_InputDevice_XInput::get_x() const
++void
++InputDevice_XInput::on_device_motion_event(XDeviceMotionEvent* motion)
+ {
+-	return 0;
++        if (verbose) printf(&quot;motion &quot;);
++	    
++      for(int loop=0; loop&lt;motion-&gt;axes_count; loop++) {
++        if (loop &gt;= 3)
++          {
++            //printf(&quot;a[%d] = &quot;, motion-&gt;first_axis + loop);
++            //print_bits(*((unsigned int*)&amp;(motion-&gt;axis_data[loop])));
++
++            if (verbose) printf(&quot;a[%d] = %8d &quot;, motion-&gt;first_axis + loop,
++                                *((short*)&amp;(motion-&gt;axis_data[loop]))); // workaround for buggy driver
++          }
++        else
++          {
++            if (verbose) printf(&quot;a[%d] = %8d &quot;, motion-&gt;first_axis + loop, motion-&gt;axis_data[loop]);
++          }
++        axis[loop + motion-&gt;first_axis].pos = motion-&gt;axis_data[loop];
++      }
++      if (verbose) printf(&quot;\n&quot;);
++
+ }
+ 
+-int
+-CL_InputDevice_XInput::get_y() const
++void
++InputDevice_XInput::on_proximity_notify_event(XProximityNotifyEvent* prox)
+ {
+-	return 0;
++  if (verbose) printf(&quot;proximity %s &quot;, (prox-&gt;type == proximity_in_type) ? &quot;in &quot; : &quot;out&quot;);
++		
++  for(int loop=0; loop &lt; prox-&gt;axes_count; loop++)
++    {
++      if (verbose) printf(&quot;a[%d]=%d &quot;, prox-&gt;first_axis + loop, prox-&gt;axis_data[loop]);
++      axis[loop + prox-&gt;first_axis].pos = prox-&gt;axis_data[loop];
++    }
++  if (verbose) printf(&quot;\n&quot;);
+ }
+ 
+ bool
+-CL_InputDevice_XInput::get_keycode(int keycode) const
++InputDevice_XInput::get_keycode(int keycode) const
+ {
+-	if (keycode &gt;=0 &amp;&amp; keycode &lt; int(buttons.size()))
+-	{
+-		return buttons[keycode];
+-	}
+-	else
+-	{
+-		return false;
+-	}
++  if (keycode &gt;=0 &amp;&amp; keycode &lt; int(buttons.size()))
++    {
++      return buttons[keycode];
++    }
++  else
++    {
++      return false;
++    }
+ }
+ 
+-std::string
+-CL_InputDevice_XInput::get_key_name(int id) const
+-{
+-	return &quot;button NUM&quot;; // + CL_String::from_int(id);
+-}
+-
+ float
+-CL_InputDevice_XInput::get_axis(int index) const
++InputDevice_XInput::get_axis(int index) const
+ {
+-	if (index &gt;= 0 &amp;&amp; index &lt; get_axis_count())
+-	{
+-		return float(axis[index].pos)/(axis[index].max_value - axis[index].min_value);
+-	}
+-	else
+-	{
+-		return 0.0f;
+-	}
++  if (index &gt;= 0 &amp;&amp; index &lt; get_axis_count())
++    {
++      return float(axis[index].pos)/(axis[index].max_value - axis[index].min_value);
++    }
++  else
++    {
++      return 0.0f;
++    }
+ }
+ 
+ int
+-CL_InputDevice_XInput::get_axis_count() const
++InputDevice_XInput::get_axis_count() const
+ {
+-	return axis.size();
++  return axis.size();
+ }
+ 
+ std::string
+-CL_InputDevice_XInput::get_name() const
++InputDevice_XInput::get_name() const
+ {
+-	return name;
++  return name;
+ }
+ 
+ std::string
+-CL_InputDevice_XInput::get_device_name() const
++InputDevice_XInput::get_device_name() const
+ {
+-	return &quot;xinput:&quot; + name;
++  return &quot;xinput:&quot; + name;
+ }
+ 
+ int
+-CL_InputDevice_XInput::get_button_count() const
++InputDevice_XInput::get_button_count() const
+ {
+-	return buttons.size();
++  return buttons.size();
+ }
+ 
+-// Local Variables: ***
+-// mode: clanlib ***
+-// End: ***
++/* EOF */
+
+Modified: trunk/netbrush/experimental/input_device_xinput.hpp
+===================================================================
+--- trunk/netbrush/experimental/input_device_xinput.hpp	2006-11-04 03:21:02 UTC (rev 687)
++++ trunk/netbrush/experimental/input_device_xinput.hpp	2006-11-04 18:03:46 UTC (rev 688)
+@@ -1,34 +1,28 @@
+-/*
+-**  ClanLib SDK
+-**  Copyright (c) 1997-2005 The ClanLib Team
++/*  $Id$
++**            _   ___              _   
++**   _ _  ___| |_| _ )_ _ _  _ _ _| |_ 
++**  | ' \/ -_)  _| _ \ '_| || (_-&lt;|   |
++**  |_||_\___|\__|___/_|  \_,_/__/|_|_|
++**  Copyright (C) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ **
+-**  This software is provided 'as-is', without any express or implied
+-**  warranty.  In no event will the authors be held liable for any damages
+-**  arising from the use of this software.
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
+ **
+-**  Permission is granted to anyone to use this software for any purpose,
+-**  including commercial applications, and to alter it and redistribute it
+-**  freely, subject to the following restrictions:
+-**
+-**  1. The origin of this software must not be misrepresented; you must not
+-**     claim that you wrote the original software. If you use this software
+-**     in a product, an acknowledgment in the product documentation would be
+-**     appreciated but is not required.
+-**  2. Altered source versions must be plainly marked as such, and must not be
+-**     misrepresented as being the original software.
+-**  3. This notice may not be removed or altered from any source distribution.
+-**
+-**  Note: Some of the libraries ClanLib may link to may have additional
+-**  requirements or restrictions.
+-**
+-**  File Author(s):
+-**
+-**    Magnus Norddahl
+-**    (if your name is missing here, please add it)
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
+ */
+ 
+-#ifndef header_input_device_xinput
+-#define header_input_device_xinput
++#ifndef HEADER_INPUT_DEVICE_XINPUT_HPP
++#define HEADER_INPUT_DEVICE_XINPUT_HPP
+ 
+ #include &lt;vector&gt;
+ #include &quot;../src/math/point.hpp&quot;
+@@ -36,109 +30,99 @@
+ #include &lt;X11/Xutil.h&gt;
+ #include &lt;X11/extensions/XInput.h&gt;
+ 
+-class CL_DisplayWindow_OpenGL;
+-
+-class CL_InputDevice_XInput
++class InputDevice_XInput
+ {
+-	//!Construction:
++  //!Construction:
+ public:
+-	CL_InputDevice_XInput();
++  InputDevice_XInput(Display* dpy, const std::string&amp; name);
+ 
+-	virtual ~CL_InputDevice_XInput();
++  virtual ~InputDevice_XInput();
+ 
+-	//!Attributes:
++  //!Attributes:
+ public:
+-	//: Returns the x position of the device.
+-	virtual int get_x() const;
++  //: Returns true if the passed key code is down for this device.
++  virtual bool get_keycode(int keycode) const;
+ 
+-	//: Returns the y position of the device.
+-	virtual int get_y() const;
++  //: Returns the the current position of a joystick axis.
++  virtual float get_axis(int index) const;
+ 
+-	//: Returns true if the passed key code is down for this device.
+-	virtual bool get_keycode(int keycode) const;
++  //: Returns the number of axes available on this device.
++  virtual int get_axis_count() const;
+ 
+-	//: Key name for specified identifier (A, B, C, Space, Enter, Backspace).
+-	virtual std::string get_key_name(int id) const;
++  //: Returns the name of the device (i.e. 'Microsoft Sidewinder 3D').
++  virtual std::string get_name() const;
+ 
+-	//: Returns the the current position of a joystick axis.
+-	virtual float get_axis(int index) const;
++  //: Return the hardware id/device for this device (i.e. '/dev/input/js0')
++  virtual std::string get_device_name() const;
+ 
+-	//: Returns the number of axes available on this device.
+-	virtual int get_axis_count() const;
++  //: Returns the number of buttons available on this device.
++  //- &lt;p&gt;If used on a keyboard, this function returns -1.&lt;/p&gt;
++  virtual int get_button_count() const;
+ 
+-	//: Returns the name of the device (i.e. 'Microsoft Sidewinder 3D').
+-	virtual std::string get_name() const;
++  //!Operations:
++public:
+ 
+-	//: Return the hardware id/device for this device (i.e. '/dev/input/js0')
+-	virtual std::string get_device_name() const;
++  //!Implementation:
++private:
++  int register_events(Display		*dpy,
++                      XDeviceInfo	*info,
++                      const char		*dev_name,
++                      Bool		handle_proximity);
+ 
+-	//: Returns the number of buttons available on this device.
+-	//- &lt;p&gt;If used on a keyboard, this function returns -1.&lt;/p&gt;
+-	virtual int get_button_count() const;
++  XDeviceInfo* find_device_info(Display	*display,
++                                const char		*name,
++                                Bool		only_extended);
+ 
+-	//!Operations:
++  void get_info(XDeviceInfo	*info);
+ public:
++  void on_xevent(XEvent &amp;event);
+ 
+-	//!Implementation:
+ private:
+-	int register_events(Display		*dpy,
+-							  XDeviceInfo	*info,
+-							  const char		*dev_name,
+-							  Bool		handle_proximity);
++  void on_device_button_event(XDeviceButtonEvent *button);
++  void on_device_key_event(XDeviceKeyEvent* key);
++  void on_device_motion_event(XDeviceMotionEvent* motion);
++  void on_proximity_notify_event(XProximityNotifyEvent* prox);
+ 
+-	XDeviceInfo* find_device_info(Display	*display,
+-											const char		*name,
+-											Bool		only_extended);
+-
+-	void get_info(XDeviceInfo	*info);
+-public:
+-	void on_xevent(XEvent &amp;event);
+ private:
+-	void received_mouse_input(XEvent &amp;event);
+-	void received_mouse_move(XEvent &amp;event);
++  void received_mouse_input(XEvent &amp;event);
++  void received_mouse_move(XEvent &amp;event);
+ 	
+-	CL_DisplayWindow_OpenGL *owner;
+-	std::string name;
+-	//CL_Slot slot_xevent;
++  std::string name;
+ 
+-	//: true: Device is a absolute pointing device, false: relative
+-	bool absolute;
++  struct AxisInfo
++  {
++    int min_value;
++    int max_value;
++    int resolution;
++    int pos;
+ 
+-	struct AxisInfo
+-	{
+-		int min_value;
+-		int max_value;
+-		int resolution;
+-		int pos;
++    AxisInfo(int min_value_, int max_value_, int resolution_)
++      : min_value(min_value_), max_value(max_value_), resolution(resolution_), pos(0)
++    {}
++  };
+ 
+-		AxisInfo(int min_value_, int max_value_, int resolution_)
+-			: min_value(min_value_), max_value(max_value_), resolution(resolution_), pos(0)
+-		{}
+-	};
++  std::vector&lt;bool&gt; buttons;
+ 
+-	std::vector&lt;bool&gt; buttons;
++  std::vector&lt;AxisInfo&gt; axis;
+ 
+-	std::vector&lt;AxisInfo&gt; axis;
+-
+-	int num_keys;	
++  bool absolute;
++  int num_keys;	
+ 	
+-	Point mouse_pos;
+-	Time time_at_last_press;
+-	int last_press_id;
++  Point mouse_pos;
++  Time time_at_last_press;
++  int last_press_id;
+ 
+-	bool key_states[5];
++  bool key_states[5];
+ 
+-	int           motion_type;
+-	int           button_press_type;
+-	int           button_release_type;
+-	int           key_press_type;
+-	int           key_release_type;
+-	int           proximity_in_type;
+-	int           proximity_out_type;
++  int           motion_type;
++  int           button_press_type;
++  int           button_release_type;
++  int           key_press_type;
++  int           key_release_type;
++  int           proximity_in_type;
++  int           proximity_out_type;
+ };
+ 
+ #endif
+ 
+-// Local Variables: ***
+-// mode: clanlib ***
+-// End: ***
++/* EOF */
+
+Modified: trunk/netbrush/experimental/wacom.cpp
+===================================================================
+--- trunk/netbrush/experimental/wacom.cpp	2006-11-04 03:21:02 UTC (rev 687)
++++ trunk/netbrush/experimental/wacom.cpp	2006-11-04 18:03:46 UTC (rev 688)
+@@ -37,7 +37,7 @@
+     }
+ 
+   syswm.info.x11.lock_func();
+-  CL_InputDevice_XInput xinput;
++  InputDevice_XInput xinput(syswm.info.x11.display, &quot;gstylus&quot;);
+   syswm.info.x11.unlock_func();
+ 
+   SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+@@ -69,7 +69,7 @@
+               break;
+ 
+             case SDL_SYSWMEVENT:
+-              std::cout &lt;&lt; &quot;Sysevent&quot; &lt;&lt; std::endl;
++              //std::cout &lt;&lt; &quot;Sysevent&quot; &lt;&lt; std::endl;
+               xinput.on_xevent(event.syswm.msg-&gt;event.xevent);
+               break;
+             }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000180.html">[Flexlay-commit] r687 - trunk/netbrush/experimental
+</A></li>
+	<LI>Next message: <A HREF="000182.html">[Flexlay-commit] r689 - trunk/netbrush/experimental
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#181">[ date ]</a>
+              <a href="thread.html#181">[ thread ]</a>
+              <a href="subject.html#181">[ subject ]</a>
+              <a href="author.html#181">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

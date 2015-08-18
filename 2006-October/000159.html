@@ -1,0 +1,342 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r664 - in trunk/netbrush: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r664%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610200957.k9K9vMjR020733%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000158.html">
+   <LINK REL="Next"  HREF="000160.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r664 - in trunk/netbrush: . src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r664%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610200957.k9K9vMjR020733%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r664 - in trunk/netbrush: . src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Fri Oct 20 11:57:22 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000158.html">[Flexlay-commit] r663 - in trunk/netbrush: . src src/widget
+</A></li>
+        <LI>Next message: <A HREF="000160.html">[Flexlay-commit] r665 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-20 11:57:21 +0200 (Fri, 20 Oct 2006)
+New Revision: 664
+
+Added:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/src/Makefile
+Removed:
+   trunk/netbrush/Makefile
+   trunk/netbrush/brush_14x14.png
+   trunk/netbrush/brush_2x2.png
+   trunk/netbrush/brush_3x3.png
+   trunk/netbrush/brush_white_14x14.png
+   trunk/netbrush/brush_white_2x2.png
+   trunk/netbrush/brush_white_3x3.png
+   trunk/netbrush/src/SConstruct
+Modified:
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/drawing_parameter.cpp
+   trunk/netbrush/src/screen_buffer.cpp
+Log:
+- added checkboard pattern background
+- removed obsolete pixel brushes
+
+Deleted: trunk/netbrush/Makefile
+===================================================================
+--- trunk/netbrush/Makefile	2006-10-20 08:32:24 UTC (rev 663)
++++ trunk/netbrush/Makefile	2006-10-20 09:57:21 UTC (rev 664)
+@@ -1,4 +0,0 @@
+-all:
+-	scons
+-
+-# EOF #
+
+Copied: trunk/netbrush/SConstruct (from rev 663, trunk/netbrush/src/SConstruct)
+===================================================================
+--- trunk/netbrush/src/SConstruct	2006-10-20 08:32:24 UTC (rev 663)
++++ trunk/netbrush/SConstruct	2006-10-20 09:57:21 UTC (rev 664)
+@@ -0,0 +1,56 @@
++# netbrush_env = Environment()
++# netbrush_env.ParseConfig('sdl-config --cflags --libs')
++# netbrush_env['LIBS'] += ['SDL_net']
++# netbrush_env['CXXFLAGS'] += ['-O2', '-Wall', '-g']
++# netbrush_env.Program('netbrush', ['net.cpp', 'vector.cpp'])
++
++server_env = Environment()
++server_env.ParseConfig('sdl-config --cflags --libs')
++server_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
++server_env['LIBS'] += ['SDL_net']
++server_env.Program('server', [
++        'src/server.cpp'
++])
++
++
++client_env = Environment()
++client_env.ParseConfig('sdl-config --cflags --libs')
++client_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
++client_env['CPPPATH'] += ['src/']
++client_env['LIBS'] += ['SDL_image', 'SDL_net']
++client_env.Program('client', [
++        'src/alpha_picker.cpp',
++        'src/brush_widget.cpp',
++        'src/brushmask.cpp',
++        'src/client.cpp', 
++        'src/client_state.cpp',
++        'src/debug.cpp',
++        'src/drawing_context.cpp',
++        'src/drawing_parameter.cpp',
++        'src/generic_brush.cpp',
++        'src/globals.cpp',
++        'src/grayscale_buffer.cpp', 
++        'src/hue_picker.cpp',
++        'src/math/matrix.cpp',
++        'src/math/origin.cpp',
++        'src/math/quaternion.cpp',
++        'src/math/rect.cpp',
++        'src/math/vector.cpp',
++        'src/saturation_value_picker.cpp',
++        'src/screen_buffer.cpp',
++        'src/server_connection.cpp',
++        'src/stroke.cpp',
++        'src/stroke_buffer.cpp',
++        'src/video.cpp',
++        'src/widget/button.cpp',
++        'src/widget/scrollbar.cpp',
++        'src/widget/slider_widget.cpp',
++        'src/widget/widget.cpp',
++        'src/widget/widget_manager.cpp',
++        'src/navigation.cpp',
++        'src/graphic_context_state.cpp',
++#        'src/widget/events.cpp',
++])
++
++# EOF #
++
+
+Deleted: trunk/netbrush/brush_14x14.png
+===================================================================
+(Binary files differ)
+
+Deleted: trunk/netbrush/brush_2x2.png
+===================================================================
+(Binary files differ)
+
+Deleted: trunk/netbrush/brush_3x3.png
+===================================================================
+(Binary files differ)
+
+Deleted: trunk/netbrush/brush_white_14x14.png
+===================================================================
+(Binary files differ)
+
+Deleted: trunk/netbrush/brush_white_2x2.png
+===================================================================
+(Binary files differ)
+
+Deleted: trunk/netbrush/brush_white_3x3.png
+===================================================================
+(Binary files differ)
+
+Copied: trunk/netbrush/src/Makefile (from rev 662, trunk/netbrush/Makefile)
+===================================================================
+--- trunk/netbrush/Makefile	2006-10-20 08:29:30 UTC (rev 662)
++++ trunk/netbrush/src/Makefile	2006-10-20 09:57:21 UTC (rev 664)
+@@ -0,0 +1,4 @@
++all:
++	scons -D
++
++# EOF #
+
+Deleted: trunk/netbrush/src/SConstruct
+===================================================================
+--- trunk/netbrush/src/SConstruct	2006-10-20 08:32:24 UTC (rev 663)
++++ trunk/netbrush/src/SConstruct	2006-10-20 09:57:21 UTC (rev 664)
+@@ -1,56 +0,0 @@
+-# netbrush_env = Environment()
+-# netbrush_env.ParseConfig('sdl-config --cflags --libs')
+-# netbrush_env['LIBS'] += ['SDL_net']
+-# netbrush_env['CXXFLAGS'] += ['-O2', '-Wall', '-g']
+-# netbrush_env.Program('netbrush', ['net.cpp', 'vector.cpp'])
+-
+-server_env = Environment()
+-server_env.ParseConfig('sdl-config --cflags --libs')
+-server_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
+-server_env['LIBS'] += ['SDL_net']
+-server_env.Program('server', [
+-        'server.cpp'
+-])
+-
+-
+-client_env = Environment()
+-client_env.ParseConfig('sdl-config --cflags --libs')
+-client_env['CXXFLAGS'] += ['-O0', '-Wall', '-g']
+-client_env['CPPPATH'] += ['.']
+-client_env['LIBS'] += ['SDL_image', 'SDL_net']
+-client_env.Program('client', [
+-        'alpha_picker.cpp',
+-        'brush_widget.cpp',
+-        'brushmask.cpp',
+-        'client.cpp', 
+-        'client_state.cpp',
+-        'debug.cpp',
+-        'drawing_context.cpp',
+-        'drawing_parameter.cpp',
+-        'generic_brush.cpp',
+-        'globals.cpp',
+-        'grayscale_buffer.cpp', 
+-        'hue_picker.cpp',
+-        'math/matrix.cpp',
+-        'math/origin.cpp',
+-        'math/quaternion.cpp',
+-        'math/rect.cpp',
+-        'math/vector.cpp',
+-        'saturation_value_picker.cpp',
+-        'screen_buffer.cpp',
+-        'server_connection.cpp',
+-        'stroke.cpp',
+-        'stroke_buffer.cpp',
+-        'video.cpp',
+-        'widget/button.cpp',
+-        'widget/scrollbar.cpp',
+-        'widget/slider_widget.cpp',
+-        'widget/widget.cpp',
+-        'widget/widget_manager.cpp',
+-        'navigation.cpp',
+-        'graphic_context_state.cpp',
+-#        'widget/events.cpp',
+-])
+-
+-# EOF #
+-
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-10-20 08:32:24 UTC (rev 663)
++++ trunk/netbrush/src/client.cpp	2006-10-20 09:57:21 UTC (rev 664)
+@@ -50,32 +50,8 @@
+           break;
+ 
+         case SDL_KEYDOWN:
+-          if (event.key.keysym.sym == SDLK_1)
++          if (event.key.keysym.sym == SDLK_k)
+             {
+-              client_draw_param-&gt;set_brush(&quot;brush_2x2.png&quot;);
+-            }
+-          else if (event.key.keysym.sym == SDLK_2)
+-            {
+-              client_draw_param-&gt;set_brush(&quot;brush_white_2x2.png&quot;);
+-            }
+-          else if (event.key.keysym.sym == SDLK_3)
+-            {
+-              client_draw_param-&gt;set_brush(&quot;brush_3x3.png&quot;);
+-            }
+-          else if (event.key.keysym.sym == SDLK_4)
+-            {
+-              client_draw_param-&gt;set_brush(&quot;brush_white_3x3.png&quot;);
+-            }
+-          else if (event.key.keysym.sym == SDLK_5)
+-            {
+-              client_draw_param-&gt;set_brush(&quot;brush_14x14.png&quot;);
+-            }
+-          else if (event.key.keysym.sym == SDLK_6)
+-            {
+-              client_draw_param-&gt;set_brush(&quot;brush_white_14x14.png&quot;);
+-            }
+-          else if (event.key.keysym.sym == SDLK_k)
+-            {
+               std::cout &lt;&lt; &quot;Forced screen clear and update&quot; &lt;&lt; std::endl;
+               SDL_FillRect(screen, NULL, SDL_MapRGB(screen-&gt;format, 255, 0, 255));
+               SDL_UpdateRect(screen, 0, 0, 0, 0);
+
+Modified: trunk/netbrush/src/drawing_parameter.cpp
+===================================================================
+--- trunk/netbrush/src/drawing_parameter.cpp	2006-10-20 08:32:24 UTC (rev 663)
++++ trunk/netbrush/src/drawing_parameter.cpp	2006-10-20 09:57:21 UTC (rev 664)
+@@ -34,7 +34,7 @@
+     opacity(128),
+     spacing(1.0f)
+ {
+-  set_brush(&quot;brush_3x3.png&quot;);
++  brush_buffer = generic_brush.generate();
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-10-20 08:32:24 UTC (rev 663)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-10-20 09:57:21 UTC (rev 664)
+@@ -89,12 +89,24 @@
+ 
+   if (complete_refresh)
+     { 
+-      SDL_Rect r;
+-      r.x = get_rect().left;
+-      r.y = get_rect().top;
+-      r.w = get_rect().get_width();
+-      r.h = get_rect().get_height();
+-      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++      Uint32 black = SDL_MapRGB(target-&gt;format, 200, 200, 200);
++      Uint32 white = SDL_MapRGB(target-&gt;format, 100, 100, 100);
++
++      SDL_Rect r;     
++      for(int y = get_rect().top; y &lt; get_rect().bottom; y += 32)
++        for(int x = get_rect().left; x &lt; get_rect().right; x += 32)
++          {
++            r.x = x;
++            r.y = y;
++            
++            r.w = 32;
++            r.h = 32;
++            
++            if (((x / 32) % 2) ^ ((y / 32) % 2))
++              SDL_FillRect(target, &amp;r, black);
++            else
++              SDL_FillRect(target, &amp;r, white);
++          }
+     }
+ 
+   // check for invalid dirty_regions (ie. canvas is completly outside of the view)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000158.html">[Flexlay-commit] r663 - in trunk/netbrush: . src src/widget
+</A></li>
+	<LI>Next message: <A HREF="000160.html">[Flexlay-commit] r665 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

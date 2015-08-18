@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r574 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r574%20-%20trunk/supertux&In-Reply-To=%3C200507162139.j6GLdZ3K018502%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000068.html">
+   <LINK REL="Next"  HREF="000070.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r574 - trunk/supertux</H1>
+    <B>Marek Moeckel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r574%20-%20trunk/supertux&In-Reply-To=%3C200507162139.j6GLdZ3K018502%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r574 - trunk/supertux">wansti at berlios.de
+       </A><BR>
+    <I>Sat Jul 16 23:39:35 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000068.html">[Flexlay-commit] r573 - trunk/lib
+</A></li>
+        <LI>Next message: <A HREF="000070.html">[Flexlay-commit] r575 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wansti
+Date: 2005-07-16 23:39:33 +0200 (Sat, 16 Jul 2005)
+New Revision: 574
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/supertux-worldmap.rb
+   trunk/supertux/supertux.rb
+Log:
+added moving platforms and a temporary point object to help building paths until the path object is implemented
+
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-07-14 02:14:08 UTC (rev 573)
++++ trunk/supertux/data.rb	2005-07-16 21:39:33 UTC (rev 574)
+@@ -65,6 +65,10 @@
+     proc{|data, sexpr| ParticleSystem.new(&quot;rain&quot;, sexpr)}],
+   [&quot;leveltime&quot;, &quot;images/engine/editor/clock.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| LevelTime.new(sexpr)}],
++  [&quot;point&quot;, &quot;images/engine/editor/point.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| SimpleObject.new(&quot;point&quot;)}],
++  [&quot;platform&quot;, &quot;images/objects/flying_platform/flying_platform-0.png&quot;, &quot;sprite&quot;,
++    proc{|data, sexpr| Platform.new(data, sexpr)}],
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+@@ -101,7 +105,7 @@
+     obj.to_object.set_metadata(make_metadata(gobj))
+ 
+   else
+-    raise &quot;Error: Unknown object type droped: '#{data}'&quot;
++    raise &quot;Error: Unknown object type dropped: '#{data}'&quot;
+   end
+   
+   cmd = ObjectAddCommand.new(objmap)
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-07-14 02:14:08 UTC (rev 573)
++++ trunk/supertux/gameobj.rb	2005-07-16 21:39:33 UTC (rev 574)
+@@ -161,6 +161,29 @@
+   end  
+ end
+ 
++class Platform&lt;GameObj
++  def initialize(data, sexpr = [])
++    @data = data
++    @path = get_value_from_tree([&quot;use_path&quot;, &quot;_&quot;], sexpr, &quot;path01&quot;)
++    @type = get_value_from_tree([&quot;type&quot;, &quot;_&quot;], sexpr, &quot;flying&quot;)
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write(&quot;       (platform (x %d) (y %d) (use_path \&quot;%s\&quot;) (type \&quot;%s\&quot;))\n&quot; % [pos.x, pos.y, @path, @type])
++  end
++  
++  def property_dialog()
++    dialog = GenericDialog.new(&quot;Platform Property Dialog&quot;, $gui.get_component())
++    dialog.add_string(&quot;Use Path: &quot;, @path)
++    dialog.add_string(&quot;Platform Type: &quot;, @type)
++    dialog.set_callback(proc{|path, type| 
++                          @path = path
++                          @type = type
++                        })
++  end  
++end
++
+ class SpawnPoint&lt;GameObj
+   attr_accessor :name
+   attr_reader   :data
+
+Modified: trunk/supertux/supertux-worldmap.rb
+===================================================================
+--- trunk/supertux/supertux-worldmap.rb	2005-07-14 02:14:08 UTC (rev 573)
++++ trunk/supertux/supertux-worldmap.rb	2005-07-16 21:39:33 UTC (rev 574)
+@@ -29,8 +29,7 @@
+     &quot;/usr/local/share/games/supertux/&quot;,
+     &quot;/opt/supertux/data/&quot;,
+     &quot;~/project/supertux/data/&quot;,
+-    &quot;~/projects/supertux/trunk/supertux/data/&quot;,
+-    &quot;~/data/projects/supertux/trunk/supertux/data&quot;,
++    &quot;~/projects/supertux/svn/trunk/supertux/data/&quot;,
+   ]
+   # `which supertux`
+ end
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2005-07-14 02:14:08 UTC (rev 573)
++++ trunk/supertux/supertux.rb	2005-07-16 21:39:33 UTC (rev 574)
+@@ -29,8 +29,7 @@
+     &quot;/usr/local/share/games/supertux/&quot;,
+     &quot;/opt/supertux/data/&quot;,
+     &quot;~/projects/supertux/data/&quot;,
+-    &quot;~/projects/supertux/trunk/supertux/data/&quot;,
+-    &quot;~/data/projects/supertux/trunk/supertux/data&quot;,
++    &quot;~/projects/supertux/svn/trunk/supertux/data/&quot;,
+   ]
+   # `which supertux`
+ end
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000068.html">[Flexlay-commit] r573 - trunk/lib
+</A></li>
+	<LI>Next message: <A HREF="000070.html">[Flexlay-commit] r575 - trunk/supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

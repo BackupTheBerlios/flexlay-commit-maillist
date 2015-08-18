@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r491 - trunk/pingus
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-February/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r491%20-%20trunk/pingus&In-Reply-To=%3C200502280402.j1S42qTK018697%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000001.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r491 - trunk/pingus</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r491%20-%20trunk/pingus&In-Reply-To=%3C200502280402.j1S42qTK018697%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r491 - trunk/pingus">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Mon Feb 28 05:02:52 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000001.html">[Flexlay-commit] r490 - in trunk: lib pingus ruby
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-02-28 05:02:43 +0100 (Mon, 28 Feb 2005)
+New Revision: 491
+
+Modified:
+   trunk/pingus/level.rb
+   trunk/pingus/pingus.rb
+   trunk/pingus/worldmap.rb
+Log:
+- little fixes to make it start again
+
+Modified: trunk/pingus/level.rb
+===================================================================
+--- trunk/pingus/level.rb	2005-02-25 17:30:24 UTC (rev 490)
++++ trunk/pingus/level.rb	2005-02-28 04:02:43 UTC (rev 491)
+@@ -30,10 +30,14 @@
+     @number_of_pingus = header['number-of-pingus'].text.to_i
+     @number_to_save   = header['number-to-save'].text.to_i
+ 
+-    @ambient_light = CL_Color.new((header['ambient-light/red'].text.to_f * 255).to_i,
++    if header['ambient-light/red'] then
++      @ambient_light = CL_Color.new((header['ambient-light/red'].text.to_f * 255).to_i,
+                                   (header['ambient-light/green'].text.to_f * 255).to_i,
+                                   (header['ambient-light/blue'].text.to_f  * 255).to_i,
+                                   (header['ambient-light/alpha'].text.to_f * 255).to_i)
++    else
++      @ambient_light = CL_Color.new(1, 1, 1, 1);
++    end
+ 
+     @comment = header['comment'].text
+     @levelsize = CL_Size.new(header['levelsize/width'].text.to_i,
+
+Modified: trunk/pingus/pingus.rb
+===================================================================
+--- trunk/pingus/pingus.rb	2005-02-25 17:30:24 UTC (rev 490)
++++ trunk/pingus/pingus.rb	2005-02-28 04:02:43 UTC (rev 491)
+@@ -59,11 +59,11 @@
+ $resources.add_resources(CL_ResourceManager.new($datadir + &quot;data/worldobjs.xml&quot;));
+ $resources.add_resources(CL_ResourceManager.new($datadir + &quot;data/alias.xml&quot;));
+ 
+-if true then
++if false then
+   worldmap = WorldMap.new()
+   worldmap.activate($gui.workspace)
+ else
+-  level = Level.new('/home/ingo/projects/pingus/svn/trunk/src/levelout.xml')
++  level = Level.new($datadir + 'levels/tutorial/snow22-grumbel.pingus')
+   level.activate($gui.workspace)
+   level.save(&quot;/tmp/levelout.xml&quot;)
+ end
+
+Modified: trunk/pingus/worldmap.rb
+===================================================================
+--- trunk/pingus/worldmap.rb	2005-02-25 17:30:24 UTC (rev 490)
++++ trunk/pingus/worldmap.rb	2005-02-28 04:02:43 UTC (rev 491)
+@@ -14,7 +14,7 @@
+     @editormap.set_metadata(self)
+     @editormap.set_bounding_rect(CL_Rect.new(0, 0, 2400, 600));
+ 
+-    load('/home/ingo/projects/pingus/svn/trunk/src/worldmapout.xml')
++    load($datadir + 'worldmaps/tutorial.xml')
+   end    
+ 
+   def activate(workspace)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000001.html">[Flexlay-commit] r490 - in trunk: lib pingus ruby
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#2">[ date ]</a>
+              <a href="thread.html#2">[ thread ]</a>
+              <a href="subject.html#2">[ subject ]</a>
+              <a href="author.html#2">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,345 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r508 - trunk/netpanzer
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r508%20-%20trunk/netpanzer&In-Reply-To=%3C200503292025.j2TKPdKN021520%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000017.html">
+   <LINK REL="Next"  HREF="000019.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r508 - trunk/netpanzer</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r508%20-%20trunk/netpanzer&In-Reply-To=%3C200503292025.j2TKPdKN021520%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r508 - trunk/netpanzer">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 29 22:25:39 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000017.html">[Flexlay-commit] r507 - trunk/netpanzer
+</A></li>
+        <LI>Next message: <A HREF="000019.html">[Flexlay-commit] r509 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-29 22:25:38 +0200 (Tue, 29 Mar 2005)
+New Revision: 508
+
+Added:
+   trunk/netpanzer/gameobjects.rb
+   trunk/netpanzer/level.rb
+Modified:
+   trunk/netpanzer/netpanzer.rb
+   trunk/netpanzer/netpanzerbrushes.rb
+Log:
+- some code splitting
+
+Added: trunk/netpanzer/gameobjects.rb
+===================================================================
+--- trunk/netpanzer/gameobjects.rb	2005-03-29 20:15:35 UTC (rev 507)
++++ trunk/netpanzer/gameobjects.rb	2005-03-29 20:25:38 UTC (rev 508)
+@@ -0,0 +1,47 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++module GameObjects
++  class GameObject
++    attr_accessor :data
++  end
++
++  class Outpost &lt; GameObject
++    def Outpost.get_sprite()
++      return make_sprite_from_resource(&quot;sprites/outpost&quot;, $resources)
++    end
++  end
++  
++  class SpawnPoint &lt; GameObject
++    def SpawnPoint.get_sprite()
++      return make_sprite_from_resource(&quot;sprites/spawnpoint&quot;, $resources)
++    end
++  end
++end
++
++class Config
++  attr_accessor :datadir, :recent_files
++
++  def initialize()
++    @datadir      = &quot;./&quot;
++    @recent_files = []
++  end
++end
++
++# EOF #
+
+Added: trunk/netpanzer/level.rb
+===================================================================
+--- trunk/netpanzer/level.rb	2005-03-29 20:15:35 UTC (rev 507)
++++ trunk/netpanzer/level.rb	2005-03-29 20:25:38 UTC (rev 508)
+@@ -0,0 +1,80 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++class Level
++  attr_accessor :filename, :data, :editormap, :objects
++
++  def initialize(*params)
++    if params.length == 2 then
++      (width, height) = params
++      @data = NetPanzerFileStruct.new($tileset, width, height)
++
++    elsif params.length == 1 then
++      (@filename,) = params
++      @data = NetPanzerFileStruct.new($tileset, @filename)
++    end      
++
++    @objects   = ObjectLayer.new()
++    @editormap = EditorMap.new()
++    @editormap.add_layer(@data.get_tilemap().to_layer())
++    @editormap.add_layer(@objects.to_layer())
++
++    # FIXME: Data might not get freed since its 'recursively' refcounted
++    @editormap.set_metadata(make_metadata(self))
++  end
++
++  def save_optfile(filename)
++    outposts = [] # FIXME
++    
++    f = open(filename, &quot;w&quot;)
++    f.write(&quot;ObjectiveCount: %d\n\n&quot; % outposts.length)
++    outposts.each {|name, x , y|
++        f.write(&quot;Name: %s\n&quot; % &quot;Foobar&quot;)
++      f.write(&quot;Location: %d %d\n\n&quot; % x.to_i/32, y.to_i/32)
++    }
++  end
++
++  def save_spnfile(filename)
++    spawnpoints = []
++    f = open(filename, &quot;w&quot;)
++
++    f.write(&quot;SpawnCount: %d\n\n&quot; % spawnpoints.length)
++    spawnpoints.each {|x, y|
++      f.print(&quot;Location: %d %d\n&quot; % [x.to_i/32, y.to_i/32])
++    }
++  end
++
++  def save(filename)
++    if filename[-4..-1] == &quot;.npm&quot;
++      data.save(filename)
++      save_optfile(filename[0..-5] + &quot;.opt&quot;)
++      save_optfile(filename[0..-5] + &quot;.spn&quot;)
++    else
++      raise &quot;Fileextension not valid, must be .npm!&quot;
++    end
++  end
++
++  def activate(workspace)
++    $workspace.set_map(@editormap)
++    TilemapLayer.set_current(@data.get_tilemap())
++    ObjectLayer.set_current(@objects)
++  end
++end
++
++# EOF #
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-03-29 20:15:35 UTC (rev 507)
++++ trunk/netpanzer/netpanzer.rb	2005-03-29 20:25:38 UTC (rev 508)
+@@ -25,94 +25,9 @@
+ include Netpanzer_wrap
+ 
+ require &quot;netpanzerbrushes.rb&quot;
++require &quot;level.rb&quot;
++require &quot;gameobjects.rb&quot;
+ 
+-module GameObjects
+-  class GameObject
+-    attr_accessor :data
+-  end
+-
+-  class Outpost &lt; GameObject
+-    def Outpost.get_sprite()
+-      return make_sprite_from_resource(&quot;sprites/outpost&quot;, $resources)
+-    end
+-  end
+-  
+-  class SpawnPoint &lt; GameObject
+-    def SpawnPoint.get_sprite()
+-      return make_sprite_from_resource(&quot;sprites/spawnpoint&quot;, $resources)
+-    end
+-  end
+-end
+-
+-class Config
+-  attr_accessor :datadir, :recent_files
+-
+-  def initialize()
+-    @datadir      = &quot;./&quot;
+-    @recent_files = []
+-  end
+-end
+-
+-class Level
+-  attr_accessor :filename, :data, :editormap, :objects
+-
+-  def initialize(*params)
+-    if params.length == 2 then
+-      (width, height) = params
+-      @data = NetPanzerFileStruct.new($tileset, width, height)
+-
+-    elsif params.length == 1 then
+-      (@filename,) = params
+-      @data = NetPanzerFileStruct.new($tileset, @filename)
+-    end      
+-
+-    @objects   = ObjectLayer.new()
+-    @editormap = EditorMap.new()
+-    @editormap.add_layer(@data.get_tilemap().to_layer())
+-    @editormap.add_layer(@objects.to_layer())
+-
+-    # FIXME: Data might not get freed since its 'recursively' refcounted
+-    @editormap.set_metadata(make_metadata(self))
+-  end
+-
+-  def save_optfile(filename)
+-    outposts = [] # FIXME
+-    
+-    f = open(filename, &quot;w&quot;)
+-    f.write(&quot;ObjectiveCount: %d\n\n&quot; % outposts.length)
+-    outposts.each {|name, x , y|
+-        f.write(&quot;Name: %s\n&quot; % &quot;Foobar&quot;)
+-      f.write(&quot;Location: %d %d\n\n&quot; % x.to_i/32, y.to_i/32)
+-    }
+-  end
+-
+-  def save_spnfile(filename)
+-    spawnpoints = []
+-    f = open(filename, &quot;w&quot;)
+-
+-    f.write(&quot;SpawnCount: %d\n\n&quot; % spawnpoints.length)
+-    spawnpoints.each {|x, y|
+-      f.print(&quot;Location: %d %d\n&quot; % [x.to_i/32, y.to_i/32])
+-    }
+-  end
+-
+-  def save(filename)
+-    if filename[-4..-1] == &quot;.npm&quot;
+-      data.save(filename)
+-      save_optfile(filename[0..-5] + &quot;.opt&quot;)
+-      save_optfile(filename[0..-5] + &quot;.spn&quot;)
+-    else
+-      raise &quot;Fileextension not valid, must be .npm!&quot;
+-    end
+-  end
+-
+-  def activate(workspace)
+-    $workspace.set_map(@editormap)
+-    TilemapLayer.set_current(@data.get_tilemap())
+-    ObjectLayer.set_current(@objects)
+-  end
+-end
+-
+ flexlay = Flexlay.new()
+ flexlay.init()
+ 
+
+Modified: trunk/netpanzer/netpanzerbrushes.rb
+===================================================================
+--- trunk/netpanzer/netpanzerbrushes.rb	2005-03-29 20:15:35 UTC (rev 507)
++++ trunk/netpanzer/netpanzerbrushes.rb	2005-03-29 20:25:38 UTC (rev 508)
+@@ -1,3 +1,24 @@
++##  $Id$
++## 
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++# This file defines the mappings of Tile IDs to images/sprite
++
+ $brushes = [
+     [0, 8, 6, &quot;House1&quot;], 
+     [48, 8, 6, &quot;House2&quot;],
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000017.html">[Flexlay-commit] r507 - trunk/netpanzer
+</A></li>
+	<LI>Next message: <A HREF="000019.html">[Flexlay-commit] r509 - trunk/netpanzer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#18">[ date ]</a>
+              <a href="thread.html#18">[ thread ]</a>
+              <a href="subject.html#18">[ subject ]</a>
+              <a href="author.html#18">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

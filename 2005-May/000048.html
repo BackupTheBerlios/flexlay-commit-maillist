@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r553 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r553%20-%20trunk/supertux&In-Reply-To=%3C200505111341.j4BDfD36008971%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000047.html">
+   <LINK REL="Next"  HREF="000049.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r553 - trunk/supertux</H1>
+    <B>Marek Moeckel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r553%20-%20trunk/supertux&In-Reply-To=%3C200505111341.j4BDfD36008971%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r553 - trunk/supertux">wansti at sheep.berlios.de
+       </A><BR>
+    <I>Wed May 11 15:41:13 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000047.html">[Flexlay-commit] r552 - in trunk: ruby supertux
+</A></li>
+        <LI>Next message: <A HREF="000049.html">[Flexlay-commit] r554 - in trunk: lib supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#48">[ date ]</a>
+              <a href="thread.html#48">[ thread ]</a>
+              <a href="subject.html#48">[ subject ]</a>
+              <a href="author.html#48">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wansti
+Date: 2005-05-11 15:41:12 +0200 (Wed, 11 May 2005)
+New Revision: 553
+
+Modified:
+   trunk/supertux/gameobj.rb
+Log:
+fixed saving ambient sound object
+
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-05-10 20:07:49 UTC (rev 552)
++++ trunk/supertux/gameobj.rb	2005-05-11 13:41:12 UTC (rev 553)
+@@ -147,7 +147,7 @@
+     @data = data
+     @factor = get_value_from_tree([&quot;distance_factor&quot;, &quot;_&quot;],  sexpr, 0.1)
+     @bias = get_value_from_tree([&quot;distance_bias&quot;, &quot;_&quot;],  sexpr, 200)
+-    @sample = get_value_from_tree([&quot;sample&quot;, &quot;_&quot;],  sexpr, &quot;waterfall&quot;)
++    @sample = get_value_from_tree([&quot;sample&quot;, &quot;_&quot;],  sexpr, &quot;&quot;)
+     connect_v1_ObjMapObject(data.to_object.sig_move(), method(:on_move))
+     on_move(data)
+   end
+@@ -161,7 +161,7 @@
+ 
+   def save(f, obj)
+     pos = obj.get_pos()
+-    f.write(&quot;       (ambient_sound (x %d) (y %d) (distance_factor \&quot;%s\&quot;) (distance_bias \&quot;%s\&quot;) (sample \&quot;%s\&quot;))\n&quot; % [pos.x, pos.y, @factor, @bias, @sample])
++    f.write(&quot;       (ambient_sound (x %d) (y %d) (distance_factor %f) (distance_bias %f) (sample \&quot;%s\&quot;))\n&quot; % [pos.x, pos.y, @factor, @bias, @sample])
+   end
+ 
+   def property_dialog()
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000047.html">[Flexlay-commit] r552 - in trunk: ruby supertux
+</A></li>
+	<LI>Next message: <A HREF="000049.html">[Flexlay-commit] r554 - in trunk: lib supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#48">[ date ]</a>
+              <a href="thread.html#48">[ thread ]</a>
+              <a href="subject.html#48">[ subject ]</a>
+              <a href="author.html#48">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

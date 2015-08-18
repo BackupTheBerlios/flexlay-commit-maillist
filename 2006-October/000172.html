@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r678 - in trunk/netbrush: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r678%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610291517.k9TFHMeM019651%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000171.html">
+   <LINK REL="Next"  HREF="000173.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r678 - in trunk/netbrush: . src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r678%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200610291517.k9TFHMeM019651%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r678 - in trunk/netbrush: . src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Oct 29 16:17:22 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000171.html">[Flexlay-commit] r676 - trunk/netbrush/src
+</A></li>
+        <LI>Next message: <A HREF="000173.html">[Flexlay-commit] r679 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-29 16:17:22 +0100 (Sun, 29 Oct 2006)
+New Revision: 678
+
+Modified:
+   trunk/netbrush/AUTHORS
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/hue_picker.cpp
+Log:
+- removed colorpicker button (simply use right click for now)
+
+Modified: trunk/netbrush/AUTHORS
+===================================================================
+--- trunk/netbrush/AUTHORS	2006-10-29 14:35:34 UTC (rev 677)
++++ trunk/netbrush/AUTHORS	2006-10-29 15:17:22 UTC (rev 678)
+@@ -1 +1,5 @@
+ Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++
++Icons are taken from Gimp
++
++# EOF #
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-29 14:35:34 UTC (rev 677)
++++ trunk/netbrush/src/controller.cpp	2006-10-29 15:17:22 UTC (rev 678)
+@@ -115,9 +115,9 @@
+     widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-paintbrush-22.png&quot;), 
+                                    Rect(Point(2, 2+1*34), Size(34, 34)),
+                                    new ToolButtonCallback(DrawingParameter::TOOL_PAINTBRUSH)));
+-    widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-color-picker-22.png&quot;), 
+-                                     Rect(Point(2, 2+2*34), Size(34, 34)),
+-                                     new ToolButtonCallback(DrawingParameter::TOOL_COLOR_PICKER)));
++    //widget_manager-&gt;add(new Button(IMG_Load(&quot;data/icons/stock-tool-color-picker-22.png&quot;), 
++    //                               Rect(Point(2, 2+2*34), Size(34, 34)),
++    //                               new ToolButtonCallback(DrawingParameter::TOOL_COLOR_PICKER)));
+ 
+     widget_manager-&gt;add(text_view = new TextView(Rect(38, screen-&gt;h - 38,
+                                                       screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h)));
+@@ -160,14 +160,28 @@
+ 
+   text_view-&gt;put(&quot;netBrush Version 0.0.1\n&quot;);
+   set_generic_brush(client_draw_param-&gt;generic_brush);
++
++  set_color(Color(0, 0, 0));
++
++  saturation_value_picker-&gt;set_color(Color(1, 0, 0));
+ }
+ 
+-
+ void
+ Controller::set_color(const Color&amp; color)
+ {
+   client_draw_param-&gt;color = color;
+   color_display-&gt;set_color(color);
++  
++  //alpha_picker-&gt;set_color(color);
++  
++  //saturation_value_picker-&gt;set_color(color); // FIXME: Should use hue instead of color
++
++  if (0) 
++    { // FIXME: all buggy
++      HSVColor hsv = HSVColor::from_rgb(color);
++      saturation_value_picker-&gt;set_color(Color::from_hue(hsv.hue));
++      hue_picker-&gt;set_hue(hsv.hue);
++    }
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/hue_picker.cpp
+===================================================================
+--- trunk/netbrush/src/hue_picker.cpp	2006-10-29 14:35:34 UTC (rev 677)
++++ trunk/netbrush/src/hue_picker.cpp	2006-10-29 15:17:22 UTC (rev 678)
+@@ -108,4 +108,11 @@
+   SDL_FillRect(target, &amp;vline, SDL_MapRGB(target-&gt;format, 0, 0, 0));
+ }
+ 
++void
++HuePicker::set_hue(Uint8 hue)
++{
++  click_pos.x = (hue * get_rect().get_width()) / 255;
++  set_dirty(true);
++}
++
+ /* EOF */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000171.html">[Flexlay-commit] r676 - trunk/netbrush/src
+</A></li>
+	<LI>Next message: <A HREF="000173.html">[Flexlay-commit] r679 - in trunk/netbrush: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r744 - trunk/flexlay/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2010-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r744%20-%20trunk/flexlay/supertux&In-Reply-To=%3C201005142035.o4EKZA6C027534%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000236.html">
+   <LINK REL="Next"  HREF="000238.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r744 - trunk/flexlay/supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r744%20-%20trunk/flexlay/supertux&In-Reply-To=%3C201005142035.o4EKZA6C027534%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r744 - trunk/flexlay/supertux">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Fri May 14 22:35:10 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000236.html">[Flexlay-commit] r743 - trunk/flexlay
+</A></li>
+        <LI>Next message: <A HREF="000238.html">[Flexlay-commit] r745 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2010-05-14 22:35:09 +0200 (Fri, 14 May 2010)
+New Revision: 744
+
+Modified:
+   trunk/flexlay/supertux/supertux.rb
+Log:
+Unknown stuff
+
+Modified: trunk/flexlay/supertux/supertux.rb
+===================================================================
+--- trunk/flexlay/supertux/supertux.rb	2010-05-14 20:33:53 UTC (rev 743)
++++ trunk/flexlay/supertux/supertux.rb	2010-05-14 20:35:09 UTC (rev 744)
+@@ -63,7 +63,7 @@
+ $zoom2_tool          = Zoom2Tool.new()
+ $workspace_move_tool = WorkspaceMoveTool.new()
+ $objmap_select_tool  = ObjMapSelectTool.new()
+-# $sketch_stroke_tool  = SketchStrokeTool.new()
++# $sketch_stroke_tool = SketchStrokeTool.new()
+ 
+ $mysprite = make_sprite(&quot;../data/images/icons16/stock_paste-16.png&quot;)
+ 
+@@ -152,6 +152,23 @@
+ 
+ $config.save($config_file)
+ 
++# Try to cleanup
++puts &quot;Cleanup&quot;
++$gui = nil 
++$config = nil
++$tilemap_paint_tool  = nil
++$tilemap_select_tool = nil
++$zoom_tool           = nil
++$zoom2_tool          = nil
++$workspace_move_tool = nil
++$objmap_select_tool  = nil
++$game_objects = nil
++GC.start
++GC.start
++GC.start
++GC.start
++puts &quot;Cleanup done&quot;
++
+ # FIXME: Can't deinit flexlay, since we would crash then
+ at_exit{flexlay.deinit()}
+ # puts &quot;And now we crash&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000236.html">[Flexlay-commit] r743 - trunk/flexlay
+</A></li>
+	<LI>Next message: <A HREF="000238.html">[Flexlay-commit] r745 - trunk/flexlay
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

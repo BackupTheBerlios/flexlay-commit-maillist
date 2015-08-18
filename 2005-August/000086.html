@@ -1,0 +1,733 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r591 - in trunk: lib netpanzer ruby supertux windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r591%20-%20in%20trunk%3A%20lib%20netpanzer%20ruby%20supertux%20windstille&In-Reply-To=%3C200508131704.j7DH4X8N031679%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000085.html">
+   <LINK REL="Next"  HREF="000087.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r591 - in trunk: lib netpanzer ruby supertux windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r591%20-%20in%20trunk%3A%20lib%20netpanzer%20ruby%20supertux%20windstille&In-Reply-To=%3C200508131704.j7DH4X8N031679%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r591 - in trunk: lib netpanzer ruby supertux windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Sat Aug 13 19:04:33 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000085.html">[Flexlay-commit] r590 - in trunk: lib ruby supertux windstille
+</A></li>
+        <LI>Next message: <A HREF="000087.html">[Flexlay-commit] r592 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#86">[ date ]</a>
+              <a href="thread.html#86">[ thread ]</a>
+              <a href="subject.html#86">[ subject ]</a>
+              <a href="author.html#86">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-13 19:04:23 +0200 (Sat, 13 Aug 2005)
+New Revision: 591
+
+Added:
+   trunk/windstille/layout_manager.rb
+Modified:
+   trunk/lib/clanlib.i
+   trunk/lib/editor_map_component.cxx
+   trunk/lib/editor_map_component.hxx
+   trunk/lib/flexlay.cxx
+   trunk/lib/flexlay.hxx
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/sketch_layer.cxx
+   trunk/lib/workspace.cxx
+   trunk/lib/workspace.hxx
+   trunk/lib/workspace_move_tool.cxx
+   trunk/lib/workspace_move_tool.hxx
+   trunk/netpanzer/gui.rb
+   trunk/ruby/sexpr.rb
+   trunk/supertux/gui.rb
+   trunk/windstille/gameobjects.rb
+   trunk/windstille/gui.rb
+   trunk/windstille/gui_specs.rb
+   trunk/windstille/sector.rb
+   trunk/windstille/windstille.rb
+Log:
+- moved GraphicContextState out of Workspace
+
+Modified: trunk/lib/clanlib.i
+===================================================================
+--- trunk/lib/clanlib.i	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/clanlib.i	2005-08-13 17:04:23 UTC (rev 591)
+@@ -283,5 +283,6 @@
+ 		CL_OutputSourceProvider *output_provider = 0);
+ };
+ 
++
+ /* EOF */
+ 
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/editor_map_component.cxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -37,6 +37,7 @@
+ {
+ public:
+   EditorMapComponent* parent;
++  GraphicContextState gc_state;
+   Scrollbar* scrollbar_h;
+   Scrollbar* scrollbar_v;
+   CL_SlotContainer slots;
+@@ -55,7 +56,8 @@
+     impl(new EditorMapComponentImpl())
+ {
+   impl-&gt;parent = this;
+-  impl-&gt;workspace = Workspace(rect.get_width(), rect.get_height());
++  impl-&gt;gc_state  = GraphicContextState(rect.get_width(), rect.get_height());
++  impl-&gt;workspace = Workspace();
+ 
+   current_ = this;
+ 
+@@ -128,76 +130,81 @@
+ void
+ EditorMapComponentImpl::draw ()
+ {
++  CL_Display::push_cliprect(parent-&gt;get_screen_rect());
++
+   CL_Display::push_translate(parent-&gt;get_screen_x(), parent-&gt;get_screen_y());
+ 
+   // Update scrollbars (FIXME: move me to function)
+   scrollbar_v-&gt;set_range(0, workspace.get_map().get_bounding_rect().get_height());
+-  scrollbar_v-&gt;set_pagesize(parent-&gt;get_height()/workspace.get_gc_state().get_zoom());
+-  scrollbar_v-&gt;set_pos(workspace.get_gc_state().get_pos().y);
++  scrollbar_v-&gt;set_pagesize(parent-&gt;get_height()/gc_state.get_zoom());
++  scrollbar_v-&gt;set_pos(gc_state.get_pos().y);
+ 
+   scrollbar_h-&gt;set_range(0, workspace.get_map().get_bounding_rect().get_width());
+-  scrollbar_h-&gt;set_pagesize(parent-&gt;get_width()/workspace.get_gc_state().get_zoom());
+-  scrollbar_h-&gt;set_pos(workspace.get_gc_state().get_pos().x);
++  scrollbar_h-&gt;set_pagesize(parent-&gt;get_width()/gc_state.get_zoom());
++  scrollbar_h-&gt;set_pos(gc_state.get_pos().x);
+ 
++  gc_state.push();
+   workspace.draw();
++  gc_state.pop();
+ 
+   CL_Display::pop_modelview();
++  CL_Display::pop_cliprect();
+ }
+ 
+ CL_Pointf
+ EditorMapComponent::screen2world(const CL_Point&amp; pos)
+ {
+-  return impl-&gt;workspace.get_gc_state().screen2world(pos);
++  return impl-&gt;gc_state.screen2world(pos);
+ }
+ 
+ void
+ EditorMapComponent::set_zoom(float z)
+ {
+-  impl-&gt;workspace.get_gc_state().set_zoom(z);
++  impl-&gt;gc_state.set_zoom(z);
+ }
+ 
+ void
+ EditorMapComponent::zoom_out(CL_Point pos)
+ {
+-  impl-&gt;workspace.get_gc_state().set_zoom(CL_Pointf(pos.x, pos.y),
+-                                          impl-&gt;workspace.get_gc_state().get_zoom()/1.25f);
++  impl-&gt;gc_state.set_zoom(CL_Pointf(pos.x, pos.y),
++                          impl-&gt;gc_state.get_zoom()/1.25f);
+ }
+ 
+ void
+ EditorMapComponent::zoom_in(CL_Point pos)
+ {
+-  impl-&gt;workspace.get_gc_state().set_zoom(CL_Pointf(pos.x, pos.y), 
+-                                          impl-&gt;workspace.get_gc_state().get_zoom()*1.25f);
++  impl-&gt;gc_state.set_zoom(CL_Pointf(pos.x, pos.y), 
++                                          impl-&gt;gc_state.get_zoom()*1.25f);
+ }
+ 
+ void
+ EditorMapComponent::zoom_to(CL_Rectf rect)
+ {
+-  impl-&gt;workspace.get_gc_state().zoom_to(rect);
++  impl-&gt;gc_state.zoom_to(rect);
+ }
+ 
+ CL_Rectf
+ EditorMapComponent::get_clip_rect()
+ {
+-  return impl-&gt;workspace.get_gc_state().get_clip_rect();
++  return impl-&gt;gc_state.get_clip_rect();
+ }
+ 
+ void
+ EditorMapComponent::move_to(int x, int y)
+ {
+-  impl-&gt;workspace.get_gc_state().set_pos(CL_Pointf(x, y));
++  impl-&gt;gc_state.set_pos(CL_Pointf(x, y));
+ }
+ 
+ void
+ EditorMapComponent::move_to_x(float x)
+ {
+-  impl-&gt;workspace.get_gc_state().set_pos(CL_Pointf(x, impl-&gt;workspace.get_gc_state().get_pos().y));
++  impl-&gt;gc_state.set_pos(CL_Pointf(x, impl-&gt;gc_state.get_pos().y));
+ }
+ 
+ void
+ EditorMapComponent::move_to_y(float y)
+ {
+-  impl-&gt;workspace.get_gc_state().set_pos(CL_Pointf(impl-&gt;workspace.get_gc_state().get_pos().x, y));
++  impl-&gt;gc_state.set_pos(CL_Pointf(impl-&gt;gc_state.get_pos().x, y));
+ }
+ 
+ CL_Signal_v2&lt;int, int&gt;&amp;
+@@ -218,4 +225,10 @@
+     }
+ }
+ 
++GraphicContextState&amp;
++EditorMapComponent::get_gc_state()
++{
++  return impl-&gt;gc_state;
++}
++
+ /* EOF */
+
+Modified: trunk/lib/editor_map_component.hxx
+===================================================================
+--- trunk/lib/editor_map_component.hxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/editor_map_component.hxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -63,6 +63,8 @@
+ 
+   CL_Rectf get_clip_rect();
+ 
++  GraphicContextState&amp; get_gc_state();
++
+ private:
+   SharedPtr&lt;EditorMapComponentImpl&gt; impl;
+ };
+
+Modified: trunk/lib/flexlay.cxx
+===================================================================
+--- trunk/lib/flexlay.cxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/flexlay.cxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -41,11 +41,12 @@
+ }
+ 
+ void
+-Flexlay::init(int width, int height, bool fullscreen_)
++Flexlay::init(int width, int height, bool fullscreen_, bool allow_resize_)
+ {
+   screen_width  = width;
+   screen_height = height;
+   fullscreen    = fullscreen_; 
++  allow_resize  = allow_resize_;
+ 
+   std::cout &lt;&lt; &quot;Flexlay::init()&quot; &lt;&lt; std::endl;
+   try {
+
+Modified: trunk/lib/flexlay.hxx
+===================================================================
+--- trunk/lib/flexlay.hxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/flexlay.hxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -95,7 +95,7 @@
+ 
+   Flexlay();
+ 
+-  void init(int width = 800, int height = 600, bool fullscreen = false);
++  void init(int width = 800, int height = 600, bool fullscreen = false, bool allow_resize = false);
+   void deinit();
+ };
+ 
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/flexlay_wrap.i	2005-08-13 17:04:23 UTC (rev 591)
+@@ -205,5 +205,4 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
+-
+ /* EOF */
+
+Modified: trunk/lib/sketch_layer.cxx
+===================================================================
+--- trunk/lib/sketch_layer.cxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/sketch_layer.cxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -75,9 +75,9 @@
+     if (canvas)
+       {
+         EditorMapComponent* parent = EditorMapComponent::current();
+-        parent-&gt;get_workspace().get_gc_state().push(canvas-&gt;get_gc());
++        parent-&gt;get_gc_state().push(canvas-&gt;get_gc());
+         stroke.draw(canvas-&gt;get_gc());
+-        parent-&gt;get_workspace().get_gc_state().pop(canvas-&gt;get_gc());
++        parent-&gt;get_gc_state().pop(canvas-&gt;get_gc());
+         canvas-&gt;sync_surface();
+       }
+   }
+@@ -91,16 +91,16 @@
+     if (canvas)
+       {
+         // Draw to canvas
+-        if (last_zoom != parent-&gt;get_workspace().get_gc_state().get_zoom() ||
+-            last_pos  != parent-&gt;get_workspace().get_gc_state().get_pos()  ||
+-            last_rot  != parent-&gt;get_workspace().get_gc_state().get_rotation())
++        if (last_zoom != parent-&gt;get_gc_state().get_zoom() ||
++            last_pos  != parent-&gt;get_gc_state().get_pos()  ||
++            last_rot  != parent-&gt;get_gc_state().get_rotation())
+           {
+             // Rerender the image
+-            last_zoom   = parent-&gt;get_workspace().get_gc_state().get_zoom();
+-            last_pos    = parent-&gt;get_workspace().get_gc_state().get_pos();
+-            last_rot    = parent-&gt;get_workspace().get_gc_state().get_rotation();
++            last_zoom   = parent-&gt;get_gc_state().get_zoom();
++            last_pos    = parent-&gt;get_gc_state().get_pos();
++            last_rot    = parent-&gt;get_gc_state().get_rotation();
+ 
+-            parent-&gt;get_workspace().get_gc_state().push(canvas-&gt;get_gc());
++            parent-&gt;get_gc_state().push(canvas-&gt;get_gc());
+             canvas-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
+             //canvas-&gt;get_gc()-&gt;clear(CL_Color::white);
+ 
+@@ -116,7 +116,7 @@
+                     i-&gt;draw(canvas-&gt;get_gc());
+                   }
+               }
+-            parent-&gt;get_workspace().get_gc_state().pop(canvas-&gt;get_gc());
++            parent-&gt;get_gc_state().pop(canvas-&gt;get_gc());
+ 
+             canvas-&gt;sync_surface();
+           }
+
+Modified: trunk/lib/workspace.cxx
+===================================================================
+--- trunk/lib/workspace.cxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/workspace.cxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -34,7 +34,6 @@
+ class WorkspaceImpl
+ {
+ public:
+-  GraphicContextState gc_state;
+   EditorMap editor_map;
+ 
+   Tool tool;
+@@ -42,23 +41,16 @@
+ };
+ 
+ Workspace::Workspace()
+-{
+-}
+-
+-Workspace::Workspace(int w, int h)
+   : impl(new WorkspaceImpl())
+ {
+   current_ = *this;
+   
+-  impl-&gt;move_tool = WorkspaceMoveTool(*this).to_tool();
+-  impl-&gt;gc_state  = GraphicContextState(w, h);
++  impl-&gt;move_tool = WorkspaceMoveTool().to_tool();
+ }
+ 
+ void
+ Workspace::draw()
+ {
+-  impl-&gt;gc_state.push();
+-
+   CL_Display::clear(CL_Color(100, 0, 100));
+ 
+   impl-&gt;editor_map.draw_gui(CL_Display::get_current_window()-&gt;get_gc());
+@@ -68,8 +60,6 @@
+     impl-&gt;tool.draw();
+     
+   CL_Display::flush();
+-
+-  impl-&gt;gc_state.pop();
+ }
+ 
+ void
+@@ -131,12 +121,6 @@
+   impl-&gt;editor_map = m;
+ }
+ 
+-GraphicContextState&amp;
+-Workspace::get_gc_state()
+-{
+-  return impl-&gt;gc_state;
+-}
+-
+ void
+ Workspace::set_tool(const Tool&amp; tool)
+ {
+
+Modified: trunk/lib/workspace.hxx
+===================================================================
+--- trunk/lib/workspace.hxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/workspace.hxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -38,7 +38,6 @@
+   static Workspace current() { return current_; }
+ 
+   Workspace();
+-  Workspace(int w, int h);
+ 
+   void draw();
+ 
+@@ -49,8 +48,6 @@
+   EditorMap get_map();
+   void set_map(const EditorMap&amp; m);
+ 
+-  GraphicContextState&amp; get_gc_state();
+-
+   void set_tool(const Tool&amp; tool);
+ 
+   bool is_null() const { return !impl.get(); }
+
+Modified: trunk/lib/workspace_move_tool.cxx
+===================================================================
+--- trunk/lib/workspace_move_tool.cxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/workspace_move_tool.cxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -27,8 +27,6 @@
+ class WorkspaceMoveToolImpl : public ToolImpl
+ {
+ public:
+-  Workspace workspace;
+-
+   bool scrolling;
+   CL_Point click_pos;
+ 
+@@ -47,7 +45,7 @@
+ WorkspaceMoveToolImpl::on_mouse_down(const CL_InputEvent&amp; event)
+ {
+   scrolling = true;
+-  old_trans_offset = workspace.get_gc_state().get_pos();
++  old_trans_offset = EditorMapComponent::current()-&gt;get_gc_state().get_pos();
+   click_pos = event.mouse_pos;
+   EditorMapComponent::current()-&gt;capture_mouse();
+ }
+@@ -57,7 +55,7 @@
+ {
+   scrolling = false;
+   update(event);
+-  old_trans_offset = workspace.get_gc_state().get_pos();
++  old_trans_offset = EditorMapComponent::current()-&gt;get_gc_state().get_pos();
+   EditorMapComponent::current()-&gt;release_mouse();
+ }
+ 
+@@ -73,7 +71,7 @@
+ void
+ WorkspaceMoveToolImpl::update(const CL_InputEvent&amp; event)
+ {
+-  GraphicContextState&amp; gc_state = workspace.get_gc_state();
++  GraphicContextState&amp; gc_state = EditorMapComponent::current()-&gt;get_gc_state();
+ 
+   float sa = sin(-gc_state.get_rotation()/180.0f*M_PI);
+   float ca = cos(-gc_state.get_rotation()/180.0f*M_PI);
+@@ -82,15 +80,14 @@
+   float dy = sa * (click_pos.x - event.mouse_pos.x) + ca * (click_pos.y - event.mouse_pos.y);
+ 
+   gc_state.set_pos(CL_Pointf(old_trans_offset.x
+-                             + dx / workspace.get_gc_state().get_zoom(),
++                             + dx / EditorMapComponent::current()-&gt;get_gc_state().get_zoom(),
+                              old_trans_offset.y
+-                             + dy / workspace.get_gc_state().get_zoom()));
++                             + dy / EditorMapComponent::current()-&gt;get_gc_state().get_zoom()));
+ }
+ 
+-WorkspaceMoveTool::WorkspaceMoveTool(const Workspace&amp; workspace_)
++WorkspaceMoveTool::WorkspaceMoveTool()
+   : impl(new WorkspaceMoveToolImpl())
+ {
+-  impl-&gt;workspace = workspace_;
+   impl-&gt;scrolling = false;
+   impl-&gt;click_pos = CL_Point(0, 0);
+   impl-&gt;old_trans_offset = CL_Pointf(0,0);
+
+Modified: trunk/lib/workspace_move_tool.hxx
+===================================================================
+--- trunk/lib/workspace_move_tool.hxx	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/lib/workspace_move_tool.hxx	2005-08-13 17:04:23 UTC (rev 591)
+@@ -28,7 +28,7 @@
+ class WorkspaceMoveTool
+ {
+ public:
+-  WorkspaceMoveTool(const Workspace&amp; workspace_);
++  WorkspaceMoveTool();
+ 
+   Tool to_tool();
+ private:
+
+Modified: trunk/netpanzer/gui.rb
+===================================================================
+--- trunk/netpanzer/gui.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/netpanzer/gui.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -25,7 +25,7 @@
+ 
+     myrect = CL_Rect.new(CL_Point.new(0, 56), CL_Size.new($screen.width-134-1, ($screen.height-112)+56))
+     @editor_map = EditorMapComponent.new(myrect, @gui.get_component())
+-    @workspace  = Workspace.new(myrect.get_width(), myrect.get_height())
++    @workspace  = Workspace.new()
+     @editor_map.set_workspace(@workspace)
+ 
+     @option_panel = Panel.new(CL_Rect.new(CL_Point.new($screen.width-134, 56), CL_Size.new(134, $screen.height-112+56)), @gui.get_component())
+@@ -276,7 +276,7 @@
+   end
+ 
+   def gui_set_zoom(zoom)
+-    gc = @editor_map.get_workspace().get_gc_state()
++    gc = @editor_map.get_gc_state()
+     pos = gc.get_pos()
+     gc.set_zoom(zoom)
+     gc.set_pos(pos)
+
+Modified: trunk/ruby/sexpr.rb
+===================================================================
+--- trunk/ruby/sexpr.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/ruby/sexpr.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -60,4 +60,23 @@
+     end
+ end
+ 
++def write_sexpr(f, sexpr)
++  if sexpr.is_a?(Array) then
++    f.print &quot;(&quot;
++    sexpr.each_with_index{|e, i|
++      write_sexpr(f, e)
++      if i != sexpr.length() - 1 then
++        f.print &quot; &quot;
++      end
++    }
++    f.print &quot;)&quot;
++  else
++    if sexpr.is_a?(Symbol)
++      f.print sexpr.to_s
++    else
++      f.print sexpr.inspect
++    end
++  end
++end
++
+ # EOF #
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/supertux/gui.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -31,7 +31,7 @@
+                         minimap_rect.get_height() - 3))
+ 
+     @editor_map = EditorMapComponent.new(map_rect, @gui.get_component())
+-    @workspace  = Workspace.new(map_rect.get_width(), map_rect.get_height())
++    @workspace  = Workspace.new()
+     @editor_map.set_workspace(@workspace)
+     @workspace.set_tool($tilemap_paint_tool.to_tool());
+     @minimap = Minimap.new(@editor_map, minimap_rect, @gui.get_component())
+@@ -513,7 +513,7 @@
+   end
+ 
+   def gui_set_zoom(zoom)
+-    gc = @editor_map.get_workspace().get_gc_state()
++    gc = @editor_map.get_gc_state()
+     pos = gc.get_pos()
+     gc.set_zoom(zoom)
+     gc.set_pos(pos)
+
+Modified: trunk/windstille/gameobjects.rb
+===================================================================
+--- trunk/windstille/gameobjects.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/windstille/gameobjects.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -26,25 +26,6 @@
+     proc{|data, sexpr| nil}],
+ ]
+ 
+-def write_sexpr(f, sexpr)
+-  if sexpr.is_a?(Array) then
+-    f.print &quot;(&quot;
+-    sexpr.each_with_index{|e, i|
+-      write_sexpr(f, e)
+-      if i != sexpr.length() - 1 then
+-        f.print &quot; &quot;
+-      end
+-    }
+-    f.print &quot;)&quot;
+-  else
+-    if sexpr.is_a?(Symbol)
+-      f.print sexpr.to_s
+-    else
+-      f.print sexpr.inspect
+-    end
+-  end
+-end
+-
+ class UnknownGameObject
+   def initialize(name, sexpr, obj)
+     @name  = name
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/windstille/gui.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -181,7 +181,7 @@
+   end
+   
+   def set_zoom(zoom)
+-    gc = @editor_map.get_workspace().get_gc_state()
++    gc = @editor_map.get_gc_state()
+     pos = gc.get_pos()
+     gc.set_zoom(zoom)
+     gc.set_pos(pos)
+
+Modified: trunk/windstille/gui_specs.rb
+===================================================================
+--- trunk/windstille/gui_specs.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/windstille/gui_specs.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -21,9 +21,6 @@
+ ##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ ##  02111-1307, USA.
+ 
+-$screen_width  = 1024
+-$screen_height = 768
+-
+ $menu_spec = [
+   [&quot;File&quot;,
+     [&quot;Open...&quot;,    proc{ $gui.level_load() }],
+
+Added: trunk/windstille/layout_manager.rb
+===================================================================
+--- trunk/windstille/layout_manager.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/windstille/layout_manager.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -0,0 +1,60 @@
++##  $Id$
++##   ______ __               ___
++##  |   ___|  |.-----.--.--.|   | .---.-.--.--.
++##  |   ___|  ||  -__|_   _||   |_|  _  |  |  |
++##  |__|   |__||_____|__.__||_____|___._|___  |
++##                                      |_____|
++##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++##  02111-1307, USA.
++
++$layout_spec = [
++  [:vbox,
++    [:components,
++      [:menubar,     
++        [:name,   &quot;menubar&quot;], 
++        [:height, 32],
++        [:spec,   $menu_spec]],
++      [:buttonpanel, 
++        [:name,   &quot;buttonpanel&quot;],
++        [:height, 32], 
++        [:spec,   $buttonpanel_spec]],
++      [:hbox, 
++        [:components
++          [:component, &quot;editormap&quot;],
++          [:component, &quot;selectorpanel&quot;]]
++      ],
++    ]
++  ]
++]
++
++# Class to handle automatic layouting of GUI components and resize
++# events.
++class LayoutManager
++  def initialize(spec)
++    @spec    
++  end
++
++  def set_size(width, height)
++    
++  end
++
++  def add(name, component)
++
++  end
++end
++
++## EOF ##
+
+Modified: trunk/windstille/sector.rb
+===================================================================
+--- trunk/windstille/sector.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/windstille/sector.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -178,7 +178,9 @@
+     save_tilemap.call(&quot;foreground&quot;,  @foreground)
+ 
+     for obj in @objects.get_objects()
+-      obj.get_data().save(f)
++      if obj.get_data() then
++        obj.get_data().save(f)
++      end
+     end
+ 
+     f.write(&quot;   )\n&quot;)
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-08-13 03:27:42 UTC (rev 590)
++++ trunk/windstille/windstille.rb	2005-08-13 17:04:23 UTC (rev 591)
+@@ -41,9 +41,12 @@
+ require &quot;sector.rb&quot;
+ require &quot;tileset.rb&quot;
+ 
++$screen_width  = 640
++$screen_height = 480
++
+ ## Init Flexlay itself
+ flexlay = Flexlay.new()
+-flexlay.init(1024, 768)
++flexlay.init($screen_width, $screen_height, false, true)
+ 
+ ## Initialize Tools
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000085.html">[Flexlay-commit] r590 - in trunk: lib ruby supertux windstille
+</A></li>
+	<LI>Next message: <A HREF="000087.html">[Flexlay-commit] r592 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#86">[ date ]</a>
+              <a href="thread.html#86">[ thread ]</a>
+              <a href="subject.html#86">[ subject ]</a>
+              <a href="author.html#86">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

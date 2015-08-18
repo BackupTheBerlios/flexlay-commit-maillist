@@ -1,0 +1,1550 @@
+From grumbel at sheep.berlios.de  Fri Feb 11 19:54:02 2005
+From: grumbel at sheep.berlios.de (Ingo Ruhnke at BerliOS)
+Date: Fri, 11 Feb 2005 19:54:02 +0100
+Subject: [Flexlay-commit] r489 - in trunk: lib netpanzer
+Message-ID: <200502111854.j1BIs2Xw027251@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-02-11 19:54:01 +0100 (Fri, 11 Feb 2005)
+New Revision: 489
+
+Modified:
+   trunk/lib/editor_map_component.cxx
+   trunk/lib/generated_brush.cxx
+   trunk/lib/helper.cxx
+   trunk/lib/minimap.cxx
+   trunk/lib/sketch_layer.cxx
+   trunk/lib/tile.cxx
+   trunk/lib/zoom_tool.cxx
+   trunk/netpanzer/netpanzer.rb
+Log:
+- adopted to newest ClanLib
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2005-01-16 23:34:01 UTC (rev 488)
++++ trunk/lib/editor_map_component.cxx	2005-02-11 18:54:01 UTC (rev 489)
+@@ -204,7 +204,7 @@
+ CL_Signal_v2<int, int>&
+ EditorMapComponent::sig_on_key(const std::string& str)
+ {
+-  int id = CL_Keyboard::get_device().keyid_to_string(str);
++  int id = CL_Keyboard::get_device().string_to_keyid(str);
+ 
+   std::cout << str << " => " << id << std::endl;
+ 
+
+Modified: trunk/lib/generated_brush.cxx
+===================================================================
+--- trunk/lib/generated_brush.cxx	2005-01-16 23:34:01 UTC (rev 488)
++++ trunk/lib/generated_brush.cxx	2005-02-11 18:54:01 UTC (rev 489)
+@@ -70,12 +70,12 @@
+   if (dirty)
+     {
+       CL_SpriteDescription desc;
+-      desc.add_frame(new CL_PixelBuffer(generate_brushmask(shape,
+-                                                           radius, 
+-                                                           spikes,
+-                                                           hardness, 
+-                                                           aspect_ratio, 
+-                                                           angle)), true);
++      desc.add_frame(generate_brushmask(shape,
++                                        radius, 
++                                        spikes,
++                                        hardness, 
++                                        aspect_ratio, 
++                                        angle));
+       sprite = CL_Sprite(desc);
+       sprite.set_alignment(origin_center);
+       dirty = false;
+
+Modified: trunk/lib/helper.cxx
+===================================================================
+--- trunk/lib/helper.cxx	2005-01-16 23:34:01 UTC (rev 488)
++++ trunk/lib/helper.cxx	2005-02-11 18:54:01 UTC (rev 489)
+@@ -28,7 +28,7 @@
+ pixelbuffer2sprite(const CL_PixelBuffer& buffer)
+ {
+   CL_SpriteDescription desc;
+-  desc.add_frame(new CL_PixelBuffer(buffer), true);
++  desc.add_frame(buffer);
+   return CL_Sprite(desc);
+ }
+ 
+@@ -37,7 +37,7 @@
+ {
+   try {
+     CL_SpriteDescription desc;
+-    desc.add_frame(CL_ProviderFactory::load(filename), true);
++    desc.add_frame(CL_ProviderFactory::load(filename));
+     return CL_Sprite(desc);
+   } catch (CL_Error& err) {
+     std::cout << "CL_Error: " << err.message << std::endl;
+@@ -49,11 +49,7 @@
+ make_pixelbuffer(const std::string& filename)
+ {
+   try {
+-    CL_PixelBuffer* ptr = CL_ProviderFactory::load(filename);
+-    CL_PixelBuffer buffer(*ptr);
+-    delete ptr;
+-
+-    return buffer;
++    return CL_ProviderFactory::load(filename);
+   } catch (CL_Error& err) {
+     std::cout << "CL_Error: " << err.message << std::endl;
+     return CL_PixelBuffer();
+@@ -64,9 +60,7 @@
+ make_region_pixelbuffer(const std::string& filename, int x, int y, int w, int h)
+ {
+   try {
+-    CL_PixelBuffer* ptr = CL_ProviderFactory::load(filename);
+-    CL_PixelBuffer buffer(*ptr);
+-    delete ptr;
++    CL_PixelBuffer buffer = CL_ProviderFactory::load(filename);
+ 
+     CL_PixelBuffer target(w, h, w * (buffer.get_format().get_depth()/8), buffer.get_format());
+     clear(target);
+@@ -97,7 +91,7 @@
+   try {
+     // FIXME: expects a sprite, won't work with 'surface'
+     CL_SpriteDescription descr(filename, &resources);
+-    return CL_PixelBuffer(*(descr.get_frames().begin()->first));
++    return CL_PixelBuffer(descr.get_frames().begin()->first);
+   } catch (CL_Error& err) {
+     std::cout << "CL_Error: " << err.message << std::endl;
+     return CL_PixelBuffer();
+
+Modified: trunk/lib/minimap.cxx
+===================================================================
+--- trunk/lib/minimap.cxx	2005-01-16 23:34:01 UTC (rev 488)
++++ trunk/lib/minimap.cxx	2005-02-11 18:54:01 UTC (rev 489)
+@@ -173,7 +173,7 @@
+               }
+           }
+ 
+-      minimap_surface = CL_Surface(&buffer);
++      minimap_surface = CL_Surface(buffer);
+     }
+ }
+ 
+
+Modified: trunk/lib/sketch_layer.cxx
+===================================================================
+--- trunk/lib/sketch_layer.cxx	2005-01-16 23:34:01 UTC (rev 488)
++++ trunk/lib/sketch_layer.cxx	2005-02-11 18:54:01 UTC (rev 489)
+@@ -51,8 +51,8 @@
+   CL_Pointf   last_pos;
+   
+   SketchLayerImpl() 
+-    : surface(new CL_PixelBuffer(CL_Display::get_width(), CL_Display::get_height(), 
+-                                 CL_Display::get_width()*4, CL_PixelFormat::rgba8888), true),
++    : surface(CL_PixelBuffer(CL_Display::get_width(), CL_Display::get_height(), 
++                             CL_Display::get_width()*4, CL_PixelFormat::rgba8888)),
+       canvas(0),
+       last_zoom(0.0f),
+       last_rot(0)
+@@ -98,6 +98,7 @@
+             // Rerender the image
+             last_zoom   = parent->get_workspace().get_gc_state().get_zoom();
+             last_pos    = parent->get_workspace().get_gc_state().get_pos();
++            last_rot    = parent->get_workspace().get_gc_state().get_rotation();
+ 
+             parent->get_workspace().get_gc_state().push(canvas->get_gc());
+             canvas->get_gc()->clear(CL_Color(0, 0, 0, 0));
+
+Modified: trunk/lib/tile.cxx
+===================================================================
+--- trunk/lib/tile.cxx	2005-01-16 23:34:01 UTC (rev 488)
++++ trunk/lib/tile.cxx	2005-02-11 18:54:01 UTC (rev 489)
+@@ -108,7 +108,7 @@
+   else
+     {
+       CL_SpriteDescription desc;
+-      desc.add_frame(new CL_PixelBuffer(get_pixelbuffer()), true);
++      desc.add_frame(CL_PixelBuffer(get_pixelbuffer()));
+       impl->sprite = CL_Sprite(desc);
+       
+       return impl->sprite;
+@@ -127,7 +127,7 @@
+       {
+         if (has_suffix(impl->filename, ".png") || has_suffix(impl->filename, ".jpg"))
+           {
+-            impl->pixelbuffer = CL_PixelBuffer(*CL_ProviderFactory::load(impl->filename));
++            impl->pixelbuffer = CL_PixelBuffer(CL_ProviderFactory::load(impl->filename));
+           }
+         else
+           {
+
+Modified: trunk/lib/zoom_tool.cxx
+===================================================================
+--- trunk/lib/zoom_tool.cxx	2005-01-16 23:34:01 UTC (rev 488)
++++ trunk/lib/zoom_tool.cxx	2005-02-11 18:54:01 UTC (rev 489)
+@@ -54,7 +54,7 @@
+     {
+     case CREATE_ZOOM_RECT:
+       {
+-        CL_Rect tmp(zoom_rect);
++        CL_Rectf tmp(zoom_rect);
+         tmp.normalize();
+         CL_Display::fill_rect(tmp, CL_Color(255, 255, 0, 50));
+         CL_Display::draw_rect(tmp, CL_Color(255, 255, 0, 200));
+
+Modified: trunk/netpanzer/netpanzer.rb
+===================================================================
+--- trunk/netpanzer/netpanzer.rb	2005-01-16 23:34:01 UTC (rev 488)
++++ trunk/netpanzer/netpanzer.rb	2005-02-11 18:54:01 UTC (rev 489)
+@@ -249,16 +249,16 @@
+ 
+ $toolbar = Panel.new(CL_Rect.new(CL_Point.new(0, 23+33), CL_Size.new(33, 32*4+2)), $gui.get_component())
+ 
+-$paint = Icon.new(CL_Rect.new(CL_Point.new(2, 32*0+2), CL_Size.new(32, 32)), make_sprite("../data/images/tools/stock-tool-pencil-22.png"), "Some tooltip", toolbar);
++$paint = Icon.new(CL_Rect.new(CL_Point.new(2, 32*0+2), CL_Size.new(32, 32)), make_sprite("../data/images/tools/stock-tool-pencil-22.png"), "Some tooltip", $toolbar);
+ $paint.set_callback(method(:set_tilemap_paint_tool))
+ 
+-$select = Icon.new(CL_Rect.new(CL_Point.new(2, 32*1+2), CL_Size.new(32,32)), make_sprite("../data/images/tools/stock-tool-rect-select-22.png"), "Some tooltip", toolbar);
++$select = Icon.new(CL_Rect.new(CL_Point.new(2, 32*1+2), CL_Size.new(32,32)), make_sprite("../data/images/tools/stock-tool-rect-select-22.png"), "Some tooltip", $toolbar);
+ $select.set_callback(method(:set_tilemap_select_tool))
+ 
+-$zoom = Icon.new(CL_Rect.new(CL_Point.new(2, 32*2+2), CL_Size.new(32,32)), make_sprite("../data/images/tools/stock-tool-zoom-22.png"), "Some tooltip", toolbar);
++$zoom = Icon.new(CL_Rect.new(CL_Point.new(2, 32*2+2), CL_Size.new(32,32)), make_sprite("../data/images/tools/stock-tool-zoom-22.png"), "Some tooltip", $toolbar);
+ $zoom.set_callback(method(:set_zoom_tool))
+ 
+-$object = Icon.new(CL_Rect.new(CL_Point.new(2, 32*3+2), CL_Size.new(32,32)), make_sprite("../data/images/tools/stock-tool-clone-22.png"), "Some tooltip", toolbar);
++$object = Icon.new(CL_Rect.new(CL_Point.new(2, 32*3+2), CL_Size.new(32,32)), make_sprite("../data/images/tools/stock-tool-clone-22.png"), "Some tooltip", $toolbar);
+ $object.set_callback(method(:set_objmap_select_tool))
+ 
+ mysprite = make_sprite("../data/images/icons16/stock_paste-16.png")
+
+
+
+From grumbel at sheep.berlios.de  Fri Feb 25 18:30:32 2005
+From: grumbel at sheep.berlios.de (Ingo Ruhnke at BerliOS)
+Date: Fri, 25 Feb 2005 18:30:32 +0100
+Subject: [Flexlay-commit] r490 - in trunk: lib pingus ruby
+Message-ID: <200502251730.j1PHUWdc010611@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-02-25 18:30:24 +0100 (Fri, 25 Feb 2005)
+New Revision: 490
+
+Added:
+   trunk/pingus/gui.rb
+   trunk/pingus/level.rb
+   trunk/pingus/pingus-editor
+   trunk/pingus/pingus-editor-gdb
+   trunk/pingus/pingus.rb
+   trunk/pingus/worldmap.rb
+   trunk/pingus/worldobjs.rb
+   trunk/pingus/xmlreader.rb
+Modified:
+   trunk/lib/clanlib.i
+   trunk/lib/editor_map.cxx
+   trunk/lib/editor_map.hxx
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/object_layer.cxx
+   trunk/lib/object_selector.cxx
+   trunk/lib/objmap_object.cxx
+   trunk/lib/objmap_object.hxx
+   trunk/lib/objmap_object_impl.hxx
+   trunk/lib/objmap_path_node.cxx
+   trunk/lib/objmap_rect_object.cxx
+   trunk/lib/objmap_rect_object.hxx
+   trunk/lib/objmap_select_tool.cxx
+   trunk/lib/objmap_sprite_object.cxx
+   trunk/ruby/flexlay.rb
+Log:
+- some more work on pingus editor, basic load of level with exit/entrances and friends is now working
+- added basic worldmap loading
+
+Modified: trunk/lib/clanlib.i
+===================================================================
+--- trunk/lib/clanlib.i	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/clanlib.i	2005-02-25 17:30:24 UTC (rev 490)
+@@ -29,6 +29,14 @@
+ 	float x;
+ 	float y;
+ };
++        
++class CL_Sprite
++{
++public:
++CL_Sprite(      
++	        	const std::string &resource_id,
++		        CL_ResourceManager *manager);
++};
+ 
+ 
+ class CL_Point
+@@ -57,6 +65,16 @@
+ 	CL_Size get_size();
+ };
+ 
++class CL_Colorf
++{
++public:
++        CL_Colorf(float r, float g, float b, float a);
++        float red;
++        float green;
++        float blue;
++        float alpha;
++};
++
+ class CL_Color
+ {
+ public:
+@@ -168,21 +186,56 @@
+ class CL_ResourceManager
+ {
+ public:
++	CL_ResourceManager();
+ 	CL_ResourceManager(
+ 		const std::string &config_file,
+ 		CL_InputSourceProvider *provider = 0,
+ 		bool delete_inputsource_provider = false);
+ 	~CL_ResourceManager();
+ 
+-	std::list<std::string> get_all_resources(const std::string &section_name);
+-	std::list<std::string> get_all_sections();
++	std::vector<std::string> get_all_resources(const std::string &section_name);
++	std::vector<std::string> get_all_sections();
+ 
+-	std::list<std::string> get_resources_of_type(const std::string &type_id);
+-	std::list<std::string> get_resources_of_type(const std::string &type_id, const std::string &section_name);
++	std::vector<std::string> get_resources_of_type(const std::string &type_id);
++	std::vector<std::string> get_resources_of_type(const std::string &type_id, const std::string &section_name);
+ 	void add_resources(const CL_ResourceManager &additional_resources);
+ 	void remove_resources(const CL_ResourceManager &additional_resources);
+ };
+ 
+ 
++class CL_RadioButton : public CL_Button
++{
++public:
++	CL_RadioButton(
++		const CL_Point &pos,
++		const std::string &text,
++		CL_Component *parent,
++		CL_StyleManager *style = NULL);
++	bool is_checked() const;
++	void set_checked(bool check);
++};
++
++class CL_RadioGroup
++{
++public:
++	CL_RadioGroup();
++	~CL_RadioGroup();
++
++	const std::vector<CL_RadioButton *> &get_buttons() const;
++	void add(CL_RadioButton *button, bool delete_component = false);
++};
++
++class CL_CheckBox : public CL_Button
++{
++public:
++        CL_CheckBox(
++		const CL_Point &pos,
++		const std::string &text,
++		CL_Component *parent,
++		CL_StyleManager *style = NULL);
++	bool is_checked() const;
++	void set_checked(bool check = true);
++};
++
+ /* EOF */
+ 
+
+Modified: trunk/lib/editor_map.cxx
+===================================================================
+--- trunk/lib/editor_map.cxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/editor_map.cxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -52,6 +52,8 @@
+ 
+   CL_Signal_v0 on_change;
+ 
++  bool    has_bounding_rect;
++  CL_Rect bounding_rect;
+ };
+ 
+ EditorMap::EditorMap()
+@@ -61,6 +63,7 @@
+   impl->foreground_color = CL_Color(255, 80, 255);
+   impl->modified = false;
+   impl->serial = 0;
++  impl->has_bounding_rect = 0;
+ }
+ 
+ void
+@@ -137,33 +140,60 @@
+   return impl->metadata; 
+ }
+ 
++bool
++EditorMap::has_bounding_rect() const
++{
++  return impl->has_bounding_rect;
++}
++
++void
++EditorMap::set_bounding_rect(const CL_Rect& rect)
++{
++  if (rect != CL_Rect(0,0,0,0))
++    {
++      impl->has_bounding_rect = true;
++      impl->bounding_rect     = rect;
++    }
++  else
++    {
++      impl->has_bounding_rect = false;
++      impl->bounding_rect     = rect;
++    }
++}
++
+ CL_Rect
+ EditorMap::get_bounding_rect()
+ {
+-  bool init = false;
+-  CL_Rect rect(0,0,0,0);
++  if (impl->has_bounding_rect)
++    {
++      return impl->bounding_rect;
++    }
++  else
++    {
++      bool init = false;
++      CL_Rect rect(0,0,0,0);
+ 
+-  for(EditorMapImpl::Layers::iterator i = impl->layers.begin(); i != impl->layers.end(); ++i)
+-    {
+-      if (i->has_bounding_rect())
++      for(EditorMapImpl::Layers::iterator i = impl->layers.begin(); i != impl->layers.end(); ++i)
+         {
+-          if (!init)
++          if (i->has_bounding_rect())
+             {
+-              rect = i->get_bounding_rect();
+-              init = true;
++              if (!init)
++                {
++                  rect = i->get_bounding_rect();
++                  init = true;
++                }
++              else
++                {
++                  CL_Rect other = i->get_bounding_rect();
++                  rect.top    = std::min(rect.top,    other.top);
++                  rect.bottom = std::max(rect.bottom, other.bottom);
++                  rect.left   = std::min(rect.left,   other.left);
++                  rect.right  = std::max(rect.right,  other.right);              
++                }
+             }
+-          else
+-            {
+-              CL_Rect other = i->get_bounding_rect();
+-              rect.top    = std::min(rect.top,    other.top);
+-              rect.bottom = std::max(rect.bottom, other.bottom);
+-              rect.left   = std::min(rect.left,   other.left);
+-              rect.right  = std::max(rect.right,  other.right);              
+-            }
+         }
++      return rect;
+     }
+-
+-  return rect;
+ }
+ 
+ void
+
+Modified: trunk/lib/editor_map.hxx
+===================================================================
+--- trunk/lib/editor_map.hxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/editor_map.hxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -56,8 +56,9 @@
+   void   set_metadata(const MetaData& obj);
+   MetaData get_metadata() const;
+ 
+-  bool has_bounding_rect() const { return true; }
++  bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
++  void    set_bounding_rect(const CL_Rect& rect);
+ 
+   void set_background_color(const CL_Color& color);
+ 
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/flexlay_wrap.i	2005-02-25 17:30:24 UTC (rev 490)
+@@ -126,7 +126,9 @@
+ 
+ %include "std_string.i"
+ %include "std_vector.i"
++%template(Std_vector_string) std::vector<std::string>;
+ %template(Std_vector_int) std::vector<int>;
++%template(Std_vector_CL_RadioButton) std::vector<CL_RadioButton *>;
+ %template(Std_vector_ObjMapObject) std::vector<ObjMapObject>;
+ %template(Std_vector_CL_Pointf) std::vector<CL_Pointf>;
+ %template(Std_vector_Stroke) std::vector<Stroke>;
+
+Modified: trunk/lib/object_layer.cxx
+===================================================================
+--- trunk/lib/object_layer.cxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/object_layer.cxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -86,7 +86,7 @@
+ {
+   for(Objects::reverse_iterator i = impl->objects.rbegin(); i != impl->objects.rend(); ++i)
+     {
+-      CL_Rect rect = (*i).get_bound_rect();
++      CL_Rectf rect = (*i).get_bound_rect();
+      
+       if (rect.is_inside(CL_Point(click_pos)))
+         return *i;
+
+Modified: trunk/lib/object_selector.cxx
+===================================================================
+--- trunk/lib/object_selector.cxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/object_selector.cxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -165,18 +165,16 @@
+       int x = i%width;
+       int y = i/width;
+ 
+-      CL_Rect rect(CL_Point(static_cast<int>(x * obj_width),
+-                            static_cast<int>(y * obj_height)),
+-                   CL_Size(static_cast<int>(obj_width),
+-                           static_cast<int>(obj_height)));
++      CL_Rectf rect(CL_Pointf(x * obj_width, y * obj_height),
++                    CL_Sizef(obj_width, obj_height));
+ 
+       CL_Sprite sprite = brushes[i].get_sprite();
+       sprite.set_alignment(origin_center, 0, 0);
+       sprite.set_scale(std::min(1.0f, (float)obj_width/(float)sprite.get_width()),
+                        std::min(1.0f, (float)obj_height/(float)sprite.get_height()));
+         
+-      sprite.draw(static_cast<int>(x * obj_width + obj_width/2), 
+-                  static_cast<int>(y * obj_height + obj_height/2));
++      sprite.draw(x * obj_width + obj_width/2, 
++                  y * obj_height + obj_height/2);
+         
+       //CL_Display::draw_rect(rect, CL_Color(0,0,0,128));
+         
+@@ -186,6 +184,8 @@
+         }
+     }
+ 
++  CL_Display::pop_modelview();
++
+   // Draw drag sprite
+   if (drag_obj != -1)
+     {
+@@ -195,10 +195,8 @@
+ 
+       CL_Sprite sprite = brushes[drag_obj].get_sprite();
+       sprite.set_alpha(0.5f);
+-      sprite.draw(mouse_pos.x, mouse_pos.y);
++      sprite.draw(mouse_pos.x + get_screen_x(), mouse_pos.y + get_screen_y());
+     }
+-
+-  CL_Display::pop_modelview();
+ }
+ 
+ void
+
+Modified: trunk/lib/objmap_object.cxx
+===================================================================
+--- trunk/lib/objmap_object.cxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/objmap_object.cxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -77,7 +77,7 @@
+     impl->draw();
+ }
+ 
+-CL_Rect
++CL_Rectf
+ ObjMapObject::get_bound_rect() const
+ {
+   if (impl.get())
+
+Modified: trunk/lib/objmap_object.hxx
+===================================================================
+--- trunk/lib/objmap_object.hxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/objmap_object.hxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -47,8 +47,7 @@
+   CL_Signal_v1<ObjMapObject>& sig_deselect();
+ 
+   void draw();
+-  // FIXME: should be CL_Rectf
+-  CL_Rect get_bound_rect() const;
++  CL_Rectf get_bound_rect() const;
+ 
+   void add_control_points();
+   void update_control_points();
+
+Modified: trunk/lib/objmap_object_impl.hxx
+===================================================================
+--- trunk/lib/objmap_object_impl.hxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/objmap_object_impl.hxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -39,7 +39,7 @@
+   virtual ~ObjMapObjectImpl();
+ 
+   virtual void draw() =0;
+-  virtual CL_Rect get_bound_rect() const  =0;
++  virtual CL_Rectf get_bound_rect() const  =0;
+ 
+   virtual void add_control_points();
+   virtual void update_control_points();
+
+Modified: trunk/lib/objmap_path_node.cxx
+===================================================================
+--- trunk/lib/objmap_path_node.cxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/objmap_path_node.cxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -30,7 +30,7 @@
+   ObjMapPathNodeImpl();
+ 
+   void draw();
+-  CL_Rect get_bound_rect() const;
++  CL_Rectf get_bound_rect() const;
+ };
+ 
+ ObjMapPathNodeImpl::ObjMapPathNodeImpl()
+@@ -59,10 +59,10 @@
+     }
+ }
+ 
+-CL_Rect
++CL_Rectf
+ ObjMapPathNodeImpl::get_bound_rect() const
+ {
+-  return CL_Rect(CL_Point(pos) - CL_Point(16,16), CL_Size(32, 32));
++  return CL_Rectf(pos - CL_Pointf(16,16), CL_Sizef(32, 32));
+ }
+ 
+ ObjMapPathNode::ObjMapPathNode(const CL_Pointf& pos_, 
+
+Modified: trunk/lib/objmap_rect_object.cxx
+===================================================================
+--- trunk/lib/objmap_rect_object.cxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/objmap_rect_object.cxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -122,12 +122,12 @@
+   }
+ 
+   void draw();
+-  CL_Rect get_bound_rect() const;
++  CL_Rectf get_bound_rect() const;
+   void add_control_points();
+   void update_control_points();
+ };
+ 
+-CL_Rect
++CL_Rectf
+ ObjMapRectObject::get_rect() const
+ {
+   return impl->get_bound_rect();
+@@ -219,12 +219,10 @@
+   CL_Display::fill_rect(get_bound_rect(), color);
+ }
+ 
+-CL_Rect
++CL_Rectf
+ ObjMapRectObjectImpl::get_bound_rect() const
+ {
+-  return CL_Rect(CL_Point(pos),
+-                 CL_Size(static_cast<int>(size.width),
+-                         static_cast<int>(size.height)));
++  return CL_Rectf(pos, size);
+ }
+ 
+ ObjMapObject
+
+Modified: trunk/lib/objmap_rect_object.hxx
+===================================================================
+--- trunk/lib/objmap_rect_object.hxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/objmap_rect_object.hxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -39,7 +39,7 @@
+   void set_color(const CL_Color& color);
+ 
+   void set_rect(const CL_Rect& rect);
+-  CL_Rect get_rect() const;
++  CL_Rectf get_rect() const;
+ 
+   ObjMapObject to_object();
+ private:
+
+Modified: trunk/lib/objmap_select_tool.cxx
+===================================================================
+--- trunk/lib/objmap_select_tool.cxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/objmap_select_tool.cxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -121,7 +121,7 @@
+     case DRAG:
+       break;
+     case SELECT:
+-      CL_Display::draw_rect(CL_Rect(selection_rect),
++      CL_Display::draw_rect(selection_rect,
+                             CL_Color(255, 255, 255));
+       break;
+     default:
+
+Modified: trunk/lib/objmap_sprite_object.cxx
+===================================================================
+--- trunk/lib/objmap_sprite_object.cxx	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/lib/objmap_sprite_object.cxx	2005-02-25 17:30:24 UTC (rev 490)
+@@ -27,7 +27,7 @@
+   CL_Sprite sprite;
+ 
+   void draw();
+-  CL_Rect get_bound_rect() const;
++  CL_Rectf get_bound_rect() const;
+ 
+   ObjMapObject*  duplicate(int handle_);
+ };
+@@ -49,10 +49,10 @@
+ void
+ ObjMapSpriteObjectImpl::draw()
+ {
+-  sprite.draw(static_cast<int>(pos.x), static_cast<int>(pos.y));
++  sprite.draw(pos.x, pos.y);
+ }
+ 
+-CL_Rect
++CL_Rectf
+ ObjMapSpriteObjectImpl::get_bound_rect() const
+ {
+   CL_Point  align = CL_Point(0, 0);
+@@ -64,8 +64,8 @@
+                                                   sprite.get_height()));
+   align.x = -align.x;
+       
+-  return CL_Rect(CL_Point(pos) - origin - align,
+-                 CL_Size(sprite.get_width(), sprite.get_height()));
++  return CL_Rectf(pos - origin - align,
++                  CL_Sizef(sprite.get_width(), sprite.get_height()));
+ }
+ 
+ void
+
+Added: trunk/pingus/gui.rb
+===================================================================
+--- trunk/pingus/gui.rb	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/pingus/gui.rb	2005-02-25 17:30:24 UTC (rev 490)
+@@ -0,0 +1,125 @@
++##  $Id$
++##
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2005 Ingo Ruhnke <grumbel at gmx.de>
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++##
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++class GUI
++  attr_reader :workspace, :objectselector;
++
++  def initialize()
++    @editor = Editor.new()
++    @gui    = @editor.get_gui_manager()
++
++    myrect      = CL_Rect.new(CL_Point.new(0, 56), CL_Size.new(665, 488+56))
++    @editor_map = EditorMapComponent.new(myrect, @gui.get_component())
++    @workspace  = Workspace.new(myrect.get_width(), myrect.get_height())
++    @editor_map.set_workspace(@workspace)
++
++    @selector_window = Panel.new(CL_Rect.new(CL_Point.new(800-134, 23+33), CL_Size.new(128 + 6, 558)),
++                                 @gui.get_component())
++
++    @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, 600), 42, 42, @selector_window)
++    @objectselector.show(true)
++    connect_v2_ObjectBrush_Point(@objectselector.sig_drop(), method(:on_object_drop))
++
++    create_menu()
++    create_toolbar()
++    create_button_panel()
++
++    connect_v2(@editor_map.sig_on_key("e"), 
++               proc{ |x, y|
++                 puts "Content: #{x}, #{y}"
++                 $objmap_select_tool.get_selection().each {|i|
++                   i.get_data().property_dialog()
++                 }})
++  end
++
++  def run()
++    @gui.run()
++  end
++
++  def create_button_panel()
++    @button_panel = ButtonPanel.new(0, 23, 800, 33, true, @gui.get_component)
++    @button_panel.add_icon("../data/images/icons24/stock_new.png")
++    @button_panel.add_icon("../data/images/icons24/stock_open.png", proc{ level_load() })
++    @button_panel.add_small_icon("../data/images/icons24/downarrow.png", proc{ $controller.recent_files_menu.run() })
++    @button_panel.add_icon("../data/images/icons24/stock_save.png", proc{ level_save() })
++    @button_panel.add_icon("../data/images/icons24/stock_save_as.png", proc{ level_save_as() })
++    @button_panel.add_seperator()
++    @button_panel.add_icon("../data/images/icons24/stock_copy.png")
++    @button_panel.add_icon("../data/images/icons24/stock_paste.png")
++    @button_panel.add_seperator()
++    @undo_icon = @button_panel.add_icon("../data/images/icons24/stock_undo.png", proc{ @workspace.get_map().undo() })
++    @redo_icon = @button_panel.add_icon("../data/images/icons24/stock_redo.png", proc{ @workspace.get_map().redo() })
++  end
++
++  def create_toolbar()
++    @toolbar = ButtonPanel.new(0, 23+33, 33, 32*4+2, false, @gui.get_component)
++    @object = @toolbar.add_icon("../data/images/tools/stock-tool-clone-22.png", 
++                                proc{ workspace.set_tool($objmap_select_tool.to_tool())})
++
++    @toolbar = ButtonPanel.new(0, 23+33*2, 33, 32*4+2, false, @gui.get_component)
++    @object = @toolbar.add_icon("../data/images/tools/stock-tool-zoom-22.png", 
++                                proc{ workspace.set_tool($zoom_tool.to_tool())})
++  end
++
++  def create_menu()
++    @menu = CL_Menu.new(@gui.get_component())
++    @menu.add_item("File/Quit",  proc{ @gui.quit })
++    
++    @menu.add_item("Zoom/1:4 (25%) ",  proc{ self.gui_set_zoom(0.25) })
++    @menu.add_item("Zoom/1:2 (50%) ",  proc{ self.gui_set_zoom(0.5) })
++    @menu.add_item("Zoom/1:1 (100%) ", proc{ self.gui_set_zoom(1.0) }) 
++    @menu.add_item("Zoom/2:1 (200%) ", proc{ self.gui_set_zoom(2.0) })
++    @menu.add_item("Zoom/4:1 (400%) ", proc{ self.gui_set_zoom(4.0) })
++  end
++
++  def on_map_change()
++    if (@workspace.get_map().undo_stack_size() > 0)
++      @undo_icon.enable()
++    else
++      @undo_icon.disable()
++    end
++
++    if (@workspace.get_map().redo_stack_size() > 0)
++      @redo_icon.enable()
++    else
++      @redo_icon.disable()        
++    end
++  end
++
++  def on_object_drop(brush, pos)
++    pos  = @editor_map.screen2world(pos)
++    (type, sprite) = get_ruby_object(brush.get_data()) # object type 'groundpiece'
++    
++    worldobj = WorldObj.new(type, sprite)
++    
++    obj = ObjMapSpriteObject.new(CL_Sprite.new(worldobj.get_image(), $resources), 
++                                 pos, 
++                                 make_metadata(worldobj))
++    worldobj.set_data(obj)
++
++    workspace.get_map().get_metadata().objects.add_object(obj.to_object())
++  end
++
++  def get_component()
++    return @gui.get_component()
++  end
++
++end
++
++# EOF #
+
+Added: trunk/pingus/level.rb
+===================================================================
+--- trunk/pingus/level.rb	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/pingus/level.rb	2005-02-25 17:30:24 UTC (rev 490)
+@@ -0,0 +1,89 @@
++require "rexml/document"
++require "worldobjs.rb"
++
++class Level
++  attr_reader :objects, :editormap
++  attr_accessor :levelname, :description, :author, :number_of_pingus, :number_to_save, :ambient_light, :comment, :levelsize, :actions
++
++  def initialize(filename = nil)
++    @objects   = ObjectLayer.new()
++    @editormap = EditorMap.new()
++    @editormap.add_layer(@objects.to_layer())
++    @editormap.set_metadata(self)
++    @editormap.set_bounding_rect(CL_Rect.new(0, 0, 2400, 600));
++
++    if filename then
++      load(filename)
++    end  
++  end
++
++  def load(filename)
++    doc = REXML::Document.new(File.new(filename))
++
++    @version = doc.elements['/pingus-level/version'].text.to_i
++
++    # Parse the header
++    header = doc.elements['/pingus-level/head'].elements
++    @levelname   = header['levelname'].text
++    @description = header['description'].text
++    @author      = header['author'].text
++    @number_of_pingus = header['number-of-pingus'].text.to_i
++    @number_to_save   = header['number-to-save'].text.to_i
++
++    @ambient_light = CL_Color.new((header['ambient-light/red'].text.to_f * 255).to_i,
++                                  (header['ambient-light/green'].text.to_f * 255).to_i,
++                                  (header['ambient-light/blue'].text.to_f  * 255).to_i,
++                                  (header['ambient-light/alpha'].text.to_f * 255).to_i)
++
++    @comment = header['comment'].text
++    @levelsize = CL_Size.new(header['levelsize/width'].text.to_i,
++                             header['levelsize/height'].text.to_i)
++    @editormap.set_bounding_rect(CL_Rect.new(CL_Point.new(0, 0), @levelsize))
++
++    @actions = header['actions'].elements.inject({}) {|h, e| h[e.name] = e.text.to_i; h }
++    
++    doc.elements.each("pingus-level/objects/*") { |element|
++      worldobj = WorldObj.new(element.name, element)
++
++      obj = ObjMapSpriteObject.new(CL_Sprite.new(worldobj.get_image(), $resources), 
++                                   worldobj.get_pos(), 
++                                   make_metadata(worldobj))
++      worldobj.set_data(obj)
++      
++      @objects.add_object(obj.to_object())
++    }
++  end
++
++  def save(filename)
++    doc = REXML::Document.new()
++    doc.xml_decl.xmldecl("1.0", "ISO-8859-1", false)
++    root = doc.add_element("pingus-level")
++    head = root.add_element("head")
++    head.add_element("levelname").add_text(@levelname)
++    head.add_element("description").add_text(@description)
++    head.add_element("author").add_text(@author)
++    head.add_element("number_of_pingus").add_text(@number_of_pingus.to_s)
++    head.add_element("number_to_save").add_text(@number_to_save.to_s)
++    head.add_element("comment").add_text(@comment)
++    # FIXME: More to come
++    objects = root.add_element("objects")
++    @objects.get_objects().each { |object|
++      worldobj = object.get_metadata()
++      if worldobj then
++        worldobj.write_xml(objects)
++      end
++    }
++
++    f = File.new(filename, "w")
++    doc.write(f, 0)
++    f.close()
++  end
++
++  def activate(workspace)
++    workspace.set_map(@editormap)
++    ObjectLayer.set_current(@objects)
++    connect(@editormap.sig_change(), proc{$gui.on_map_change()})
++  end
++end
++
++# EOF #
+
+Added: trunk/pingus/pingus-editor
+===================================================================
+--- trunk/pingus/pingus-editor	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/pingus/pingus-editor	2005-02-25 17:30:24 UTC (rev 490)
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd`/../lib:`pwd`/../ruby"
++export LD_LIBRARY_PATH
++
++RUBYLIB=$RUBYLIB:`pwd`/../ruby
++export RUBYLIB
++
++exec ruby -w ./pingus.rb "$@"
++
++# EOF #
+
+
+Property changes on: trunk/pingus/pingus-editor
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/pingus/pingus-editor-gdb
+===================================================================
+--- trunk/pingus/pingus-editor-gdb	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/pingus/pingus-editor-gdb	2005-02-25 17:30:24 UTC (rev 490)
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++LD_LIBRARY_PATH="$LD_LIBRARY_PATH:`pwd`/../lib:`pwd`/../ruby"
++export LD_LIBRARY_PATH
++
++RUBYLIB=$RUBYLIB:`pwd`/../ruby
++export RUBYLIB
++
++exec gdb --args  ruby ./pingus.rb "$@"
++
++# EOF #
+
+
+Property changes on: trunk/pingus/pingus-editor-gdb
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: trunk/pingus/pingus.rb
+===================================================================
+--- trunk/pingus/pingus.rb	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/pingus/pingus.rb	2005-02-25 17:30:24 UTC (rev 490)
+@@ -0,0 +1,88 @@
++#!/usr/bin/ruby
++##  $Id$
++##
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2005 Ingo Ruhnke <grumbel at gmx.de>
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++##
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++$datadir = "/home/ingo/projects/pingus/svn/trunk/data/"
++
++require "flexlay_wrap"
++include Flexlay_wrap
++
++require "flexlay.rb"
++
++flexlay = Flexlay.new()
++flexlay.init()
++
++$objmap_select_tool  = ObjMapSelectTool.new()
++$zoom_tool           = ZoomTool.new()
++
++require "worldmap.rb"
++require "level.rb"
++require "worldobjs.rb"
++require "gui.rb"
++
++$gui = GUI.new()
++
++$resources = CL_ResourceManager.new()
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/groundpieces-ground.xml"))
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/groundpieces-solid.xml"))
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/groundpieces-transparent.xml"))
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/groundpieces-remove.xml"))
++
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/core.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/entrances.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/exits.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/fonts.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/game.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/hotspots.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/liquids.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/pingus.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/story.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/textures.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/traps.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/worldmaps.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/worldobjs.xml"));
++$resources.add_resources(CL_ResourceManager.new($datadir + "data/alias.xml"));
++
++if true then
++  worldmap = WorldMap.new()
++  worldmap.activate($gui.workspace)
++else
++  level = Level.new('/home/ingo/projects/pingus/svn/trunk/src/levelout.xml')
++  level.activate($gui.workspace)
++  level.save("/tmp/levelout.xml")
++end
++
++# puts $resources.get_all_sections()
++
++$resources.get_resources_of_type("sprite", "groundpieces/ground/").each { |name|
++  begin
++    $gui.objectselector.add_brush(ObjectBrush.new(CL_Sprite.new(name, $resources),
++                                                  make_metadata(["groundpiece", name])))
++  rescue CL_Error => err
++    puts err.message
++  end
++}
++
++$gui.workspace.set_tool($objmap_select_tool.to_tool())
++
++$gui.run()
++
++# flexlay.deinit()
++
++# EOF #
+
+Added: trunk/pingus/worldmap.rb
+===================================================================
+--- trunk/pingus/worldmap.rb	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/pingus/worldmap.rb	2005-02-25 17:30:24 UTC (rev 490)
+@@ -0,0 +1,79 @@
++require "rexml/document"
++require "worldobjs.rb"
++
++class WorldMap
++  def initialize()
++    @name        = ""
++    @description = ""
++    @author      = ""
++    @music       = "pingus-1.it"
++
++    @objects   = ObjectLayer.new()
++    @editormap = EditorMap.new()
++    @editormap.add_layer(@objects.to_layer())
++    @editormap.set_metadata(self)
++    @editormap.set_bounding_rect(CL_Rect.new(0, 0, 2400, 600));
++
++    load('/home/ingo/projects/pingus/svn/trunk/src/worldmapout.xml')
++  end    
++
++  def activate(workspace)
++    workspace.set_map(@editormap)
++    ObjectLayer.set_current(@objects)
++    connect(@editormap.sig_change(), proc{$gui.on_map_change()})
++  end
++
++  def load(filename)
++    doc = REXML::Document.new(File.new(filename))
++
++    # @version = doc.elements['/pingus-worldmap/version'].text.to_i
++    reader = XMLReader.new(doc.elements['/pingus-worldmap/head'])
++    @name        = reader.read("name",   :string,  "Some Worldmap")
++    @description = reader.read("name",   :string,  "")
++    @music       = reader.read("name",   :string,  "pingus-1.it")
++    @width       = reader.read("width",  :int, 800)
++    @height      = reader.read("height", :int, 600)
++
++    @editormap.set_bounding_rect(CL_Rect.new(0, 0, @width, @height));
++
++    doc.elements['/pingus-worldmap/objects'].elements.each {|object|
++      case object.name
++      when "surface"
++        reader = XMLReader.new(object)
++        name  = reader.read("name",     :string, "foo")
++        image = reader.read("surface",  :image,  "")
++        pos   = reader.read("position", :vector, CL_Pointf.new(0,0))
++
++        obj = ObjMapSpriteObject.new(CL_Sprite.new(image, $resources), 
++                                     pos,
++                                     make_metadata(nil))
++        
++        @objects.add_object(obj.to_object())
++      else
++        puts "Unknown worldmap object: '#{object.name}'"
++      end
++    }
++    
++    doc.elements['/pingus-worldmap/graph/nodes'].elements.each {|object|
++      case object.name 
++      when "leveldot"
++        reader = XMLReader.new(object)
++        pos  = reader.read("dot/position", :vector, CL_Pointf.new(0, 0))
++
++        obj = ObjMapSpriteObject.new(CL_Sprite.new("core/worldmap/dot_green", $resources), 
++                                     pos,
++                                     make_metadata(nil))
++        
++        @objects.add_object(obj.to_object())      
++      else
++        puts "Unknown graph object '#{object.name}'"
++      end
++    }
++
++    doc.elements['/pingus-worldmap/graph/edges'].elements.each {|edge|
++      
++    }
++  end
++end
++
++# EOF #
+
+Added: trunk/pingus/worldobjs.rb
+===================================================================
+--- trunk/pingus/worldobjs.rb	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/pingus/worldobjs.rb	2005-02-25 17:30:24 UTC (rev 490)
+@@ -0,0 +1,172 @@
++require "rexml/document"
++require "xmlreader.rb"
++
++$objects = {
++  "entrance" => {
++    "type"         => [:string, "generic"],
++    "owner-id"     => [:int,     0],
++    "direction"    => [:enum,   "misc", ["left", "right", "misc"]],
++    "position"     => [:vector, CL_Point.new(0, 0)],
++    "release-rate" => [:int,    25]},
++
++  "exit" => {
++    "position" => [:vector, CL_Point.new(0, 0)],
++    "surface"  => [:image,  ""],
++    "owner-id" => [:int,    0]},
++
++  "fake-exit" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++
++  "groundpiece" => {
++    "position" => [:vector, CL_Point.new(0, 0)],
++    "surface"  => [:image, ""]},
++
++  "guillotine" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++  
++  "hammer" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++  
++  "hotspot" => {
++    "position" => [:vector, CL_Point.new(0, 0)],
++    "surface"  => [:image,  ""],
++    "parallax" => [:float,  0]},
++  
++  "iceblock" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++  
++  "info-box" => {
++    "position"  => [:vector, CL_Point.new(0, 0)],
++    "info-text" => [:string, ""]},
++  
++  "laser-exit" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++  
++  "liquid" => {
++    "position" => [:vector, CL_Point.new(0, 0)],
++    "surface"  => [:image,  ""],
++    "width"    => [:int,    1]},
++  
++  "rain-generator" => {},
++  
++  "smasher" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++  
++  "snow-generator" => {
++    "intensity" => [:float, 1.0]},
++  
++  "solid-color-background" => {
++    "color" => [:color, CL_Color.new(0, 0, 0, 255)]},
++  
++  "spike" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++  
++  "starfield-background" => {
++    "small-stars"  => [:int, 100],
++    "middle-stars" => [:int,  50],
++    "large-stars"  => [:int,  25]},
++  
++  "surface-background" => {
++    "surface"      => [:image, ""],
++    "color"        => [:color, CL_Color.new(0, 0, 0, 0)],
++    "para-x"       => [:float, 0.5],
++    "para-y"       => [:float, 0.5],
++    "scroll-x"     => [:float, 0],
++    "scroll-y"     => [:float, 0],
++    "stretch-x"    => [:float, 1],
++    "stretch-y"    => [:float, 1],
++    "keep-aspect"  => [:bool,  true]},
++
++  "switch-door" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++  
++  "teleporter" => {
++    "position" => [:vector, CL_Point.new(0, 0)],
++    "target"   => [:vector, CL_Point.new(0, 0)]},
++
++  "thunderstorm-background" => {
++    "position" => [:vector, CL_Point.new(0, 0)]},
++  
++  "woodthing" => {
++    "position" => [:vector, CL_Point.new(0, 0)]}}
++
++class WorldObj
++  def initialize(typename, rest)
++    @data       = nil
++    @typename   = typename # Type of the object ('groundpiece', 'hotspot', ...)
++    @properties = {}       # Properties of the object ({'speed' => 10, 'paralax' => 10.0})
++    
++    if rest.class == REXML::Element then
++      element = rest
++      
++      reader = XMLReader.new(element)
++      $objects[typename].each {|k, v|
++        @properties[k] = reader.read(k, v[0], v[1])
++      }
++    elsif rest.class == String then
++      image = rest
++
++      $objects[typename].each {|k, v|
++        if k == "surface" then
++          @properties[k] = image
++        elsif k != "position" then
++          @properties[k] = v[1]
++        end
++      }
++    else
++      raise "Error: Unknown type to WorldObj constructor"
++    end
++  end
++
++  def write_xml(el)
++    el = el.add_element(@typename)
++    @properties.each{|k, v|
++      el.add_element(k).add_text(v.to_s)
++    }
++  end
++
++  def get_image()
++    return @properties['surface'] || "core/misc/404sprite"
++  end
++
++  def get_pos()
++    return @properties['position'] || CL_Pointf.new(0, 0)
++  end
++
++  def set_data(data)
++    @data = data
++    if @properties.has_key?('position') then
++      @data.to_object().set_pos(get_pos())
++      @properties.delete('position')
++    end
++  end
++
++  def property_dialog()
++    puts "Property: #{@properties.inspect}"
++
++    dialog = GenericDialog.new("'#{@typename}' Property Dialog", $gui.get_component())
++    @properties.each{|k, v|
++      case $objects[@typename][k][0]
++      when :string
++        dialog.add_string("#{k}: ", v)
++      when :image
++        dialog.add_string("#{k}: ", v)
++      when :int
++        dialog.add_int("#{k}: ", v)
++      when :float
++        dialog.add_float("#{k}: ", v)
++      when :bool
++        dialog.add_bool("#{k}: ", v)
++      when :enum
++        dialog.add_enum("#{k}: ", $objects[@typename][k][2], v)
++      else
++        puts "Warning: Ignoring '#{k}' property, type '#{$objects[@typename][k][0]}' is unknown"
++      end
++     }
++    dialog.set_callback(proc{|message| 
++                          @message = message
++                        })
++  end
++end
++
++# EOF #
+
+Added: trunk/pingus/xmlreader.rb
+===================================================================
+--- trunk/pingus/xmlreader.rb	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/pingus/xmlreader.rb	2005-02-25 17:30:24 UTC (rev 490)
+@@ -0,0 +1,46 @@
++class XMLReader
++  def initialize(el)
++    @el = el
++  end
++
++  def read(name, type, default = nil)
++    ret = @el.elements[name]
++    if ret then
++      case type
++        
++      when :string
++        return ret.text
++        
++      when :int
++        return ret.text.to_i
++
++      when :float
++        return ret.text.to_f
++
++      when :bool #  1 = true, 0 = false
++        if ret.text.to_i == 0 then
++          return true
++        else
++          return true
++        end
++
++      when :vector
++        return CL_Pointf.new(ret.elements['x'].text.to_f,
++                             ret.elements['y'].text.to_f)
++
++      when :size
++        return CL_Size.new(ret.elements['width'].text.to_t,
++                           ret.elements['height'].text.to_t)
++
++      when :image
++        # FIXME: handle modifier somewhere
++        return ret.elements['image'].text      
++
++      end
++    else
++      return default
++    end
++  end
++end
++
++# EOF #
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-02-11 18:54:01 UTC (rev 489)
++++ trunk/ruby/flexlay.rb	2005-02-25 17:30:24 UTC (rev 490)
+@@ -214,6 +214,30 @@
+     update()
+   end
+     
++  def add_bool(name, value = false)
++    @items.push(["bool",
++                  CL_Label.new(CL_Point.new(10, 10), name,
++                               @window.get_client_area()),
++                  CL_CheckBox.new(CL_Point.new(110, 10), 
++                                  "",
++                                  @window.get_client_area())])
++    # @items[-1][2].set_text(value.to_s)
++    update()
++  end
++
++  def add_enum(name, types, value = "foo")
++    group = CL_RadioGroup.new()
++    types.each {|type| 
++      group.add(CL_RadioButton.new(CL_Point.new(0, 0),
++                         type, @window.get_client_area()))
++    }
++    @items.push(["enum",
++                  CL_Label.new(CL_Point.new(10, 10), name,
++                               @window.get_client_area()),
++                  group])
++    update()
++  end
++
+   def add_int(name, value = 0)
+     @items.push(["int",
+                  CL_Label.new(CL_Point.new(10, 10), name,
+@@ -236,19 +260,27 @@
+ 
+   def update()
+     y = 10
+-    @items.each do |(type, label, comp)| 
+-      if type == "int" or type == "string" or type == "float" or type == "void"
+-        label.set_position(10, y)
++    @items.each { |(type, label, comp)| 
++      label.set_position(10, y)
++
++      if type == "int" or type == "string" or type == "float" or type == "void" or type == "bool" then
+         if comp then
+           comp.set_position(110, y)
+         end
+         y += 25
+-
+-        @cancel.set_position(200, y)
+-        @ok.set_position(260, y)
+-        @window.set_size(330, y + 60)
++      elsif type == "enum"
++        y += 5
++        comp.get_buttons.each {|radio|
++          radio.set_position(110, y)
++          y += 20
++        }
++        y += 5
+       end
+-    end
++    }
++  
++    @cancel.set_position(200, y)
++    @ok.set_position(260, y)
++    @window.set_size(330, y + 60)
+   end
+ end
+ 
+
+
+
+From grumbel at sheep.berlios.de  Mon Feb 28 05:02:52 2005
+From: grumbel at sheep.berlios.de (Ingo Ruhnke at BerliOS)
+Date: Mon, 28 Feb 2005 05:02:52 +0100
+Subject: [Flexlay-commit] r491 - trunk/pingus
+Message-ID: <200502280402.j1S42qTK018697@sheep.berlios.de>
+
+Author: grumbel
+Date: 2005-02-28 05:02:43 +0100 (Mon, 28 Feb 2005)
+New Revision: 491
+
+Modified:
+   trunk/pingus/level.rb
+   trunk/pingus/pingus.rb
+   trunk/pingus/worldmap.rb
+Log:
+- little fixes to make it start again
+
+Modified: trunk/pingus/level.rb
+===================================================================
+--- trunk/pingus/level.rb	2005-02-25 17:30:24 UTC (rev 490)
++++ trunk/pingus/level.rb	2005-02-28 04:02:43 UTC (rev 491)
+@@ -30,10 +30,14 @@
+     @number_of_pingus = header['number-of-pingus'].text.to_i
+     @number_to_save   = header['number-to-save'].text.to_i
+ 
+-    @ambient_light = CL_Color.new((header['ambient-light/red'].text.to_f * 255).to_i,
++    if header['ambient-light/red'] then
++      @ambient_light = CL_Color.new((header['ambient-light/red'].text.to_f * 255).to_i,
+                                   (header['ambient-light/green'].text.to_f * 255).to_i,
+                                   (header['ambient-light/blue'].text.to_f  * 255).to_i,
+                                   (header['ambient-light/alpha'].text.to_f * 255).to_i)
++    else
++      @ambient_light = CL_Color.new(1, 1, 1, 1);
++    end
+ 
+     @comment = header['comment'].text
+     @levelsize = CL_Size.new(header['levelsize/width'].text.to_i,
+
+Modified: trunk/pingus/pingus.rb
+===================================================================
+--- trunk/pingus/pingus.rb	2005-02-25 17:30:24 UTC (rev 490)
++++ trunk/pingus/pingus.rb	2005-02-28 04:02:43 UTC (rev 491)
+@@ -59,11 +59,11 @@
+ $resources.add_resources(CL_ResourceManager.new($datadir + "data/worldobjs.xml"));
+ $resources.add_resources(CL_ResourceManager.new($datadir + "data/alias.xml"));
+ 
+-if true then
++if false then
+   worldmap = WorldMap.new()
+   worldmap.activate($gui.workspace)
+ else
+-  level = Level.new('/home/ingo/projects/pingus/svn/trunk/src/levelout.xml')
++  level = Level.new($datadir + 'levels/tutorial/snow22-grumbel.pingus')
+   level.activate($gui.workspace)
+   level.save("/tmp/levelout.xml")
+ end
+
+Modified: trunk/pingus/worldmap.rb
+===================================================================
+--- trunk/pingus/worldmap.rb	2005-02-25 17:30:24 UTC (rev 490)
++++ trunk/pingus/worldmap.rb	2005-02-28 04:02:43 UTC (rev 491)
+@@ -14,7 +14,7 @@
+     @editormap.set_metadata(self)
+     @editormap.set_bounding_rect(CL_Rect.new(0, 0, 2400, 600));
+ 
+-    load('/home/ingo/projects/pingus/svn/trunk/src/worldmapout.xml')
++    load($datadir + 'worldmaps/tutorial.xml')
+   end    
+ 
+   def activate(workspace)
+
+
+

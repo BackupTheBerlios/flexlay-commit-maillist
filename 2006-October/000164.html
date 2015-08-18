@@ -1,0 +1,600 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r669 - trunk/netbrush/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r669%20-%20trunk/netbrush/src&In-Reply-To=%3C200610210154.k9L1sP7I007587%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000163.html">
+   <LINK REL="Next"  HREF="000165.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r669 - trunk/netbrush/src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r669%20-%20trunk/netbrush/src&In-Reply-To=%3C200610210154.k9L1sP7I007587%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r669 - trunk/netbrush/src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sat Oct 21 03:54:25 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000163.html">[Flexlay-commit] r668 - in trunk/netbrush: . src
+</A></li>
+        <LI>Next message: <A HREF="000165.html">[Flexlay-commit] r670 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#164">[ date ]</a>
+              <a href="thread.html#164">[ thread ]</a>
+              <a href="subject.html#164">[ subject ]</a>
+              <a href="author.html#164">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-21 03:54:22 +0200 (Sat, 21 Oct 2006)
+New Revision: 669
+
+Added:
+   trunk/netbrush/src/controller.cpp
+   trunk/netbrush/src/controller.hpp
+Modified:
+   trunk/netbrush/src/brush_widget.cpp
+   trunk/netbrush/src/brush_widget.hpp
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/client_connection.cpp
+Log:
+- moved some brush stuff into controller
+
+Modified: trunk/netbrush/src/brush_widget.cpp
+===================================================================
+--- trunk/netbrush/src/brush_widget.cpp	2006-10-20 23:15:53 UTC (rev 668)
++++ trunk/netbrush/src/brush_widget.cpp	2006-10-21 01:54:22 UTC (rev 669)
+@@ -64,15 +64,8 @@
+ }
+ 
+ void 
+-BrushWidget::set_brush(const GenericBrush&amp; brush)
++BrushWidget::set_brush(GrayscaleBuffer* brushmask)
+ {
+-  GrayscaleBuffer* brushmask = generate_brushmask(brush.shape,
+-                                                  brush.radius,
+-                                                  brush.spikes,     // spikes
+-                                                  brush.hardness,  // hardness
+-                                                  brush.aspect_ratio,  // aspect
+-                                                  brush.angle);
+-  
+   SDL_FillRect(surface, NULL, SDL_MapRGB(surface-&gt;format, 255, 255, 255));
+   SDL_LockSurface(surface);
+   Uint8* data = static_cast&lt;Uint8*&gt;(surface-&gt;pixels);
+@@ -106,96 +99,6 @@
+       
+   SDL_UnlockSurface(surface); 
+   set_dirty(true);
+-
+-  // FIXME: where is delete?!
+-  client_draw_param-&gt;brush_file = &quot;&quot;;
+-  client_draw_param-&gt;brush_buffer = brushmask;
+-
+-  update_mouse_cursor();
+ }
+ 
+-void
+-BrushWidget::update_mouse_cursor()
+-{
+-  if (client_draw_param-&gt;generic_brush.radius &lt; 5.0f)
+-    return ;
+-
+-  GrayscaleBuffer* brush = client_draw_param-&gt;brush_buffer;
+-  
+-  int w     = brush-&gt;get_width();
+-  int pitch = brush-&gt;get_width()/8 + 1;
+-  int h     = brush-&gt;get_height();
+-  int len   = pitch * h;
+-  Uint8 data[len];
+-  Uint8 mask[len];
+-
+-  memset(data, 0, len);
+-  memset(mask, 0, len);
+-
+-  for(int y = 1; y &lt; brush-&gt;get_height()-1; ++y)
+-    for(int x = 1; x &lt; brush-&gt;get_width()-1; ++x)
+-      {
+-        int threshold = 64;
+-
+-        Uint8 check = 0;
+-        if (((x / 1) % 2) ^ (y / 1) % 2)
+-          check = 1;
+-
+-
+-        if ((brush-&gt;at(x-1, y) &lt; threshold &amp;&amp; 
+-             brush-&gt;at(x+1, y) &gt; threshold)
+-            ||
+-            (brush-&gt;at(x-1, y) &gt; threshold &amp;&amp; 
+-             brush-&gt;at(x+1, y) &lt; threshold)
+-            ||
+-            (brush-&gt;at(x, y-1) &lt; threshold &amp;&amp; 
+-             brush-&gt;at(x, y+1) &gt; threshold)
+-            ||
+-            (brush-&gt;at(x, y-1) &gt; threshold &amp;&amp; 
+-             brush-&gt;at(x, y+1) &lt; threshold)
+-            )
+-          { // black
+-            data[y * pitch + x/8] |= (check &lt;&lt; (7 - (x%8)));
+-            mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
+-          }
+-      }
+-  
+-  if (w &gt; 7 &amp;&amp; h &gt; 7)
+-    {
+-      int y = h / 2;
+-      int x = 0;
+-      for(x = w/2 - 3; x &lt;= w/2 + 3; ++x)
+-        {
+-          data[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
+-          mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
+-        }
+-
+-      x = w / 2;
+-      for(int y = h/2 - 3; y &lt;= h/2 + 3; ++y)
+-        {
+-          data[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
+-          mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
+-        }
+-
+-
+-      y = h / 2;
+-      for(x = w/2 - 1; x &lt;= w/2 + 1; ++x)
+-        {
+-          data[y * pitch + x/8] ^= (0x01 &lt;&lt; (7 - (x%8)));
+-          mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
+-        }
+-      
+-      x = w / 2;
+-      for(int y = h/2 - 1; y &lt;= h/2 + 1; ++y)
+-        {
+-          data[y * pitch + x/8] ^= (0x01 &lt;&lt; (7 - (x%8)));
+-          mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
+-        }
+-    }
+-
+-  SDL_Cursor* cursor = SDL_CreateCursor(data, mask, pitch*8, h, 
+-                                        w/2, h/2);
+-  SDL_SetCursor(cursor);
+-}
+-
+ /* EOF */
+
+Modified: trunk/netbrush/src/brush_widget.hpp
+===================================================================
+--- trunk/netbrush/src/brush_widget.hpp	2006-10-20 23:15:53 UTC (rev 668)
++++ trunk/netbrush/src/brush_widget.hpp	2006-10-21 01:54:22 UTC (rev 669)
+@@ -46,10 +46,8 @@
+   void on_leave() {}
+ 
+   void draw(SDL_Surface* target);
+-  void set_brush(const GenericBrush&amp; brush);
++  void set_brush(GrayscaleBuffer* brushmask);
+ 
+-  void update_mouse_cursor();
+-
+ private:
+   BrushWidget (const BrushWidget&amp;);
+   BrushWidget&amp; operator= (const BrushWidget&amp;);
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-10-20 23:15:53 UTC (rev 668)
++++ trunk/netbrush/src/client.cpp	2006-10-21 01:54:22 UTC (rev 669)
+@@ -317,8 +317,7 @@
+                                            screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 2)));
+     
+     brush_widget = new BrushWidget(Rect(Point(screen-&gt;w-128, 128+24+24), Size(128, 128)));
+-    brush_widget-&gt;set_brush(client_draw_param-&gt;generic_brush);
+-
++    
+     widget_manager-&gt;add(brush_widget);
+ 
+     // Main Loop
+
+Modified: trunk/netbrush/src/client_connection.cpp
+===================================================================
+--- trunk/netbrush/src/client_connection.cpp	2006-10-20 23:15:53 UTC (rev 668)
++++ trunk/netbrush/src/client_connection.cpp	2006-10-21 01:54:22 UTC (rev 669)
+@@ -127,7 +127,7 @@
+           printf( &quot;Error: SDLNet_TCP_Send: '%s'\n&quot;, SDLNet_GetError() );
+           invalid = true;
+         }
+-      std::cout &lt;&lt; &quot;done&quot; &lt;&lt; std::endl;
++      //std::cout &lt;&lt; &quot;done&quot; &lt;&lt; std::endl;
+     }
+ }
+ 
+
+Added: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-20 23:15:53 UTC (rev 668)
++++ trunk/netbrush/src/controller.cpp	2006-10-21 01:54:22 UTC (rev 669)
+@@ -0,0 +1,270 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;iostream&gt;
++#include &quot;video.hpp&quot;
++#include &quot;alpha_picker.hpp&quot;
++#include &quot;hue_picker.hpp&quot;
++#include &quot;saturation_value_picker.hpp&quot;
++#include &quot;globals.hpp&quot;
++#include &quot;drawing_parameter.hpp&quot;
++#include &quot;widget/slider_widget.hpp&quot;
++#include &quot;brush_widget.hpp&quot;
++#include &quot;widget/widget_manager.hpp&quot;
++#include &quot;controller.hpp&quot;
++
++class RadiusCallback : public SliderCallback
++{
++public:
++  void operator()(float v) {
++    controller-&gt;set_generic_brush_radius(v * 100.0f + 0.1f);
++  }
++};
++
++class SpikeCallback : public SliderCallback
++{
++public:
++  void operator()(float v) {
++    controller-&gt;set_generic_brush_spikes(int(v*18) + 2);
++  }
++};
++
++class HardnessCallback : public SliderCallback
++{
++public:
++  void operator()(float v) {
++    controller-&gt;set_generic_brush_hardness(v);
++  }
++};
++
++class AspectRatioCallback : public SliderCallback
++{
++public:
++  void operator()(float v) {
++    controller-&gt;set_generic_brush_aspect_ratio(v*19.0f + 1.0f);
++  }
++};
++
++class AngleCallback : public SliderCallback
++{
++public:
++  void operator()(float v) 
++  {
++    controller-&gt;set_generic_brush_angle(v * 180.0f);
++  }
++};
++
++Controller::Controller()
++{
++  // Color Selection
++  alpha_picker            = new AlphaPicker(Rect(Point(screen-&gt;w-128, 128+24), Size(128, 24)));
++  saturation_value_picker = new SaturationValuePicker(Rect(Point(screen-&gt;w-128, 0), Size(128, 128)));
++  hue_picker              = new HuePicker(Rect(Point(screen-&gt;w-128, 128), Size(128, 24)));
++
++  widget_manager-&gt;add(saturation_value_picker);
++  widget_manager-&gt;add(hue_picker);
++  widget_manager-&gt;add(alpha_picker);
++
++  // Brush Slider
++  radius_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(0)), Size(128, 24)),
++                                   new RadiusCallback());
++  
++  spike_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(1)), Size(128, 24)),
++                                  new SpikeCallback());
++  
++  hardness_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(2)), Size(128, 24)),
++                                     new HardnessCallback());
++  
++  aspect_ratio_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(3)), Size(128, 24)),
++                                         new AspectRatioCallback());
++  
++  angle_slider = new SliderWidget(Rect(Point(screen-&gt;w-128, 128+24+24+128+24*(4)), Size(128, 24)),
++                                  new AngleCallback());
++  widget_manager-&gt;add(radius_slider);
++  widget_manager-&gt;add(spike_slider);
++  widget_manager-&gt;add(hardness_slider);
++  widget_manager-&gt;add(aspect_ratio_slider);
++  widget_manager-&gt;add(angle_slider);
++}
++
++void
++Controller::set_color_hue(Uint8 hue_)
++{
++  hue = hue_;
++  client_draw_param-&gt;color = Color::from_hue(hue);
++  saturation_value_picker-&gt;set_color(client_draw_param-&gt;color);
++  alpha_picker-&gt;set_color(client_draw_param-&gt;color);
++}
++
++void
++Controller::set_color_value_saturation(Uint8 value_, Uint8 saturation_)
++{
++  value = value_;
++  saturation = saturation_;
++
++  Color color = Color::from_hue(hue);
++  color.apply_value_saturation(value, saturation);
++  alpha_picker-&gt;set_color(color);
++  client_draw_param-&gt;color = color;
++}
++
++void
++Controller::set_generic_brush_shape(BrushShape shape)
++{
++  client_draw_param-&gt;generic_brush.shape = shape;
++  set_generic_brush(client_draw_param-&gt;generic_brush);
++}
++
++void
++Controller::set_generic_brush_radius(float radius)
++{
++  client_draw_param-&gt;generic_brush.radius = radius;
++  set_generic_brush(client_draw_param-&gt;generic_brush);
++}
++
++void
++Controller::set_generic_brush_spikes(int spikes)
++{
++  client_draw_param-&gt;generic_brush.spikes = spikes;
++  set_generic_brush(client_draw_param-&gt;generic_brush);
++}
++
++void
++Controller::set_generic_brush_hardness(float hardness)
++{
++  client_draw_param-&gt;generic_brush.hardness = hardness;
++  set_generic_brush(client_draw_param-&gt;generic_brush);
++}
++
++void
++Controller::set_generic_brush_aspect_ratio(float aspect_ratio)
++{
++  client_draw_param-&gt;generic_brush.aspect_ratio = aspect_ratio;
++  set_generic_brush(client_draw_param-&gt;generic_brush);
++}
++
++void
++Controller::set_generic_brush_angle(float angle)
++{
++  client_draw_param-&gt;generic_brush.angle = angle;
++  set_generic_brush(client_draw_param-&gt;generic_brush);
++}
++
++void
++Controller::set_generic_brush(const GenericBrush&amp; brush)
++{
++  // FIXME: Shouldn't allocate stuff outside of class
++  delete client_draw_param-&gt;brush_buffer;
++  client_draw_param-&gt;brush_buffer = brush.generate();
++  brush_widget-&gt;set_brush(client_draw_param-&gt;brush_buffer);
++
++  update_mouse_cursor();
++}
++
++void
++Controller::update_mouse_cursor()
++{
++  if (client_draw_param-&gt;generic_brush.radius &lt; 5.0f)
++    return ;
++
++  GrayscaleBuffer* brush = client_draw_param-&gt;brush_buffer;
++  
++  int w     = brush-&gt;get_width();
++  int pitch = brush-&gt;get_width()/8 + 1;
++  int h     = brush-&gt;get_height();
++  int len   = pitch * h;
++  Uint8 data[len];
++  Uint8 mask[len];
++
++  memset(data, 0, len);
++  memset(mask, 0, len);
++
++  for(int y = 1; y &lt; brush-&gt;get_height()-1; ++y)
++    for(int x = 1; x &lt; brush-&gt;get_width()-1; ++x)
++      {
++        int threshold = 64;
++
++        Uint8 check = 0;
++        if (((x / 1) % 2) ^ (y / 1) % 2)
++          check = 1;
++
++
++        if ((brush-&gt;at(x-1, y) &lt; threshold &amp;&amp; 
++             brush-&gt;at(x+1, y) &gt; threshold)
++            ||
++            (brush-&gt;at(x-1, y) &gt; threshold &amp;&amp; 
++             brush-&gt;at(x+1, y) &lt; threshold)
++            ||
++            (brush-&gt;at(x, y-1) &lt; threshold &amp;&amp; 
++             brush-&gt;at(x, y+1) &gt; threshold)
++            ||
++            (brush-&gt;at(x, y-1) &gt; threshold &amp;&amp; 
++             brush-&gt;at(x, y+1) &lt; threshold)
++            )
++          { // black
++            data[y * pitch + x/8] |= (check &lt;&lt; (7 - (x%8)));
++            mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
++          }
++      }
++  
++  if (w &gt; 7 &amp;&amp; h &gt; 7)
++    {
++      int y = h / 2;
++      int x = 0;
++      for(x = w/2 - 3; x &lt;= w/2 + 3; ++x)
++        {
++          data[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
++          mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
++        }
++
++      x = w / 2;
++      for(int y = h/2 - 3; y &lt;= h/2 + 3; ++y)
++        {
++          data[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
++          mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
++        }
++
++
++      y = h / 2;
++      for(x = w/2 - 1; x &lt;= w/2 + 1; ++x)
++        {
++          data[y * pitch + x/8] ^= (0x01 &lt;&lt; (7 - (x%8)));
++          mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
++        }
++      
++      x = w / 2;
++      for(int y = h/2 - 1; y &lt;= h/2 + 1; ++y)
++        {
++          data[y * pitch + x/8] ^= (0x01 &lt;&lt; (7 - (x%8)));
++          mask[y * pitch + x/8] |= (0x01 &lt;&lt; (7 - (x%8)));
++        }
++    }
++
++  SDL_Cursor* cursor = SDL_CreateCursor(data, mask, pitch*8, h, 
++                                        w/2, h/2);
++  SDL_SetCursor(cursor);
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/controller.hpp
+===================================================================
+--- trunk/netbrush/src/controller.hpp	2006-10-20 23:15:53 UTC (rev 668)
++++ trunk/netbrush/src/controller.hpp	2006-10-21 01:54:22 UTC (rev 669)
+@@ -0,0 +1,77 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_CONTROLLER_HPP
++#define HEADER_CONTROLLER_HPP
++
++#include &quot;saturation_value_picker.hpp&quot;
++#include &quot;alpha_picker.hpp&quot;
++#include &quot;hue_picker.hpp&quot;
++#include &quot;generic_brush.hpp&quot;
++
++class SliderWidget;
++
++/** */
++class Controller
++{
++private:
++  SaturationValuePicker* saturation_value_picker;
++  HuePicker*             hue_picker;
++  AlphaPicker*           alpha_picker;
++
++  SliderWidget* radius_slider;
++  SliderWidget* spike_slider;
++  SliderWidget* hardness_slider;
++  SliderWidget* aspect_ratio_slider;
++  SliderWidget* angle_slider;
++  
++  Uint8 hue;
++  Uint8 saturation;
++  Uint8 value;
++
++public:
++  Controller();
++  ~Controller();
++
++  void set_color_hue(Uint8 hue);
++  void set_color_value_saturation(Uint8 value, Uint8 saturation);
++
++  void set_generic_brush_shape(BrushShape shape);
++  void set_generic_brush_radius(float radius);
++  void set_generic_brush_spikes(int spikes);
++  void set_generic_brush_hardness(float hardness);
++  void set_generic_brush_aspect_ratio(float aspect_ratio);
++  void set_generic_brush_angle(float angle);
++  void set_generic_brush(const GenericBrush&amp; brush);
++
++  void update_mouse_cursor();
++private:
++  Controller (const Controller&amp;);
++  Controller&amp; operator= (const Controller&amp;);
++};
++
++#endif
++
++/* EOF */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000163.html">[Flexlay-commit] r668 - in trunk/netbrush: . src
+</A></li>
+	<LI>Next message: <A HREF="000165.html">[Flexlay-commit] r670 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#164">[ date ]</a>
+              <a href="thread.html#164">[ thread ]</a>
+              <a href="subject.html#164">[ subject ]</a>
+              <a href="author.html#164">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

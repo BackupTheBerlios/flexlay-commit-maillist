@@ -1,0 +1,1064 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r693 - in trunk/netbrush/src: . widget
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r693%20-%20in%20trunk/netbrush/src%3A%20.%20widget&In-Reply-To=%3C200611051906.kA5J66FV007513%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000185.html">
+   <LINK REL="Next"  HREF="000187.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r693 - in trunk/netbrush/src: . widget</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r693%20-%20in%20trunk/netbrush/src%3A%20.%20widget&In-Reply-To=%3C200611051906.kA5J66FV007513%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r693 - in trunk/netbrush/src: . widget">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov  5 20:06:06 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000185.html">[Flexlay-commit] r692 - in trunk/netbrush: . src
+</A></li>
+        <LI>Next message: <A HREF="000187.html">[Flexlay-commit] r694 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#186">[ date ]</a>
+              <a href="thread.html#186">[ thread ]</a>
+              <a href="subject.html#186">[ subject ]</a>
+              <a href="author.html#186">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-05 20:06:05 +0100 (Sun, 05 Nov 2006)
+New Revision: 693
+
+Modified:
+   trunk/netbrush/src/airbrush_tool.cpp
+   trunk/netbrush/src/alpha_picker.cpp
+   trunk/netbrush/src/alpha_picker.hpp
+   trunk/netbrush/src/brush_widget.cpp
+   trunk/netbrush/src/brush_widget.hpp
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/client_state.cpp
+   trunk/netbrush/src/client_state.hpp
+   trunk/netbrush/src/color_display.cpp
+   trunk/netbrush/src/color_display.hpp
+   trunk/netbrush/src/graphic_context.hpp
+   trunk/netbrush/src/grayscale_buffer.cpp
+   trunk/netbrush/src/hue_picker.cpp
+   trunk/netbrush/src/hue_picker.hpp
+   trunk/netbrush/src/navigation.cpp
+   trunk/netbrush/src/navigation.hpp
+   trunk/netbrush/src/saturation_value_picker.cpp
+   trunk/netbrush/src/saturation_value_picker.hpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/screen_buffer.hpp
+   trunk/netbrush/src/server_connection.cpp
+   trunk/netbrush/src/surface_graphic_context.cpp
+   trunk/netbrush/src/surface_graphic_context.hpp
+   trunk/netbrush/src/text_view.cpp
+   trunk/netbrush/src/text_view.hpp
+   trunk/netbrush/src/widget/button.cpp
+   trunk/netbrush/src/widget/button.hpp
+   trunk/netbrush/src/widget/scrollbar.cpp
+   trunk/netbrush/src/widget/scrollbar.hpp
+   trunk/netbrush/src/widget/slider_widget.cpp
+   trunk/netbrush/src/widget/slider_widget.hpp
+   trunk/netbrush/src/widget/widget.hpp
+   trunk/netbrush/src/widget/widget_manager.cpp
+   trunk/netbrush/src/widget/widget_manager.hpp
+Log:
+- added graphic context to widget
+
+Modified: trunk/netbrush/src/airbrush_tool.cpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/airbrush_tool.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -23,6 +23,7 @@
+ **  02111-1307, USA.
+ */
+ 
++#include &lt;iostream&gt;
+ #include &quot;globals.hpp&quot;
+ #include &quot;stroke.hpp&quot;
+ #include &quot;stroke_buffer.hpp&quot;
+@@ -70,7 +71,7 @@
+ void
+ AirbrushTool::on_pen_motion(const PenEvent&amp; pen)
+ {
+-  if (0)
++  if (0 &amp;&amp; pen_active)
+     printf(&quot;x: %1.5f y: %1.5f pressure: %1.5f x_tilt: %2.5f y_tilt: %2.5f\n&quot;,
+            pen.x, pen.y, pen.pressure, pen.x_tilt, pen.y_tilt);
+ 
+@@ -78,6 +79,7 @@
+     {
+       if (!current_stroke)
+         {
++          std::cout &lt;&lt; &quot;Motian start&quot; &lt;&lt; std::endl;
+           current_stroke = new Stroke();
+           pen_active = true;
+         }      
+@@ -103,6 +105,7 @@
+     }
+   else if (current_stroke)
+     {
++      std::cout &lt;&lt; &quot;Motian End&quot; &lt;&lt; std::endl;
+       stroke_buffer-&gt;clear();
+       server-&gt;send_stroke(*current_stroke, client_draw_param);
+ 
+
+Modified: trunk/netbrush/src/alpha_picker.cpp
+===================================================================
+--- trunk/netbrush/src/alpha_picker.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/alpha_picker.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -86,27 +86,12 @@
+ }
+ 
+ void
+-AlphaPicker::draw(SDL_Surface* target)
++AlphaPicker::draw(GraphicContext&amp; gc)
+ {
+-  SDL_Rect pos;
+-  pos.x = get_rect().left;
+-  pos.y = get_rect().top;
+-
+-  SDL_BlitSurface(surface, 0, target, &amp;pos);
+-
+-
+-  SDL_Rect vline;
+-  vline.x = click_pos.x + get_rect().left - 1;
+-  vline.y = 0 + get_rect().top;
+-  vline.w = 3;
+-  vline.h = get_rect().get_height();
+-
+-  SDL_FillRect(target, &amp;vline, SDL_MapRGB(target-&gt;format, 0, 0, 0));
+-
+-  vline.x += 1;
+-  vline.w = 1;
+-
+-  SDL_FillRect(target, &amp;vline, SDL_MapRGB(target-&gt;format, 255, 255, 255));
++  gc.blit(surface, Point(0, 0));
++  gc.draw_line(Point(click_pos.x, 0),
++               Point(click_pos.x, get_rect().get_height()),
++               Color(0, 0, 0));
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/alpha_picker.hpp
+===================================================================
+--- trunk/netbrush/src/alpha_picker.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/alpha_picker.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -47,7 +47,7 @@
+   void on_enter() {}
+   void on_leave() {}
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+ 
+   void set_color(const Color&amp; color);
+ private:
+
+Modified: trunk/netbrush/src/brush_widget.cpp
+===================================================================
+--- trunk/netbrush/src/brush_widget.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/brush_widget.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -54,13 +54,9 @@
+ }
+ 
+ void
+-BrushWidget::draw(SDL_Surface* target)
++BrushWidget::draw(GraphicContext&amp; gc)
+ {
+-  SDL_Rect pos;
+-  pos.x = get_rect().left;
+-  pos.y = get_rect().top;
+-
+-  SDL_BlitSurface(surface, 0, target, &amp;pos);
++  gc.blit(surface, Point(0,0));
+ }
+ 
+ void 
+
+Modified: trunk/netbrush/src/brush_widget.hpp
+===================================================================
+--- trunk/netbrush/src/brush_widget.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/brush_widget.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -45,7 +45,7 @@
+   void on_enter() {}
+   void on_leave() {}
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+   void set_brush(GrayscaleBuffer* brushmask);
+ 
+ private:
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/client.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -170,6 +170,7 @@
+     std::string hostname;
+     std::string port     = &quot;4711&quot;;
+     int rest_arg_count = 0;
++    std::string stylus;
+ 
+     CommandLine argp;
+ 
+@@ -180,6 +181,7 @@
+     argp.add_option('f', &quot;fullscreen&quot;, &quot;&quot;,            &quot;Start the application in fullscreen mode&quot;);
+     argp.add_option('w', &quot;window&quot;,     &quot;&quot;,            &quot;Start the application in window mode&quot;);
+     argp.add_option('v', &quot;version&quot;,    &quot;&quot;,            &quot;Display the netBrush version&quot;);
++    argp.add_option('i', &quot;input&quot;,      &quot;NAME&quot;,        &quot;Use XInput device NAME for drawing (tablet support)&quot;);
+     argp.add_option('h', &quot;help&quot;,       &quot;&quot;,            &quot;Show this help text&quot;);
+ 
+     argp.parse_args(argc, argv);
+@@ -202,6 +204,12 @@
+             }
+             break;
+ 
++          case 'i':
++            {
++              stylus = argp.get_argument();
++            }
++            break;
++
+           case 'c':
+             {
+               if (sscanf(argp.get_argument().c_str(), &quot;%dx%d&quot;,
+@@ -274,7 +282,7 @@
+       printf(&quot;SDL_SetVideoMode: %s\n&quot;, SDL_GetError());
+     SDL_WM_SetCaption(&quot;netBrush&quot;, &quot;netBrush&quot;);
+ 
+-    if (1) // enable tablet support
++    if (!stylus.empty()) // enable tablet support
+       {
+         SDL_SysWMinfo syswm;
+ 
+@@ -285,7 +293,7 @@
+           }
+ 
+         syswm.info.x11.lock_func();
+-        xinput = new InputDevice_XInput(syswm.info.x11.display, &quot;gstylus&quot;);
++        xinput = new InputDevice_XInput(syswm.info.x11.display, stylus);
+         syswm.info.x11.unlock_func();
+ 
+         SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
+
+Modified: trunk/netbrush/src/client_state.cpp
+===================================================================
+--- trunk/netbrush/src/client_state.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/client_state.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -113,12 +113,12 @@
+ }
+ 
+ void
+-ClientState::dab(unsigned int time, int x, int y) 
++ClientState::dab(unsigned int time, int x, int y, float pressure) 
+ {
+   //std::cout &lt;&lt; &quot;CL&quot; &lt;&lt; id &lt;&lt; &quot; dab &quot; &lt;&lt; time &lt;&lt; &quot; &quot; &lt;&lt; x &lt;&lt; &quot; &quot; &lt;&lt; y &lt;&lt; std::endl;
+   if (current_stroke)
+     {
+-      current_stroke-&gt;add_dab(Dab(x, y));
++      current_stroke-&gt;add_dab(Dab(x, y, pressure));
+     }
+ }
+ 
+
+Modified: trunk/netbrush/src/client_state.hpp
+===================================================================
+--- trunk/netbrush/src/client_state.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/client_state.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -65,7 +65,7 @@
+   void fill_circle(const Point&amp; pos, int radius);
+   void draw_line(const Point&amp; p1, const Point&amp; p2);
+ 
+-  void dab(unsigned int time, int x, int y);
++  void dab(unsigned int time, int x, int y, float pressure);
+ };
+ 
+ #endif
+
+Modified: trunk/netbrush/src/color_display.cpp
+===================================================================
+--- trunk/netbrush/src/color_display.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/color_display.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -48,8 +48,9 @@
+ }
+ 
+ void
+-ColorDisplay::draw(SDL_Surface* target)
++ColorDisplay::draw(GraphicContext&amp; gc)
+ {
++#if 0
+   SDL_Rect r;
+  
+   r.x = get_rect().left + get_rect().get_width()/3;
+@@ -82,6 +83,7 @@
+   SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, foreground.r, foreground.g, foreground.b));
+ 
+   if (0) std::cout &lt;&lt; &quot;Color: &quot; &lt;&lt; (int)foreground.r &lt;&lt; &quot; &quot; &lt;&lt; (int)foreground.g &lt;&lt; &quot; &quot; &lt;&lt; (int)foreground.b &lt;&lt; std::endl;
++#endif 
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/color_display.hpp
+===================================================================
+--- trunk/netbrush/src/color_display.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/color_display.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -45,7 +45,7 @@
+   void on_enter() {}
+   void on_leave() {}
+   
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+   void set_color(const Color&amp; color);
+ private:
+   ColorDisplay (const ColorDisplay&amp;);
+
+Modified: trunk/netbrush/src/graphic_context.hpp
+===================================================================
+--- trunk/netbrush/src/graphic_context.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/graphic_context.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -26,11 +26,18 @@
+ #ifndef HEADER_GRAPHIC_CONTEXT_HPP
+ #define HEADER_GRAPHIC_CONTEXT_HPP
+ 
++#include &quot;math/rect.hpp&quot;
++#include &quot;math/point.hpp&quot;
++#include &quot;color.hpp&quot;
++
+ /** */
+ class GraphicContext
+ {
+ private:
+ public:
++  GraphicContext() {}
++  virtual ~GraphicContext() {}
++
+   virtual void fill_rect(const Rect&amp; rect, const Color&amp; color) =0;
+   virtual void draw_rect(const Rect&amp; rect, const Color&amp; color) =0;
+ 
+@@ -40,6 +47,9 @@
+   virtual void blit(SDL_Surface* source, const Point&amp; pos) =0;
+   virtual void blit(SDL_Surface* source, const Rect&amp; src_rect, const Point&amp; pos) =0;
+ 
++  virtual void draw_line(const Point&amp; p1, const Point&amp; p2, const Color&amp; color) =0;
++
++  virtual SDL_Surface* get_surface() =0;
+ private:
+   GraphicContext (const GraphicContext&amp;);
+   GraphicContext&amp; operator= (const GraphicContext&amp;);
+
+Modified: trunk/netbrush/src/grayscale_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/grayscale_buffer.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/grayscale_buffer.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -101,7 +101,7 @@
+ void
+ GrayscaleBuffer::blit(GrayscaleBuffer* source, int of_x, int of_y, Uint8 alpha, BlendMode mode)
+ {
+-  std::cout &lt;&lt; &quot;alpha: &quot; &lt;&lt; int(alpha) &lt;&lt; std::endl;
++  std::cout &lt;&lt; &quot;alpha: &quot; &lt;&lt; mode &lt;&lt; &quot; &quot; &lt;&lt; int(alpha) &lt;&lt; std::endl;
+   int start_x = std::max(of_x, 0);
+   int start_y = std::max(of_y, 0);
+ 
+@@ -153,7 +153,7 @@
+             Uint8&amp; p = source-&gt;buffer[(y - of_y) * source-&gt;width + (x - of_x)];
+             
+             // Works, but not exactly alpha
+-            f = std::max(std::min(f + (alpha * p / 255)/4, 255), 0);
++            f = std::max(std::min(f + (alpha * p/255), 255), 0);
+             //f = alpha;
+ 
+             //f = (((255 - p) * f) + (p * p))/255; 
+
+Modified: trunk/netbrush/src/hue_picker.cpp
+===================================================================
+--- trunk/netbrush/src/hue_picker.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/hue_picker.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -92,20 +92,12 @@
+ }
+ 
+ void
+-HuePicker::draw(SDL_Surface* target)
++HuePicker::draw(GraphicContext&amp; gc)
+ {
+-  SDL_Rect pos;
+-  pos.x = get_rect().left;
+-  pos.y = get_rect().top;
+-
+-  SDL_Rect vline;
+-  vline.x = click_pos.x + get_rect().left;
+-  vline.y = 0 + get_rect().top;
+-  vline.w = 1;
+-  vline.h = get_rect().get_height();
+-
+-  SDL_BlitSurface(surface, 0, target, &amp;pos);
+-  SDL_FillRect(target, &amp;vline, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++  gc.blit(surface, Point(0,0));
++  gc.draw_line(Point(click_pos.x, 0),
++               Point(click_pos.x, get_rect().get_height()),
++               Color(0,0,0));
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/hue_picker.hpp
+===================================================================
+--- trunk/netbrush/src/hue_picker.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/hue_picker.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -47,7 +47,7 @@
+   void on_enter() {}
+   void on_leave() {}
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+  
+ private:
+   HuePicker (const HuePicker&amp;);
+
+Modified: trunk/netbrush/src/navigation.cpp
+===================================================================
+--- trunk/netbrush/src/navigation.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/navigation.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -67,13 +67,9 @@
+ }
+ 
+ void
+-Navigation::draw(SDL_Surface* target)
++Navigation::draw(GraphicContext&amp; gc)
+ {
+-  SDL_Rect pos;
+-  pos.x = get_rect().left;
+-  pos.y = get_rect().top;
+-
+-  SDL_BlitSurface(surface, 0, target, &amp;pos);  
++  gc.blit(surface, Point(0, 0));
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/navigation.hpp
+===================================================================
+--- trunk/netbrush/src/navigation.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/navigation.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -34,6 +34,7 @@
+ private:
+   SDL_Surface* surface;
+   bool dragging;
++
+ public:
+   Navigation(const Rect&amp; rect);
+   
+@@ -43,7 +44,7 @@
+   void on_enter() {};
+   void on_leave() {}
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+   void update();
+ private:
+   Navigation (const Navigation&amp;);
+
+Modified: trunk/netbrush/src/saturation_value_picker.cpp
+===================================================================
+--- trunk/netbrush/src/saturation_value_picker.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/saturation_value_picker.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -107,28 +107,15 @@
+ }
+ 
+ void
+-SaturationValuePicker::draw(SDL_Surface* target)
++SaturationValuePicker::draw(GraphicContext&amp; gc)
+ {
+-  SDL_Rect pos;
+-  pos.x = get_rect().left;
+-  pos.y = get_rect().top;
+-
+-  SDL_Rect hline;
+-  hline.x = 0  + get_rect().left;;
+-  hline.y = click_pos.y  + get_rect().top;
+-  hline.w = get_rect().get_width();
+-  hline.h = 1;
+-
+-  SDL_Rect vline;
+-  vline.x = click_pos.x + get_rect().left;
+-  vline.y = 0 + get_rect().top;
+-  vline.w = 1;
+-  vline.h = get_rect().get_height();
+-
+-  SDL_BlitSurface(surface, 0, target, &amp;pos);
+-
+-  SDL_FillRect(target, &amp;hline, SDL_MapRGB(target-&gt;format, 0, 0, 0));
+-  SDL_FillRect(target, &amp;vline, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++  gc.blit(surface, Point(0, 0));
++  gc.draw_line(Point(click_pos.x, 0),
++               Point(click_pos.x, get_rect().get_height()),
++               Color(0, 0, 0));
++  gc.draw_line(Point(0, click_pos.y),
++               Point(get_rect().get_width(), click_pos.y),
++               Color(0, 0, 0));
+ }
+ 
+ /* EOF */
+
+Modified: trunk/netbrush/src/saturation_value_picker.hpp
+===================================================================
+--- trunk/netbrush/src/saturation_value_picker.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/saturation_value_picker.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -37,6 +37,7 @@
+   SDL_Surface* surface;
+   bool  dragging;
+   Point click_pos;
++
+ public:
+   SaturationValuePicker(const Rect&amp; rect);
+ 
+@@ -46,7 +47,7 @@
+   void on_enter() {};
+   void on_leave() {}
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+   void set_color(const Color&amp; color);
+ 
+   Color get_color(Uint8 value, Uint8 saturation) const;
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -71,8 +71,9 @@
+ }
+ 
+ void
+-ScreenBuffer::draw(SDL_Surface* target)
++ScreenBuffer::draw(GraphicContext&amp; gc)
+ {
++  SDL_Surface* target = gc.get_surface();
+   //SDL_SetClipRect(target, &amp;rect);
+ 
+   int trans_x = get_rect().left + scroll_offset_x;
+
+Modified: trunk/netbrush/src/screen_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/screen_buffer.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -73,7 +73,7 @@
+   void mark_dirty(const Rect&amp; region);
+   void force_full_refresh();
+   
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+ 
+   void on_mouse_motion(const MouseMotionEvent&amp; motion);
+   void on_mouse_button(const MouseButtonEvent&amp; button);
+
+Modified: trunk/netbrush/src/server_connection.cpp
+===================================================================
+--- trunk/netbrush/src/server_connection.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/server_connection.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -25,6 +25,7 @@
+ 
+ #include &lt;iostream&gt;
+ #include &lt;sstream&gt;
++#include &lt;stdlib.h&gt;
+ #include &quot;globals.hpp&quot;
+ #include &quot;client_state.hpp&quot;
+ #include &quot;color.hpp&quot;
+@@ -288,8 +289,16 @@
+                 {
+                   client_state-&gt;dab(atoi(tokens[3].c_str()), 
+                                     atoi(tokens[4].c_str()),
+-                                    atoi(tokens[5].c_str()));
++                                    atoi(tokens[5].c_str()),
++                                    1.0f);
+                 }
++              else if (tokens.size() == 7 &amp;&amp; tokens[2] == &quot;dab&quot;)
++                {
++                  client_state-&gt;dab(atoi(tokens[3].c_str()), 
++                                    atoi(tokens[4].c_str()),
++                                    atoi(tokens[5].c_str()),
++                                    atof(tokens[6].c_str()));
++                }
+               else
+                 {
+                   std::cout &lt;&lt; &quot;# invalid command: &quot; &lt;&lt; cmd &lt;&lt; std::endl;
+@@ -360,7 +369,7 @@
+   str &lt;&lt; &quot;stroke_begin&quot; &lt;&lt; std::endl;
+   for(Stroke::Dabs::const_iterator i = dabs.begin(); i != dabs.end(); ++i)
+     {
+-      str &lt;&lt; &quot;dab &quot; &lt;&lt; i-&gt;time &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pos.x &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pos.y  &lt;&lt; std::endl;
++      str &lt;&lt; &quot;dab &quot; &lt;&lt; i-&gt;time &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pos.x &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pos.y &lt;&lt; &quot; &quot; &lt;&lt; i-&gt;pressure &lt;&lt; std::endl;
+     }
+   str &lt;&lt; &quot;stroke_end&quot; &lt;&lt; std::endl;
+       
+
+Modified: trunk/netbrush/src/surface_graphic_context.cpp
+===================================================================
+--- trunk/netbrush/src/surface_graphic_context.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/surface_graphic_context.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -26,8 +26,10 @@
+ #include &quot;SDL_gfx/SDL_gfxPrimitives.h&quot;
+ #include &quot;surface_graphic_context.hpp&quot;
+ 
+-SurfaceGraphicContext::SurfaceGraphicContext(SDL_Surface* surface)
+-  : target(surface),
++SurfaceGraphicContext::SurfaceGraphicContext(SDL_Surface* target_, 
++                                             const Rect&amp;  region_)
++  : target(target_),
++    region(region_),
+     anti_aliasing(false)
+ {
+ }
+@@ -41,7 +43,8 @@
+ SurfaceGraphicContext::fill_rect(const Rect&amp; rect, const Color&amp; color)
+ {
+   boxRGBA(target,
+-          rect.left, rect.top, rect.right, rect.bottom,
++          rect.left  + region.left, rect.top    + region.top, 
++          rect.right + region.left, rect.bottom + region.top,
+           color.r, color.g, color.b, color.a);
+ }
+ 
+@@ -49,7 +52,8 @@
+ SurfaceGraphicContext::draw_rect(const Rect&amp; rect, const Color&amp; color)
+ {
+   boxRGBA(target,
+-          rect.left, rect.top, rect.right, rect.bottom,
++          rect.left  + region.left, rect.top    + region.top, 
++          rect.right + region.left, rect.bottom + region.top,
+           color.r, color.g, color.b, color.a);
+ }
+   
+@@ -57,7 +61,9 @@
+ SurfaceGraphicContext::fill_circle(const Point&amp; pos, int radius, const Color&amp; color)
+ {
+   filledCircleRGBA(target,
+-                   pos.x, pos.y, radius,
++                   pos.x + region.left,
++                   pos.y + region.top, 
++                   radius,
+                    color.r, color.g, color.b, color.a);
+ }
+ 
+@@ -65,7 +71,8 @@
+ SurfaceGraphicContext::draw_circle(const Point&amp; pos, int radius, const Color&amp; color)
+ {
+   circleRGBA(target,
+-             pos.x, pos.y, radius,
++             pos.x + region.left, pos.y + region.top, 
++             radius,
+              color.r, color.g, color.b, color.a);
+ }
+ 
+@@ -73,7 +80,8 @@
+ SurfaceGraphicContext::draw_line(const Point&amp; p1, const Point&amp; p2, const Color&amp; color)
+ {
+   aalineRGBA(target,
+-             p1.x, p1.y, p2.x, p2.y,
++             p1.x + region.left, p1.y + region.top,
++             p2.x + region.left, p2.y + region.top,
+              color.r, color.g, color.b, color.a);
+ }
+ 
+@@ -81,8 +89,8 @@
+ SurfaceGraphicContext::blit(SDL_Surface* source, const Point&amp; pos)
+ {
+   SDL_Rect target_rect;
+-  target_rect.x = pos.x;
+-  target_rect.y = pos.y;
++  target_rect.x = pos.x + region.left;
++  target_rect.y = pos.y + region.top;
+ 
+   SDL_BlitSurface(source, 0, target, &amp;target_rect);
+ }
+@@ -90,6 +98,7 @@
+ void
+ SurfaceGraphicContext::blit(SDL_Surface* source, const Rect&amp; src_rect, const Point&amp; pos)
+ {
++  // FIXME: add clipping
+   SDL_Rect source_rect;
+   source_rect.x = src_rect.left;
+   source_rect.y = src_rect.right;
+@@ -97,8 +106,8 @@
+   source_rect.h = src_rect.get_height();
+ 
+   SDL_Rect target_rect;
+-  target_rect.x = pos.x;
+-  target_rect.y = pos.y;
++  target_rect.x = pos.x + region.left;
++  target_rect.y = pos.y + region.top;
+ 
+   SDL_BlitSurface(source, &amp;source_rect, target, &amp;target_rect);  
+ }
+
+Modified: trunk/netbrush/src/surface_graphic_context.hpp
+===================================================================
+--- trunk/netbrush/src/surface_graphic_context.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/surface_graphic_context.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -30,15 +30,23 @@
+ #include &quot;math/point.hpp&quot;
+ #include &quot;math/rect.hpp&quot;
+ #include &quot;color.hpp&quot;
++#include &quot;graphic_context.hpp&quot;
+ 
+ /** */
+-class SurfaceGraphicContext
++class SurfaceGraphicContext : public GraphicContext
+ {
+ private:
++  /** the SDL_Surface onto which all drawing command will land */
+   SDL_Surface* target;
++
++  /** The region into which all drawing commands will land, drawing to
++      (0, 0) will land on (region.left, region.top)  */
++  Rect region;
++
+   bool anti_aliasing;
++
+ public:
+-  SurfaceGraphicContext(SDL_Surface* surface);
++  SurfaceGraphicContext(SDL_Surface* surface, const Rect&amp; region);
+   ~SurfaceGraphicContext();
+   
+   void set_anti_aliasing(bool t);
+@@ -54,6 +62,7 @@
+   void blit(SDL_Surface* source, const Point&amp; pos);
+   void blit(SDL_Surface* source, const Rect&amp; src_rect, const Point&amp; pos);
+ 
++  SDL_Surface* get_surface() { return target; }
+ private:
+   SurfaceGraphicContext (const SurfaceGraphicContext&amp;);
+   SurfaceGraphicContext&amp; operator= (const SurfaceGraphicContext&amp;);
+
+Modified: trunk/netbrush/src/text_view.cpp
+===================================================================
+--- trunk/netbrush/src/text_view.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/text_view.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -57,19 +57,13 @@
+ }
+ 
+ void
+-TextView::draw(SDL_Surface* target)
++TextView::draw(GraphicContext&amp; gc)
+ {
+   if (1)
+-    {
+-      SDL_Rect r;
+-      r.x = get_rect().left;
+-      r.y = get_rect().top;
+-      r.w = get_rect().get_width();
+-      r.h = get_rect().get_height();
+-
+-      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 64, 64, 64));
+-    }
+-  TTY_Blit(tty, target, get_rect().left, get_rect().top);
++    gc.fill_rect(get_rect(), Color(64, 64, 64));
++  
++  // FIXME: move font handling in GraphicContext
++  TTY_Blit(tty, gc.get_surface(), get_rect().left, get_rect().top);
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/text_view.hpp
+===================================================================
+--- trunk/netbrush/src/text_view.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/text_view.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -48,7 +48,7 @@
+   void on_enter() {}
+   void on_leave() {}
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+   void put(const std::string&amp; str);
+ 
+ private:
+
+Modified: trunk/netbrush/src/widget/button.cpp
+===================================================================
+--- trunk/netbrush/src/widget/button.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/button.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -90,38 +90,23 @@
+ }
+ 
+ void
+-Button::draw(SDL_Surface* target)
++Button::draw(GraphicContext&amp; gc)
+ {
+-  //Uint32 color = SDL_MapRGB(target-&gt;format, 255, 0, 0);
+-
+-  SDL_Rect r;
+-
+-  r.x = get_rect().left;
+-  r.y = get_rect().top;
+-
+-  r.w = get_rect().get_width();
+-  r.h = get_rect().get_height();
+-
+   switch(state)
+     {
+     case UP:
+       if (hover)
+-        SDL_BlitSurface(hover_surface, NULL, target, &amp;r);
++        gc.blit(hover_surface, Point(0, 0));
+       else
+-        SDL_BlitSurface(up_surface, NULL, target, &amp;r);
++        gc.blit(up_surface, Point(0, 0));
+       break;
+ 
+     case DOWN:
+-      SDL_BlitSurface(down_surface, NULL, target, &amp;r);
++      gc.blit(up_surface, Point(0, 0));
+       break;
+     }
+ 
+-  r.x = get_rect().left + 6;
+-  r.y = get_rect().top  + 6;
+-
+-  SDL_BlitSurface(icon, NULL, target, &amp;r);
+-
+-  //SDL_FillRect(target, get_rect(), color);
++  gc.blit(icon, Point(6, 6));
+ }
+ 
+ /* EOF */
+
+Modified: trunk/netbrush/src/widget/button.hpp
+===================================================================
+--- trunk/netbrush/src/widget/button.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/button.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -66,7 +66,7 @@
+   void on_enter();
+   void on_leave();
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+   
+ private:
+   Button (const Button&amp;);
+
+Modified: trunk/netbrush/src/widget/scrollbar.cpp
+===================================================================
+--- trunk/netbrush/src/widget/scrollbar.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/scrollbar.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -47,32 +47,25 @@
+ }
+ 
+ void
+-Scrollbar::draw(SDL_Surface* target)
++Scrollbar::draw(GraphicContext&amp; gc)
+ {
+-  SDL_Rect r;
+-  r.x = get_rect().left;
+-  r.y = get_rect().top;
+-  r.w = get_rect().get_width();
+-  r.h = get_rect().get_height();
+-  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 200, 200, 200));
++  gc.fill_rect(get_rect(), Color(200, 200, 200));
+ 
+   if (orientation == HORIZONTAL)
+     {
+-      r.x = get_rect().left + 2 + ((pos-min) * (get_rect().get_width()-4) / (max - min));
+-      r.y = get_rect().top + 2;
+-      r.w = page_step * (get_rect().get_width()-4) / (max - min);
+-      r.h = get_rect().get_height()-4;
+-
+-      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++      gc.fill_rect(Rect(Point(2 + ((pos-min) * (get_rect().get_width()-4) / (max - min)),
++                              2),
++                        Size(page_step * (get_rect().get_width()-4) / (max - min),
++                             get_rect().get_height()-4)),
++                   Color(0, 0, 0));
+     }
+   else // VERSION
+     {
+-      r.x = get_rect().left + 2;
+-      r.y = get_rect().top  + 2 + ((pos-min) * (get_rect().get_height()-4) / (max - min));
+-      r.w = get_rect().get_width()-4;
+-      r.h = page_step * (get_rect().get_height()-4) / (max - min);
+-
+-      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++      gc.fill_rect(Rect(Point(2,
++                              2 + ((pos-min) * (get_rect().get_height()-4) / (max - min))),
++                        Size(get_rect().get_width()-4,
++                             page_step * (get_rect().get_height()-4) / (max - min))),
++                   Color(0, 0, 0));
+     }
+ }
+ 
+
+Modified: trunk/netbrush/src/widget/scrollbar.hpp
+===================================================================
+--- trunk/netbrush/src/widget/scrollbar.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/scrollbar.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -50,7 +50,7 @@
+   void on_enter() {}
+   void on_leave() {}
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+   
+   void set_pos(int p);
+ private:
+
+Modified: trunk/netbrush/src/widget/slider_widget.cpp
+===================================================================
+--- trunk/netbrush/src/widget/slider_widget.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/slider_widget.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -93,30 +93,25 @@
+ }
+ 
+ void
+-SliderWidget::draw(SDL_Surface* target)
++SliderWidget::draw(GraphicContext&amp; gc)
+ {
+-  SDL_Rect rect;
+-  rect.x = get_rect().left;
+-  rect.y = get_rect().top;
+-  rect.w = get_rect().get_width();
+-  rect.h = get_rect().get_height();
++  Rect rect(0, 0, 
++            get_rect().get_width(), get_rect().get_height());
++  
++  gc.fill_rect(rect,
++               Color(200, 200, 200));
++  
++  rect.left   += 2;
++  rect.top    += 10;
++  rect.right  -= 2;
++  rect.bottom -= 10;
+ 
+-  SDL_FillRect(target, &amp;rect, SDL_MapRGB(target-&gt;format, 200, 200, 200));
++  gc.fill_rect(rect, Color(100, 100, 100));
+ 
+-  rect.x += 2;
+-  rect.y += 10;
+-  rect.w -= 4;
+-  rect.h -= 20;
+-
+-  SDL_FillRect(target, &amp;rect, SDL_MapRGB(target-&gt;format, 100, 100, 100));
+-
+-  SDL_Rect slider;
+-  slider.x = int(get_rect().get_width() * (pos - min)/(max - min)) + get_rect().left - 4;
+-  slider.y = 2 + get_rect().top;
+-  slider.w = 8;
+-  slider.h = get_rect().get_height() - 4;
+-
+-  SDL_FillRect(target, &amp;slider, SDL_MapRGB(target-&gt;format, 0, 0, 0));
++  gc.fill_rect(Rect(Point(int(get_rect().get_width() * (pos - min)/(max - min)) - 4,
++                          2),
++                    Size(8, get_rect().get_height() - 4)),
++               Color(0, 0, 0));
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/widget/slider_widget.hpp
+===================================================================
+--- trunk/netbrush/src/widget/slider_widget.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/slider_widget.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -63,7 +63,7 @@
+   void on_enter();
+   void on_leave();
+ 
+-  void draw(SDL_Surface* target);
++  void draw(GraphicContext&amp; gc);
+ 
+   void set_pos(int v);
+ 
+
+Modified: trunk/netbrush/src/widget/widget.hpp
+===================================================================
+--- trunk/netbrush/src/widget/widget.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/widget.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -29,6 +29,7 @@
+ #include &quot;SDL.h&quot;
+ #include &quot;math/rect.hpp&quot;
+ #include &quot;events.hpp&quot;
++#include &quot;../graphic_context.hpp&quot;
+ 
+ /** */
+ class Widget
+@@ -56,7 +57,7 @@
+   virtual void on_enter() = 0;
+   virtual void on_leave() = 0;
+ 
+-  virtual void draw(SDL_Surface* target) =0;
++  virtual void draw(GraphicContext&amp; target) =0;
+ 
+ private:
+   Widget (const Widget&amp;);
+
+Modified: trunk/netbrush/src/widget/widget_manager.cpp
+===================================================================
+--- trunk/netbrush/src/widget/widget_manager.cpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/widget_manager.cpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -30,6 +30,7 @@
+ #include &quot;events.hpp&quot;
+ #include &quot;../globals.hpp&quot;
+ #include &quot;../screen_buffer.hpp&quot;
++#include &quot;surface_graphic_context.hpp&quot;
+ #include &quot;widget_manager.hpp&quot;
+ 
+ WidgetManager::WidgetManager()
+@@ -157,7 +158,8 @@
+ 
+           SDL_SetClipRect(screen, &amp;clip_rect);
+ 
+-          (*i)-&gt;draw(screen);
++          SurfaceGraphicContext gc(screen, (*i)-&gt;get_rect());
++          (*i)-&gt;draw(gc);
+ 
+           SDL_SetClipRect(screen, NULL);
+ 
+
+Modified: trunk/netbrush/src/widget/widget_manager.hpp
+===================================================================
+--- trunk/netbrush/src/widget/widget_manager.hpp	2006-11-05 15:14:55 UTC (rev 692)
++++ trunk/netbrush/src/widget/widget_manager.hpp	2006-11-05 19:06:05 UTC (rev 693)
+@@ -43,6 +43,7 @@
+   Widgets widgets;
+   Widget* grabbed_widget;
+   Widget* focused_widget;
++
+ public:
+   WidgetManager();
+   ~WidgetManager();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000185.html">[Flexlay-commit] r692 - in trunk/netbrush: . src
+</A></li>
+	<LI>Next message: <A HREF="000187.html">[Flexlay-commit] r694 - trunk/netbrush/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#186">[ date ]</a>
+              <a href="thread.html#186">[ thread ]</a>
+              <a href="subject.html#186">[ subject ]</a>
+              <a href="author.html#186">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

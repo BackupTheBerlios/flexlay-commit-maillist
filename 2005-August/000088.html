@@ -1,0 +1,581 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r593 - in trunk: lib ruby windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r593%20-%20in%20trunk%3A%20lib%20ruby%20windstille&In-Reply-To=%3C200508142131.j7ELVgq6017601%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000087.html">
+   <LINK REL="Next"  HREF="000089.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r593 - in trunk: lib ruby windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r593%20-%20in%20trunk%3A%20lib%20ruby%20windstille&In-Reply-To=%3C200508142131.j7ELVgq6017601%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r593 - in trunk: lib ruby windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Sun Aug 14 23:31:42 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000087.html">[Flexlay-commit] r592 - trunk/windstille
+</A></li>
+        <LI>Next message: <A HREF="000089.html">[Flexlay-commit] r594 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#88">[ date ]</a>
+              <a href="thread.html#88">[ thread ]</a>
+              <a href="subject.html#88">[ subject ]</a>
+              <a href="author.html#88">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-14 23:31:40 +0200 (Sun, 14 Aug 2005)
+New Revision: 593
+
+Modified:
+   trunk/lib/config.h
+   trunk/lib/minimap.cxx
+   trunk/ruby/flexlay.rb
+   trunk/ruby/sexpr.rb
+   trunk/windstille/gui.rb
+   trunk/windstille/gui_specs.rb
+   trunk/windstille/layout_manager.rb
+Log:
+- added some gui creation from sexpr code
+- added some automatic layouting code
+- all this is still rather experimental and not yet full working
+
+Modified: trunk/lib/config.h
+===================================================================
+--- trunk/lib/config.h	2005-08-13 17:08:45 UTC (rev 592)
++++ trunk/lib/config.h	2005-08-14 21:31:40 UTC (rev 593)
+@@ -50,10 +50,10 @@
+ #define PACKAGE_TARNAME &quot;flexlay&quot;
+ 
+ /* Define to the version of this package. */
+-#define PACKAGE_VERSION &quot;0.0.3&quot;
++#define PACKAGE_VERSION &quot;0.2.0&quot;
+ 
+ /* Define to 1 if you have the ANSI C header files. */
+ #define STDC_HEADERS 1
+ 
+ /* Version number of package */
+-#define VERSION &quot;0.0.3&quot;
++#define VERSION &quot;0.2.0&quot;
+
+Modified: trunk/lib/minimap.cxx
+===================================================================
+--- trunk/lib/minimap.cxx	2005-08-13 17:08:45 UTC (rev 592)
++++ trunk/lib/minimap.cxx	2005-08-14 21:31:40 UTC (rev 593)
+@@ -54,7 +54,7 @@
+   impl-&gt;slots.push_back(sig_mouse_down().connect(this, &amp;Minimap::mouse_down));
+   impl-&gt;slots.push_back(sig_mouse_up().connect(this, &amp;Minimap::mouse_up));
+ 
+-  impl-&gt;parent = p;
++  impl-&gt;parent = p ? p : EditorMapComponent::current();
+   impl-&gt;drag_active = false;
+   impl-&gt;last_serial = -1;
+ }
+
+Modified: trunk/ruby/flexlay.rb
+===================================================================
+--- trunk/ruby/flexlay.rb	2005-08-13 17:08:45 UTC (rev 592)
++++ trunk/ruby/flexlay.rb	2005-08-14 21:31:40 UTC (rev 593)
+@@ -98,6 +98,14 @@
+     end
+   end
+ 
++  def set_position(x, y)
++    @panel.set_position(x, y)
++  end
++
++  def set_size(w, h)
++    @panel.set_size(w, h)
++  end
++
+   def ButtonPanel.new_from_spec(x, y, width, height, horizontal, spec, parent)
+     buttonpanel = ButtonPanel.new(x, y, width, height, horizontal, parent)
+ 
+
+Modified: trunk/ruby/sexpr.rb
+===================================================================
+--- trunk/ruby/sexpr.rb	2005-08-13 17:08:45 UTC (rev 592)
++++ trunk/ruby/sexpr.rb	2005-08-14 21:31:40 UTC (rev 593)
+@@ -17,6 +17,8 @@
+ ##  along with this program; if not, write to the Free Software
+ ##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++require &quot;stringio&quot;
++
+ def assoc_ref(lst, str)
+   if lst == []
+     return false
+@@ -60,7 +62,7 @@
+     end
+ end
+ 
+-def write_sexpr(f, sexpr)
++def write_sexpr(f, sexpr, indent = 0)
+   if sexpr.is_a?(Array) then
+     f.print &quot;(&quot;
+     sexpr.each_with_index{|e, i|
+@@ -79,4 +81,72 @@
+   end
+ end
+ 
++class SExpression
++  def initialize(sexpr = [])
++    @sexpr = sexpr
++  end
++
++  def SExpression.new_from_file(filename)
++    return SExpression.new(sexpr_read_from_file(filename))
++  end
++
++  def car()
++    return SExpression.new(@sexpr[0])
++  end
++
++  def cdr()
++    return SExpression.new((@sexpr[1..-1] or []))
++  end
++
++  def [](i)
++    return SExpression.new(@sexpr[i])
++  end
++
++  # Interprets the SExpression as a AList in the form of ((name value) ...)
++  def get(name, default)
++    v = @sexpr.find() { |el| el[0] == name }
++    if v then
++      return SExpression.new(v[1..-1])
++    else
++      return SExpression.new(default)
++    end
++  end
++
++  def value()
++    return @sexpr
++  end
++
++  def get_value(spec, default = nil)
++    return get_value_from_tree(spec, @sexpr, default)
++  end
++
++  def each_pair()
++    @sexpr.each() { |el|
++      yield(el[0], SExpression.new(el[1..-1]))
++    }
++  end
++
++  def is_atom?()
++    return @sexpr.is_a?(Array)
++  end
++
++  def is_nil?()
++    return @sexpr == []
++  end
++
++  def to_s()
++    str = StringIO.new()
++    write(str)
++    return str.string()
++  end
++
++  def to_a()
++    return @sexpr
++  end
++
++  def write(f = $stdout, indent = 0)
++    write_sexpr(f, @sexpr)
++  end
++end
++
+ # EOF #
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-13 17:08:45 UTC (rev 592)
++++ trunk/windstille/gui.rb	2005-08-14 21:31:40 UTC (rev 593)
+@@ -22,6 +22,7 @@
+ ##  02111-1307, USA.
+ 
+ require &quot;gameobjects.rb&quot;
++require &quot;layout_manager.rb&quot;
+ require &quot;gui_specs.rb&quot;
+ 
+ ## GUI class which holds all the GUI components and the state of them
+@@ -36,13 +37,16 @@
+   def initialize()
+     @gui = GUIManager.new()
+ 
+-    myrect      = CL_Rect.new(CL_Point.new(0, 56), CL_Size.new($screen_width - 800 +  665,
+-                                                               $screen_height - 600 + 488+56))
+-    @editor_map = EditorMapComponent.new(myrect, @gui.get_component())
++    components = LayoutComponent.create_from_sexpr(CL_Rect.new(0,0, $screen_width, $screen_height),
++                                                   SExpression.new($guilayout_spec),
++                                                   @gui.get_component())
++
++
++    @editor_map = components.get('editormap').component
+     @workspace  = Workspace.new()
+     @editor_map.set_workspace(@workspace)
+ 
+-    @button_panel = ButtonPanel.new_from_spec(0, 23, $screen_width, 33, true, $buttonpanel_spec, @gui.get_component)
++    @button_panel = components.get('buttonpanel').component
+ 
+     @button_panel.items[&quot;undo&quot;].disable()
+     @button_panel.items[&quot;redo&quot;].disable()
+@@ -53,7 +57,7 @@
+     @layer_menu.add_item($mysprite, &quot;Show only current&quot;, proc{ show_only_current() })
+     
+     @toolbar = ButtonPanel.new_from_spec(0, 23+33, 33, 32*4+2, false, $toolbar_spec, @gui.get_component)
+-    @menu    = CL_Menu.new_from_spec($menu_spec, @gui.get_component)
++    @menu    = components.get('menubar').component
+ 
+     # FIXME: Having position in the Menus here is EXTREMLY ugly
+     @tilegroup_menu = Menu.new(CL_Point.new(35*15+2, 54), @gui.get_component())
+@@ -62,24 +66,23 @@
+       @tilegroup_menu.add_item($mysprite, tilegroup.name, proc{@tileselector.set_tiles(tilegroup.tiles)})
+     }
+ 
+-    @selector_window = Panel.new(CL_Rect.new(CL_Point.new($screen_width-128-64-6, 23+33), 
+-                                             CL_Size.new(128 + 64 + 6, $screen_height - 600 + 558)),
+-                                 @gui.get_component())
++    # @selector_window = Panel.new(CL_Rect.new(CL_Point.new($screen_width-128-64-6, 23+33), 
++    #                                         CL_Size.new(128 + 64 + 6, $screen_height - 600 + 558)),
++    #                             @gui.get_component())
+ 
+-    @minimap = Minimap.new(@editor_map, CL_Rect.new(CL_Point.new(3,  $screen_height - 600 + 552 - 144 - 12), 
+-                                                    CL_Size.new(192, 144)),
+-                           @selector_window)
++    # @tileselector = TileSelector.new(CL_Rect.new(CL_Point.new(3, 3), 
++    #                                             CL_Size.new(128+64, $screen_height - 600 + 552 - 144 - 3)),
++    #                                 @selector_window)
+ 
+-    @tileselector = TileSelector.new(CL_Rect.new(CL_Point.new(3, 3), 
+-                                                 CL_Size.new(128+64, $screen_height - 600 + 552 - 144 - 3)),
+-                                     @selector_window)
++    @tileselector = components.get('tileselector').component
+     @tileselector.set_tileset($tileset)
+     @tileselector.set_scale(0.75)
+     @tileselector.set_tiles($tileset.tilegroups[0].tiles)
+     # @tileselector.set_tiles($tileset.get_tiles())
+     @tileselector.show(true)
+     
+-    @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, $screen_height - 600 + 552 - 144 - 3), 42, 42, @selector_window)
++    @objectselector = components.get('objectselector').component
++    # @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, $screen_height - 600 + 552 - 144 - 3), 42, 42, @selector_window)
+     @objectselector.show(false)
+ 
+     connect_v2_ObjectBrush_Point(@objectselector.sig_drop(), proc{|brush, pos| on_object_drop(brush, pos) })
+
+Modified: trunk/windstille/gui_specs.rb
+===================================================================
+--- trunk/windstille/gui_specs.rb	2005-08-13 17:08:45 UTC (rev 592)
++++ trunk/windstille/gui_specs.rb	2005-08-14 21:31:40 UTC (rev 593)
+@@ -82,5 +82,36 @@
+   [&quot;1&quot;,  proc{ |x, y| $gui.show_layer(:background)}],
+ ]
+ 
++$guilayout_spec = [
++  :vbox, 
++  [:homogenus, false],
++  [:components,
++    
++    [:menubar,     
++      [:name,   'menubar'], 
++      [:size, 32],
++      [:spec,   $menu_spec]],
++
++    [:buttonpanel, 
++      [:name,   'buttonpanel'],
++      [:size, 32], 
++      [:spec,   $buttonpanel_spec]],
++
++    [:hbox, 
++      [:components,
++
++        [:editormap, 
++          [:name, 'editormap']],
++
++        [:vbox,
++          [:size, 192],
++          [:components,
++            [:tileselector,
++              [:name, 'tileselector']],
++            [:objectselector,
++              [:name, 'objectselector']],
++            [:minimap, 
++              [:name, 'minimap']]]]
++      ]]]]
++
+ ## EOF ##
+-
+
+Modified: trunk/windstille/layout_manager.rb
+===================================================================
+--- trunk/windstille/layout_manager.rb	2005-08-13 17:08:45 UTC (rev 592)
++++ trunk/windstille/layout_manager.rb	2005-08-14 21:31:40 UTC (rev 593)
+@@ -21,40 +21,203 @@
+ ##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ ##  02111-1307, USA.
+ 
+-$layout_spec = [
+-  [:vbox,
+-    [:components,
+-      [:menubar,     
+-        [:name,   &quot;menubar&quot;], 
+-        [:height, 32],
+-        [:spec,   $menu_spec]],
+-      [:buttonpanel, 
+-        [:name,   &quot;buttonpanel&quot;],
+-        [:height, 32], 
+-        [:spec,   $buttonpanel_spec]],
+-      [:hbox, 
+-        [:components
+-          [:component, &quot;editormap&quot;],
+-          [:component, &quot;selectorpanel&quot;]]
+-      ],
+-    ]
+-  ]
+-]
+ 
+-# Class to handle automatic layouting of GUI components and resize
+-# events.
+-class LayoutManager
+-  def initialize(spec)
+-    @spec    
++# Helper class that holds all necesarry paramter to handle layouting,
++# could also extend Component instead
++class LayoutComponent
++  attr_reader :component, :name, :size,:expand, :fill, :padding
++
++  # use nil for width and height if it should be determined
++  # automatically
++  def initialize(component, params)
++    @component = component
++
++    @name      = params[:name]
++    @size      = params[:size]
++    @expand    = params[:expand]
++    @fill      = params[:fill]
++    @padding   = params[:padding]
++
++    puts &quot;LayoutComponent.new: name=#{@name} type=#{@component}&quot;
+   end
+ 
++  def get(name)
++    return nil
++  end
++  
++  def set_pos(x, y)
++    @component.set_position(x, y)
++  end
++  
+   def set_size(width, height)
+-    
++    @component.set_size(width, height)
+   end
+ 
+-  def add(name, component)
++  # Rearanges the layout to fit the current size
++  def layout()
++  end
+ 
++  def LayoutComponent.create_from_sexpr(rect, sexpr, parent)
++    case sexpr.car()
++    when :vbox
++    when :hbox
++    when :panel
++      
++    else
++      create(sexpr.car().value(), rect, sexpr.cdr(), parent)
++    end
+   end
++  
++  def LayoutComponent.create(type, rect, sexpr, parent)
++    puts &quot;Creating: '#{type}'&quot;
++
++    case type
++    when :vbox
++      box = LayoutBox.new(type, rect, sexpr, parent)
++      return box
++
++    when :hbox
++      box = LayoutBox.new(type, rect, sexpr, parent)
++      return box
++      
++    else
++      return LayoutComponent.new(create_raw(type, rect, sexpr, parent), 
++                                 :name    =&gt; sexpr.get_value([:name,    '_'], nil),
++                                 :size    =&gt; sexpr.get_value([:size,    '_'], nil),
++                                 :expand  =&gt; sexpr.get_value([:expand,  '_'], true),
++                                 :fill    =&gt; sexpr.get_value([:fill,    '_'],    true),
++                                 :padding =&gt; sexpr.get_value([:padding, '_'], 0))
++    end
++  end
++
++  def LayoutComponent.create_raw(type, rect, sexpr, parent)
++    case type
++    when :panel     
++
++    when :editormap
++      puts sexpr.get(:name, nil)
++      return EditorMapComponent.new(rect, parent)      
++      
++    when :menubar
++      return CL_Menu.new_from_spec(sexpr.get_value(['spec', '_'], []),
++                                   parent)
++
++    when :button
++      return CL_Button.new(rect,
++                           sexpr.get_value(['label', '_'], []),
++                           parent)
++
++    when :label
++      return CL_Label.new(CL_Point.new(rect.top, rect.left),
++                          sexpr.get_value(['label', '_'], []),
++                          parent)
++
++    when :listbox
++      return CL_ListBox.new(rect, parent)
++      
++    when :inputbox
++      return CL_InputBox.new(rect, parent)
++
++    when :radiobutton
++      return CL_RadioButton.new(CL_Point.new(rect.left, rect.top),
++                                sexpr.get_value(['label', '_'], []),
++                                parent)
++
++    when :radiogroup
++      return CL_RadioGroup.new()
++
++    when :checkbox
++      return CL_CheckBox.new(CL_Point.new(rect.left, rect.top),
++                             sexpr.get_value(['label', '_'], []),
++                             parent)
++
++    when :buttonpanel
++      return ButtonPanel.new_from_spec(rect.left, rect.top, rect.get_width(), rect.get_height(), true,
++                                       sexpr.get_value([:spec, '_'], []), parent)
++
++    when :tileselector
++      return TileSelector.new(rect, parent)
++      
++    when :objectselector
++      return ObjectSelector.new(rect, 
++                                sexpr.get_value([:objectwidth, '_'], 42), 
++                                sexpr.get_value([:objectheight, '_'], 42),
++                                parent)
++
++    when :minimap
++      @minimap = Minimap.new(nil, rect, parent)
++      
++    else
++      raise &quot;Unknonwn Component type '#{type.inspect}'&quot;
++
++    end
++  end
+ end
+ 
++class LayoutBox &lt; LayoutComponent
++  def initialize(type, rect, sexpr, parent)
++    @type       = type # :vbox or :hbox
++    @x          = rect.left
++    @y          = rect.top
++    @width      = rect.get_width()
++    @height     = rect.get_height()
++    @parent     = parent
++    @components = []
++    @homogenus  = false
++
++    puts &quot;Box: #{sexpr}&quot;
++    sexpr.get(:components, SExpression.new()).each_pair() { |name, value|
++      @components.push(LayoutComponent.create(name, CL_Rect.new(0, 0, 256, 256), value, @parent))
++    }
++
++    layout()
++  end
++
++  def get(name)
++    @components.each() { |i|
++      if i.name == name then
++        return i
++      elsif i.is_a?(LayoutBox) then
++        a = i.get(name)
++        if a then return a end
++      end
++    }
++    return nil
++  end
++
++  def add(type, spec)
++    @components.push([type, spec, nil])
++  end
++  
++  def set_pos(x, y)
++    @x = x
++    @y = y
++    layout()
++  end
++
++  def set_size(width, height)
++    @width  = width
++    @height = height
++    layout()
++  end
++
++  def layout()
++    if @type == :vbox
++      len = @height / @components.length()
++      @components.each_with_index() { |component, i|
++        component.set_pos(@x, @y + len * i)
++        component.set_size(@width, len)
++      }
++    elsif @type == :hbox
++      len = @width / @components.length()
++      @components.each_with_index() { |component, i|
++        component.set_pos(@x + len * i, @y)
++        component.set_size(len, @height)
++      }
++    else
++      raise &quot;LayoutBox: Unknown type #{type}&quot;
++    end
++  end
++end
++
+ ## EOF ##
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000087.html">[Flexlay-commit] r592 - trunk/windstille
+</A></li>
+	<LI>Next message: <A HREF="000089.html">[Flexlay-commit] r594 - trunk/windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#88">[ date ]</a>
+              <a href="thread.html#88">[ thread ]</a>
+              <a href="subject.html#88">[ subject ]</a>
+              <a href="author.html#88">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

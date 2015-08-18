@@ -1,0 +1,601 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r587 - in trunk: lib windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r587%20-%20in%20trunk%3A%20lib%20windstille&In-Reply-To=%3C200508122018.j7CKItjY004153%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000081.html">
+   <LINK REL="Next"  HREF="000083.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r587 - in trunk: lib windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r587%20-%20in%20trunk%3A%20lib%20windstille&In-Reply-To=%3C200508122018.j7CKItjY004153%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r587 - in trunk: lib windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Fri Aug 12 22:18:55 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000081.html">[Flexlay-commit] r586 - in trunk: ruby windstille
+</A></li>
+        <LI>Next message: <A HREF="000083.html">[Flexlay-commit] r588 - in trunk: lib windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-12 22:18:53 +0200 (Fri, 12 Aug 2005)
+New Revision: 587
+
+Added:
+   trunk/windstille/controller.rb
+   trunk/windstille/gui_specs.rb
+Modified:
+   trunk/lib/menu.cxx
+   trunk/windstille/gui.rb
+   trunk/windstille/windstille.rb
+Log:
+- some more cleanup
+
+
+Modified: trunk/lib/menu.cxx
+===================================================================
+--- trunk/lib/menu.cxx	2005-08-12 16:37:09 UTC (rev 586)
++++ trunk/lib/menu.cxx	2005-08-12 20:18:53 UTC (rev 587)
+@@ -242,7 +242,6 @@
+ {
+   if (current_item != -1)
+     {
+-      std::cout &lt;&lt; &quot;Current_Item: &quot; &lt;&lt; current_item &lt;&lt; std::endl;
+       items[current_item]-&gt;sig_clicked()();
+     }
+   parent-&gt;release_mouse();
+
+Added: trunk/windstille/controller.rb
+===================================================================
+--- trunk/windstille/controller.rb	2005-08-12 16:37:09 UTC (rev 586)
++++ trunk/windstille/controller.rb	2005-08-12 20:18:53 UTC (rev 587)
+@@ -0,0 +1,42 @@
++class Controller
++  attr_reader :tilemap_paint_tool, :tilemap_select_tool, :zoom_tool, :objmap_select_tool, :recent_files
++
++  def initialize()
++    @tilemap_paint_tool  = TileMapPaintTool.new()
++    @tilemap_select_tool = TileMapSelectTool.new()
++    @zoom_tool           = ZoomTool.new()
++    @objmap_select_tool  = ObjMapSelectTool.new()
++    @recent_files        = []
++  end
++    
++  def set_tilemap_paint_tool()
++    $gui.workspace.set_tool(@tilemap_paint_tool.to_tool())
++    $gui.set_tool_icon(:tilemap_paint)
++  end
++
++  def set_tilemap_select_tool()
++    $gui.workspace.set_tool(@tilemap_select_tool.to_tool())
++    $gui.set_tool_icon(:tilemap_select)
++  end
++
++  def set_zoom_tool()
++    $gui.workspace.set_tool(@zoom_tool.to_tool())
++    $gui.set_tool_icon(:zoom)
++  end
++
++  def set_objmap_select_tool()
++    $gui.workspace.set_tool(@objmap_select_tool.to_tool())
++    $gui.set_tool_icon(:object_select)
++  end  
++
++  def load_level(filename)
++    $startlevel = Level.new(filename)
++    $startlevel.activate($workspace)
++  end
++
++  def save_level(filename)
++    $startlevel.save(filename)
++  end
++end
++
++# EOF #
+
+Modified: trunk/windstille/gui.rb
+===================================================================
+--- trunk/windstille/gui.rb	2005-08-12 16:37:09 UTC (rev 586)
++++ trunk/windstille/gui.rb	2005-08-12 20:18:53 UTC (rev 587)
+@@ -1,6 +1,9 @@
+ ##  $Id$
+-## 
+-##  Flexlay - A Generic 2D Game Editor
++##   ______ __               ___
++##  |   ___|  |.-----.--.--.|   | .---.-.--.--.
++##  |   ___|  ||  -__|_   _||   |_|  _  |  |  |
++##  |__|   |__||_____|__.__||_____|___._|___  |
++##                                      |_____|
+ ##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+ ##
+ ##  This program is free software; you can redistribute it and/or
+@@ -15,64 +18,17 @@
+ ## 
+ ##  You should have received a copy of the GNU General Public License
+ ##  along with this program; if not, write to the Free Software
+-##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++##  02111-1307, USA.
+ 
+ ## Create some Basic GUI, this is a bit more complicated then it
+ ## should be due to the lack of proper button-banel class and layout manager
+ 
+-$screen_width  = 1024
+-$screen_height = 768
++require &quot;gui_specs.rb&quot;
+ 
+-class MyButtonPanel
+-end
+-
+-$menu_spec = [
+-  [&quot;File&quot;,
+-    [&quot;Open...&quot;,    proc{ $gui.level_load() }],
+-    [&quot;Save...&quot;,    proc{ $gui.level_save() }],
+-    [&quot;Save As...&quot;, proc{ $gui.level_save_as() }],
+-    [&quot;Quit&quot;,       proc{ $gui.gui.quit() }],
+-  ],
+-  [&quot;Edit&quot;,
+-    [&quot;Resize&quot;, proc{ $gui.resize_level() }],
+-    [&quot;Resize to selection&quot;, proc{ $gui.resize_level_to_selection()}],
+-    [&quot;Debug Shell&quot;, proc{ $gui.run_python()}],
+-  ],
+-  [&quot;Zoom&quot;,
+-    [&quot;1:4 (25%)&quot;,   proc{ $gui.set_zoom(0.25) }],
+-    [&quot;1:2 (50%) &quot;,  proc{ $gui.set_zoom(0.5) }],
+-    [&quot;1:1 (100%) &quot;, proc{ $gui.set_zoom(1.0) }],
+-    [&quot;2:1 (200%) &quot;, proc{ $gui.set_zoom(2.0) }],
+-    [&quot;4:1 (400%) &quot;, proc{ $gui.set_zoom(4.0) }],
+-  ]
+-]
+-
+-$toolbar_spec = [
+-  [:icon,       &quot;new&quot;,         &quot;../data/images/icons24/stock_new.png&quot;,     proc{ $gui.new_level() }],
+-  [:icon,       &quot;open&quot;,        &quot;../data/images/icons24/stock_open.png&quot;,    proc{ $gui.level_load() }],
+-  [:small_icon, &quot;recent&quot;,      &quot;../data/images/icons24/downarrow.png&quot;,     proc{ $controller.recent_files_menu.run() }],
+-  [:icon,       &quot;save&quot;,        &quot;../data/images/icons24/stock_save.png&quot;,    proc{ $gui.level_save() }],
+-  [:icon,       &quot;saveas&quot;,      &quot;../data/images/icons24/stock_save_as.png&quot;, proc{ $gui.level_save_as() }],
+-  [:seperator],
+-  [:icon,       &quot;copy&quot;,        &quot;../data/images/icons24/stock_copy.png&quot;,    nil],
+-  [:icon,       &quot;paste&quot;,       &quot;../data/images/icons24/stock_paste.png&quot;,   nil],
+-  [:seperator],
+-  [:icon,       &quot;undo&quot;,        &quot;../data/images/icons24/stock_undo.png&quot;,    proc{ $gui.workspace.get_map().undo() }],
+-  [:icon,       &quot;redo&quot;,        &quot;../data/images/icons24/stock_redo.png&quot;,    proc{ $gui.workspace.get_map().redo() }],
+-  [:seperator],
+-  [:toggle,     &quot;minimap&quot;,     &quot;../data/images/icons24/minimap.png&quot;,       proc{ $gui.toggle_minimap() }],
+-  [:toggle,     &quot;grid&quot;,        &quot;../data/images/icons24/grid.png&quot;,          proc{ $gui.toggle_grid() }],
+-  [:seperator],
+-  [:icon,       &quot;background&quot;,  &quot;../data/images/icons24/background.png&quot;,    proc{ $gui.show_background() }],
+-  [:icon,       &quot;interactive&quot;, &quot;../data/images/icons24/interactive.png&quot;,   proc{ $gui.show_interactive() }],
+-  [:icon,       &quot;foreground&quot;,  &quot;../data/images/icons24/foreground.png&quot;,    proc{ $gui.show_foreground() }],
+-  [:icon,       &quot;viewprops&quot;,   &quot;../data/images/icons24/eye.png&quot;,           proc{ @layer_menu.run() }],
+-  [:icon,       &quot;tilegroups&quot;,  &quot;../data/images/icons24/eye.png&quot;,           proc{ @tilegroup_menu.run() }],
+-]
+-
+ ## GUI class which holds all the GUI components and the state of them
+ class GUI
+-  attr_reader :workspace, :gui, :tileselector, :objectselector
++  attr_reader :workspace, :gui, :tileselector, :objectselector, :tilegroup_menu, :layer_menu
+ 
+   def run()
+     ## Enter main loop here
+@@ -88,32 +44,27 @@
+     @workspace  = Workspace.new(myrect.get_width(), myrect.get_height())
+     @editor_map.set_workspace(@workspace)
+ 
+-    @minimap = Minimap.new(@editor_map, CL_Rect.new(CL_Point.new(3 + myrect.left, 
+-                                                                 $screen_height - 600 + 488+3-14  + myrect.top), 
+-                                                    CL_Size.new($screen_width - 6 -134-16, 50)), 
+-                           @gui.get_component())
++    @button_panel = ButtonPanel.new_from_spec(0, 23, $screen_width, 33, true, $buttonpanel_spec, @gui.get_component)
+ 
+-    @button_panel = ButtonPanel.new_from_spec(0, 23, $screen_width, 33, true, $toolbar_spec, @gui.get_component)
+-
+     @button_panel.items[&quot;undo&quot;].disable()
+     @button_panel.items[&quot;redo&quot;].disable()
+ 
+     @layer_menu = Menu.new(CL_Point.new(32*15+2, 54), @gui.get_component())
++    @layer_menu.add_item($mysprite, &quot;Show all&quot;,          proc{ show_all() })
++    @layer_menu.add_item($mysprite, &quot;Show current&quot;,      proc{ show_current() })
++    @layer_menu.add_item($mysprite, &quot;Show only current&quot;, proc{ show_only_current() })
+     
+-    @toolbar = ButtonPanel.new(0, 23+33, 33, 32*4+2, false, @gui.get_component)
+-    @paint  = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-pencil-22.png&quot;) { $controller.set_tilemap_paint_tool() }
+-    @select = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-rect-select-22.png&quot;) { $controller.set_tilemap_select_tool() }
+-    @zoom   = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-zoom-22.png&quot;) { $controller.set_zoom_tool() }
+-    @object = @toolbar.add_icon(&quot;../data/images/tools/stock-tool-clone-22.png&quot;) { $controller.set_objmap_select_tool() }
++    @toolbar = ButtonPanel.new_from_spec(0, 23+33, 33, 32*4+2, false, $toolbar_spec, @gui.get_component)
++    @paint  = @toolbar.items[&quot;paint&quot;]
++    @select = @toolbar.items[&quot;select&quot;]
++    @zoom   = @toolbar.items[&quot;zoom&quot;]
++    @object = @toolbar.items[&quot;object&quot;]
+ 
+-    @layer_menu.add_item($mysprite, &quot;Show all&quot;, proc{ show_all() })
+-    @layer_menu.add_item($mysprite, &quot;Show current&quot;, proc{ show_current() })
+-    @layer_menu.add_item($mysprite, &quot;Show only current&quot;, proc{ show_only_current() })
+-
+     @menu = CL_Menu.new_from_spec($menu_spec, @gui.get_component)
+ 
+     @load_dialog = SimpleFileDialog.new(&quot;Load SuperTux Level&quot;, &quot;Load&quot;, &quot;Cancel&quot;, @gui.get_component())
+     @load_dialog.set_filename($datadir + &quot;levels/&quot;)
++
+     @save_dialog = SimpleFileDialog.new(&quot;Save SuperTux Level as...&quot;, &quot;Save&quot;, &quot;Cancel&quot;, @gui.get_component())
+     @save_dialog.set_filename($datadir + &quot;levels/&quot;)
+ 
+@@ -124,8 +75,6 @@
+       @tilegroup_menu.add_item($mysprite, tilegroup.name, proc{@tileselector.set_tiles(tilegroup.tiles)})
+     }
+ 
+-    toggle_minimap()
+-
+     # Init the GUI, so that button state is in sync with internal state
+     # show_interactive()
+     # show_current()
+@@ -134,8 +83,13 @@
+     @selector_window = Panel.new(CL_Rect.new(CL_Point.new($screen_width-128-64-6, 23+33), 
+                                              CL_Size.new(128 + 64 + 6, $screen_height - 600 + 558)),
+                                  @gui.get_component())
++
++    @minimap = Minimap.new(@editor_map, CL_Rect.new(CL_Point.new(3,  $screen_height - 600 + 552 - 144 - 12), 
++                                                    CL_Size.new(192, 144)),
++                           @selector_window)
++
+     @tileselector = TileSelector.new(CL_Rect.new(CL_Point.new(3, 3), 
+-                                                 CL_Size.new(128+64, $screen_height - 600 + 552)),
++                                                 CL_Size.new(128+64, $screen_height - 600 + 552 - 144 - 3)),
+                                      @selector_window)
+     @tileselector.set_tileset($tileset)
+     @tileselector.set_scale(0.375)
+@@ -143,30 +97,32 @@
+     @tileselector.set_tiles($tileset.get_tiles())
+     @tileselector.show(true)
+     
+-    @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, $screen_height - 600 + 552), 42, 42, @selector_window)
++    @objectselector = ObjectSelector.new(CL_Rect.new(0, 0, 128, $screen_height - 600 + 552 - 144 - 3), 42, 42, @selector_window)
+     @objectselector.show(false)
+ 
+     connect_v2_ObjectBrush_Point(@objectselector.sig_drop(), proc{|brush, point| on_object_drop() })
+ 
+-#    $game_objects.each do |object|
+-#     @objectselector.add_brush(ObjectBrush.new(make_sprite($datadir + object[1]),
+-#                                                make_metadata(object)))
+-#    end
++    #    $game_objects.each do |object|
++    #     @objectselector.add_brush(ObjectBrush.new(make_sprite($datadir + object[1]),
++    #                                                make_metadata(object)))
++    #    end
+ 
+     @load_dialog = SimpleFileDialog.new(&quot;Load SuperTux Level&quot;, &quot;Load&quot;, &quot;Cancel&quot;, @gui.get_component())
+     @load_dialog.set_filename($datadir + &quot;levels/&quot;)
+     @save_dialog = SimpleFileDialog.new(&quot;Save SuperTux Level as...&quot;, &quot;Save&quot;, &quot;Cancel&quot;, @gui.get_component())
+     @save_dialog.set_filename($datadir + &quot;levels/&quot;)
++    
++    register_keybindings($keybinding_spec)
+ 
+-    connect_v2(@editor_map.sig_on_key(&quot;f1&quot;), proc{ |x, y| toggle_minimap()})
+-    connect_v2(@editor_map.sig_on_key(&quot;m&quot;),  proc{ |x, y| toggle_minimap()})
+-    connect_v2(@editor_map.sig_on_key(&quot;g&quot;),  proc{ |x, y| toggle_grid()})
+-    connect_v2(@editor_map.sig_on_key(&quot;4&quot;),  proc{ |x, y| toggle_display_props()})
+-    connect_v2(@editor_map.sig_on_key(&quot;3&quot;),  proc{ |x, y| show_foreground()})
+-    connect_v2(@editor_map.sig_on_key(&quot;2&quot;),  proc{ |x, y| show_interactive()})
+-    connect_v2(@editor_map.sig_on_key(&quot;1&quot;),  proc{ |x, y| show_background()})
++    set_zoom(0.5)
+   end
+ 
++  def register_keybindings(spec)
++    spec.each{ |(key, callback)|
++      connect_v2(@editor_map.sig_on_key(key), callback)
++    }
++  end
++
+   def on_map_change()
+     if (@workspace.get_map().undo_stack_size() &gt; 0)
+       @button_panel.items[&quot;undo&quot;].enable()
+@@ -181,25 +137,27 @@
+     end
+   end
+ 
+-  def show_background()
+-    @button_panel.items[&quot;background&quot;].set_down();
+-    @button_panel.items[&quot;interactive&quot;].set_up();
+-    @button_panel.items[&quot;foreground&quot;].set_up();
+-    TilemapLayer.set_current(@workspace.get_map().get_metadata().background)
+-  end
++  def show_layer(layer)
++    if layer == :background then
++      @button_panel.items[&quot;background&quot;].set_down();
++      TilemapLayer.set_current(@workspace.get_map().get_metadata().background)
++    else
++      @button_panel.items[&quot;background&quot;].set_up();
++    end
+ 
+-  def show_interactive()
+-    @button_panel.items[&quot;background&quot;].set_up();
+-    @button_panel.items[&quot;interactive&quot;].set_down();
+-    @button_panel.items[&quot;foreground&quot;].set_up();
+-    TilemapLayer.set_current(@workspace.get_map().get_metadata().interactive)
+-  end
++    if layer == :interactive then
++      @button_panel.items[&quot;interactive&quot;].set_down();
++      TilemapLayer.set_current(@workspace.get_map().get_metadata().interactive)
++    else
++      @button_panel.items[&quot;interactive&quot;].set_up();
++    end
+ 
+-  def show_foreground()
+-    @button_panel.items[&quot;background&quot;].set_up();
+-    @button_panel.items[&quot;interactive&quot;].set_up();
+-    @button_panel.items[&quot;foreground&quot;].set_down();
+-    TilemapLayer.set_current(@workspace.get_map().get_metadata().foreground)
++    if layer == :foreground then
++      @button_panel.items[&quot;foreground&quot;].set_down();
++      TilemapLayer.set_current(@workspace.get_map().get_metadata().interactive)
++    else
++      @button_panel.items[&quot;foreground&quot;].set_up();
++    end
+   end
+ 
+   def level_load()
+@@ -213,16 +171,6 @@
+   def level_save_as()
+     @save_dialog.run(proc{|filename| $controller.save_level(filename) })
+   end
+-  
+-  def toggle_minimap()
+-    if @minimap.is_visible()
+-      @minimap.show(false)
+-      @button_panel.items[&quot;minimap&quot;].set_up()
+-    else
+-      @minimap.show(true)
+-      @button_panel.items[&quot;minimap&quot;].set_down()
+-    end
+-  end
+ 
+   def toggle_grid()
+     tilemap = @workspace.get_map().get_data().layers[0];
+@@ -235,41 +183,20 @@
+     end
+   end
+ 
+-  def set_tilemap_paint_tool()
+-    @paint.set_down()
+-    @select.set_up()
+-    @zoom.set_up()
+-    @object.set_up()
++  def set_tool_icon(tool)
++    if tool == :tilemap_paint  then  @paint.set_down()  else @paint.set_up()  end
++    if tool == :tilemap_select then  @select.set_down() else @select.set_up() end
++    if tool == :zoom           then  @zoom.set_down()   else @zoom.set_up()   end
++    if tool == :object_select  then  @object.set_down() else @object.set_up() end
+   end
+-
+-  def set_tilemap_select_tool()
+-    @paint.set_up()
+-    @select.set_down()
+-    @zoom.set_up()
+-    @object.set_up()
+-  end
+-
+-  def set_zoom_tool()
+-    @paint.set_up()
+-    @select.set_up()
+-    @zoom.set_down()
+-    @object.set_up()
+-  end
+-
+-  def set_objmap_select_tool()
+-    @paint.set_up()
+-    @select.set_up()
+-    @zoom.set_up()
+-    @object.set_down()
+-  end
+-
++  
+   def set_zoom(zoom)
+     gc = @editor_map.get_workspace().get_gc_state()
+     pos = gc.get_pos()
+     gc.set_zoom(zoom)
+     gc.set_pos(pos)
+   end
+-  
++
+   def new_level()
+     level = @workspace.get_map().get_metadata()
+     dialog = GenericDialog.new(&quot;Create New Level&quot;, @gui.get_component())
+
+Added: trunk/windstille/gui_specs.rb
+===================================================================
+--- trunk/windstille/gui_specs.rb	2005-08-12 16:37:09 UTC (rev 586)
++++ trunk/windstille/gui_specs.rb	2005-08-12 20:18:53 UTC (rev 587)
+@@ -0,0 +1,88 @@
++##  $Id$
++##   ______ __               ___
++##  |   ___|  |.-----.--.--.|   | .---.-.--.--.
++##  |   ___|  ||  -__|_   _||   |_|  _  |  |  |
++##  |__|   |__||_____|__.__||_____|___._|___  |
++##                                      |_____|
++##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++## 
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++##  02111-1307, USA.
++
++$screen_width  = 1024
++$screen_height = 768
++
++$menu_spec = [
++  [&quot;File&quot;,
++    [&quot;Open...&quot;,    proc{ $gui.level_load() }],
++    [&quot;Save...&quot;,    proc{ $gui.level_save() }],
++    [&quot;Save As...&quot;, proc{ $gui.level_save_as() }],
++    [&quot;Quit&quot;,       proc{ $gui.gui.quit() }],
++  ],
++  [&quot;Edit&quot;,
++    [&quot;Resize&quot;, proc{ $gui.resize_level() }],
++    [&quot;Resize to selection&quot;, proc{ $gui.resize_level_to_selection()}],
++    [&quot;Debug Shell&quot;, proc{ $gui.run_python()}],
++  ],
++  [&quot;Zoom&quot;,
++    [&quot;1:4 (25%)&quot;,   proc{ $gui.set_zoom(0.125) }],
++    [&quot;1:2 (50%) &quot;,  proc{ $gui.set_zoom(0.25) }],
++    [&quot;1:1 (100%) &quot;, proc{ $gui.set_zoom(0.5) }],
++    [&quot;2:1 (200%) &quot;, proc{ $gui.set_zoom(1.0) }],
++    [&quot;4:1 (400%) &quot;, proc{ $gui.set_zoom(2.0) }],
++  ]
++]
++
++$buttonpanel_spec = [
++  [:icon,       &quot;new&quot;,         &quot;../data/images/icons24/stock_new.png&quot;,     proc{ $gui.new_level() }],
++  [:icon,       &quot;open&quot;,        &quot;../data/images/icons24/stock_open.png&quot;,    proc{ $gui.level_load() }],
++  [:small_icon, &quot;recent&quot;,      &quot;../data/images/icons24/downarrow.png&quot;,     proc{ $controller.recent_files_menu.run() }],
++  [:icon,       &quot;save&quot;,        &quot;../data/images/icons24/stock_save.png&quot;,    proc{ $gui.level_save() }],
++  [:icon,       &quot;saveas&quot;,      &quot;../data/images/icons24/stock_save_as.png&quot;, proc{ $gui.level_save_as() }],
++  [:seperator],
++  [:icon,       &quot;copy&quot;,        &quot;../data/images/icons24/stock_copy.png&quot;,    nil],
++  [:icon,       &quot;paste&quot;,       &quot;../data/images/icons24/stock_paste.png&quot;,   nil],
++  [:seperator],
++  [:icon,       &quot;undo&quot;,        &quot;../data/images/icons24/stock_undo.png&quot;,    proc{ $gui.workspace.get_map().undo() }],
++  [:icon,       &quot;redo&quot;,        &quot;../data/images/icons24/stock_redo.png&quot;,    proc{ $gui.workspace.get_map().redo() }],
++  [:seperator],
++  [:toggle,     &quot;grid&quot;,        &quot;../data/images/icons24/grid.png&quot;,          proc{ $gui.toggle_grid() }],
++  [:seperator],
++  [:icon,       &quot;background&quot;,  &quot;../data/images/icons24/background.png&quot;,    proc{ $gui.show_layer(:background) }],
++  [:icon,       &quot;interactive&quot;, &quot;../data/images/icons24/interactive.png&quot;,   proc{ $gui.show_layer(:interactive) }],
++  [:icon,       &quot;foreground&quot;,  &quot;../data/images/icons24/foreground.png&quot;,    proc{ $gui.show_layer(:foreground) }],
++  [:icon,       &quot;viewprops&quot;,   &quot;../data/images/icons24/eye.png&quot;,           proc{ $gui.layer_menu.run() }],
++  [:icon,       &quot;tilegroups&quot;,  &quot;../data/images/icons24/eye.png&quot;,           proc{ $gui.tilegroup_menu.run() }],
++]
++
++$toolbar_spec = [
++  [:icon, &quot;paint&quot;,  &quot;../data/images/tools/stock-tool-pencil-22.png&quot;,      proc{ $controller.set_tilemap_paint_tool() }],
++  [:icon, &quot;select&quot;, &quot;../data/images/tools/stock-tool-rect-select-22.png&quot;, proc{ $controller.set_tilemap_select_tool() }],
++  [:icon, &quot;zoom&quot;,   &quot;../data/images/tools/stock-tool-zoom-22.png&quot;,        proc{ $controller.set_zoom_tool() }],
++  [:icon, &quot;object&quot;, &quot;../data/images/tools/stock-tool-clone-22.png&quot;,       proc{ $controller.set_objmap_select_tool() }],
++]
++
++$keybinding_spec = [
++  [&quot;f1&quot;, proc{ |x, y| $gui.toggle_minimap()}],
++  [&quot;m&quot;,  proc{ |x, y| $gui.toggle_minimap()}],
++  [&quot;g&quot;,  proc{ |x, y| $gui.toggle_grid()}],
++  [&quot;4&quot;,  proc{ |x, y| $gui.toggle_display_props()}],
++  [&quot;3&quot;,  proc{ |x, y| $gui.show_layer(:foreground)}],
++  [&quot;2&quot;,  proc{ |x, y| $gui.show_layer(:interactive)}],
++  [&quot;1&quot;,  proc{ |x, y| $gui.show_layer(:background)}],
++]
++
++## EOF ##
++
+
+Modified: trunk/windstille/windstille.rb
+===================================================================
+--- trunk/windstille/windstille.rb	2005-08-12 16:37:09 UTC (rev 586)
++++ trunk/windstille/windstille.rb	2005-08-12 20:18:53 UTC (rev 587)
+@@ -35,6 +35,7 @@
+ 
+ require &quot;flexlay.rb&quot;
+ 
++require &quot;controller.rb&quot;
+ require &quot;sexpr.rb&quot;
+ require &quot;gui.rb&quot;
+ require &quot;level.rb&quot;
+@@ -45,47 +46,7 @@
+ flexlay.init(1024, 768)
+ 
+ ## Initialize Tools
+-class Controller
+-  attr_reader :tilemap_paint_tool, :tilemap_select_tool, :zoom_tool, :objmap_select_tool, :recent_files
+ 
+-  def initialize()
+-    @tilemap_paint_tool  = TileMapPaintTool.new()
+-    @tilemap_select_tool = TileMapSelectTool.new()
+-    @zoom_tool           = ZoomTool.new()
+-    @objmap_select_tool  = ObjMapSelectTool.new()
+-    @recent_files        = []
+-  end
+-    
+-  def set_tilemap_paint_tool()
+-    $gui.workspace.set_tool(@tilemap_paint_tool.to_tool())
+-    $gui.set_tilemap_paint_tool()
+-  end
+-
+-  def set_tilemap_select_tool()
+-    $gui.workspace.set_tool(@tilemap_select_tool.to_tool())
+-    $gui.set_tilemap_select_tool()
+-  end
+-
+-  def set_zoom_tool()
+-    $gui.workspace.set_tool(@zoom_tool.to_tool())
+-    $gui.set_zoom_tool()
+-  end
+-
+-  def set_objmap_select_tool()
+-    $gui.workspace.set_tool(@objmap_select_tool.to_tool())
+-    $gui.set_objmap_select_tool()
+-  end  
+-
+-  def load_level(filename)
+-    $startlevel = Level.new(filename)
+-    $startlevel.activate($workspace)
+-  end
+-
+-  def save_level(filename)
+-    $startlevel.save(filename)
+-  end
+-end
+-
+ $controller = Controller.new()
+ 
+ $mysprite = make_sprite(&quot;../data/images/icons16/stock_paste-16.png&quot;)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000081.html">[Flexlay-commit] r586 - in trunk: ruby windstille
+</A></li>
+	<LI>Next message: <A HREF="000083.html">[Flexlay-commit] r588 - in trunk: lib windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

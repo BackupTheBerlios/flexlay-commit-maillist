@@ -1,0 +1,41 @@
+From grumbel at mail.berlios.de  Fri Feb  8 21:16:51 2008
+From: grumbel at mail.berlios.de (grumbel at BerliOS)
+Date: Fri, 8 Feb 2008 21:16:51 +0100
+Subject: [Flexlay-commit] r702 - trunk/flexlay/supertux
+Message-ID: <200802082016.m18KGpf3024593@sheep.berlios.de>
+
+Author: grumbel
+Date: 2008-02-08 21:16:51 +0100 (Fri, 08 Feb 2008)
+New Revision: 702
+
+Modified:
+   trunk/flexlay/supertux/tileset.rb
+Log:
+- disabled region handling, since it causes crash
+
+Modified: trunk/flexlay/supertux/tileset.rb
+===================================================================
+--- trunk/flexlay/supertux/tileset.rb	2007-02-26 16:53:10 UTC (rev 701)
++++ trunk/flexlay/supertux/tileset.rb	2008-02-08 20:16:51 UTC (rev 702)
+@@ -63,13 +63,15 @@
+           pixelbuffer = make_pixelbuffer($datadir + 'images/' + image)
+         elsif image.is_a?(Array) then
+           if image[0] == :region then
+-            pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image[1],
+-                                                  image[2], image[3], image[4], image[5])
++            # FIXME: Doesn't work, causes memory corruption
++            # pixelbuffer = make_region_pixelbuffer($datadir + 'images/' + image[1],
++            #                                       image[2], image[3], image[4], image[5])
++            pixelbuffer = nil
+           end
+         end
+         
+         if not hidden then
+-          if id == 0 then
++          if id == 0 or not(pixelbuffer) then
+             add_tile(id, nil)
+           else
+             add_tile(id, Tile.new(pixelbuffer))
+
+
+

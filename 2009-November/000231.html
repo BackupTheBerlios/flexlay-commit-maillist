@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r738 - trunk/flexlay/lib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2009-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r738%20-%20trunk/flexlay/lib&In-Reply-To=%3C200911231529.nANFTw2Z000844%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000230.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r738 - trunk/flexlay/lib</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r738%20-%20trunk/flexlay/lib&In-Reply-To=%3C200911231529.nANFTw2Z000844%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r738 - trunk/flexlay/lib">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Mon Nov 23 16:29:58 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000230.html">[Flexlay-commit] r737 - in trunk/flexlay/lib: . gui
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#231">[ date ]</a>
+              <a href="thread.html#231">[ thread ]</a>
+              <a href="subject.html#231">[ subject ]</a>
+              <a href="author.html#231">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2009-11-23 16:29:58 +0100 (Mon, 23 Nov 2009)
+New Revision: 738
+
+Modified:
+   trunk/flexlay/lib/object_layer.cpp
+   trunk/flexlay/lib/sketch_layer.cpp
+   trunk/flexlay/lib/tilemap_layer.cpp
+   trunk/flexlay/lib/workspace.cpp
+Log:
+Reduced EditorMapComponent dependency
+
+
+Modified: trunk/flexlay/lib/object_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/object_layer.cpp	2009-11-23 15:27:44 UTC (rev 737)
++++ trunk/flexlay/lib/object_layer.cpp	2009-11-23 15:29:58 UTC (rev 738)
+@@ -16,8 +16,8 @@
+ 
+ #include &quot;object_layer.hpp&quot;
+ 
+-#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;layer_impl.hpp&quot;
++#include &quot;graphic_context_state.hpp&quot;
+ 
+ ObjectLayer ObjectLayer::current_;
+ 
+
+Modified: trunk/flexlay/lib/sketch_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/sketch_layer.cpp	2009-11-23 15:27:44 UTC (rev 737)
++++ trunk/flexlay/lib/sketch_layer.cpp	2009-11-23 15:29:58 UTC (rev 738)
+@@ -28,8 +28,8 @@
+ #include &lt;ClanLib/Display/graphic_context.h&gt;
+ #include &lt;ClanLib/Display/display_window.h&gt;
+ 
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;flexlay.hpp&quot;
+-#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;layer_impl.hpp&quot;
+ #include &quot;math.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/tilemap_layer.cpp
+===================================================================
+--- trunk/flexlay/lib/tilemap_layer.cpp	2009-11-23 15:27:44 UTC (rev 737)
++++ trunk/flexlay/lib/tilemap_layer.cpp	2009-11-23 15:29:58 UTC (rev 738)
+@@ -20,10 +20,10 @@
+ #include &lt;ClanLib/Display/pixel_format.h&gt;
+ #include &lt;ClanLib/Display/sprite.h&gt;
+ 
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;tile.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+ #include &quot;tile_brush.hpp&quot;
+-#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;blitter.hpp&quot;
+ #include &quot;layer_impl.hpp&quot;
+ 
+
+Modified: trunk/flexlay/lib/workspace.cpp
+===================================================================
+--- trunk/flexlay/lib/workspace.cpp	2009-11-23 15:27:44 UTC (rev 737)
++++ trunk/flexlay/lib/workspace.cpp	2009-11-23 15:29:58 UTC (rev 738)
+@@ -22,8 +22,8 @@
+ #include &lt;ClanLib/Display/display_window.h&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
+ 
++#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;editor_map.hpp&quot;
+-#include &quot;gui/editor_map_component.hpp&quot;
+ #include &quot;editor_names.hpp&quot;
+ #include &quot;tools/tool.hpp&quot;
+ #include &quot;tileset.hpp&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000230.html">[Flexlay-commit] r737 - in trunk/flexlay/lib: . gui
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#231">[ date ]</a>
+              <a href="thread.html#231">[ thread ]</a>
+              <a href="subject.html#231">[ subject ]</a>
+              <a href="author.html#231">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

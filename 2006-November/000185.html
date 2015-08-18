@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r692 - in trunk/netbrush: . src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-November/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r692%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200611051514.kA5FEu0t014835%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000184.html">
+   <LINK REL="Next"  HREF="000186.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r692 - in trunk/netbrush: . src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r692%20-%20in%20trunk/netbrush%3A%20.%20src&In-Reply-To=%3C200611051514.kA5FEu0t014835%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r692 - in trunk/netbrush: . src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Sun Nov  5 16:14:56 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000184.html">[Flexlay-commit] r691 - in trunk/netbrush: . src src/widget
+</A></li>
+        <LI>Next message: <A HREF="000186.html">[Flexlay-commit] r693 - in trunk/netbrush/src: . widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-11-05 16:14:55 +0100 (Sun, 05 Nov 2006)
+New Revision: 692
+
+Added:
+   trunk/netbrush/src/graphic_context.hpp
+   trunk/netbrush/src/surface_graphic_context.cpp
+   trunk/netbrush/src/surface_graphic_context.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/src/airbrush_tool.cpp
+   trunk/netbrush/src/airbrush_tool.hpp
+   trunk/netbrush/src/color.cpp
+   trunk/netbrush/src/color.hpp
+   trunk/netbrush/src/grayscale_buffer.cpp
+   trunk/netbrush/src/grayscale_buffer.hpp
+   trunk/netbrush/src/screen_buffer.cpp
+   trunk/netbrush/src/stroke_buffer.cpp
+   trunk/netbrush/src/tool.hpp
+Log:
+added graphic context for use in widgets
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/SConstruct	2006-11-05 15:14:55 UTC (rev 692)
+@@ -71,6 +71,7 @@
+         'src/rect_tool.cpp',
+         'src/circle_tool.cpp',
+         'src/line_tool.cpp',
++        'src/surface_graphic_context.cpp',
+         'src/SDL_gfx/SDL_gfxPrimitives.c',
+         'src/input_device_xinput.cpp'
+ #        'src/widget/events.cpp',
+
+Modified: trunk/netbrush/src/airbrush_tool.cpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.cpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/airbrush_tool.cpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -33,7 +33,8 @@
+ #include &quot;airbrush_tool.hpp&quot;
+ 
+ AirbrushTool::AirbrushTool()
+-  : current_stroke(0)
++  : current_stroke(0),
++    pen_active(false)
+ {
+ }
+ 
+@@ -44,6 +45,8 @@
+ void
+ AirbrushTool::on_motion(const ToolMotionEvent&amp; ev)
+ {
++  if (pen_active) return;
++
+   if (current_stroke)
+     {
+       current_stroke-&gt;add_dab(Dab(ev.x, ev.y));
+@@ -61,12 +64,59 @@
+       rect.bottom += client_draw_param-&gt;thickness()/2;
+                   
+       screen_buffer-&gt;mark_dirty(rect);
+-    } 
++    }
+ }
+ 
+ void
++AirbrushTool::on_pen_motion(const PenEvent&amp; pen)
++{
++  if (0)
++    printf(&quot;x: %1.5f y: %1.5f pressure: %1.5f x_tilt: %2.5f y_tilt: %2.5f\n&quot;,
++           pen.x, pen.y, pen.pressure, pen.x_tilt, pen.y_tilt);
++
++  if (pen.pressure &gt; 0)
++    {
++      if (!current_stroke)
++        {
++          current_stroke = new Stroke();
++          pen_active = true;
++        }      
++
++      float x = pen.x;
++      float y = pen.y;
++
++      current_stroke-&gt;add_dab(Dab(x, y, pen.pressure));
++      stroke_buffer-&gt;add_dab(Dab(x, y, pen.pressure));
++
++      // sync
++      Rect rect = current_stroke-&gt;get_bounding_rect(); 
++              
++      // calculate bounding rectangle by taking brush thickness into account
++      // FIXME: Handle x/y thickness independetly to get a smaller clip rect
++      rect.left -= client_draw_param-&gt;thickness()/2;
++      rect.top  -= client_draw_param-&gt;thickness()/2;
++
++      rect.right  += client_draw_param-&gt;thickness()/2;
++      rect.bottom += client_draw_param-&gt;thickness()/2;
++                  
++      screen_buffer-&gt;mark_dirty(rect);
++    }
++  else if (current_stroke)
++    {
++      stroke_buffer-&gt;clear();
++      server-&gt;send_stroke(*current_stroke, client_draw_param);
++
++      delete current_stroke;
++      current_stroke = 0;
++      pen_active = false;
++    }
++}
++
++void
+ AirbrushTool::on_button_press(const ToolButtonEvent&amp; ev)
+ {
++  if (pen_active) return;
++
+   widget_manager-&gt;grab(screen_buffer); // FIXME: ugly out of place widget class abuse
+ 
+   // FIXME: activate this and test: delete current_stroke;
+@@ -82,6 +132,8 @@
+ void
+ AirbrushTool::on_button_release(const ToolButtonEvent&amp; ev)
+ {
++  if (pen_active) return;
++
+   if (current_stroke)
+     {
+       widget_manager-&gt;ungrab(screen_buffer); // FIXME: ugly out of place widget class abuse
+@@ -89,6 +141,7 @@
+       stroke_buffer-&gt;clear();
+       server-&gt;send_stroke(*current_stroke, client_draw_param);
+ 
++      delete current_stroke;
+       current_stroke = 0;
+     }
+ }
+
+Modified: trunk/netbrush/src/airbrush_tool.hpp
+===================================================================
+--- trunk/netbrush/src/airbrush_tool.hpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/airbrush_tool.hpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -33,7 +33,7 @@
+ {
+ private:
+   Stroke* current_stroke;
+-
++  bool pen_active;
+ public:
+   AirbrushTool();
+   ~AirbrushTool();
+@@ -41,6 +41,7 @@
+   void on_motion(const ToolMotionEvent&amp; ev);
+   void on_button_press(const ToolButtonEvent&amp; ev);
+   void on_button_release(const ToolButtonEvent&amp; ev);
++  void on_pen_motion(const PenEvent&amp; pen);
+   void draw(SDL_Surface* target, const Rect&amp; rect, int x_of, int y_of) {}
+ private:
+   AirbrushTool (const AirbrushTool&amp;);
+
+Modified: trunk/netbrush/src/color.cpp
+===================================================================
+--- trunk/netbrush/src/color.cpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/color.cpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -67,8 +67,8 @@
+   : r(0), g(0), b(0)
+ {}
+ 
+-Color::Color(Uint8 r_, Uint8 g_, Uint8 b_)
+-  : r(r_), g(g_), b(b_)
++Color::Color(Uint8 r_, Uint8 g_, Uint8 b_, Uint8 a_)
++  : r(r_), g(g_), b(b_), a(a_)
+ {}
+ 
+ Color
+
+Modified: trunk/netbrush/src/color.hpp
+===================================================================
+--- trunk/netbrush/src/color.hpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/color.hpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -46,9 +46,10 @@
+   Uint8 r;
+   Uint8 g;
+   Uint8 b;
++  Uint8 a;
+ 
+   Color();
+-  Color(Uint8 r_, Uint8 g_, Uint8 b_);
++  Color(Uint8 r_, Uint8 g_, Uint8 b_, Uint8 a_ = 255);
+   static Color from_hsv(Uint8 hue, Uint8 saturation, Uint8 value);
+   static Color from_hue(Uint8 hue);
+   void apply_value_saturation(Uint8 value, Uint8 saturation);
+
+Added: trunk/netbrush/src/graphic_context.hpp
+===================================================================
+--- trunk/netbrush/src/graphic_context.hpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/graphic_context.hpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -0,0 +1,50 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_GRAPHIC_CONTEXT_HPP
++#define HEADER_GRAPHIC_CONTEXT_HPP
++
++/** */
++class GraphicContext
++{
++private:
++public:
++  virtual void fill_rect(const Rect&amp; rect, const Color&amp; color) =0;
++  virtual void draw_rect(const Rect&amp; rect, const Color&amp; color) =0;
++
++  virtual void fill_circle(const Point&amp; pos, int radius, const Color&amp; color) =0;
++  virtual void draw_circle(const Point&amp; pos, int radius, const Color&amp; color) =0;
++  
++  virtual void blit(SDL_Surface* source, const Point&amp; pos) =0;
++  virtual void blit(SDL_Surface* source, const Rect&amp; src_rect, const Point&amp; pos) =0;
++
++private:
++  GraphicContext (const GraphicContext&amp;);
++  GraphicContext&amp; operator= (const GraphicContext&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/grayscale_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/grayscale_buffer.cpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/grayscale_buffer.cpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -99,8 +99,9 @@
+ }
+ 
+ void
+-GrayscaleBuffer::blit(GrayscaleBuffer* source, int of_x, int of_y, BlendMode mode)
++GrayscaleBuffer::blit(GrayscaleBuffer* source, int of_x, int of_y, Uint8 alpha, BlendMode mode)
+ {
++  std::cout &lt;&lt; &quot;alpha: &quot; &lt;&lt; int(alpha) &lt;&lt; std::endl;
+   int start_x = std::max(of_x, 0);
+   int start_y = std::max(of_y, 0);
+ 
+@@ -152,8 +153,9 @@
+             Uint8&amp; p = source-&gt;buffer[(y - of_y) * source-&gt;width + (x - of_x)];
+             
+             // Works, but not exactly alpha
+-            f = std::max(std::min(f + p/4, 255), 0);
+-            
++            f = std::max(std::min(f + (alpha * p / 255)/4, 255), 0);
++            //f = alpha;
++
+             //f = (((255 - p) * f) + (p * p))/255; 
+             
+             // Speed worm: f = ((p)*p + p*f)/255;
+
+Modified: trunk/netbrush/src/grayscale_buffer.hpp
+===================================================================
+--- trunk/netbrush/src/grayscale_buffer.hpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/grayscale_buffer.hpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -46,7 +46,7 @@
+   ~GrayscaleBuffer();
+   
+   void blit(GrayscaleBuffer* source, SDL_Rect* srcrect, int of_x, int of_y);
+-  void blit(GrayscaleBuffer* source, int of_x, int of_y, BlendMode mode);
++  void blit(GrayscaleBuffer* source, int of_x, int of_y, Uint8 alpha, BlendMode mode);
+ 
+   inline Uint8&amp; at(int x, int y) 
+   { 
+
+Modified: trunk/netbrush/src/screen_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/screen_buffer.cpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/screen_buffer.cpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -227,8 +227,6 @@
+ void
+ ScreenBuffer::on_pen_motion(const PenEvent&amp; pen)
+ {
+-  printf(&quot;x: %1.5f y: %1.5f pressure: %1.5f x_tilt: %2.5f y_tilt: %2.5f\n&quot;,
+-         pen.x, pen.y, pen.pressure, pen.x_tilt, pen.y_tilt);
+   if (pen.pressure &gt; 0)
+     {
+       pen_active = true;
+@@ -237,6 +235,8 @@
+     {
+       
+     }
++
++  tools.front()-&gt;on_pen_motion(pen);
+ }
+ 
+ void
+
+Modified: trunk/netbrush/src/stroke_buffer.cpp
+===================================================================
+--- trunk/netbrush/src/stroke_buffer.cpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/stroke_buffer.cpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -92,6 +92,7 @@
+               buffer-&gt;blit(brush,
+                            static_cast&lt;int&gt;(i-&gt;pos.x - brush-&gt;get_width()/2), 
+                            static_cast&lt;int&gt;(i-&gt;pos.y - brush-&gt;get_height()/2), 
++                           (Uint8)(255 * dab.pressure),
+                            GrayscaleBuffer::ALPHA);
+             }
+         }
+@@ -101,6 +102,7 @@
+       buffer-&gt;blit(brush,
+                    static_cast&lt;int&gt;(dab.pos.x - brush-&gt;get_width()/2), 
+                    static_cast&lt;int&gt;(dab.pos.y - brush-&gt;get_height()/2), 
++                   (Uint8)(255 * dab.pressure),
+                    GrayscaleBuffer::ALPHA);
+     }
+ }
+@@ -118,6 +120,7 @@
+           buffer-&gt;blit(brush,
+                        static_cast&lt;int&gt;(i-&gt;pos.x - brush-&gt;get_width()/2), 
+                        static_cast&lt;int&gt;(i-&gt;pos.y - brush-&gt;get_height()/2), 
++                       (Uint8)(255 * i-&gt;pressure),
+                        GrayscaleBuffer::ALPHA);
+         }
+     }
+@@ -128,7 +131,8 @@
+         {
+           buffer-&gt;blit(brush,
+                        static_cast&lt;int&gt;(i-&gt;pos.x - brush-&gt;get_width()/2), 
+-                       static_cast&lt;int&gt;(i-&gt;pos.y - brush-&gt;get_height()/2), 
++                       static_cast&lt;int&gt;(i-&gt;pos.y - brush-&gt;get_height()/2),
++                       (Uint8)(255 * i-&gt;pressure), 
+                        GrayscaleBuffer::ALPHA);
+         }      
+     }
+
+Added: trunk/netbrush/src/surface_graphic_context.cpp
+===================================================================
+--- trunk/netbrush/src/surface_graphic_context.cpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/surface_graphic_context.cpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -0,0 +1,106 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &quot;SDL_gfx/SDL_gfxPrimitives.h&quot;
++#include &quot;surface_graphic_context.hpp&quot;
++
++SurfaceGraphicContext::SurfaceGraphicContext(SDL_Surface* surface)
++  : target(surface),
++    anti_aliasing(false)
++{
++}
++
++SurfaceGraphicContext::~SurfaceGraphicContext()
++{
++  SDL_FreeSurface(target);
++}
++
++void
++SurfaceGraphicContext::fill_rect(const Rect&amp; rect, const Color&amp; color)
++{
++  boxRGBA(target,
++          rect.left, rect.top, rect.right, rect.bottom,
++          color.r, color.g, color.b, color.a);
++}
++
++void
++SurfaceGraphicContext::draw_rect(const Rect&amp; rect, const Color&amp; color)
++{
++  boxRGBA(target,
++          rect.left, rect.top, rect.right, rect.bottom,
++          color.r, color.g, color.b, color.a);
++}
++  
++void
++SurfaceGraphicContext::fill_circle(const Point&amp; pos, int radius, const Color&amp; color)
++{
++  filledCircleRGBA(target,
++                   pos.x, pos.y, radius,
++                   color.r, color.g, color.b, color.a);
++}
++
++void
++SurfaceGraphicContext::draw_circle(const Point&amp; pos, int radius, const Color&amp; color)
++{
++  circleRGBA(target,
++             pos.x, pos.y, radius,
++             color.r, color.g, color.b, color.a);
++}
++
++void
++SurfaceGraphicContext::draw_line(const Point&amp; p1, const Point&amp; p2, const Color&amp; color)
++{
++  aalineRGBA(target,
++             p1.x, p1.y, p2.x, p2.y,
++             color.r, color.g, color.b, color.a);
++}
++
++void
++SurfaceGraphicContext::blit(SDL_Surface* source, const Point&amp; pos)
++{
++  SDL_Rect target_rect;
++  target_rect.x = pos.x;
++  target_rect.y = pos.y;
++
++  SDL_BlitSurface(source, 0, target, &amp;target_rect);
++}
++
++void
++SurfaceGraphicContext::blit(SDL_Surface* source, const Rect&amp; src_rect, const Point&amp; pos)
++{
++  SDL_Rect source_rect;
++  source_rect.x = src_rect.left;
++  source_rect.y = src_rect.right;
++  source_rect.w = src_rect.get_width();
++  source_rect.h = src_rect.get_height();
++
++  SDL_Rect target_rect;
++  target_rect.x = pos.x;
++  target_rect.y = pos.y;
++
++  SDL_BlitSurface(source, &amp;source_rect, target, &amp;target_rect);  
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/surface_graphic_context.hpp
+===================================================================
+--- trunk/netbrush/src/surface_graphic_context.hpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/surface_graphic_context.hpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -0,0 +1,64 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_SURFACE_GRAPHIC_CONTEXT_HPP
++#define HEADER_SURFACE_GRAPHIC_CONTEXT_HPP
++
++#include &quot;SDL.h&quot;
++#include &quot;math/point.hpp&quot;
++#include &quot;math/rect.hpp&quot;
++#include &quot;color.hpp&quot;
++
++/** */
++class SurfaceGraphicContext
++{
++private:
++  SDL_Surface* target;
++  bool anti_aliasing;
++public:
++  SurfaceGraphicContext(SDL_Surface* surface);
++  ~SurfaceGraphicContext();
++  
++  void set_anti_aliasing(bool t);
++
++  void fill_rect(const Rect&amp; rect, const Color&amp; color);
++  void draw_rect(const Rect&amp; rect, const Color&amp; color);
++  
++  void fill_circle(const Point&amp; pos, int radius, const Color&amp; color);
++  void draw_circle(const Point&amp; pos, int radius, const Color&amp; color);
++
++  void draw_line(const Point&amp; p1, const Point&amp; p2, const Color&amp; color);
++  
++  void blit(SDL_Surface* source, const Point&amp; pos);
++  void blit(SDL_Surface* source, const Rect&amp; src_rect, const Point&amp; pos);
++
++private:
++  SurfaceGraphicContext (const SurfaceGraphicContext&amp;);
++  SurfaceGraphicContext&amp; operator= (const SurfaceGraphicContext&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/tool.hpp
+===================================================================
+--- trunk/netbrush/src/tool.hpp	2006-11-04 19:51:28 UTC (rev 691)
++++ trunk/netbrush/src/tool.hpp	2006-11-05 15:14:55 UTC (rev 692)
+@@ -41,6 +41,7 @@
+   Point screen;
+ };
+ 
++
+ struct ToolButtonEvent
+ {
+   int x;
+@@ -60,6 +61,7 @@
+   virtual void on_motion(const ToolMotionEvent&amp; ev) =0;
+   virtual void on_button_press(const ToolButtonEvent&amp; ev) =0;
+   virtual void on_button_release(const ToolButtonEvent&amp; ev) =0;
++  virtual void on_pen_motion(const PenEvent&amp; pen) {}
+ 
+   /** @param target SDL_Surface to which should be drawn 
+       @param rect   rectangle in screenspace which should be redrawn
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000184.html">[Flexlay-commit] r691 - in trunk/netbrush: . src src/widget
+</A></li>
+	<LI>Next message: <A HREF="000186.html">[Flexlay-commit] r693 - in trunk/netbrush/src: . widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

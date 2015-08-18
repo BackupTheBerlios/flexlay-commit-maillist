@@ -1,0 +1,1023 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r496 - trunk/lib
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r496%20-%20trunk/lib&In-Reply-To=%3C200503182259.j2IMxFxN028526%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000006.html">
+   <LINK REL="Next"  HREF="000098.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r496 - trunk/lib</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r496%20-%20trunk/lib&In-Reply-To=%3C200503182259.j2IMxFxN028526%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r496 - trunk/lib">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Fri Mar 18 23:59:15 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000006.html">[Flexlay-commit] r495 - trunk/paint
+</A></li>
+        <LI>Next message: <A HREF="000098.html">[Flexlay-commit] r497 - in trunk: lib paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-03-18 23:59:13 +0100 (Fri, 18 Mar 2005)
+New Revision: 496
+
+Added:
+   trunk/lib/bitmap_layer.cxx
+   trunk/lib/bitmap_layer.hxx
+   trunk/lib/layer_move_tool.cxx
+   trunk/lib/layer_move_tool.hxx
+   trunk/lib/serializer.cxx
+   trunk/lib/serializer.hxx
+   trunk/lib/sexpr_serializer.cxx
+   trunk/lib/sexpr_serializer.hxx
+Modified:
+   trunk/lib/SConstruct
+   trunk/lib/editor_map.cxx
+   trunk/lib/editor_map.hxx
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/layer.cxx
+   trunk/lib/layer.hxx
+   trunk/lib/layer_impl.hxx
+   trunk/lib/sketch_layer.hxx
+   trunk/lib/sketch_stroke_tool.cxx
+Log:
+- switched the way layers are handled
+
+Modified: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/SConstruct	2005-03-18 22:59:13 UTC (rev 496)
+@@ -67,6 +67,7 @@
+     'flexlay.cxx',
+     'globals.cxx',
+     'layer.cxx',
++    'layer_move_tool.cxx',
+     'helper.cxx', 
+     'graphic_context_state.cxx',
+     'gui_manager.cxx',
+@@ -95,6 +96,7 @@
+     'menubar.cxx',
+     'popup_menu.cxx',
+     'lispreader.cxx',
++    'bitmap_layer.cxx',
+     'sketch_layer.cxx',
+     'sketch_stroke_tool.cxx',
+     'stroke.cxx',
+
+Added: trunk/lib/bitmap_layer.cxx
+===================================================================
+--- trunk/lib/bitmap_layer.cxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/bitmap_layer.cxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -0,0 +1,162 @@
++//  $Id$
++//
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++//
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &lt;iostream&gt;
++#include &lt;assert.h&gt;
++#include &lt;ClanLib/gl.h&gt;
++#include &lt;ClanLib/Core/core_iostream.h&gt;
++#include &lt;ClanLib/Core/System/error.h&gt;
++#include &lt;ClanLib/Display/display.h&gt;
++#include &lt;ClanLib/Display/sprite.h&gt;
++#include &lt;ClanLib/Display/pixel_buffer.h&gt;
++#include &lt;ClanLib/Display/canvas.h&gt;
++#include &lt;ClanLib/Display/blend_func.h&gt;
++#include &lt;ClanLib/Display/graphic_context.h&gt;
++#include &lt;ClanLib/Display/display_window.h&gt;
++#include &quot;flexlay.hxx&quot;
++#include &quot;editor_map_component.hxx&quot;
++#include &quot;workspace.hxx&quot;
++#include &quot;layer_impl.hxx&quot;
++#include &quot;bitmap_layer.hxx&quot;
++#include &quot;math.hxx&quot;
++
++BitmapLayer* BitmapLayer::current_ = 0;
++
++class BitmapLayerImpl : public LayerImpl
++{
++public:
++  typedef std::vector&lt;Stroke&gt; Strokes;
++  /** All strokes done on this image are recorded for possible later
++      playback on a larger size canvas */
++  Strokes strokes;
++
++  /** Used to cache drawings */
++  CL_Surface  surface;
++  CL_Canvas*  canvas;
++  CL_Pointf   last_pos;
++
++  BitmapLayerImpl(CL_Surface surface_)
++    : surface(surface_),
++      canvas(0)
++  {
++    try {
++      canvas = new CL_Canvas(surface);
++      canvas-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
++      canvas-&gt;get_gc()-&gt;flush();
++      canvas-&gt;sync_surface();
++    } catch(CL_Error&amp; err) {
++      std::cout &lt;&lt; &quot;CL_Error: &quot; &lt;&lt; err.message &lt;&lt; std::endl;
++      throw err;
++    }
++  }
++  
++  BitmapLayerImpl(int width, int height) 
++    : surface(CL_PixelBuffer(width, height, width*4, CL_PixelFormat::rgba8888)),
++      canvas(0)
++  {
++    try {
++      canvas = new CL_Canvas(surface);
++      canvas-&gt;get_gc()-&gt;clear(CL_Color(0, 0, 0, 0));
++      canvas-&gt;get_gc()-&gt;flush();
++      canvas-&gt;sync_surface();
++    } catch(CL_Error&amp; err) {
++      std::cout &lt;&lt; &quot;CL_Error: &quot; &lt;&lt; err.message &lt;&lt; std::endl;
++      throw err;
++    }
++  }
++
++  ~BitmapLayerImpl() {
++    delete canvas;
++  }
++
++  void draw(EditorMapComponent* parent) 
++  {
++    assert(canvas);
++
++    // Nothing to draw, so we go byebye
++    if (strokes.empty()) 
++      return;
++
++    surface.set_blend_func(blend_one, blend_one_minus_src_alpha);
++    surface.draw(0, 0);
++
++    if (BitmapLayer::current()-&gt;impl.get() == this)
++      CL_Display::draw_rect(get_bounding_rect(), CL_Color(155, 155, 155, 100));
++  }
++
++  CL_Rect get_bounding_rect() { 
++    // FIXME: Do we need to handle its position here or does the Layer keep care of that?
++    return CL_Rect(CL_Point(0, 0),
++                   CL_Size(surface.get_width(), surface.get_height())); 
++  }
++
++  bool has_bounding_rect() const { 
++    return true;
++  }
++};
++
++BitmapLayer::BitmapLayer(CL_Surface surface)
++  : impl(new BitmapLayerImpl(surface))
++{
++  current_ = this;
++}
++
++BitmapLayer::BitmapLayer(int width, int height)
++  : impl(new BitmapLayerImpl(width, height))
++{
++  current_ = this;
++}
++
++void
++BitmapLayer::add_stroke(const Stroke&amp; stroke)
++{
++  if (stroke.get_dab_count() &gt; 0)
++    {
++      impl-&gt;strokes.push_back(stroke);
++      stroke.draw(impl-&gt;canvas-&gt;get_gc());
++      impl-&gt;canvas-&gt;sync_surface();
++    }
++}
++
++Layer
++BitmapLayer::to_layer()
++{
++   return Layer(impl);
++}
++
++std::vector&lt;Stroke&gt;
++BitmapLayer::get_strokes()
++{
++  return impl-&gt;strokes;
++}
++
++CL_Surface
++BitmapLayer::get_background_surface()
++{
++  return impl-&gt;surface;
++}
++
++CL_PixelBuffer
++BitmapLayer::get_pixeldata() const
++{
++  assert(0); // FIME: implemnet me
++  return CL_PixelBuffer();
++}
++
++/* EOF */
+
+Added: trunk/lib/bitmap_layer.hxx
+===================================================================
+--- trunk/lib/bitmap_layer.hxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/bitmap_layer.hxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -0,0 +1,64 @@
++//  $Id$
++// 
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_BITMAP_LAYER_HXX
++#define HEADER_BITMAP_LAYER_HXX
++
++#include &lt;vector&gt;
++#include &lt;ClanLib/Core/Math/point.h&gt;
++#include &lt;ClanLib/Display/color.h&gt;
++#include &quot;layer.hxx&quot;
++#include &quot;stroke.hxx&quot;
++
++class BitmapLayerImpl;
++
++/** This layer holds a simple bitmap, size and color format are
++    configurable, it works similar to the SketchLayer, however it
++    doesn't rerender the image all the time, but simply holds it in a
++    CL_Canvas */
++class BitmapLayer
++{
++  friend class BitmapLayerImpl;
++private:
++  static BitmapLayer* current_;
++public:
++  static BitmapLayer* current() { return current_; }
++  static void set_current(BitmapLayer* c) { current_ = c; }
++
++  BitmapLayer(CL_Surface surface);
++  BitmapLayer(int width, int height);
++  
++  void add_stroke(const Stroke&amp;);
++
++  std::vector&lt;Stroke&gt; get_strokes();
++
++  CL_Surface get_background_surface();
++
++  CL_PixelBuffer get_pixeldata() const;
++  
++  bool is_null() const { return !impl.get(); }
++  Layer to_layer();
++
++private:
++  SharedPtr&lt;BitmapLayerImpl&gt; impl;  
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/lib/editor_map.cxx
+===================================================================
+--- trunk/lib/editor_map.cxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/editor_map.cxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -119,6 +119,12 @@
+   return impl-&gt;serial; 
+ }
+ 
++int
++EditorMap::get_layer_count() const
++{
++  return static_cast&lt;int&gt;(impl-&gt;layers.size());
++}
++
+ Layer
+ EditorMap::get_layer(int i)
+ {
+
+Modified: trunk/lib/editor_map.hxx
+===================================================================
+--- trunk/lib/editor_map.hxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/editor_map.hxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -51,6 +51,7 @@
+ 
+   int get_serial() const;
+ 
++  int get_layer_count() const;
+   Layer get_layer(int i);
+ 
+   void   set_metadata(const MetaData&amp; obj);
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/flexlay_wrap.i	2005-03-18 22:59:13 UTC (rev 496)
+@@ -56,8 +56,10 @@
+ #include &quot;scrollbar.hxx&quot;
+ #include &quot;graphic_context_state.hxx&quot;
+  
++#include &quot;layer_move_tool.hxx&quot;
+ #include &quot;sketch_stroke_tool.hxx&quot;
+ #include &quot;sketch_layer.hxx&quot;
++#include &quot;bitmap_layer.hxx&quot;
+ #include &quot;stroke.hxx&quot;
+ #include &quot;stroke_drawer.hxx&quot;
+ #include &quot;sprite_stroke_drawer.hxx&quot;
+@@ -169,8 +171,10 @@
+ %include &quot;menubar.hxx&quot;
+ %include &quot;scrollbar.hxx&quot;
+ 
++%include &quot;layer_move_tool.hxx&quot;
+ %include &quot;sketch_stroke_tool.hxx&quot;
+ %include &quot;sketch_layer.hxx&quot;
++%include &quot;bitmap_layer.hxx&quot;
+ %include &quot;stroke.hxx&quot;
+ %include &quot;stroke_drawer.hxx&quot;
+ %include &quot;sprite_stroke_drawer.hxx&quot;
+@@ -205,5 +209,4 @@
+ 
+ #endif
+ 
+-
+ /* EOF */
+
+Modified: trunk/lib/layer.cxx
+===================================================================
+--- trunk/lib/layer.cxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/layer.cxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -18,10 +18,12 @@
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+ #include &lt;iostream&gt;
++#include &lt;ClanLib/Display/display.h&gt;
+ #include &quot;layer_impl.hxx&quot;
+ #include &quot;layer.hxx&quot;
+ 
+ Layer::Layer()
++  : impl(0)
+ {
+ }
+ 
+@@ -38,7 +40,19 @@
+ Layer::draw(EditorMapComponent* parent) 
+ { 
+   if (impl.get())
+-    impl-&gt;draw(parent);    
++    {
++      if (impl-&gt;pos.x != 0 || impl-&gt;pos.y != 0)
++        {
++          CL_Display::push_modelview();
++          CL_Display::add_translate(impl-&gt;pos.x, impl-&gt;pos.y);
++          impl-&gt;draw(parent);    
++          CL_Display::pop_modelview();
++        }
++      else
++        {
++          impl-&gt;draw(parent);
++        }
++    }
+ }
+   
+ bool
+@@ -53,10 +67,18 @@
+ CL_Rect
+ Layer::get_bounding_rect() 
+ { 
++  CL_Rect rect;
++  
+   if (impl.get())
+-    return impl-&gt;get_bounding_rect();
+-  else
+-    return CL_Rect();
++    {
++      rect = impl-&gt;get_bounding_rect();
++      rect.left   += static_cast&lt;int&gt;(impl-&gt;pos.x);
++      rect.top    += static_cast&lt;int&gt;(impl-&gt;pos.y);
++      rect.right  += static_cast&lt;int&gt;(impl-&gt;pos.x);
++      rect.bottom += static_cast&lt;int&gt;(impl-&gt;pos.y);
++    }
++  
++  return rect;
+ }
+ 
+ MetaData
+@@ -75,4 +97,22 @@
+     impl-&gt;data = data_;
+ }
+ 
++void
++Layer::set_pos(const CL_Pointf&amp; pos)
++{
++  impl-&gt;pos = pos;
++}
++
++CL_Pointf
++Layer::get_pos() const
++{
++  return impl-&gt;pos;
++}
++
++bool
++Layer::is_null() const
++{
++  return impl.get() == 0;
++}
++
+ /* EOF */
+
+Modified: trunk/lib/layer.hxx
+===================================================================
+--- trunk/lib/layer.hxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/layer.hxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -27,8 +27,8 @@
+ class EditorMapComponent;
+ class LayerImpl;
+ 
+-/** Each \a EditorMap consists out of one or more \a EditorMapLayer,
+-    The \a EditorMapLayer is an abstract base class from which the
++/** Each \a EditorMap consists out of one or more \a Layer,
++    The \a Layer is an abstract base class from which the
+     data holding layers derive. The basic functionality of a layer
+     consists only of data holding and visualization. (FIXME: move
+     visuals off into another class) */
+@@ -41,12 +41,23 @@
+   ~Layer();
+ 
+   MetaData get_metadata() const;
++  
++  /** Attaches a piece of MetaData to the layer, metadata is some user
++      supplied piece of data that is associated with a layer (ie. the
++      name of the layer or similar properties which aren't handled by
++      the layer itself) */
+   void     set_metadata(MetaData data_);
+ 
+   void draw(EditorMapComponent* parent);
+   bool has_bounding_rect() const;
+   CL_Rect get_bounding_rect();
+ 
++  /** Moves the layer to the given position */
++  void set_pos(const CL_Pointf&amp; pos);
++
++  /** Returns the current position of the layer */
++  CL_Pointf get_pos() const;
++  bool is_null() const;
+ private:
+   SharedPtr&lt;LayerImpl&gt; impl;
+ };
+
+Modified: trunk/lib/layer_impl.hxx
+===================================================================
+--- trunk/lib/layer_impl.hxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/layer_impl.hxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -28,13 +28,23 @@
+ class LayerImpl
+ {
+ public:
++  /** MetaData attached to the layer, MetaData can be any data
++      supplied by the user, but most commonly it is used to associate
++      the given layer with a scripting language object (PyObj, SCM,
++      etc.), so that the user can attach additional data to a layer
++      from the scripting side. */
+   MetaData  data;
++  
++  /** The position of the layer */
++  CL_Pointf pos;
+ 
+   LayerImpl() {}
+   virtual ~LayerImpl() {}
+ 
+   virtual void draw(EditorMapComponent* parent) =0;
+   virtual bool has_bounding_rect() const =0;
++
++  // FIXME: Should use CL_Rectf
+   virtual CL_Rect get_bounding_rect() { return CL_Rect(); }
+ };
+ 
+
+Added: trunk/lib/layer_move_tool.cxx
+===================================================================
+--- trunk/lib/layer_move_tool.cxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/layer_move_tool.cxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -0,0 +1,133 @@
++//  $Id$
++// 
++//  Flexlay - A Generic 2D Game Editor
++//  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &lt;ClanLib/Core/Math/point.h&gt;
++#include &lt;ClanLib/Display/display.h&gt;
++#include &quot;workspace.hxx&quot;
++#include &quot;tool_impl.hxx&quot;
++#include &quot;editor_map_component.hxx&quot;
++#include &quot;editor_map.hxx&quot;
++#include &quot;layer.hxx&quot;
++#include &quot;layer_move_tool.hxx&quot;
++
++class LayerMoveToolImpl : public ToolImpl
++{
++public:
++  bool scrolling;
++  CL_Pointf click_pos;
++
++  /** Position of the center */
++  CL_Pointf old_trans_offset;
++  Layer layer;
++  
++  Layer find_closed_layer(const CL_Pointf&amp; pos)
++  {
++    Layer layer; 
++
++    EditorMap parent = EditorMapComponent::current()-&gt;get_workspace().get_map();
++
++    for(int i = 0; i &lt; parent.get_layer_count(); ++i)
++      {
++        if (parent.get_layer(i).get_bounding_rect().is_inside(CL_Point(pos)))
++          layer = parent.get_layer(i);
++      }
++
++    return layer;
++  }
++
++  void draw() 
++  {
++    for(int i = 0; i &lt; EditorMapComponent::current()-&gt;get_workspace().get_map().get_layer_count(); ++i)
++      {
++        Layer layer = EditorMapComponent::current()-&gt;get_workspace().get_map().get_layer(i);
++        if (layer.has_bounding_rect())
++          {
++            CL_Rect rect = layer.get_bounding_rect();
++            CL_Display::draw_line(rect.left, rect.top, rect.right, rect.bottom,
++                                  CL_Color(0, 255, 255));
++            CL_Display::draw_line(rect.left, rect.bottom, rect.right, rect.top,
++                                  CL_Color(0, 255, 255));
++          }
++      }
++  }
++
++  void on_mouse_up  (const CL_InputEvent&amp; event) 
++  {
++    if (!layer.is_null())
++      {
++        scrolling = false;
++        update(event);
++        EditorMapComponent::current()-&gt;release_mouse();
++        layer = Layer();
++      }
++  }
++
++  void on_mouse_down(const CL_InputEvent&amp; event)
++  {
++    EditorMapComponent* parent = EditorMapComponent::current();
++    CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
++
++    layer = find_closed_layer(pos);
++    if (!layer.is_null())
++      {
++        scrolling = true;
++        old_trans_offset = layer.get_pos();
++        click_pos = pos;
++        EditorMapComponent::current()-&gt;capture_mouse();
++      }
++  }
++
++  void on_mouse_move(const CL_InputEvent&amp; event)
++  {
++    if (!layer.is_null())
++      {
++        if (scrolling)
++          {
++            update(event);
++          }
++      }    
++  }
++
++  void update(const CL_InputEvent&amp; event)
++  {
++    if (!layer.is_null())
++      {
++        EditorMapComponent* parent = EditorMapComponent::current();
++        CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
++        layer.set_pos(old_trans_offset + (pos - click_pos));
++      }
++  }
++};
++
++LayerMoveTool::LayerMoveTool()
++  : impl(new LayerMoveToolImpl())
++{
++  impl-&gt;scrolling = false;
++  impl-&gt;click_pos = CL_Point(0, 0);
++  impl-&gt;old_trans_offset = CL_Pointf(0,0);
++}
++
++Tool
++LayerMoveTool::to_tool()
++{
++  return Tool(impl);
++}
++
++/* EOF */
++
+
+Added: trunk/lib/layer_move_tool.hxx
+===================================================================
+--- trunk/lib/layer_move_tool.hxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/layer_move_tool.hxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -0,0 +1,40 @@
++//  $Id$
++// 
++//  Flexlay - A Generic 2D Game Editor
++//  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_LAYER_MOVE_TOOL_HXX
++#define HEADER_LAYER_MOVE_TOOL_HXX
++
++#include &quot;tool.hxx&quot;
++
++class LayerMoveToolImpl;
++
++/** */
++class LayerMoveTool : public Tool
++{
++public:
++  LayerMoveTool();
++
++  Tool to_tool();
++private:
++  SharedPtr&lt;LayerMoveToolImpl&gt; impl;
++};
++
++#endif
++
++/* EOF */
+
+Added: trunk/lib/serializer.cxx
+===================================================================
+--- trunk/lib/serializer.cxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/serializer.cxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -0,0 +1,42 @@
++//  $Id$
++//
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++//
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &quot;serializer.hxx&quot;
++
++Serializer
++Serializer::register_group (const char* name)
++{
++}
++
++void
++Serializer::register_float (const char* name, float&amp; value)
++{
++}
++
++void
++Serializer::register_int   (const char* name, int&amp; value)
++{
++}
++
++void
++Serializer::register_string(const char* name, std::string&amp; value)
++{
++}
++
++/* EOF */
+
+Added: trunk/lib/serializer.hxx
+===================================================================
+--- trunk/lib/serializer.hxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/serializer.hxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -0,0 +1,44 @@
++//  $Id$
++// 
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_SERIALIZER_HXX
++#define HEADER_SERIALIZER_HXX
++
++/** */
++class Serializer
++{
++private:
++public:
++  Serializer() {}
++  
++  voi  register_group_start (const char* name) =0;
++  voi  register_group_end   () =0;
++
++  void register_float (const char* name, float&amp; value) =0;
++  void register_int   (const char* name, int&amp; value)   =0;
++  void register_string(const char* name, std::string&amp; value) =0;
++
++private:
++  Serializer (const Serializer&amp;);
++  Serializer&amp; operator= (const Serializer&amp;);
++};
++
++#endif
++
++/* EOF */
+
+Added: trunk/lib/sexpr_serializer.cxx
+===================================================================
+--- trunk/lib/sexpr_serializer.cxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/sexpr_serializer.cxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -0,0 +1,53 @@
++//  $Id$
++//
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++//
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#include &quot;sexpr_serializer.hxx&quot;
++
++SexprSerializer::SexprSerializer() 
++{
++}
++  
++void
++SexprSerializer::register_group_start (const char* name)
++{
++  
++}
++
++void
++SexprSerializer::register_group_end   ()
++{
++}
++
++void
++SexprSerializer::register_float (const char* name, float&amp; value)
++{
++  
++}
++
++void
++SexprSerializer::register_int   (const char* name, int&amp; value)
++{
++}
++
++void
++SexprSerializer::register_string(const char* name, std::string&amp; value)
++{
++}
++
++/* EOF */
+
+Added: trunk/lib/sexpr_serializer.hxx
+===================================================================
+--- trunk/lib/sexpr_serializer.hxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/sexpr_serializer.hxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -0,0 +1,44 @@
++//  $Id$
++// 
++//  Pingus - A free Lemmings clone
++//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++//
++//  This program is free software; you can redistribute it and/or
++//  modify it under the terms of the GNU General Public License
++//  as published by the Free Software Foundation; either version 2
++//  of the License, or (at your option) any later version.
++//
++//  This program is distributed in the hope that it will be useful,
++//  but WITHOUT ANY WARRANTY; without even the implied warranty of
++//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++//  GNU General Public License for more details.
++// 
++//  You should have received a copy of the GNU General Public License
++//  along with this program; if not, write to the Free Software
++//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++#ifndef HEADER_SEXPR_SERIALIZER_HXX
++#define HEADER_SEXPR_SERIALIZER_HXX
++
++/** */
++class SexprSerializer
++{
++private:
++  
++public:
++  SexprSerializer() {}
++  
++  voi  register_group_start (const char* name);
++  voi  register_group_end   ();
++
++  void register_float (const char* name, float&amp; value);
++  void register_int   (const char* name, int&amp; value);
++  void register_string(const char* name, std::string&amp; value);
++
++  /** Return a string representing the serialized objects */
++  std::string get_string();
++};
++
++#endif
++
++/* EOF */
+
+Modified: trunk/lib/sketch_layer.hxx
+===================================================================
+--- trunk/lib/sketch_layer.hxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/sketch_layer.hxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -28,8 +28,9 @@
+ 
+ class SketchLayerImpl;
+ 
+-/** Simple drawing layer to add sketches and stuff above a regular
+-    level */
++/** A drawing layer that holds strokes and renders them more or less
++    efficently to the screen, for larger number of strokes this has
++    serious performance impact, use BitmapLayer instead */
+ class SketchLayer
+ {
+ private:
+
+Modified: trunk/lib/sketch_stroke_tool.cxx
+===================================================================
+--- trunk/lib/sketch_stroke_tool.cxx	2005-03-18 22:58:41 UTC (rev 495)
++++ trunk/lib/sketch_stroke_tool.cxx	2005-03-18 22:59:13 UTC (rev 496)
+@@ -27,7 +27,7 @@
+ #include &lt;ClanLib/Display/input_context.h&gt;
+ #include &quot;editor_map_component.hxx&quot;
+ #include &quot;tool.hxx&quot;
+-#include &quot;sketch_layer.hxx&quot;
++#include &quot;bitmap_layer.hxx&quot;
+ #include &quot;sketch_stroke_tool.hxx&quot;
+ #include &quot;sprite_stroke_drawer.hxx&quot;
+ #include &quot;stroke.hxx&quot;
+@@ -54,7 +54,12 @@
+   {
+     if (drawing)
+       {
++        // FIXME: This translation is a bit ugly, layer position should be handled somewhat different
++        CL_Display::push_modelview();
++        CL_Display::add_translate(BitmapLayer::current()-&gt;to_layer().get_pos().x,
++                                  BitmapLayer::current()-&gt;to_layer().get_pos().y);
+         stroke.draw(0);
++        CL_Display::pop_modelview();
+       }
+     else
+       {
+@@ -80,7 +85,7 @@
+         
+         add_dab(event);
+ 
+-        SketchLayer::current()-&gt;add_stroke(stroke);
++        BitmapLayer::current()-&gt;add_stroke(stroke);
+       }    
+   }
+ 
+@@ -100,9 +105,12 @@
+   {
+     EditorMapComponent* parent = EditorMapComponent::current();
+     CL_Pointf p = parent-&gt;screen2world(event.mouse_pos);    
++    
++    // FIXME: This is ugly, events relative to the layer should be handled somewhat differently
++    Dab dab(p.x - BitmapLayer::current()-&gt;to_layer().get_pos().x,
++            p.y - BitmapLayer::current()-&gt;to_layer().get_pos().y);
+ 
+-    Dab dab(p.x, p.y);
+-
++    // FIXME: Make tablet configurable
+     if (CL_Display::get_current_window()-&gt;get_ic()-&gt;get_mouse_count() &gt;= 4)
+       {
+         CL_InputDevice tablet = CL_Display::get_current_window()-&gt;get_ic()-&gt;get_mouse(5);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000006.html">[Flexlay-commit] r495 - trunk/paint
+</A></li>
+	<LI>Next message: <A HREF="000098.html">[Flexlay-commit] r497 - in trunk: lib paint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#7">[ date ]</a>
+              <a href="thread.html#7">[ thread ]</a>
+              <a href="subject.html#7">[ subject ]</a>
+              <a href="author.html#7">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

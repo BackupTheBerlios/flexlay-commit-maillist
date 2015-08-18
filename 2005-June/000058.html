@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r570 - branches/flexlay-0.0.2/src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r570%20-%20branches/flexlay-0.0.2/src&In-Reply-To=%3C200506301458.j5UEwnQa022161%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000062.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r570 - branches/flexlay-0.0.2/src</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r570%20-%20branches/flexlay-0.0.2/src&In-Reply-To=%3C200506301458.j5UEwnQa022161%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r570 - branches/flexlay-0.0.2/src">grumbel at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 16:58:49 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000062.html">[Flexlay-commit] r569 - branches/flexlay-0.0.2/src
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-06-30 16:58:48 +0200 (Thu, 30 Jun 2005)
+New Revision: 570
+
+Modified:
+   branches/flexlay-0.0.2/src/editor_map_component.cxx
+   branches/flexlay-0.0.2/src/minimap.cxx
+   branches/flexlay-0.0.2/src/tile_editor.cxx
+Log:
+- fixed incorrect drawing
+
+Modified: branches/flexlay-0.0.2/src/editor_map_component.cxx
+===================================================================
+--- branches/flexlay-0.0.2/src/editor_map_component.cxx	2005-06-30 14:55:56 UTC (rev 569)
++++ branches/flexlay-0.0.2/src/editor_map_component.cxx	2005-06-30 14:58:48 UTC (rev 570)
+@@ -82,6 +82,9 @@
+ void
+ EditorMapComponent::draw ()
+ {
++  CL_Display::push_modelview();
++  CL_Display::add_translate(get_screen_x(), get_screen_y());
++
+   if (workspace)
+     {
+       workspace-&gt;draw();
+@@ -99,6 +102,8 @@
+                                     CL_Color(50, 50, 50));
+           }
+     }
++
++  CL_Display::pop_modelview();
+ }
+ 
+ CL_Point
+
+Modified: branches/flexlay-0.0.2/src/minimap.cxx
+===================================================================
+--- branches/flexlay-0.0.2/src/minimap.cxx	2005-06-30 14:55:56 UTC (rev 569)
++++ branches/flexlay-0.0.2/src/minimap.cxx	2005-06-30 14:58:48 UTC (rev 570)
+@@ -48,6 +48,9 @@
+ void
+ Minimap::draw()
+ {
++  CL_Display::push_modelview();
++  CL_Display::add_translate(get_screen_x(), get_screen_y());
++
+   // FIXME: Do this only on map changes
+   if (last_serial != EditorMapComponent::current()-&gt;get_workspace()-&gt;get_current_map()-&gt;get_serial()
+       || editor_map != EditorMapComponent::current()-&gt;get_workspace()-&gt;get_current_map())
+@@ -108,6 +111,8 @@
+       CL_Display::draw_rect(screen_rect,
+                             CL_Color(0, 0, 0));
+     }
++
++  CL_Display::pop_modelview();
+ }
+ 
+ void
+
+Modified: branches/flexlay-0.0.2/src/tile_editor.cxx
+===================================================================
+--- branches/flexlay-0.0.2/src/tile_editor.cxx	2005-06-30 14:55:56 UTC (rev 569)
++++ branches/flexlay-0.0.2/src/tile_editor.cxx	2005-06-30 14:58:48 UTC (rev 570)
+@@ -51,6 +51,9 @@
+ void
+ TileEditor::draw()
+ {
++  CL_Display::push_modelview();
++  CL_Display::add_translate(get_screen_x(), get_screen_y());
++
+   no_tile.draw(0, 0);
+ 
+   if (tile)
+@@ -79,6 +82,8 @@
+   else
+     {
+     }
++
++  CL_Display::pop_modelview();
+ }
+ 
+ void
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000062.html">[Flexlay-commit] r569 - branches/flexlay-0.0.2/src
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r673 - in trunk/netbrush: . data data/fonts src
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-October/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r673%20-%20in%20trunk/netbrush%3A%20.%20data%20data/fonts%20src&In-Reply-To=%3C200610241422.k9OEMbsH006645%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000167.html">
+   <LINK REL="Next"  HREF="000169.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r673 - in trunk/netbrush: . data data/fonts src</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r673%20-%20in%20trunk/netbrush%3A%20.%20data%20data/fonts%20src&In-Reply-To=%3C200610241422.k9OEMbsH006645%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r673 - in trunk/netbrush: . data data/fonts src">grumbel at mail.berlios.de
+       </A><BR>
+    <I>Tue Oct 24 16:22:37 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000167.html">[Flexlay-commit] r672 - in trunk/netbrush: . src
+</A></li>
+        <LI>Next message: <A HREF="000169.html">[Flexlay-commit] r674 - in trunk/netbrush/src: . widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#168">[ date ]</a>
+              <a href="thread.html#168">[ thread ]</a>
+              <a href="subject.html#168">[ subject ]</a>
+              <a href="author.html#168">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-10-24 16:22:36 +0200 (Tue, 24 Oct 2006)
+New Revision: 673
+
+Added:
+   trunk/netbrush/BUGS
+   trunk/netbrush/data/fonts/
+   trunk/netbrush/data/fonts/8x8font.png
+   trunk/netbrush/src/SDL_tty.c
+   trunk/netbrush/src/SDL_tty.h
+   trunk/netbrush/src/text_view.cpp
+   trunk/netbrush/src/text_view.hpp
+Modified:
+   trunk/netbrush/SConstruct
+   trunk/netbrush/scale.rb
+   trunk/netbrush/src/client.cpp
+   trunk/netbrush/src/color.cpp
+   trunk/netbrush/src/color_display.cpp
+   trunk/netbrush/src/color_display.hpp
+   trunk/netbrush/src/controller.cpp
+Log:
+- added TextView
+
+Added: trunk/netbrush/BUGS
+===================================================================
+--- trunk/netbrush/BUGS	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/BUGS	2006-10-24 14:22:36 UTC (rev 673)
+@@ -0,0 +1,5 @@
++- color format isn't handled correctly at some points in the code (Navigator) 
++- some parts of code should probally enforce a specific color format
++
++# EOF #
++ 
+\ No newline at end of file
+
+Modified: trunk/netbrush/SConstruct
+===================================================================
+--- trunk/netbrush/SConstruct	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/SConstruct	2006-10-24 14:22:36 UTC (rev 673)
+@@ -63,6 +63,8 @@
+         'src/colorpicker_tool.cpp',
+         'src/color_display.cpp',
+         'src/color.cpp',
++        'src/SDL_tty.c',
++        'src/text_view.cpp',
+ #        'src/widget/events.cpp',
+ ])
+ 
+
+Added: trunk/netbrush/data/fonts/8x8font.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/netbrush/data/fonts/8x8font.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: trunk/netbrush/scale.rb
+===================================================================
+--- trunk/netbrush/scale.rb	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/scale.rb	2006-10-24 14:22:36 UTC (rev 673)
+@@ -1,14 +1,16 @@
+ #!/usr/bin/ruby -w
+ 
+-$scale = ARGV[0].to_i
++$scale = ARGV[0].to_f
+ 
+ $stdin.readlines.each{|i|
+- lst = i.split[2..-1]
+- if lst[0] == &quot;dab&quot; then
+-   print &quot;#{lst[0]} #{lst[1]} #{lst[2].to_i * $scale} #{lst[3].to_i * $scale}&quot;
+-   else
+- lst.each{|l| print &quot;#{l} &quot; }
+- end
+- puts
++  lst = i.split[2..-1]
++  if lst[0] == &quot;dab&quot; then
++    print &quot;#{lst[0]} #{lst[1]} #{lst[2].to_i * $scale} #{lst[3].to_i * $scale}&quot;
++  elsif lst[0] == &quot;set_generic_brush&quot; then
++    print &quot;#{lst[0]} #{lst[1]} #{lst[2].to_f * $scale} #{lst[3]} #{lst[4]} #{lst[5]} #{lst[6]} #{lst[7]}&quot;
++  else
++    lst.each{|l| print &quot;#{l} &quot; }
++  end
++  puts
+ }
+ 
+
+Added: trunk/netbrush/src/SDL_tty.c
+===================================================================
+--- trunk/netbrush/src/SDL_tty.c	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/SDL_tty.c	2006-10-24 14:22:36 UTC (rev 673)
+@@ -0,0 +1,461 @@
++/** 
++ ** Copyright (c) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++ ** 
++ ** This software is provided 'as-is', without any express or implied
++ ** warranty. In no event will the authors be held liable for any
++ ** damages arising from the use of this software.
++ ** 
++ ** Permission is granted to anyone to use this software for any
++ ** purpose, including commercial applications, and to alter it and
++ ** redistribute it freely, subject to the following restrictions:
++ ** 
++ **   1. The origin of this software must not be misrepresented; you
++ **      must not claim that you wrote the original software. If you
++ **      use this software in a product, an acknowledgment in the
++ **      product documentation would be appreciated but is not
++ **      required.
++ ** 
++ **   2. Altered source versions must be plainly marked as such, and
++ **      must not be misrepresented as being the original software.
++ ** 
++ **   3. This notice may not be removed or altered from any source
++ **      distribution.
++ ** 
++ */
++
++#include &lt;stdio.h&gt;
++#include &lt;stdlib.h&gt;
++#include &lt;stdarg.h&gt;
++#include &lt;assert.h&gt;
++#include &lt;SDL.h&gt;
++#include &lt;SDL_image.h&gt;
++#include &quot;SDL_tty.h&quot;
++#include &lt;string.h&gt;
++
++static int modulo(int x, int y)
++{
++  int xmody = x - (x / y) * y;
++  if (xmody &amp;&amp; ((y ^ xmody) &lt; 0)) {
++    xmody += y;
++  }
++  return xmody;
++}
++
++#include &lt;stdio.h&gt;
++#include &lt;stdlib.h&gt;
++#include &lt;stdarg.h&gt;
++
++char *
++make_message(const char *fmt, va_list ap)
++{
++  /* Guess we need no more than 100 bytes. */
++  int n, size = 100;
++  char *p, *np;
++ 
++  if ((p = malloc (size)) == NULL)
++    return NULL;
++
++  while (1) {
++    /* Try to print in the allocated space. */
++    //va_start(ap, fmt);
++
++    n = vsnprintf (p, size, fmt, ap);
++    va_end(ap);
++    /* If that worked, return the string. */
++    if (n &gt; -1 &amp;&amp; n &lt; size)
++      return p;
++    /* Else try again with more space. */
++    if (n &gt; -1)    /* glibc 2.1 */
++      size = n+1; /* precisely what is needed */
++    else           /* glibc 2.0 */
++      size *= 2;  /* twice the old size */
++    if ((np = realloc (p, size)) == NULL) {
++      free(p);
++      return NULL;
++    } else {
++      p = np;
++    }
++  }
++}
++
++TTY_Font*
++TTY_CreateFont(SDL_Surface* surface, int glyph_width, int glyph_height, char* letters)
++{
++  int i;
++  TTY_Font* font = (TTY_Font*)malloc(sizeof(TTY_Font));
++
++  font-&gt;surface = SDL_DisplayFormatAlpha(surface);
++
++  if (!font-&gt;surface) 
++    {
++      TTY_SetError(&quot;TTY_CreateFont: conversation of surface failed&quot;);
++      return 0;
++    }
++  
++  memset(font-&gt;transtbl, 0, 256);
++  for(i = 0; letters[i] != '\0'; ++i)
++    font-&gt;transtbl[(int)letters[i]] = i;
++
++  font-&gt;glyph_width  = glyph_width;
++  font-&gt;glyph_height = glyph_height;
++
++  return font;
++}
++
++void
++TTY_FreeFont(TTY_Font* font)
++{
++  SDL_FreeSurface(font-&gt;surface);
++  free(font);
++}
++
++void
++TTY_GetGlyph(TTY_Font* font, char idx, SDL_Rect* rect)
++{
++  idx = font-&gt;transtbl[(int)idx];
++
++  rect-&gt;x = (idx % (font-&gt;surface-&gt;w / font-&gt;glyph_width)) * font-&gt;glyph_width;
++  rect-&gt;y = (idx / (font-&gt;surface-&gt;w / font-&gt;glyph_width)) * font-&gt;glyph_height;
++
++  rect-&gt;w = font-&gt;glyph_width;
++  rect-&gt;h = font-&gt;glyph_height;
++}
++
++void TTY_Printf(TTY_Font* font, SDL_Surface* screen, int x, int y, Uint32 flags, const char *fmt, ...)
++{
++  va_list ap;
++  va_start(ap, fmt);
++  char* str = make_message(fmt, ap);
++  TTY_Print(font, screen, x, y, flags, str);
++  free(str);
++}
++
++int FNT_GetTextHeight(TTY_Font* font, const char* text)
++{
++  int lines = 1;
++  int i;
++  for(i = 0; text[i] != '\0'; ++i)
++    {
++      if (text[i] == '\n')
++        {
++          lines += 1;
++        }
++    }
++  return lines * font-&gt;glyph_height;
++}
++
++int FNT_GetTextWidth(TTY_Font* font, const char* text)
++{
++  int longest_line = 0;
++  int line = 0;
++  int i;
++  for(i = 0; text[i] != '\0'; ++i)
++    {
++      if (text[i] == '\n')
++        {
++          if (line &gt; longest_line)
++            longest_line = line;
++          line = 0;
++        }
++      else
++        {
++          line += 1;
++        }
++    }
++
++  if (line &gt; longest_line)
++    longest_line = line;
++
++  return longest_line * font-&gt;glyph_width;
++}
++
++int FNT_GetTextLineWidth(TTY_Font* font, const char* text)
++{
++  int i;
++  for(i = 0; text[i] != '\0' &amp;&amp; text[i] != '\n'; ++i);
++  return i * font-&gt;glyph_width;
++}
++
++void
++TTY_Print(TTY_Font* font, SDL_Surface* screen, int x, int y, Uint32 flags, const char *str)
++{
++  SDL_Rect src_rect;
++  SDL_Rect dst_rect;
++
++  int x_of = 0;
++  int y_of = 0;
++
++  int i;
++
++  int text_width  = FNT_GetTextWidth(font, str);
++  int text_height = FNT_GetTextHeight(font, str);
++
++  if ((flags &amp; FNT_ALIGN_LEFT) &amp;&amp; (flags &amp; FNT_ALIGN_RIGHT))
++    {
++      x -= text_width/2;
++    }
++  else if (flags &amp; FNT_ALIGN_LEFT)
++    {
++    }
++  else if (flags &amp; FNT_ALIGN_RIGHT)
++    {
++      x -= text_width;
++    }
++
++  if ((flags &amp; FNT_ALIGN_TOP) &amp;&amp; (flags &amp; FNT_ALIGN_BOTTOM))
++    {
++      y -= text_height/2;
++    }
++  else if (flags &amp; FNT_ALIGN_TOP)
++    {
++    }
++  else if (flags &amp; FNT_ALIGN_BOTTOM)
++    {
++      y -= text_height;
++    }
++
++  for(i = 0; str[i] != '\0'; ++i)
++    {
++      if (str[i] == '\n')
++        {
++          if ((flags &amp; FNT_ALIGN_LEFT) &amp;&amp; (flags &amp; FNT_ALIGN_RIGHT))
++            {
++              x_of = text_width/2 - FNT_GetTextLineWidth(font, str+i+1)/2;
++            }
++          else if (flags &amp; FNT_ALIGN_LEFT)
++            {
++              x_of = 0;
++            }
++          else if (flags &amp; FNT_ALIGN_RIGHT)
++            {
++              x_of = text_width - FNT_GetTextLineWidth(font, str+i+1);
++            }
++
++          y_of += font-&gt;glyph_height;
++        }
++      else
++        {
++          TTY_GetGlyph(font, str[i], &amp;src_rect);
++  
++          dst_rect.x = x + x_of;
++          dst_rect.y = y + y_of;
++  
++          SDL_BlitSurface(font-&gt;surface, &amp;src_rect, screen, &amp;dst_rect);
++
++          x_of += font-&gt;glyph_width;
++        }
++    }
++}
++
++TTY*
++TTY_Create(int width, int height, TTY_Font* font)
++{
++  int i;
++  TTY* tty = (TTY*)malloc(sizeof(TTY));
++
++  // SDL_Surface* temp = TTY_CreateRGBSurface(font8x12);
++  // SDL_Surface* temp = IMG_Load(&quot;c64_16x16.png&quot;);
++      
++  //tty-&gt;font = TTY_CreateFont(temp, 16, 16, 
++  //                         &quot;\x7f !\&quot;#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;
++  //                         &quot;[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~&quot;);
++  tty-&gt;font = font;
++
++  //SDL_FreeSurface(temp);
++  
++  /* Create Framebuffer */
++  tty-&gt;framebuffer = (char**)malloc(sizeof(char*) * height);
++  for(i = 0; i &lt; height; ++i)
++    tty-&gt;framebuffer[i] = (char*)malloc(sizeof(char) * width);
++  
++  tty-&gt;width  = width;
++  tty-&gt;height = height;
++
++  tty-&gt;cursor_character = 0;
++  tty-&gt;print_cursor     = 0;
++
++  tty-&gt;scroll_x = 0;
++  tty-&gt;scroll_y = 0;
++
++  tty-&gt;cursor_x = 0;
++  tty-&gt;cursor_y = 0;
++  
++  TTY_Clear(tty);
++
++  return tty;
++}
++
++void
++TTY_Free(TTY* tty)
++{
++  int i;
++  
++  // TTY_FreeFont(tty-&gt;font);
++
++  for(i = 0; i &lt; tty-&gt;height; ++i)
++    free(tty-&gt;framebuffer[i]);
++  free(tty-&gt;framebuffer);
++  
++  free(tty);
++}
++
++void TTY_SetScrollOffset(TTY* tty, int scroll_x, int scroll_y)
++{
++  tty-&gt;scroll_x = scroll_x;
++  tty-&gt;scroll_y = scroll_y;
++}
++
++void TTY_GetScrollOffset(TTY* tty, int* scroll_x, int* scroll_y)
++{
++  *scroll_x = tty-&gt;scroll_x;
++  *scroll_y = tty-&gt;scroll_y;
++}
++
++void TTY_SetCursor(TTY* tty, int x, int y)
++{
++  tty-&gt;cursor_x = modulo(x + tty-&gt;scroll_x, tty-&gt;width);
++  tty-&gt;cursor_y = modulo(y + tty-&gt;scroll_y, tty-&gt;height);
++}
++
++void TTY_GetCursor(TTY* tty, int* x, int* y)
++{
++  *x = tty-&gt;cursor_x - tty-&gt;scroll_x;
++  *y = tty-&gt;cursor_y - tty-&gt;scroll_y;
++}
++
++void TTY_Clear(TTY* tty)
++{ 
++  int y;
++  for(y = 0; y &lt; tty-&gt;height; ++y)
++    memset(tty-&gt;framebuffer[y], 0, tty-&gt;width);
++}
++
++void TTY_putchar_nomove(TTY* tty, char chr)
++{
++  if (chr != '\n' &amp;&amp; chr != '\r')
++    tty-&gt;framebuffer[tty-&gt;cursor_y][tty-&gt;cursor_x] = chr;
++}
++
++void TTY_putchar(TTY* tty, char chr)
++{
++  if (chr == '\n')
++    {
++      tty-&gt;cursor_x = tty-&gt;scroll_x;
++      tty-&gt;cursor_y = modulo(tty-&gt;cursor_y  + 1, tty-&gt;height);
++
++      if (modulo(tty-&gt;cursor_y - tty-&gt;scroll_y, tty-&gt;height) == 0)
++        {
++          tty-&gt;scroll_y = modulo(tty-&gt;scroll_y + 1, tty-&gt;height);
++          memset(tty-&gt;framebuffer[tty-&gt;cursor_y], 0, tty-&gt;width);
++        }
++    }
++  else if (chr == '\r')
++    {
++      tty-&gt;cursor_x = tty-&gt;scroll_x;
++    }
++  else
++    {      
++      tty-&gt;framebuffer[tty-&gt;cursor_y][tty-&gt;cursor_x] = chr;
++
++      tty-&gt;cursor_x += 1;
++      if (tty-&gt;cursor_x == tty-&gt;width)
++        {
++          tty-&gt;cursor_x = tty-&gt;scroll_x;
++          tty-&gt;cursor_y = modulo(tty-&gt;cursor_y  + 1, tty-&gt;height);
++
++          if (modulo(tty-&gt;cursor_y - tty-&gt;scroll_y, tty-&gt;height) == 0)
++            {
++              tty-&gt;scroll_y = modulo(tty-&gt;scroll_y + 1, tty-&gt;height);
++              memset(tty-&gt;framebuffer[tty-&gt;cursor_y], 0, tty-&gt;width);
++            }
++        }
++    }
++}
++
++void TTY_write(TTY* tty, const char* buffer, int len)
++{
++  int i;
++  for(i = 0; i &lt; len; ++i)
++    TTY_putchar(tty, buffer[i]);
++}
++
++void TTY_print(TTY* tty, const char* buffer)
++{
++  TTY_write(tty, buffer, strlen(buffer));
++}
++
++void TTY_SetCursorCharacter(TTY* tty, int chr)
++{
++  tty-&gt;cursor_character = chr;
++}
++
++void TTY_EnableVisibleCursor(TTY* tty, int i)
++{
++  tty-&gt;print_cursor = i;
++}
++
++void TTY_Blit(TTY* tty, SDL_Surface* screen, int screen_x, int screen_y)
++{
++  SDL_Rect src_rect;
++  SDL_Rect dst_rect;
++
++  int x;
++  int y;
++  for(y = 0; y &lt; tty-&gt;height; ++y)
++    {
++      for(x = 0; x &lt; tty-&gt;width; ++x)
++        {
++          if (tty-&gt;print_cursor)
++            {
++              if (modulo(x + tty-&gt;scroll_x, tty-&gt;width) == tty-&gt;cursor_x &amp;&amp;
++                  modulo(y + tty-&gt;scroll_y, tty-&gt;height) == tty-&gt;cursor_y &amp;&amp;
++                  (SDL_GetTicks()/200) % 2 == 0)
++                {
++                  TTY_GetGlyph(tty-&gt;font, tty-&gt;cursor_character, &amp;src_rect);
++
++                  dst_rect.x = screen_x + x * tty-&gt;font-&gt;glyph_width;
++                  dst_rect.y = screen_y + y * tty-&gt;font-&gt;glyph_height;
++
++                  SDL_BlitSurface(tty-&gt;font-&gt;surface, &amp;src_rect, screen, &amp;dst_rect);
++                }
++              else
++                {
++                  char chr = tty-&gt;framebuffer[modulo(y + tty-&gt;scroll_y, tty-&gt;height)][modulo(x + tty-&gt;scroll_x, tty-&gt;width)];
++                  if (chr)
++                    {
++                      TTY_GetGlyph(tty-&gt;font, chr, &amp;src_rect);
++
++                      dst_rect.x = screen_x + x * tty-&gt;font-&gt;glyph_width;
++                      dst_rect.y = screen_y + y * tty-&gt;font-&gt;glyph_height;
++
++                      SDL_BlitSurface(tty-&gt;font-&gt;surface, &amp;src_rect, screen, &amp;dst_rect);
++                    }
++                }
++            }
++          else
++            {          
++              char chr = tty-&gt;framebuffer[modulo(y + tty-&gt;scroll_y, tty-&gt;height)][modulo(x + tty-&gt;scroll_x, tty-&gt;width)];
++              if (chr)
++                {
++                  TTY_GetGlyph(tty-&gt;font, chr, &amp;src_rect);
++
++                  dst_rect.x = screen_x + x * tty-&gt;font-&gt;glyph_width;
++                  dst_rect.y = screen_y + y * tty-&gt;font-&gt;glyph_height;
++
++                  SDL_BlitSurface(tty-&gt;font-&gt;surface, &amp;src_rect, screen, &amp;dst_rect);
++                }
++            }
++        }
++    }
++}
++
++void TTY_printf(TTY* tty, const char *fmt, ...)
++{
++  va_list ap;
++  va_start(ap, fmt);
++  char* str = make_message(fmt, ap);
++  TTY_print(tty, str);
++  free(str);
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/SDL_tty.h
+===================================================================
+--- trunk/netbrush/src/SDL_tty.h	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/SDL_tty.h	2006-10-24 14:22:36 UTC (rev 673)
+@@ -0,0 +1,269 @@
++/** 
++ ** Copyright (c) 2006 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++ ** 
++ ** This software is provided 'as-is', without any express or implied
++ ** warranty. In no event will the authors be held liable for any
++ ** damages arising from the use of this software.
++ ** 
++ ** Permission is granted to anyone to use this software for any
++ ** purpose, including commercial applications, and to alter it and
++ ** redistribute it freely, subject to the following restrictions:
++ ** 
++ **   1. The origin of this software must not be misrepresented; you
++ **      must not claim that you wrote the original software. If you
++ **      use this software in a product, an acknowledgment in the
++ **      product documentation would be appreciated but is not
++ **      required.
++ ** 
++ **   2. Altered source versions must be plainly marked as such, and
++ **      must not be misrepresented as being the original software.
++ ** 
++ **   3. This notice may not be removed or altered from any source
++ **      distribution.
++ ** 
++ */
++
++#ifndef _SDL_TTY_H
++#define _SDL_TTY_H
++
++#include &lt;SDL.h&gt;
++
++/* Set up for C function definitions, even when using C++ */
++#ifdef __cplusplus
++extern &quot;C&quot; {
++#endif
++
++#define TTY_MAJOR_VERSION  0;
++#define TTY_MINOR_VERSION  0;
++#define TTY_PATH_VERSION   1;
++
++/** Reuse SDL functions for error reporting */
++#define TTY_SetError	SDL_SetError
++#define TTY_GetError	SDL_GetError
++
++/** 
++ */
++typedef struct TTY_Font
++{
++  /** 
++   *  Surface containing the glyphs, glyphs have to be fixed width and
++   *  run from left to right, seperating the glyphs to multiple lines
++   *  is allowed
++   */
++  SDL_Surface* surface;
++
++  /**
++   *  Map characters to there index inside the font file,
++   *  ie. translable['a'] will give the index of 'a'
++   */
++  char transtbl[256];
++
++  int  glyph_width;
++  int  glyph_height;
++}  TTY_Font;
++
++typedef struct TTY
++{
++  /** 
++   *  The buffer containing all characters for display, access via
++   *  framebuffer[y][x]
++   */
++  char** framebuffer;
++
++  /** 
++   *  The font that is used at default for rendering the framebuffer
++   */
++  TTY_Font* font;
++
++  /** 
++   *  The width of the framebuffer 
++   */
++  int width;
++
++  /** 
++   *  The height of the framebuffer 
++   */
++  int height;
++
++  /** 
++   *  The cursors x position in the framebuffer in screen coordinates,
++   *  use TTY_SetCursor() to avoid throuble when scrolling
++   */
++  int cursor_x;
++
++  /** 
++   *  The cursors y position in the framebuffer in screen coordinates,
++   *  use TTY_SetCursor() to avoid throuble when scrolling
++   */
++  int cursor_y;
++
++  /**
++   *  The character that should be used to display the cursor
++   */
++  int cursor_character;
++
++  /** 
++   *  If set the cursor is displayed
++   */
++  int print_cursor;
++
++  /** 
++   *  The scroll offset in x direction
++   */
++  int scroll_x;
++
++  /** 
++   *  The scroll offset in x direction
++   */
++  int scroll_y;
++
++}  TTY;
++
++#define TTY_CreateRGBSurface(name) SDL_CreateRGBSurfaceFrom( name##_data, \
++                                      name##_width, name##_height, name##_bpp, name##_pitch, \
++                                      name##_rmask, name##_gmask,  name##_bmask, name##_amask )
++
++/**
++ *  Creates a font from an SDL_Surface. The letter with index 0 is at
++ *  the top/left of the image, 
++ *
++ *  @param surface      The SDL_Surface that contains all letters
++ *  @param glyph_width  The width of a glyph
++ *  @param glyph_height The height of a glyph
++ *  @param letters      The letters that are present in the font
++ */
++TTY_Font* TTY_CreateFont(SDL_Surface* surface, int glyph_width, int glyph_height, char* letters);
++void      TTY_FreeFont(TTY_Font* font);
++
++/**
++ *  Calculate the position of character \a idx in the surface used by
++ *  \a font and write the result to \a rect
++ */
++void TTY_GetGlypth(TTY_Font* font, char idx, SDL_Rect* rect);
++
++enum {
++  FNT_ALIGN_LEFT     = (1&lt;&lt;0),
++  FNT_ALIGN_RIGHT    = (1&lt;&lt;1),
++  FNT_ALIGN_H_CENTER = FNT_ALIGN_LEFT | FNT_ALIGN_RIGHT,
++
++  FNT_ALIGN_TOP      = (1&lt;&lt;2),
++  FNT_ALIGN_BOTTOM   = (1&lt;&lt;3),
++  FNT_ALIGN_V_CENTER = FNT_ALIGN_TOP | FNT_ALIGN_BOTTOM,
++
++  FNT_ALIGN_CENTER = FNT_ALIGN_H_CENTER | FNT_ALIGN_V_CENTER
++};
++
++/** 
++ * Return the height, ie. lines * font_height, of a given text in
++ * pixel
++ */
++int FNT_GetTextHeight(TTY_Font* font, const char* text);
++
++/** 
++ * Return the width, ie. the width of the longest line, of a given
++ * text in pixel
++ */
++int FNT_GetTextWidth(TTY_Font* font, const char* text);
++
++/** 
++ * Return the width of the given line (everything after a \0 or a \n is ignored)
++ */
++int FNT_GetTextLineWidth(TTY_Font* font, const char* text);
++
++/** 
++ *  Print the given string to the screen at the given coordinates using \a font.
++ */
++void TTY_Print(TTY_Font* font, SDL_Surface* screen, int x, int y, Uint32 flags, const char *str);
++
++/** 
++ *  Print to the screen at the given coordinates, while handling \a
++ *  fmt in a printf like manner
++ */
++void TTY_Printf(TTY_Font* font, SDL_Surface* screen, int x, int y, Uint32 flags, const char *fmt, ...)
++  __attribute__ ((format (printf, 6, 7)));
++
++/** 
++ *  Allocate a new TTY with the given dimensions and font.
++ *
++ *  @param width  The width of the terminal in characters
++ *  @param height The height of the terminal in characters
++ *  @param font   The font used for displaying the terminal, the font
++ *                will not be freed upon TTY_Free()
++
++ */
++TTY* TTY_Create(int width, int height, TTY_Font* font);
++
++/**
++ *  Deallocate a given TTY
++ */
++void TTY_Free(TTY* tty);
++
++/**
++ *  The the current cursor position to \a x, \a y, if x or y are
++ *  outside the range of the TTY, they automatically wrap around 
++ */
++void TTY_SetCursor(TTY* tty, int x, int y);
++
++void TTY_SetScrollOffset(TTY* tty, int scroll_x, int scroll_y);
++void TTY_GetScrollOffset(TTY* tty, int* scroll_x, int* scroll_y);
++
++/**
++ *  Write the current cursor position to \a x and \a y 
++ */
++void TTY_GetCursor(TTY* tty, int* x, int* y);
++
++/**
++ *  Use character chr as the cursor
++ */
++void TTY_SetCursorCharacter(TTY* tty, int chr);
++
++/**
++ *  If \a i is set, display a cursor, if \a i is 0, don't display it
++ */
++void TTY_EnableVisibleCursor(TTY* tty, int i);
++
++/** 
++ *  Clear the tty's framebuffer
++ */
++void TTY_Clear(TTY* tty);
++
++/** 
++ *  Append the content of \a buffer to the given \a tty, \a len gives
++ *  the length of the buffer.
++ */
++void TTY_write(TTY* tty, const char* buffer, int len);
++
++/**
++ *  Append the content of \a buffer to the given \a tty, \a buffer
++ *  must be '\0' terminated.
++ */
++void TTY_print(TTY* tty, const char* buffer);
++
++/**
++ *  Append chr to \a tty
++ */
++void TTY_putchar(TTY* tty, char chr);
++
++/**
++ *  Put\a chr at the current cursor position without advancing the cursor
++ */
++void TTY_putchar_nomove(TTY* tty, char chr);
++
++/**
++ *  printf like way to append content to \a tty
++ */
++void TTY_printf(TTY* tty, const char *fmt, ...)  __attribute__ ((format (printf, 2, 3)));
++
++/**
++ *  Blit \a tty given to the surface \a screen at the given coordinates \a x and \a y
++ */
++void TTY_Blit(TTY* tty, SDL_Surface* screen, int x, int y);
++
++/* Ends C function definitions when using C++ */
++#ifdef __cplusplus
++}
++#endif
++
++#endif
++
++/* EOF */
+
+Modified: trunk/netbrush/src/client.cpp
+===================================================================
+--- trunk/netbrush/src/client.cpp	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/client.cpp	2006-10-24 14:22:36 UTC (rev 673)
+@@ -23,6 +23,7 @@
+ #include &quot;navigation.hpp&quot;
+ #include &quot;server_connection.hpp&quot;
+ #include &quot;command_line.hpp&quot;
++#include &quot;text_view.hpp&quot;
+ #include &quot;widget/slider_widget.hpp&quot;
+ #include &quot;controller.hpp&quot;
+ 
+@@ -97,6 +98,13 @@
+             {
+               client_draw_param-&gt;opacity = std::min(255, client_draw_param-&gt;opacity + 16);
+             }
++          else if (event.key.keysym.sym == SDLK_F11)
++            {
++              if (SDL_WM_ToggleFullScreen(screen) == 0) {
++                std::cout &lt;&lt; &quot;Failed to toggle fullscreen mode: &quot; &lt;&lt; SDL_GetError() &lt;&lt; std::endl;
++                //quit(1);
++              }
++            }
+           else if (event.key.keysym.sym == SDLK_u)
+             {
+               navigation-&gt;update();
+@@ -128,6 +136,8 @@
+     bool fullscreen = false;
+     int screen_width  = 800;
+     int screen_height = 600;
++    int canvas_width  = 2048;
++    int canvas_height = 2048;
+     std::string hostname;
+     std::string port     = &quot;4711&quot;;
+     int rest_arg_count = 0;
+@@ -137,6 +147,7 @@
+     argp.add_usage(&quot;[OPTIONS] HOSTNAME PORT&quot;);
+     argp.add_group(&quot;Display:&quot;);
+     argp.add_option('g', &quot;geometry&quot;,  &quot;WIDTHxHEIGHT&quot;, &quot;Set the windows size to WIDTHxHEIGHT&quot;);
++    argp.add_option('c', &quot;canvas&quot;,    &quot;WIDTHxHEIGHT&quot;, &quot;Set the size of the paintable canvas to WIDTHxHEIGHT&quot;);
+     argp.add_option('f', &quot;fullscreen&quot;, &quot;&quot;,            &quot;Start the application in fullscreen mode&quot;);
+     argp.add_option('w', &quot;window&quot;,     &quot;&quot;,            &quot;Start the application in window mode&quot;);
+     argp.add_option('v', &quot;version&quot;,    &quot;&quot;,            &quot;Display the netBrush version&quot;);
+@@ -162,6 +173,20 @@
+             }
+             break;
+ 
++          case 'c':
++            {
++              if (sscanf(argp.get_argument().c_str(), &quot;%dx%d&quot;,
++                         &amp;canvas_width, &amp;canvas_height) == 2)
++                {
++                  std::cout &lt;&lt; &quot;Geometry: &quot; &lt;&lt; canvas_width &lt;&lt; &quot;x&quot; &lt;&lt; canvas_height &lt;&lt; std::endl;
++                }
++              else
++                {
++                  throw std::runtime_error(&quot;Canvas option '-c' requires argument of type {WIDTH}x{HEIGHT}&quot;);
++                }
++            }
++            break;
++
+           case 'f':
+             fullscreen = true;
+             break;
+@@ -221,10 +246,11 @@
+     SDL_WM_SetCaption(&quot;netBrush&quot;, &quot;netBrush&quot;);
+ 
+     // 18 is scrollbar
+-    screen_buffer = new ScreenBuffer(Rect(38, 2, screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 16 - 4)); 
+-    draw_ctx      = new DrawingContext(2048, 2048);
+-    stroke_buffer = new StrokeBuffer(2048, 2048);
++    screen_buffer = new ScreenBuffer(Rect(38, 2, screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 16 - 4 - 38)); 
++    draw_ctx      = new DrawingContext(canvas_width, canvas_height);
++    stroke_buffer = new StrokeBuffer(canvas_width, canvas_height);
+ 
++
+     //std::cout &lt;&lt; &quot;# clear screen&quot; &lt;&lt; std::endl;
+ 
+     // clear screen
+@@ -253,6 +279,9 @@
+     widget_manager = new WidgetManager();
+     controller     = new Controller();
+ 
++    widget_manager-&gt;add(new TextView(Rect(38, screen-&gt;h - 38,
++                                          screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h)));
++
+     widget_manager-&gt;add(navigation = new Navigation(Rect(Point(screen-&gt;w - 128 - 2, screen-&gt;h - 128 - 2),
+                                                          Size(128, 128))));
+     {
+@@ -269,14 +298,14 @@
+     widget_manager-&gt;add(screen_buffer);
+ 
+     widget_manager-&gt;add(vertical_scrollbar = 
+-                        new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_height(), Scrollbar::VERTICAL,
++                        new Scrollbar(0, canvas_height, screen_buffer-&gt;get_rect().get_height(), Scrollbar::VERTICAL,
+                                       Rect(screen-&gt;w - 128 - 16 - 2 - 2, 2,
+-                                           screen-&gt;w - 128 - 2 - 2, screen-&gt;h - 16 - 4)));
++                                           screen-&gt;w - 128 - 2 - 2, screen-&gt;h - 16 - 4 - 38)));
+ 
+     widget_manager-&gt;add(horizontal_scrollbar = 
+-                        new Scrollbar(0, 2048, screen_buffer-&gt;get_rect().get_width(), Scrollbar::HORIZONTAL,
+-                                      Rect(38, screen-&gt;h - 16 - 2,
+-                                           screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 2)));
++                        new Scrollbar(0, canvas_width, screen_buffer-&gt;get_rect().get_width(), Scrollbar::HORIZONTAL,
++                                      Rect(38, screen-&gt;h - 16 - 2 - 38,
++                                           screen-&gt;w - 128 - 18 - 2 - 2, screen-&gt;h - 2 - 38)));
+     
+     brush_widget = new BrushWidget(Rect(Point(screen-&gt;w-128, 128+24+24), Size(128, 128)));
+     
+
+Modified: trunk/netbrush/src/color.cpp
+===================================================================
+--- trunk/netbrush/src/color.cpp	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/color.cpp	2006-10-24 14:22:36 UTC (rev 673)
+@@ -46,11 +46,11 @@
+   else
+     {
+       if (max == color.r)
+-        hsvcolor.hue = (0 + (color.g - color.b) / (max - min)) * 43;
++        hsvcolor.hue = (0 + (color.g - color.b) / (max - min)) * 255 / 6;
+       else if (max == color.g)
+-        hsvcolor.hue = (2 + (color.b - color.r) / (max - min)) * 43;
++        hsvcolor.hue = (2 + (color.b - color.r) / (max - min)) * 255 / 6;
+       else if (max == color.b)
+-        hsvcolor.hue = (4 + (color.r - color.g) / (max - min)) * 43;
++        hsvcolor.hue = (4 + (color.r - color.g) / (max - min)) * 255 / 6;
+     }
+ 
+   if (max == 0)
+
+Modified: trunk/netbrush/src/color_display.cpp
+===================================================================
+--- trunk/netbrush/src/color_display.cpp	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/color_display.cpp	2006-10-24 14:22:36 UTC (rev 673)
+@@ -24,30 +24,69 @@
+ */
+ 
+ #include &lt;iostream&gt;
++#include &quot;globals.hpp&quot;
++#include &quot;controller.hpp&quot;
+ #include &quot;color_display.hpp&quot;
+ 
+ ColorDisplay::ColorDisplay(const Rect&amp; rect)
+-  : Widget(rect), m_color(255, 0, 255)
++  : Widget(rect), 
++    foreground(255, 0, 255),
++    background(100, 100, 0)
+ {
+ }
+ 
+ void
++ColorDisplay::on_mouse_button(const MouseButtonEvent&amp; button) 
++{
++  if (button.state == SDL_PRESSED)
++    {
++      std::swap(background, foreground);
++      controller-&gt;set_color(foreground);
++      set_dirty(true);
++    }
++}
++
++void
+ ColorDisplay::draw(SDL_Surface* target)
+ {
+   SDL_Rect r;
++ 
++  r.x = get_rect().left + get_rect().get_width()/3;
++  r.y = get_rect().top  + get_rect().get_height()/3;
++  r.w = 2*get_rect().get_width()/3;
++  r.h = 2*get_rect().get_height()/3;
++
++  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 128, 128, 128));
++
+   r.x = get_rect().left;
+   r.y = get_rect().top;
+-  r.w = get_rect().get_width();
+-  r.h = get_rect().get_height();
++  r.w = 2*get_rect().get_width()/3;
++  r.h = 2*get_rect().get_height()/3;
+ 
+-  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, m_color.r, m_color.g, m_color.b));
+-  if (0) std::cout &lt;&lt; &quot;Color: &quot; &lt;&lt; (int)m_color.r &lt;&lt; &quot; &quot; &lt;&lt; (int)m_color.g &lt;&lt; &quot; &quot; &lt;&lt; (int)m_color.b &lt;&lt; std::endl;
++  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 128, 128, 128));
++
++  
++  r.x = get_rect().left + get_rect().get_width()/3+1;
++  r.y = get_rect().top  + get_rect().get_height()/3+1;
++  r.w = 2*get_rect().get_width()/3-2;
++  r.h = 2*get_rect().get_height()/3-2;
++
++  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, background.r, background.g, background.b));
++
++  r.x = get_rect().left+1;
++  r.y = get_rect().top+1;
++  r.w = 2*get_rect().get_width()/3-2;
++  r.h = 2*get_rect().get_height()/3-2;
++
++  SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, foreground.r, foreground.g, foreground.b));
++
++  if (0) std::cout &lt;&lt; &quot;Color: &quot; &lt;&lt; (int)foreground.r &lt;&lt; &quot; &quot; &lt;&lt; (int)foreground.g &lt;&lt; &quot; &quot; &lt;&lt; (int)foreground.b &lt;&lt; std::endl;
+ }
+ 
+ void
+ ColorDisplay::set_color(const Color&amp; color)
+ {
+-  m_color = color;
++  foreground = color;
+   set_dirty(true);
+ }
+ 
+
+Modified: trunk/netbrush/src/color_display.hpp
+===================================================================
+--- trunk/netbrush/src/color_display.hpp	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/color_display.hpp	2006-10-24 14:22:36 UTC (rev 673)
+@@ -33,13 +33,14 @@
+ class ColorDisplay : public Widget
+ {
+ private:
+-  Color m_color;
++  Color foreground;
++  Color background;
+ 
+ public:
+   ColorDisplay(const Rect&amp; rect);
+   
+   void on_mouse_motion(const MouseMotionEvent&amp; motion) {}
+-  void on_mouse_button(const MouseButtonEvent&amp; button) {}
++  void on_mouse_button(const MouseButtonEvent&amp; button);
+ 
+   void on_enter() {}
+   void on_leave() {}
+
+Modified: trunk/netbrush/src/controller.cpp
+===================================================================
+--- trunk/netbrush/src/controller.cpp	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/controller.cpp	2006-10-24 14:22:36 UTC (rev 673)
+@@ -163,7 +163,7 @@
+ Controller::set_color_hue(Uint8 hue_)
+ {
+   hue = hue_;
+-  client_draw_param-&gt;color = Color::from_hue(hue);
++  set_color(Color::from_hue(hue));
+   saturation_value_picker-&gt;set_color(client_draw_param-&gt;color);
+   alpha_picker-&gt;set_color(client_draw_param-&gt;color);
+ }
+@@ -177,7 +177,7 @@
+   Color color = Color::from_hue(hue);
+   color.apply_value_saturation(value, saturation);
+   alpha_picker-&gt;set_color(color);
+-  client_draw_param-&gt;color = color;
++  set_color(color);
+ }
+ 
+ void
+
+Added: trunk/netbrush/src/text_view.cpp
+===================================================================
+--- trunk/netbrush/src/text_view.cpp	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/text_view.cpp	2006-10-24 14:22:36 UTC (rev 673)
+@@ -0,0 +1,76 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#include &lt;iostream&gt;
++#include &quot;SDL_tty.h&quot;
++#include &quot;SDL_image.h&quot;
++#include &quot;text_view.hpp&quot;
++
++TextView::TextView(const Rect&amp; rect)
++  : Widget(rect)
++{
++  SDL_Surface* temp = IMG_Load(&quot;data/fonts/8x8font.png&quot;);
++  font = TTY_CreateFont(temp, 8, 8, 
++                    &quot;\x7f                                !\&quot;#$%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;
++                    &quot;[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~&quot;);
++  tty = TTY_Create(rect.get_width()/8, rect.get_height()/8, font);
++  TTY_Clear(tty);
++  TTY_printf(tty, &quot;netBrush Version 0.0.1&quot;);
++}
++ 
++TextView::~TextView()
++{
++  TTY_Free(tty);
++  TTY_FreeFont(font);
++}
++ 
++void
++TextView::on_mouse_motion(const MouseMotionEvent&amp; motion)
++{
++  set_dirty(true);
++}
++
++void
++TextView::on_mouse_button(const MouseButtonEvent&amp; button)
++{
++}
++
++void
++TextView::draw(SDL_Surface* target)
++{
++  if (0)
++    {
++      SDL_Rect r;
++      r.x = get_rect().left;
++      r.y = get_rect().top;
++      r.w = get_rect().get_width();
++      r.h = get_rect().get_height();
++
++      SDL_FillRect(target, &amp;r, SDL_MapRGB(target-&gt;format, 255, 255, 255));
++    }
++  TTY_Blit(tty, target, get_rect().left, get_rect().top);
++}
++
++/* EOF */
+
+Added: trunk/netbrush/src/text_view.hpp
+===================================================================
+--- trunk/netbrush/src/text_view.hpp	2006-10-23 21:36:13 UTC (rev 672)
++++ trunk/netbrush/src/text_view.hpp	2006-10-24 14:22:36 UTC (rev 673)
+@@ -0,0 +1,60 @@
++/*  $Id$
++**   __      __ __             ___        __   __ __   __
++**  /  \    /  \__| ____    __| _/_______/  |_|__|  | |  |   ____
++**  \   \/\/   /  |/    \  / __ |/  ___/\   __\  |  | |  | _/ __ \
++**   \        /|  |   |  \/ /_/ |\___ \  |  | |  |  |_|  |_\  ___/
++**    \__/\  / |__|___|  /\____ /____  &gt; |__| |__|____/____/\___  &gt;
++**         \/          \/      \/    \/                         \/
++**  Copyright (C) 2005 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++**
++**  This program is free software; you can redistribute it and/or
++**  modify it under the terms of the GNU General Public License
++**  as published by the Free Software Foundation; either version 2
++**  of the License, or (at your option) any later version.
++**
++**  This program is distributed in the hope that it will be useful,
++**  but WITHOUT ANY WARRANTY; without even the implied warranty of
++**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++**  GNU General Public License for more details.
++** 
++**  You should have received a copy of the GNU General Public License
++**  along with this program; if not, write to the Free Software
++**  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
++**  02111-1307, USA.
++*/
++
++#ifndef HEADER_TEXT_VIEW_HPP
++#define HEADER_TEXT_VIEW_HPP
++
++#include &quot;widget/widget.hpp&quot;
++
++struct TTY;
++struct TTY_Font;
++
++/** */
++class TextView : public Widget
++{
++private:
++  TTY_Font* font;
++  TTY*      tty;
++
++public:
++  TextView(const Rect&amp; rect);
++  ~TextView();
++  
++  void on_mouse_motion(const MouseMotionEvent&amp; motion);
++  void on_mouse_button(const MouseButtonEvent&amp; button);
++
++  void on_enter() {}
++  void on_leave() {}
++
++  void draw(SDL_Surface* target);
++  
++private:
++  TextView (const TextView&amp;);
++  TextView&amp; operator= (const TextView&amp;);
++};
++
++#endif
++
++/* EOF */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000167.html">[Flexlay-commit] r672 - in trunk/netbrush: . src
+</A></li>
+	<LI>Next message: <A HREF="000169.html">[Flexlay-commit] r674 - in trunk/netbrush/src: . widget
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#168">[ date ]</a>
+              <a href="thread.html#168">[ thread ]</a>
+              <a href="subject.html#168">[ subject ]</a>
+              <a href="author.html#168">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

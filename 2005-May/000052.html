@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r557 - trunk/supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r557%20-%20trunk/supertux&In-Reply-To=%3C200505181227.j4ICRBnd006959%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000051.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r557 - trunk/supertux</H1>
+    <B>Marek Moeckel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r557%20-%20trunk/supertux&In-Reply-To=%3C200505181227.j4ICRBnd006959%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r557 - trunk/supertux">wansti at sheep.berlios.de
+       </A><BR>
+    <I>Wed May 18 14:27:11 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000051.html">[Flexlay-commit] r556 - trunk/supertux
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: wansti
+Date: 2005-05-18 14:27:10 +0200 (Wed, 18 May 2005)
+New Revision: 557
+
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+updated ambient_sound
+
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-05-18 10:14:00 UTC (rev 556)
++++ trunk/supertux/data.rb	2005-05-18 12:27:10 UTC (rev 557)
+@@ -33,7 +33,7 @@
+     proc{|data, sexpr| BadGuy.new(&quot;yeti_stalactite&quot;)}],
+   [&quot;spawnpoint&quot;, &quot;images/engine/editor/spawnpoint.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| SpawnPoint.new(data, sexpr)}],
+-  [&quot;ambient_sound&quot;, &quot;images/engine/editor/ambientsound.png&quot;, &quot;sprite&quot;,
++  [&quot;ambient_sound&quot;, &quot;images/engine/editor/ambientsound.png&quot;, &quot;rect&quot;,
+     proc{|data, sexpr| AmbientSound.new(data, sexpr)}],
+   [&quot;door&quot;, &quot;images/objects/door/door-0.png&quot;, &quot;sprite&quot;,
+     proc{|data, sexpr| Door.new(&quot;door&quot;, data, sexpr)}],
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-05-18 10:14:00 UTC (rev 556)
++++ trunk/supertux/gameobj.rb	2005-05-18 12:27:10 UTC (rev 557)
+@@ -40,6 +40,57 @@
+   end
+ end
+ 
++class AmbientSound&lt;GameObj
++  attr_accessor :factor, :bias, :sample, :volume
++  
++  def initialize(data, sexpr = [])
++    @data = data
++    @data.set_color(CL_Color.new(200, 200, 200, 128))
++    @factor = get_value_from_tree([&quot;distance_factor&quot;, &quot;_&quot;],  sexpr, 0.1)
++    @bias = get_value_from_tree([&quot;distance_bias&quot;, &quot;_&quot;],  sexpr, 200)
++    @sample = get_value_from_tree([&quot;sample&quot;, &quot;_&quot;],  sexpr, &quot;waterfall&quot;)
++    @volume = get_value_from_tree([&quot;volume&quot;, &quot;_&quot;],  sexpr, 1)
++
++    x  = get_value_from_tree([&quot;x&quot;, &quot;_&quot;],  sexpr, nil)
++    y  = get_value_from_tree([&quot;y&quot;, &quot;_&quot;],  sexpr, nil)
++    width  = get_value_from_tree([&quot;width&quot;, &quot;_&quot;],  sexpr, 64)
++    height = get_value_from_tree([&quot;height&quot;, &quot;_&quot;], sexpr, 64)
++    if x != nil and y != nil then
++      @data.set_rect(CL_Rect.new(CL_Point.new(x, y), CL_Size.new(width, height)))
++    end
++  end
++
++  def save(f, obj)
++    rect = @data.get_rect()
++    f.write(&quot;        (ambient_sound (x #{rect.left})\n&quot; \
++            &quot;                       (y #{rect.top})\n&quot;  \
++            &quot;                       (width #{rect.get_width()})\n&quot; \
++            &quot;                       (height #{rect.get_height()})\n&quot; \
++            &quot;                       (sample #{@sample.inspect})\n&quot; \
++	    &quot;                       (distance_factor #{@factor.inspect})\n&quot; \
++	    &quot;                       (distance_bias #{@bias.inspect})\n&quot; \
++	    &quot;                       (volume #{@volume.inspect}))\n&quot;)
++  end
++
++  def property_dialog()
++    puts @factor.inspect
++    puts @bias.inspect
++    puts @sample.inspect
++    puts @volume.inspect
++    dialog = GenericDialog.new(&quot;AmbientSound Property Dialog&quot;, $gui.get_component())
++    dialog.add_float(&quot;Distance Factor: &quot;, @factor)
++    dialog.add_float(&quot;Distance Bias: &quot;, @bias)
++    dialog.add_string(&quot;Sample: &quot;, @sample)
++    dialog.add_int(&quot;Max Volume: &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">, at volume</A>)
++    dialog.set_callback(proc{|factor, bias, sample, volume| 
++                          @factor = factor
++			  @bias = bias
++			  @sample = sample
++			  @volume = volume
++                        })
++  end
++end
++
+ class SequenceTrigger&lt;GameObj
+   attr_accessor :sequence, :data
+   
+@@ -68,7 +119,7 @@
+ 
+   def property_dialog()
+     puts @sequence.inspect
+-    dialog = GenericDialog.new(&quot;SecretArea Property Dialog&quot;, $gui.get_component())
++    dialog = GenericDialog.new(&quot;SequenceTrigger Property Dialog&quot;, $gui.get_component())
+     dialog.add_string(&quot;Sequence: &quot;, @sequence)
+     dialog.set_callback(proc{|sequence| 
+                           @sequence = sequence
+@@ -142,41 +193,6 @@
+   end
+ end
+ 
+-class AmbientSound&lt;GameObj
+-  def initialize(data, sexpr = [])
+-    @data = data
+-    @factor = get_value_from_tree([&quot;distance_factor&quot;, &quot;_&quot;],  sexpr, 0.1)
+-    @bias = get_value_from_tree([&quot;distance_bias&quot;, &quot;_&quot;],  sexpr, 200)
+-    @sample = get_value_from_tree([&quot;sample&quot;, &quot;_&quot;],  sexpr, &quot;&quot;)
+-    connect_v1_ObjMapObject(data.to_object.sig_move(), method(:on_move))
+-    on_move(data)
+-  end
+-
+-  def on_move(data)
+-    pos = @data.to_object.get_pos()
+-    pos.x = (((pos.x+16)/32).to_i)*32
+-    pos.y = (((pos.y+16)/32).to_i)*32
+-    @data.to_object.set_pos(pos)
+-  end
+-
+-  def save(f, obj)
+-    pos = obj.get_pos()
+-    f.write(&quot;       (ambient_sound (x %d) (y %d) (distance_factor %f) (distance_bias %f) (sample \&quot;%s\&quot;))\n&quot; % [pos.x, pos.y, @factor, @bias, @sample])
+-  end
+-
+-  def property_dialog()
+-    dialog = GenericDialog.new(&quot;AmbientSound Property Dialog&quot;, $gui.get_component())
+-    dialog.add_float(&quot;Distance Factor: &quot;, @factor)
+-    dialog.add_float(&quot;Distance Bias: &quot;, @bias)
+-    dialog.add_string(&quot;Sample: &quot;, @sample)
+-    dialog.set_callback(proc{|factor, bias, sample| 
+-                          @factor = factor
+-			  @bias = bias
+-			  @sample = sample
+-                        })
+-  end
+-end
+-
+ class SimpleObject&lt;GameObj
+   def initialize(type)
+     @type = type
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000051.html">[Flexlay-commit] r556 - trunk/supertux
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

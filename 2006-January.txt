@@ -1,0 +1,821 @@
+From matzebraun at berlios.de  Sat Jan 21 11:35:48 2006
+From: matzebraun at berlios.de (matzebraun at BerliOS)
+Date: Sat, 21 Jan 2006 11:35:48 +0100
+Subject: [Flexlay-commit] r619 - trunk/supertux
+Message-ID: <200601211035.k0LAZmZx024233@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2006-01-21 11:35:47 +0100 (Sat, 21 Jan 2006)
+New Revision: 619
+
+Removed:
+   trunk/supertux/tuxsprites.xml
+   trunk/supertux/tuxtiles.xml
+Modified:
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+Log:
+old files
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2005-10-10 13:55:49 UTC (rev 618)
++++ trunk/supertux/data.rb	2006-01-21 10:35:47 UTC (rev 619)
+@@ -71,6 +71,8 @@
+     proc{|data, sexpr| SimpleObject.new("point")}],
+   ["platform", "images/objects/flying_platform/flying_platform-0.png", :sprite,
+     proc{|data, sexpr| Platform.new(data, sexpr)}],
++  ["scriptedobject", "images/engine/editor/scriptedobject.png", :sprite,
++    proc{|data, sexpr| ScriptedObject.new(data, sexpr)}]
+ ]
+ 
+ def create_gameobject_from_data(objmap, name, sexpr)
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2005-10-10 13:55:49 UTC (rev 618)
++++ trunk/supertux/gameobj.rb	2006-01-21 10:35:47 UTC (rev 619)
+@@ -504,4 +504,60 @@
+   end
+ end
+ 
++class ScriptedObject<GameObj
++  def initialize(data, sexpr = [])
++    @data = data
++    @name = get_value_from_tree(["name", "_"], sexpr, "")
++    @sprite = get_value_from_tree(["sprite", "_"], sexpr, "")
++    @visible = get_value_from_tree(["visible", "_"], sexpr, true)
++    @physic_enabled = get_value_from_tree(["physic-enabled", "_"], sexpr, false)
++    @solid = get_value_from_tree(["solid", "_"], sexpr, false)
++    @layer = get_value_from_tree(["layer", "_"], sexpr, 100) 
++  end
++
++  def save(f, obj)
++    pos = obj.get_pos()
++    f.write("      (scriptedobject\n")
++    f.write("        (x %d) (y %d)\n" % [pos.x, pos.y])
++    f.write("        (name \"%s\")\n" % @name)
++    f.write("        (sprite \"%s\")\n" % @sprite)
++    f.write("        (layer %d)\n" % @layer)
++    if(@visible == true)
++      f.write("        (visible #t)\n")
++    else
++      f.write("        (visible #f)\n")
++    end
++    if(@physic_enabled == true)
++      f.write("        (physic-enabled #t)\n")
++    else
++      f.write("        (physic-enabled #f)\n")
++    end
++    if(@solid == true)
++      f.write("        (solid #t)\n")
++    else
++      f.write("        (solid #f)\n")
++    end
++    f.write("      )\n");
++  end
++
++  def property_dialog()
++    dialog = GenericDialog.new("Scripted Object Property Dialog",
++                               $gui.get_component())
++    dialog.add_string("Name: ", @name)
++    dialog.add_string("Sprite: ", @sprite)
++    dialog.add_int("Layer: ", @layer)
++    dialog.add_bool("Visible: ", @visible)
++    dialog.add_bool("Physics: ", @physic_enabled)
++    dialog.add_bool("Solid: ", @solid)
++    dialog.set_callback(proc{|name, sprite, layer, visible, physic_enabled, solid| 
++                          @name = name
++                          @sprite = sprite
++                          @layer = layer
++                          @visible = visible
++                          @physic_enabled = physic_enabled
++                          @solid = solid
++                        })
++  end
++end
++
+ # EOF #
+
+Deleted: trunk/supertux/tuxsprites.xml
+===================================================================
+--- trunk/supertux/tuxsprites.xml	2005-10-10 13:55:49 UTC (rev 618)
++++ trunk/supertux/tuxsprites.xml	2006-01-21 10:35:47 UTC (rev 619)
+@@ -1,28 +0,0 @@
+-<resources>
+-  <section name="sprites">
+-    <sprite name="jumpy">
+-      <image file="images/tuxsprites/jumpy.png" />
+-      <translation origin="bottom_center" />
+-    </sprite>
+-
+-    <sprite name="mriceblock">
+-      <image file="images/tuxsprites/mriceblock.png" />
+-      <translation origin="bottom_center" />
+-    </sprite>
+-
+-    <sprite name="mrbomb">
+-      <image file="images/tuxsprites/mrbomb.png" />
+-      <translation origin="bottom_center" />
+-    </sprite>
+-
+-    <sprite name="flame">
+-      <image file="images/tuxsprites/flame.png" />
+-      <translation origin="top_left" />
+-    </sprite>
+-
+-    <sprite name="stalactite">
+-      <image file="images/tuxsprites/stalactite.png" />
+-      <translation origin="top_center" />
+-    </sprite>
+-  </section>
+-</resources>
+\ No newline at end of file
+
+Deleted: trunk/supertux/tuxtiles.xml
+===================================================================
+--- trunk/supertux/tuxtiles.xml	2005-10-10 13:55:49 UTC (rev 618)
++++ trunk/supertux/tuxtiles.xml	2006-01-21 10:35:47 UTC (rev 619)
+@@ -1,226 +0,0 @@
+-<resources>
+-  <section name="tiles">
+-    <sprite name="background1">
+-      <image file="images/tuxtiles/background1.png" />
+-    </sprite>
+-    <sprite name="background2">
+-      <image file="images/tuxtiles/background2.png" />
+-    </sprite>
+-    <sprite name="background3">
+-      <image file="images/tuxtiles/background3.png" />
+-    </sprite>
+-    <sprite name="background4">
+-      <image file="images/tuxtiles/background4.png" />
+-    </sprite>
+-    <sprite name="background5">
+-      <image file="images/tuxtiles/background5.png" />
+-    </sprite>
+-    <sprite name="background6">
+-      <image file="images/tuxtiles/background6.png" />
+-    </sprite>
+-    <sprite name="background7">
+-      <image file="images/tuxtiles/background7.png" />
+-    </sprite>
+-    <sprite name="background8">
+-      <image file="images/tuxtiles/background8.png" />
+-    </sprite>
+-    <sprite name="backgroundtile1">
+-      <image file="images/tuxtiles/backgroundtile1.png" />
+-    </sprite>
+-    <sprite name="backgroundtile2">
+-      <image file="images/tuxtiles/backgroundtile2.png" />
+-    </sprite>
+-    <sprite name="backgroundtile3">
+-      <image file="images/tuxtiles/backgroundtile3.png" />
+-    </sprite>
+-    <sprite name="backgroundtile4">
+-      <image file="images/tuxtiles/backgroundtile4.png" />
+-    </sprite>
+-    <sprite name="backgroundtile5">
+-      <image file="images/tuxtiles/backgroundtile5.png" />
+-    </sprite>
+-    <sprite name="block1">
+-      <image file="images/tuxtiles/block1.png" />
+-    </sprite>
+-    <sprite name="block10">
+-      <image file="images/tuxtiles/block10.png" />
+-    </sprite>
+-    <sprite name="block11">
+-      <image file="images/tuxtiles/block11.png" />
+-    </sprite>
+-    <sprite name="block2">
+-      <image file="images/tuxtiles/block2.png" />
+-    </sprite>
+-    <sprite name="block3">
+-      <image file="images/tuxtiles/block3.png" />
+-    </sprite>
+-    <sprite name="block4">
+-      <image file="images/tuxtiles/block4.png" />
+-    </sprite>
+-    <sprite name="block5">
+-      <image file="images/tuxtiles/block5.png" />
+-    </sprite>
+-    <sprite name="block6">
+-      <image file="images/tuxtiles/block6.png" />
+-    </sprite>
+-    <sprite name="block7">
+-      <image file="images/tuxtiles/block7.png" />
+-    </sprite>
+-    <sprite name="block8">
+-      <image file="images/tuxtiles/block8.png" />
+-    </sprite>
+-    <sprite name="block9">
+-      <image file="images/tuxtiles/block9.png" />
+-    </sprite>
+-    <sprite name="bonus1">
+-      <image file="images/tuxtiles/bonus1.png" />
+-    </sprite>
+-    <sprite name="coin1">
+-      <image file="images/tuxtiles/coin1.png" />
+-    </sprite>
+-    <sprite name="coin2">
+-      <image file="images/tuxtiles/coin2.png" />
+-    </sprite>
+-    <sprite name="coin3">
+-      <image file="images/tuxtiles/coin3.png" />
+-    </sprite>
+-    <sprite name="darksnow1">
+-      <image file="images/tuxtiles/darksnow1.png" />
+-    </sprite>
+-    <sprite name="darksnow10">
+-      <image file="images/tuxtiles/darksnow10.png" />
+-    </sprite>
+-    <sprite name="darksnow11">
+-      <image file="images/tuxtiles/darksnow11.png" />
+-    </sprite>
+-    <sprite name="darksnow12">
+-      <image file="images/tuxtiles/darksnow12.png" />
+-    </sprite>
+-    <sprite name="darksnow2">
+-      <image file="images/tuxtiles/darksnow2.png" />
+-    </sprite>
+-    <sprite name="darksnow3">
+-      <image file="images/tuxtiles/darksnow3.png" />
+-    </sprite>
+-    <sprite name="darksnow4">
+-      <image file="images/tuxtiles/darksnow4.png" />
+-    </sprite>
+-    <sprite name="darksnow5">
+-      <image file="images/tuxtiles/darksnow5.png" />
+-    </sprite>
+-    <sprite name="darksnow6">
+-      <image file="images/tuxtiles/darksnow6.png" />
+-    </sprite>
+-    <sprite name="darksnow7">
+-      <image file="images/tuxtiles/darksnow7.png" />
+-    </sprite>
+-    <sprite name="darksnow8">
+-      <image file="images/tuxtiles/darksnow8.png" />
+-    </sprite>
+-    <sprite name="darksnow9">
+-      <image file="images/tuxtiles/darksnow9.png" />
+-    </sprite>
+-    <sprite name="grey">
+-      <image file="images/tuxtiles/grey.png" />
+-    </sprite>
+-    <sprite name="grey2">
+-      <image file="images/tuxtiles/grey2.png" />
+-    </sprite>
+-    <sprite name="grey3">
+-      <image file="images/tuxtiles/grey3.png" />
+-    </sprite>
+-    <sprite name="grey4">
+-      <image file="images/tuxtiles/grey4.png" />
+-    </sprite>
+-    <sprite name="grey5">
+-      <image file="images/tuxtiles/grey5.png" />
+-    </sprite>
+-    <sprite name="grey6">
+-      <image file="images/tuxtiles/grey6.png" />
+-    </sprite>
+-    <sprite name="notile">
+-      <image file="images/tuxtiles/notile.png" />
+-    </sprite>
+-    <sprite name="pipe1">
+-      <image file="images/tuxtiles/pipe1.png" />
+-    </sprite>
+-    <sprite name="pipe2">
+-      <image file="images/tuxtiles/pipe2.png" />
+-    </sprite>
+-    <sprite name="pipe3">
+-      <image file="images/tuxtiles/pipe3.png" />
+-    </sprite>
+-    <sprite name="pipe4">
+-      <image file="images/tuxtiles/pipe4.png" />
+-    </sprite>
+-    <sprite name="pipe5">
+-      <image file="images/tuxtiles/pipe5.png" />
+-    </sprite>
+-    <sprite name="pipe6">
+-      <image file="images/tuxtiles/pipe6.png" />
+-    </sprite>
+-    <sprite name="pipe7">
+-      <image file="images/tuxtiles/pipe7.png" />
+-    </sprite>
+-    <sprite name="pipe8">
+-      <image file="images/tuxtiles/pipe8.png" />
+-    </sprite>
+-    <sprite name="snow1">
+-      <image file="images/tuxtiles/snow1.png" />
+-    </sprite>
+-    <sprite name="snow10">
+-      <image file="images/tuxtiles/snow10.png" />
+-    </sprite>
+-    <sprite name="snow11">
+-      <image file="images/tuxtiles/snow11.png" />
+-    </sprite>
+-    <sprite name="snow12">
+-      <image file="images/tuxtiles/snow12.png" />
+-    </sprite>
+-    <sprite name="snow13">
+-      <image file="images/tuxtiles/snow13.png" />
+-    </sprite>
+-    <sprite name="snow14">
+-      <image file="images/tuxtiles/snow14.png" />
+-    </sprite>
+-    <sprite name="snow15">
+-      <image file="images/tuxtiles/snow15.png" />
+-    </sprite>
+-    <sprite name="snow16">
+-      <image file="images/tuxtiles/snow16.png" />
+-    </sprite>
+-    <sprite name="snow17">
+-      <image file="images/tuxtiles/snow17.png" />
+-    </sprite>
+-    <sprite name="snow18">
+-      <image file="images/tuxtiles/snow18.png" />
+-    </sprite>
+-    <sprite name="snow19">
+-      <image file="images/tuxtiles/snow19.png" />
+-    </sprite>
+-    <sprite name="snow2">
+-      <image file="images/tuxtiles/snow2.png" />
+-    </sprite>
+-    <sprite name="snow3">
+-      <image file="images/tuxtiles/snow3.png" />
+-    </sprite>
+-    <sprite name="snow4">
+-      <image file="images/tuxtiles/snow4.png" />
+-    </sprite>
+-    <sprite name="snow5">
+-      <image file="images/tuxtiles/snow5.png" />
+-    </sprite>
+-    <sprite name="snow6">
+-      <image file="images/tuxtiles/snow6.png" />
+-    </sprite>
+-    <sprite name="snow7">
+-      <image file="images/tuxtiles/snow7.png" />
+-    </sprite>
+-    <sprite name="snow8">
+-      <image file="images/tuxtiles/snow8.png" />
+-    </sprite>
+-    <sprite name="snow9">
+-      <image file="images/tuxtiles/snow9.png" />
+-    </sprite>
+-  </section>
+-</resources>
+
+
+
+From matzebraun at berlios.de  Sat Jan 21 12:53:12 2006
+From: matzebraun at berlios.de (matzebraun at BerliOS)
+Date: Sat, 21 Jan 2006 12:53:12 +0100
+Subject: [Flexlay-commit] r620 - trunk/supertux
+Message-ID: <200601211153.k0LBrCA6017416@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2006-01-21 12:53:09 +0100 (Sat, 21 Jan 2006)
+New Revision: 620
+
+Added:
+   trunk/supertux/sprite.rb
+   trunk/supertux/util.rb
+Modified:
+   trunk/supertux/WorldMap.rb
+   trunk/supertux/data.rb
+   trunk/supertux/gameobj.rb
+   trunk/supertux/gui.rb
+   trunk/supertux/level.rb
+   trunk/supertux/supertux.rb
+   trunk/supertux/tileset.rb
+Log:
+Support for loading supertux sprites, new scripted object GameObject
+
+Modified: trunk/supertux/WorldMap.rb
+===================================================================
+--- trunk/supertux/WorldMap.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/WorldMap.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -26,10 +26,7 @@
+       # Load Level from file
+       (@filename,) = params
+       
+-      tree = sexpr_read_from_file(@filename)
+-      if tree == nil
+-        raise("Couldn't load worldmap: %s" % filename)
+-      end
++      tree = load_lisp(@filename, :"supertux-worldmap")
+       
+       data = tree[1..-1]
+       parse(data)
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/data.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -43,7 +43,7 @@
+     proc{|data, sexpr| Door.new("hatch", data, sexpr)}],
+   ["trampoline", "images/objects/trampoline/trampoline1-0.png", :sprite,
+     proc{|data, sexpr| BadGuy.new("trampoline")}],
+-  ["bell", "images/objects/bell/bell-m.png", :sprite,
++  ["bell", "images/objects/bell/bell.sprite", :sprite,
+     proc{|data, sexpr| SimpleObject.new("bell")}],
+   ["rock", "images/tiles/blocks/block11.png", :sprite,
+     proc{|data, sexpr| SimpleObject.new("rock")}],
+@@ -93,23 +93,26 @@
+ end
+ 
+ def create_gameobject(objmap, data, pos, sexpr = [])
++  (name, spritefile, type, func) = data
++  
+   # Creates a gameobject the given position, data is the entry in the $game_objects table
+-  case data[2] 
++  case type
++    when :sprite
++      sprite = load_cl_sprite($datadir + spritefile)
++      
++      obj = ObjMapSpriteObject.new(sprite, pos, make_metadata(nil))
++      gobj = func.call(obj, sexpr)
++      obj.to_object.set_metadata(make_metadata(gobj))
+     
+-  when :sprite
+-    obj = ObjMapSpriteObject.new(make_sprite($datadir + data[1]), pos, make_metadata(nil))
+-    gobj = data[3].call(obj, sexpr)
+-    obj.to_object.set_metadata(make_metadata(gobj))
+-    
+-  when :rect
+-	print "NewRect", pos.x, " -", pos.y, "\n"
+-    obj = ObjMapRectObject.new(CL_Rect.new(CL_Point.new(pos.x.to_i, pos.y.to_i), CL_Size.new(64, 64)),
+-                               CL_Color.new(0, 0, 255, 128), make_metadata(nil))
+-    gobj = data[3].call(obj, sexpr)
+-    obj.to_object.set_metadata(make_metadata(gobj))
+-
+-  else
+-    raise "Error: Unknown object type dropped: '#{data.inspect}'"
++    when :rect
++      print "NewRect", pos.x, " -", pos.y, "\n"
++      obj = ObjMapRectObject.new(CL_Rect.new(CL_Point.new(pos.x.to_i, pos.y.to_i), CL_Size.new(64, 64)),
++                                 CL_Color.new(0, 0, 255, 128),
++                                 make_metadata(nil))
++      gobj = data[3].call(obj, sexpr)
++      obj.to_object.set_metadata(make_metadata(gobj))
++    else
++      raise "Error: Unknown object type dropped: '#{data.inspect}'"
+   end
+   
+   cmd = ObjectAddCommand.new(objmap)
+
+Modified: trunk/supertux/gameobj.rb
+===================================================================
+--- trunk/supertux/gameobj.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/gameobj.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -505,14 +505,15 @@
+ end
+ 
+ class ScriptedObject<GameObj
+-  def initialize(data, sexpr = [])
+-    @data = data
++  def initialize(object, sexpr = [])
++    @object = object
+     @name = get_value_from_tree(["name", "_"], sexpr, "")
+     @sprite = get_value_from_tree(["sprite", "_"], sexpr, "")
+     @visible = get_value_from_tree(["visible", "_"], sexpr, true)
+     @physic_enabled = get_value_from_tree(["physic-enabled", "_"], sexpr, false)
+     @solid = get_value_from_tree(["solid", "_"], sexpr, false)
+     @layer = get_value_from_tree(["layer", "_"], sexpr, 100) 
++    load_sprite()
+   end
+ 
+   def save(f, obj)
+@@ -540,6 +541,17 @@
+     f.write("      )\n");
+   end
+ 
++  def load_sprite()
++    begin
++      sprite = load_cl_sprite($datadir + @sprite)
++      @object.set_sprite(sprite)
++
++    rescue
++      sprite = load_cl_sprite($datadir + "images/engine/editor/scriptedobject.png")
++    end
++    @object.set_sprite(sprite)
++  end
++
+   def property_dialog()
+     dialog = GenericDialog.new("Scripted Object Property Dialog",
+                                $gui.get_component())
+@@ -556,6 +568,7 @@
+                           @visible = visible
+                           @physic_enabled = physic_enabled
+                           @solid = solid
++                          load_sprite()
+                         })
+   end
+ end
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/gui.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -50,9 +50,10 @@
+ 
+     connect_v2_ObjectBrush_Point(@objectselector.sig_drop(), method(:on_object_drop))
+ 
+-    $game_objects.each { |object|
+-      @objectselector.add_brush(ObjectBrush.new(make_sprite($datadir + object[1]),
+-                                                make_metadata(object)))
++    $game_objects.each { |objectdata|
++      sprite = load_cl_sprite($datadir + objectdata[1])
++      @objectselector.add_brush(ObjectBrush.new(sprite,
++                                                make_metadata(objectdata)))
+     }
+ 
+     @worldmapobjectselector = ObjectSelector.new(CL_Rect.new(CL_Point.new(3, 3),
+
+Modified: trunk/supertux/level.rb
+===================================================================
+--- trunk/supertux/level.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/level.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -26,11 +26,8 @@
+       # Load Level from file
+       (@filename,) = params
+       
+-      tree = sexpr_read_from_file(@filename)
+-      if tree == nil
+-        raise("Couldn't load level: %s" % filename)
+-      end
+-      
++      tree = load_lisp(@filename, :"supertux-level")
++
+       data = tree[1..-1]
+       
+       @version = get_value_from_tree(["version", "_"], data, 0)
+
+Added: trunk/supertux/sprite.rb
+===================================================================
+--- trunk/supertux/sprite.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/sprite.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -0,0 +1,46 @@
++class Sprite
++  def initialize(filename)
++    @actions = Hash.new()
++  
++    tree = sexpr_read_from_file(filename)
++    if tree == nil then
++      raise "Error: Couldn't load: '#{filename}'"
++    end
++
++    @basedir = File.dirname(filename) + "/"
++    
++    tree[1..-1].each do |i|
++      case i[0]
++        when :action
++          action = Action.new()
++          action.parse(i[1..-1])
++          @actions[action.name] = action
++          if @actions.default == nil || action.name == "default":
++            @actions.default = action
++          end
++        else
++          print "Unknown symbol '#{i[0]}' in sprite '#{filename}'"
++      end
++    end
++  end
++
++  class Action
++    attr_accessor :name, :image, :x_offset, :y_offset
++  
++    def parse(sexpr)
++      @name = get_value_from_tree(["name", "_"], sexpr, "default")
++      @x_offset = get_value_from_tree(["x-offset", "_"], sexpr, 0)
++      @y_offset = get_value_from_tree(["y-offset", "_"], sexpr, 0)
++      # we only parse the first image for now as we don't have support for
++      # animation in flexlay anyway
++      @image = get_value_from_tree(["images", "_"], sexpr, 0)
++    end
++  end
++
++  def get_cl_sprite(action = "default")
++    action = @actions[action]
++    sprite = make_sprite(@basedir + action.image)
++    sprite.set_frame_offset(0, CL_Point.new(action.x_offset, action.y_offset))
++    return sprite
++  end
++end
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/supertux.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -105,6 +105,8 @@
+ require "tileset.rb"
+ require "level.rb"
+ require "sector.rb"
++require "sprite.rb"
++require "util.rb"
+ 
+ $tileset = Tileset.new(32)
+ $tileset.load($datadir + "images/tiles.strf")
+
+Modified: trunk/supertux/tileset.rb
+===================================================================
+--- trunk/supertux/tileset.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/tileset.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -21,11 +21,7 @@
+ 
+   def load(filename)
+     puts "Loading Tileset: #{filename}"
+-    tree = sexpr_read_from_file(filename)
+-    if tree == nil then
+-      puts "Error; Couldn't load: ", filename
+-      return 
+-    end
++    tree = load_lisp(filename, :"supertux-tiles")
+ 
+     tree = tree[1..-1]
+     counter = 0
+
+Added: trunk/supertux/util.rb
+===================================================================
+--- trunk/supertux/util.rb	2006-01-21 10:35:47 UTC (rev 619)
++++ trunk/supertux/util.rb	2006-01-21 11:53:09 UTC (rev 620)
+@@ -0,0 +1,27 @@
++# Convenience function that loads a lisp file from disk and checks for a
++# root symbol
++def load_lisp(filename, root_symbol)
++  tree = sexpr_read_from_file(filename)
++  if tree == nil then
++    raise "Error: Couldn't load '#{filename}'"
++  end
++
++  if tree[0] != root_symbol then
++    raise "Error: '#{filename}' is not a '#{root_symbol}' file"
++  end
++
++  return tree
++end
++
++def load_cl_sprite(filename)
++  if filename[-4..-1] == ".png"
++    sprite = make_sprite(filename)
++  elsif filename[-7..-1] == ".sprite"
++    supertux_sprite = Sprite.new(filename)
++    sprite = supertux_sprite.get_cl_sprite()
++  else
++    raise "Unsupported sprite format '#{spritefile}'"
++  end
++  
++  return sprite
++end
+
+
+
+From matzebraun at berlios.de  Sat Jan 21 12:56:16 2006
+From: matzebraun at berlios.de (matzebraun at BerliOS)
+Date: Sat, 21 Jan 2006 12:56:16 +0100
+Subject: [Flexlay-commit] r621 - trunk/supertux
+Message-ID: <200601211156.k0LBuGBx017933@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2006-01-21 12:56:10 +0100 (Sat, 21 Jan 2006)
+New Revision: 621
+
+Modified:
+   trunk/supertux/supertux-worldmap.rb
+Log:
+fix worldmap editor
+
+Modified: trunk/supertux/supertux-worldmap.rb
+===================================================================
+--- trunk/supertux/supertux-worldmap.rb	2006-01-21 11:53:09 UTC (rev 620)
++++ trunk/supertux/supertux-worldmap.rb	2006-01-21 11:56:10 UTC (rev 621)
+@@ -49,11 +49,13 @@
+ require "flexlay.rb"
+ require "gameobj.rb"
+ require "sexpr.rb"
++require "sprite.rb"
++require "util.rb"
+ 
+ flexlay = Flexlay.new()
+ width = 1024
+ height = 768
+-flexlay.init(width, height)
++flexlay.init("SuperTux Worldmap Editor", width, height)
+ 
+ # Tools
+ $tilemap_paint_tool  = TileMapPaintTool.new()
+
+
+
+From matzebraun at berlios.de  Sat Jan 21 13:31:27 2006
+From: matzebraun at berlios.de (matzebraun at BerliOS)
+Date: Sat, 21 Jan 2006 13:31:27 +0100
+Subject: [Flexlay-commit] r622 - trunk/supertux
+Message-ID: <200601211231.k0LCVR0w004107@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2006-01-21 13:31:25 +0100 (Sat, 21 Jan 2006)
+New Revision: 622
+
+Modified:
+   trunk/supertux/sector.rb
+Log:
+preserve initscripts
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2006-01-21 11:56:10 UTC (rev 621)
++++ trunk/supertux/sector.rb	2006-01-21 12:31:25 UTC (rev 622)
+@@ -144,6 +144,7 @@
+   def load_v2(data)
+     @name = "<No Name>"
+     @music = ""
++    @init_script = ""
+     @gravity = 10.0
+     @cameramode = "normal"
+     
+@@ -165,6 +166,8 @@
+         @gravity = data[0]
+       elsif name == :music
+ 	@music = data[0]
++      elsif name == :"init-script"
++        @init_script = data[0]
+       elsif name == :tilemap
+ 	layer   = get_value_from_tree(["layer", "_"], data, "interactive")
+         width   = get_value_from_tree(["width", "_"],  data, 20)
+@@ -245,10 +248,13 @@
+   end
+ 
+   def save(f)   
+-    f.write("    (name  \"%s\")\n"  % @name)
++    f.write("    (name  \"#{@name}\")\n"  % @name)
+     if(@music != "")
+-        f.write("    (music  \"%s\")\n" % @music)
++      f.write("    (music  \"#{@music}\")\n" % @music)
+     end
++    if(@init_script != "")
++      f.write("    (init-script \"#{@init_script}\")\n")
++    end
+     f.write("    (gravity %f)\n" % @gravity)
+     
+     save_tilemap(f, @background,  "background")
+
+
+
+From matzebraun at berlios.de  Sat Jan 21 15:12:45 2006
+From: matzebraun at berlios.de (matzebraun at BerliOS)
+Date: Sat, 21 Jan 2006 15:12:45 +0100
+Subject: [Flexlay-commit] r623 - trunk/lib
+Message-ID: <200601211412.k0LECjpg012673@sheep.berlios.de>
+
+Author: matzebraun
+Date: 2006-01-21 15:12:45 +0100 (Sat, 21 Jan 2006)
+New Revision: 623
+
+Modified:
+   trunk/lib/clanlib.i
+Log:
+forgot to commit?
+
+Modified: trunk/lib/clanlib.i
+===================================================================
+--- trunk/lib/clanlib.i	2006-01-21 12:31:25 UTC (rev 622)
++++ trunk/lib/clanlib.i	2006-01-21 14:12:45 UTC (rev 623)
+@@ -39,17 +39,6 @@
+ 	float y;
+ };
+         
+-class CL_Sprite
+-{
+-public:
+-CL_Sprite(      
+-	        	const std::string &resource_id,
+-		        CL_ResourceManager *manager);
+-	void set_scale(float x, float y);
+-
+-};
+-
+-
+ class CL_Point
+ {
+ public:
+@@ -120,6 +109,17 @@
+ 	unsigned int get_alpha();
+ };
+ 
++class CL_Sprite
++{
++public:
++CL_Sprite(      
++	const std::string &resource_id, CL_ResourceManager *manager);
++	void set_scale(float x, float y);
++
++        CL_Point get_frame_offset(int frame);
++        void set_frame_offset(int frame, CL_Point offset);
++};
++
+ class CL_Window : public CL_Component
+ {
+ private:
+
+
+

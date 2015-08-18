@@ -1,0 +1,3091 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r635 - in trunk: . lib lib/tools ruby supertux
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r635%20-%20in%20trunk%3A%20.%20lib%20lib/tools%20ruby%20supertux&In-Reply-To=%3C200607110313.k6B3DQph030739%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000130.html">
+   <LINK REL="Next"  HREF="000133.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r635 - in trunk: . lib lib/tools ruby supertux</H1>
+    <B>grumbel at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r635%20-%20in%20trunk%3A%20.%20lib%20lib/tools%20ruby%20supertux&In-Reply-To=%3C200607110313.k6B3DQph030739%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r635 - in trunk: . lib lib/tools ruby supertux">grumbel at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 05:13:26 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000130.html">[Flexlay-commit] r634 - trunk/clanlib/Core/IOData/Generic
+</A></li>
+        <LI>Next message: <A HREF="000133.html">[Flexlay-commit] r636 - in trunk: . clanlib lib lib/tools ruby supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#132">[ date ]</a>
+              <a href="thread.html#132">[ thread ]</a>
+              <a href="subject.html#132">[ subject ]</a>
+              <a href="author.html#132">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2006-07-11 05:13:18 +0200 (Tue, 11 Jul 2006)
+New Revision: 635
+
+Added:
+   trunk/lib/SConscript
+   trunk/lib/tools/
+   trunk/lib/tools/layer_move_tool.cxx
+   trunk/lib/tools/layer_move_tool.hxx
+   trunk/lib/tools/objmap_select_tool.cxx
+   trunk/lib/tools/objmap_select_tool.hxx
+   trunk/lib/tools/sketch_stroke_tool.cxx
+   trunk/lib/tools/sketch_stroke_tool.hxx
+   trunk/lib/tools/tilemap_paint_tool.cxx
+   trunk/lib/tools/tilemap_paint_tool.hxx
+   trunk/lib/tools/tilemap_select_tool.cxx
+   trunk/lib/tools/tilemap_select_tool.hxx
+   trunk/lib/tools/tool.cxx
+   trunk/lib/tools/tool.hxx
+   trunk/lib/tools/tool_impl.hxx
+   trunk/lib/tools/workspace_move_tool.cxx
+   trunk/lib/tools/workspace_move_tool.hxx
+   trunk/lib/tools/zoom_tool.cxx
+   trunk/lib/tools/zoom_tool.hxx
+   trunk/ruby/SConscript
+Removed:
+   trunk/lib/SConstruct
+   trunk/lib/layer_move_tool.cxx
+   trunk/lib/layer_move_tool.hxx
+   trunk/lib/objmap_select_tool.cxx
+   trunk/lib/objmap_select_tool.hxx
+   trunk/lib/sketch_stroke_tool.cxx
+   trunk/lib/sketch_stroke_tool.hxx
+   trunk/lib/tilemap_paint_tool.cxx
+   trunk/lib/tilemap_paint_tool.hxx
+   trunk/lib/tilemap_select_tool.cxx
+   trunk/lib/tilemap_select_tool.hxx
+   trunk/lib/tool.cxx
+   trunk/lib/tool.hxx
+   trunk/lib/tool_impl.hxx
+   trunk/lib/workspace_move_tool.cxx
+   trunk/lib/workspace_move_tool.hxx
+   trunk/lib/zoom_tool.cxx
+   trunk/lib/zoom_tool.hxx
+   trunk/ruby/SConstruct
+Modified:
+   trunk/SConstruct
+   trunk/lib/bitmap_layer.cxx
+   trunk/lib/editor_map.cxx
+   trunk/lib/editor_map.hxx
+   trunk/lib/editor_map_component.cxx
+   trunk/lib/flexlay_wrap.i
+   trunk/lib/minimap.cxx
+   trunk/lib/object_brush.cxx
+   trunk/lib/sketch_layer.cxx
+   trunk/lib/tile_selector.cxx
+   trunk/lib/workspace.cxx
+   trunk/lib/workspace.hxx
+   trunk/ruby/ruby_meta_data.cxx
+   trunk/supertux/WorldMap.rb
+   trunk/supertux/data.rb
+   trunk/supertux/gui.rb
+   trunk/supertux/level.rb
+   trunk/supertux/sector.rb
+   trunk/supertux/supertux.rb
+Log:
+- moved tools into seperate directory
+- fixed undo in supertux editor
+- made tools bind to a single button, instead of the whole mouse
+
+Modified: trunk/SConstruct
+===================================================================
+--- trunk/SConstruct	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/SConstruct	2006-07-11 03:13:18 UTC (rev 635)
+@@ -20,8 +20,8 @@
+ Export('clanLib_env')
+ 
+ SConscript(['clanlib/SConstruct'])
+-SConscript(['lib/SConstruct'])
+-SConscript(['ruby/SConstruct'])
++SConscript(['lib/SConscript'])
++SConscript(['ruby/SConscript'])
+ SConscript(['supertux/SConstruct'])
+ SConscript(['netpanzer/SConstruct'])
+ 
+
+Copied: trunk/lib/SConscript (from rev 633, trunk/lib/SConstruct)
+===================================================================
+--- trunk/lib/SConstruct	2006-07-05 05:15:07 UTC (rev 633)
++++ trunk/lib/SConscript	2006-07-11 03:13:18 UTC (rev 635)
+@@ -0,0 +1,154 @@
++## -*- mode: python -*-
++##  $Id$
++##
++##  Flexlay - A Generic 2D Game Editor
++##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
++##
++##  This program is free software; you can redistribute it and/or
++##  modify it under the terms of the GNU General Public License
++##  as published by the Free Software Foundation; either version 2
++##  of the License, or (at your option) any later version.
++##
++##  This program is distributed in the hope that it will be useful,
++##  but WITHOUT ANY WARRANTY; without even the implied warranty of
++##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++##  GNU General Public License for more details.
++##
++##  You should have received a copy of the GNU General Public License
++##  along with this program; if not, write to the Free Software
++##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++
++import os
++import glob
++
++Import('clanLib_env')
++
++opts = Options('custom.py')
++opts.Add('CXX', 'The C++ compiler.', 'g++')
++opts.Add('CXXFLAGS', 'The C++ compiler flags.', ['-g3', '-O0', '-Wall', '-fPIC'])
++opts.Add('CPPPATH', 'additional header path', '')
++opts.Add('LIBPATH', 'additional library path', '')
++
++opts.Add('DESTDIR', 'destination directory which gets appended to PREFIX', '')
++opts.Add('PREFIX',  'PREFIX, ie. /usr/local', '/usr/local')
++
++env = Environment(SHLIBPREFIX='',
++                  ENV = os.environ,
++                  options=opts)
++Help(opts.GenerateHelpText(env))
++
++#env.Program('sharedptrtest', 'sharedptrtest.cxx',
++#            CPPPATH=['/home/ingo/run/ClanLib-0.8-current/include/ClanLib-0.8/'])
++
++# env.Program('simpleed',
++#             ['simpleed.cxx'],
++#             CPPPATH=['.', 
++#                     '/home/ingo/run/ClanLib-0.8-current//include/ClanLib-0.8/'],
++#            LIBPATH=['.', '/home/ingo/run/ClanLib-0.8-current//lib/'],
++#            LIBS=['flexlay'])
++
++libflexlay_env = env.Copy()
++flexlay_lib = libflexlay_env.StaticLibrary(
++    target = 'libflexlay.a',
++    source = [
++    'blitter.cxx',
++    'box.cxx',
++    'brush.cxx',
++    'generated_brush.cxx',
++    'brushmask.cxx',
++    'command_group.cxx',
++    'command.cxx',
++    'console.cxx',
++    'colorpicker.cxx',
++    'drawer_properties.cxx',
++    'editor_map.cxx',
++    'editor_map_component.cxx',
++    'flexlay.cxx',
++    'globals.cxx',
++    'layer.cxx',
++    'helper.cxx', 
++    'graphic_context_state.cxx',
++    'gui_manager.cxx',
++    'icon.cxx',
++    'directory_view.cxx',
++    'fonts.cxx',
++    'minimap.cxx',
++    'meta_data.cxx',
++    'onion_skin_layer.cxx',
++    'object_layer.cxx',
++    'object_add_command.cxx',
++    'object_brush.cxx',
++    'object_delete_command.cxx',
++    'object_move_command.cxx',
++    'object_selector.cxx',
++    'object_transform_command.cxx',
++    'objmap_object.cxx',
++    'objmap_path_node.cxx',
++    'objmap_object_impl.cxx',
++    'objmap_sprite_object.cxx',
++    'objmap_control_point.cxx',
++    'objmap_rect_object.cxx',
++    'paint_command.cxx',
++    'panel.cxx',
++    'menu.cxx',
++    'menubar.cxx',
++    'popup_menu.cxx',
++    'lispreader.cxx',
++    'bitmap_layer.cxx',
++    'sketch_layer.cxx',
++    'stroke.cxx',
++    'stroke_drawer.cxx',
++    'sprite_stroke_drawer.cxx',
++    'sprite_brush.cxx',
++    'marker_stroke_drawer.cxx',
++    'slider.cxx', 
++    'scrollbar.cxx',
++    'tile.cxx',
++    'titlebar.cxx',
++    'tile_brush.cxx',
++    'tile_provider.cxx',
++    'tile_editor.cxx',
++    'tile_selection.cxx',
++    'tile_selector.cxx',
++    'tilemap_layer.cxx',
++    'tileset.cxx',
++    'workspace.cxx',
++    'window.cxx',
++    'viewport.cxx',
++
++    'tools/tool.cxx',
++    'tools/tilemap_paint_tool.cxx',
++    'tools/tilemap_select_tool.cxx',
++    'tools/sketch_stroke_tool.cxx',
++    'tools/objmap_select_tool.cxx',
++    'tools/layer_move_tool.cxx',
++    'tools/workspace_move_tool.cxx',
++    'tools/zoom_tool.cxx'
++    ],
++    CPPPATH = ['.', '..'] + clanLib_env['CPPPATH'],
++    CXXFLAGS  = env['CXXFLAGS'] + clanLib_env['CCFLAGS'],
++    LINKFLAGS = clanLib_env['LINKFLAGS'],
++    LIBPATH=['$USER_LIBPATH'] + clanLib_env['LIBPATH'],
++    LIBS = clanLib_env['LIBS'])
++
++flexlay_data = \
++             glob.glob('../data/images/files/*.png') + \
++             glob.glob('../data/images/fonts/*.png') + \
++             glob.glob('../data/images/icons16/*.png') + \
++             glob.glob('../data/images/icons24/*.png') + \
++             glob.glob('../data/gui/gui.xml')    + \
++             glob.glob('../data/gui/*/*.tga')    + \
++             glob.glob('../data/gui/*/*.png')    + \
++             glob.glob('../data/*.xml')
++
++flexlay_headers = glob.glob('*.hxx')
++
++flexlay_datadir = env['DESTDIR'] + env['PREFIX'] + '/share/flexlay'
++
++install_lib     = env.Alias('install_lib', Install(env['DESTDIR'] + env['PREFIX'] + '/lib', flexlay_lib))
++install_headers = env.Alias('install_headers', Install(env['DESTDIR'] + env['PREFIX'] + '/include/flexlay', flexlay_headers))
++install_data    = env.Alias('install_data', InstallAs([os.path.join(flexlay_datadir, i[8:]) for i in flexlay_data],
++                                                      flexlay_data))
++env.Alias('install', [install_data, install_lib, install_headers])
++
++# EOF #
+
+Deleted: trunk/lib/SConstruct
+===================================================================
+--- trunk/lib/SConstruct	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/SConstruct	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,152 +0,0 @@
+-## -*- mode: python -*-
+-##  $Id$
+-##
+-##  Flexlay - A Generic 2D Game Editor
+-##  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-##
+-##  This program is free software; you can redistribute it and/or
+-##  modify it under the terms of the GNU General Public License
+-##  as published by the Free Software Foundation; either version 2
+-##  of the License, or (at your option) any later version.
+-##
+-##  This program is distributed in the hope that it will be useful,
+-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-##  GNU General Public License for more details.
+-##
+-##  You should have received a copy of the GNU General Public License
+-##  along with this program; if not, write to the Free Software
+-##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-import os
+-import glob
+-
+-Import('clanLib_env')
+-
+-opts = Options('custom.py')
+-opts.Add('CXX', 'The C++ compiler.', 'g++')
+-opts.Add('CXXFLAGS', 'The C++ compiler flags.', ['-g3', '-O0', '-Wall', '-fPIC'])
+-opts.Add('CPPPATH', 'additional header path', '')
+-opts.Add('LIBPATH', 'additional library path', '')
+-
+-opts.Add('DESTDIR', 'destination directory which gets appended to PREFIX', '')
+-opts.Add('PREFIX',  'PREFIX, ie. /usr/local', '/usr/local')
+-
+-env = Environment(SHLIBPREFIX='',
+-                  ENV = os.environ,
+-                  options=opts)
+-Help(opts.GenerateHelpText(env))
+-
+-#env.Program('sharedptrtest', 'sharedptrtest.cxx',
+-#            CPPPATH=['/home/ingo/run/ClanLib-0.8-current/include/ClanLib-0.8/'])
+-
+-# env.Program('simpleed',
+-#             ['simpleed.cxx'],
+-#             CPPPATH=['.', 
+-#                     '/home/ingo/run/ClanLib-0.8-current//include/ClanLib-0.8/'],
+-#            LIBPATH=['.', '/home/ingo/run/ClanLib-0.8-current//lib/'],
+-#            LIBS=['flexlay'])
+-
+-libflexlay_env = env.Copy()
+-flexlay_lib = libflexlay_env.StaticLibrary(
+-    target = 'libflexlay.a',
+-    source = [
+-    'blitter.cxx',
+-    'box.cxx',
+-    'brush.cxx',
+-    'generated_brush.cxx',
+-    'brushmask.cxx',
+-    'command_group.cxx',
+-    'command.cxx',
+-    'console.cxx',
+-    'colorpicker.cxx',
+-    'drawer_properties.cxx',
+-    'editor_map.cxx',
+-    'editor_map_component.cxx',
+-    'flexlay.cxx',
+-    'globals.cxx',
+-    'layer.cxx',
+-    'layer_move_tool.cxx',
+-    'helper.cxx', 
+-    'graphic_context_state.cxx',
+-    'gui_manager.cxx',
+-    'icon.cxx',
+-    'directory_view.cxx',
+-    'fonts.cxx',
+-    'minimap.cxx',
+-    'meta_data.cxx',
+-    'onion_skin_layer.cxx',
+-    'object_layer.cxx',
+-    'object_add_command.cxx',
+-    'object_brush.cxx',
+-    'object_delete_command.cxx',
+-    'object_move_command.cxx',
+-    'object_selector.cxx',
+-    'object_transform_command.cxx',
+-    'objmap_object.cxx',
+-    'objmap_path_node.cxx',
+-    'objmap_object_impl.cxx',
+-    'objmap_select_tool.cxx',
+-    'objmap_sprite_object.cxx',
+-    'objmap_control_point.cxx',
+-    'objmap_rect_object.cxx',
+-    'paint_command.cxx',
+-    'panel.cxx',
+-    'menu.cxx',
+-    'menubar.cxx',
+-    'popup_menu.cxx',
+-    'lispreader.cxx',
+-    'bitmap_layer.cxx',
+-    'sketch_layer.cxx',
+-    'sketch_stroke_tool.cxx',
+-    'stroke.cxx',
+-    'stroke_drawer.cxx',
+-    'sprite_stroke_drawer.cxx',
+-    'sprite_brush.cxx',
+-    'marker_stroke_drawer.cxx',
+-    'slider.cxx', 
+-    'scrollbar.cxx',
+-    'tile.cxx',
+-    'titlebar.cxx',
+-    'tile_brush.cxx',
+-    'tile_provider.cxx',
+-    'tile_editor.cxx',
+-    'tile_selection.cxx',
+-    'tile_selector.cxx',
+-    'tilemap_paint_tool.cxx',
+-    'tilemap_select_tool.cxx',
+-    'tilemap_layer.cxx',
+-    'tileset.cxx',
+-    'workspace_move_tool.cxx',
+-    'tool.cxx',
+-    'workspace.cxx',
+-    'window.cxx',
+-    'viewport.cxx',
+-    'zoom_tool.cxx'],
+-    CPPPATH=['..'] + clanLib_env['CPPPATH'],
+-    CXXFLAGS  = env['CXXFLAGS'] + clanLib_env['CCFLAGS'],
+-    LINKFLAGS = clanLib_env['LINKFLAGS'],
+-    LIBPATH=['$USER_LIBPATH'] + clanLib_env['LIBPATH'],
+-    LIBS = clanLib_env['LIBS'])
+-
+-flexlay_data = \
+-             glob.glob('../data/images/files/*.png') + \
+-             glob.glob('../data/images/fonts/*.png') + \
+-             glob.glob('../data/images/icons16/*.png') + \
+-             glob.glob('../data/images/icons24/*.png') + \
+-             glob.glob('../data/gui/gui.xml')    + \
+-             glob.glob('../data/gui/*/*.tga')    + \
+-             glob.glob('../data/gui/*/*.png')    + \
+-             glob.glob('../data/*.xml')
+-
+-flexlay_headers = glob.glob('*.hxx')
+-
+-flexlay_datadir = env['DESTDIR'] + env['PREFIX'] + '/share/flexlay'
+-
+-install_lib     = env.Alias('install_lib', Install(env['DESTDIR'] + env['PREFIX'] + '/lib', flexlay_lib))
+-install_headers = env.Alias('install_headers', Install(env['DESTDIR'] + env['PREFIX'] + '/include/flexlay', flexlay_headers))
+-install_data    = env.Alias('install_data', InstallAs([os.path.join(flexlay_datadir, i[8:]) for i in flexlay_data],
+-                                                      flexlay_data))
+-env.Alias('install', [install_data, install_lib, install_headers])
+-
+-# EOF #
+
+Modified: trunk/lib/bitmap_layer.cxx
+===================================================================
+--- trunk/lib/bitmap_layer.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/bitmap_layer.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -31,7 +31,6 @@
+ #include &lt;ClanLib/Display/display_window.h&gt;
+ #include &quot;flexlay.hxx&quot;
+ #include &quot;editor_map_component.hxx&quot;
+-#include &quot;workspace.hxx&quot;
+ #include &quot;layer_impl.hxx&quot;
+ #include &quot;bitmap_layer.hxx&quot;
+ #include &quot;objmap_object_impl.hxx&quot;
+
+Modified: trunk/lib/editor_map.cxx
+===================================================================
+--- trunk/lib/editor_map.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/editor_map.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -57,15 +57,19 @@
+   CL_Rect bounding_rect;
+ };
+ 
+-EditorMap::EditorMap()
+-  : impl(new EditorMapImpl())
++EditorMap::EditorMap(bool create)
++  : impl(0)
+ {
+-  impl-&gt;background_color = CL_Color(100, 80, 100);
+-  impl-&gt;foreground_color = CL_Color(255, 80, 255);
+-  impl-&gt;modified = false;
+-  impl-&gt;serial = 0;
+-  impl-&gt;has_bounding_rect = false;
+-  impl-&gt;bounding_rect = CL_Rect(0,0,0,0);
++  if (create)
++    {
++      impl = new EditorMapImpl();
++      impl-&gt;background_color = CL_Color(100, 80, 100);
++      impl-&gt;foreground_color = CL_Color(255, 80, 255);
++      impl-&gt;modified = false;
++      impl-&gt;serial = 0;
++      impl-&gt;has_bounding_rect = false;
++      impl-&gt;bounding_rect = CL_Rect(0,0,0,0);
++    }
+ }
+ 
+ void
+
+Modified: trunk/lib/editor_map.hxx
+===================================================================
+--- trunk/lib/editor_map.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/editor_map.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -39,7 +39,7 @@
+ class EditorMap
+ {
+ public:
+-  EditorMap();
++  EditorMap(bool create = false);
+ 
+   /** FIXME: EditorMapComponent parameter shouldn't really be here */
+   void draw(EditorMapComponent* parent, CL_GraphicContext* gc);
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/editor_map_component.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -44,6 +44,10 @@
+   Workspace workspace;
+   CL_Signal_v2&lt;int, int&gt; key_bindings[256];
+ 
++  EditorMapComponentImpl()
++    :workspace(true) 
++  {}
++
+   void draw();
+   void mouse_up  (const CL_InputEvent&amp; event);
+   void mouse_down(const CL_InputEvent&amp; event);
+@@ -58,7 +62,6 @@
+ {
+   impl-&gt;parent = this;
+   impl-&gt;gc_state  = GraphicContextState(rect.get_width(), rect.get_height());
+-  impl-&gt;workspace = Workspace();
+ 
+   current_ = this;
+ 
+
+Modified: trunk/lib/flexlay_wrap.i
+===================================================================
+--- trunk/lib/flexlay_wrap.i	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/flexlay_wrap.i	2006-07-11 03:13:18 UTC (rev 635)
+@@ -58,8 +58,9 @@
+ #include &quot;scrollbar.hxx&quot;
+ #include &quot;graphic_context_state.hxx&quot;
+  
+-#include &quot;layer_move_tool.hxx&quot;
+-#include &quot;sketch_stroke_tool.hxx&quot;
++#include &quot;tools/workspace_move_tool.hxx&quot;
++#include &quot;tools/layer_move_tool.hxx&quot;
++#include &quot;tools/sketch_stroke_tool.hxx&quot;
+ #include &quot;sketch_layer.hxx&quot;
+ #include &quot;bitmap_layer.hxx&quot;
+ #include &quot;stroke.hxx&quot;
+@@ -74,13 +75,13 @@
+ 
+ #include &quot;colorpicker.hxx&quot;
+ #include &quot;slider.hxx&quot;
+-#include &quot;tilemap_paint_tool.hxx&quot;
+-#include &quot;tilemap_select_tool.hxx&quot;
+-#include &quot;objmap_select_tool.hxx&quot;
++#include &quot;tools/tilemap_paint_tool.hxx&quot;
++#include &quot;tools/tilemap_select_tool.hxx&quot;
++#include &quot;tools/objmap_select_tool.hxx&quot;
+ #include &quot;objmap_sprite_object.hxx&quot;
+ #include &quot;objmap_rect_object.hxx&quot;
+ #include &quot;objmap_object.hxx&quot;
+-#include &quot;zoom_tool.hxx&quot;
++#include &quot;tools/zoom_tool.hxx&quot;
+ #include &quot;objmap_path_node.hxx&quot;
+ 
+ // #include &quot;netpanzer.hxx&quot; 
+@@ -170,8 +171,9 @@
+ %include &quot;menubar.hxx&quot;
+ %include &quot;scrollbar.hxx&quot;
+ 
+-%include &quot;layer_move_tool.hxx&quot;
+-%include &quot;sketch_stroke_tool.hxx&quot;
++%include &quot;tools/workspace_move_tool.hxx&quot;
++%include &quot;tools/layer_move_tool.hxx&quot;
++%include &quot;tools/sketch_stroke_tool.hxx&quot;
+ %include &quot;sketch_layer.hxx&quot;
+ %include &quot;bitmap_layer.hxx&quot;
+ %include &quot;stroke.hxx&quot;
+@@ -186,13 +188,13 @@
+ 
+ %include &quot;colorpicker.hxx&quot;
+ %include &quot;slider.hxx&quot;
+-%include &quot;tilemap_paint_tool.hxx&quot;
+-%include &quot;tilemap_select_tool.hxx&quot;
+-%include &quot;objmap_select_tool.hxx&quot;
++%include &quot;tools/tilemap_paint_tool.hxx&quot;
++%include &quot;tools/tilemap_select_tool.hxx&quot;
++%include &quot;tools/objmap_select_tool.hxx&quot;
+ %include &quot;objmap_sprite_object.hxx&quot;
+ %include &quot;objmap_rect_object.hxx&quot;
+ %include &quot;objmap_object.hxx&quot;
+-%include &quot;zoom_tool.hxx&quot; 
++%include &quot;tools/zoom_tool.hxx&quot; 
+ %include &quot;graphic_context_state.hxx&quot;
+ %include &quot;objmap_path_node.hxx&quot;
+ # %include &quot;scripting/editor.hxx&quot;
+@@ -205,6 +207,6 @@
+ %include &quot;../ruby/ruby_sexpr_parser.hxx&quot;
+ #endif
+ 
+-// 3
++// 5
+ 
+ /* EOF */
+
+Deleted: trunk/lib/layer_move_tool.cxx
+===================================================================
+--- trunk/lib/layer_move_tool.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/layer_move_tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,133 +0,0 @@
+-//  $Id$
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#include &lt;ClanLib/Core/Math/point.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;workspace.hxx&quot;
+-#include &quot;tool_impl.hxx&quot;
+-#include &quot;editor_map_component.hxx&quot;
+-#include &quot;editor_map.hxx&quot;
+-#include &quot;layer.hxx&quot;
+-#include &quot;layer_move_tool.hxx&quot;
+-
+-class LayerMoveToolImpl : public ToolImpl
+-{
+-public:
+-  bool scrolling;
+-  CL_Pointf click_pos;
+-
+-  /** Position of the center */
+-  CL_Pointf old_trans_offset;
+-  Layer layer;
+-  
+-  Layer find_closed_layer(const CL_Pointf&amp; pos)
+-  {
+-    Layer layer; 
+-
+-    EditorMap parent = EditorMapComponent::current()-&gt;get_workspace().get_map();
+-
+-    for(int i = 0; i &lt; parent.get_layer_count(); ++i)
+-      {
+-        if (parent.get_layer(i).get_bounding_rect().is_inside(CL_Point(pos)))
+-          layer = parent.get_layer(i);
+-      }
+-
+-    return layer;
+-  }
+-
+-  void draw() 
+-  {
+-    for(int i = 0; i &lt; EditorMapComponent::current()-&gt;get_workspace().get_map().get_layer_count(); ++i)
+-      {
+-        Layer layer = EditorMapComponent::current()-&gt;get_workspace().get_map().get_layer(i);
+-        if (layer.has_bounding_rect())
+-          {
+-            CL_Rect rect = layer.get_bounding_rect();
+-            CL_Display::draw_line(rect.left, rect.top, rect.right, rect.bottom,
+-                                  CL_Color(0, 255, 255));
+-            CL_Display::draw_line(rect.left, rect.bottom, rect.right, rect.top,
+-                                  CL_Color(0, 255, 255));
+-          }
+-      }
+-  }
+-
+-  void on_mouse_up  (const CL_InputEvent&amp; event) 
+-  {
+-    if (!layer.is_null())
+-      {
+-        scrolling = false;
+-        update(event);
+-        EditorMapComponent::current()-&gt;release_mouse();
+-        layer = Layer();
+-      }
+-  }
+-
+-  void on_mouse_down(const CL_InputEvent&amp; event)
+-  {
+-    EditorMapComponent* parent = EditorMapComponent::current();
+-    CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
+-
+-    layer = find_closed_layer(pos);
+-    if (!layer.is_null())
+-      {
+-        scrolling = true;
+-        old_trans_offset = layer.get_pos();
+-        click_pos = pos;
+-        EditorMapComponent::current()-&gt;capture_mouse();
+-      }
+-  }
+-
+-  void on_mouse_move(const CL_InputEvent&amp; event)
+-  {
+-    if (!layer.is_null())
+-      {
+-        if (scrolling)
+-          {
+-            update(event);
+-          }
+-      }    
+-  }
+-
+-  void update(const CL_InputEvent&amp; event)
+-  {
+-    if (!layer.is_null())
+-      {
+-        EditorMapComponent* parent = EditorMapComponent::current();
+-        CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
+-        layer.set_pos(old_trans_offset + (pos - click_pos));
+-      }
+-  }
+-};
+-
+-LayerMoveTool::LayerMoveTool()
+-  : impl(new LayerMoveToolImpl())
+-{
+-  impl-&gt;scrolling = false;
+-  impl-&gt;click_pos = CL_Point(0, 0);
+-  impl-&gt;old_trans_offset = CL_Pointf(0,0);
+-}
+-
+-Tool
+-LayerMoveTool::to_tool()
+-{
+-  return Tool(impl);
+-}
+-
+-/* EOF */
+-
+
+Deleted: trunk/lib/layer_move_tool.hxx
+===================================================================
+--- trunk/lib/layer_move_tool.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/layer_move_tool.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,40 +0,0 @@
+-//  $Id$
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2004 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_LAYER_MOVE_TOOL_HXX
+-#define HEADER_LAYER_MOVE_TOOL_HXX
+-
+-#include &quot;tool.hxx&quot;
+-
+-class LayerMoveToolImpl;
+-
+-/** */
+-class LayerMoveTool : public Tool
+-{
+-public:
+-  LayerMoveTool();
+-
+-  Tool to_tool();
+-private:
+-  SharedPtr&lt;LayerMoveToolImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/lib/minimap.cxx
+===================================================================
+--- trunk/lib/minimap.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/minimap.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -41,6 +41,9 @@
+   EditorMapComponent* parent;
+   CL_Surface minimap_surface;
+ 
++  MinimapImpl() 
++    : editor_map(false)
++  {}
+   void update_minimap_surface();
+ };
+ 
+
+Modified: trunk/lib/object_brush.cxx
+===================================================================
+--- trunk/lib/object_brush.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/object_brush.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -22,7 +22,6 @@
+ #include &quot;objmap_sprite_object.hxx&quot;
+ #include &quot;object_brush.hxx&quot;
+ #include &quot;editor_map.hxx&quot;
+-#include &quot;workspace.hxx&quot;
+ 
+ class ObjectBrushImpl
+ {
+
+Deleted: trunk/lib/objmap_select_tool.cxx
+===================================================================
+--- trunk/lib/objmap_select_tool.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/objmap_select_tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,325 +0,0 @@
+-//  $Id: tilemap_object_tool.cxx,v 1.1 2003/09/23 22:10:40 grumbel Exp $
+-//
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#include &lt;algorithm&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/Display/keyboard.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;editor_map_component.hxx&quot;
+-#include &quot;editor_map.hxx&quot;
+-#include &quot;editor_map_component.hxx&quot;
+-#include &quot;gui_manager.hxx&quot;
+-#include &quot;editor_names.hxx&quot;
+-#include &quot;popup_menu.hxx&quot;
+-#include &quot;objmap_object.hxx&quot;
+-#include &quot;objmap_control_point.hxx&quot;
+-#include &quot;object_move_command.hxx&quot;
+-#include &quot;object_delete_command.hxx&quot;
+-#include &quot;tool_impl.hxx&quot;
+-#include &quot;objmap_select_tool.hxx&quot;
+-
+-class ObjMapSelectToolImpl : public ToolImpl
+-{
+-public:
+-  CL_Signal_v1&lt;CL_Menu*&gt; on_popup_menu_display;
+-  CL_Signal_v2&lt;int, int&gt; on_right_click;
+-
+-  enum { DRAG, SELECT, NONE } state;
+-
+-  /** the position on which the object was clicked, relative to the
+-      object */
+-  CL_Pointf offset;
+-
+-  CL_Pointf drag_start;
+-  CL_Rectf selection_rect;
+-
+-  ObjMapControlPoint control_point;
+-  ObjMapSelectTool::Selection selection;
+-  ObjectMoveCommand*   move_command;
+-  ObjectDeleteCommand* delete_command;
+-
+-  void draw();
+-
+-  void on_mouse_up  (const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-
+-  void on_selection_change();
+-};
+-
+-ObjMapSelectTool::ObjMapSelectTool()
+-  : impl(new ObjMapSelectToolImpl())
+-{
+-  impl-&gt;state = ObjMapSelectToolImpl::NONE;
+-  impl-&gt;offset = CL_Pointf(0, 0);
+-  impl-&gt;move_command = 0;
+-}
+-
+-ObjMapSelectTool::~ObjMapSelectTool()
+-{
+-}
+- 
+-void
+-ObjMapSelectTool::clear_selection()
+-{
+-  impl-&gt;selection.clear(); 
+-  impl-&gt;on_selection_change();
+-}
+-
+-ObjMapSelectTool::Selection
+-ObjMapSelectTool::get_selection() const 
+-{ 
+-  return impl-&gt;selection;
+-}
+-
+-void
+-ObjMapSelectTool::set_selection(const Selection&amp; sel) 
+-{ 
+-  impl-&gt;selection = sel; 
+-}
+-
+-CL_Signal_v1&lt;CL_Menu*&gt;&amp; 
+-ObjMapSelectTool::sig_on_popup_menu_display()
+-{
+-  return impl-&gt;on_popup_menu_display; 
+-}
+-
+-CL_Signal_v2&lt;int, int&gt;&amp;
+-ObjMapSelectTool::sig_on_right_click()
+-{
+-  return impl-&gt;on_right_click;
+-}
+-
+-void
+-ObjMapSelectToolImpl::draw()
+-{
+-  for (ObjMapSelectTool::Selection::iterator i = selection.begin(); i != selection.end(); ++i)
+-    {
+-      //      (*i).draw();
+-      CL_Display::draw_rect((*i).get_bound_rect(), CL_Color(255, 0, 0));
+-    }
+-
+-  switch(state)
+-    {
+-    case DRAG:
+-      break;
+-    case SELECT:
+-      CL_Display::draw_rect(selection_rect,
+-                            CL_Color(255, 255, 255));
+-      break;
+-    default:
+-      break;
+-    }
+-}
+-
+-void
+-ObjMapSelectToolImpl::on_mouse_up(const CL_InputEvent&amp; event)
+-{
+-  ObjectLayer objmap = ObjectLayer::current();
+-
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-
+-  CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
+-
+-  switch (event.id)
+-    {
+-    case CL_MOUSE_LEFT:
+-      switch(state)
+-        {
+-        case DRAG:
+-          if (move_command)
+-            {
+-              Workspace::current().get_map().execute(move_command-&gt;to_command());
+-              move_command = 0;
+-            }
+-          state = NONE;
+-          parent-&gt;release_mouse();
+-          break;
+-
+-        case SELECT:
+-          state = NONE;
+-          
+-          selection_rect.right  = pos.x;
+-          selection_rect.bottom = pos.y;
+-          selection_rect.normalize();
+-
+-          selection = objmap.get_selection(selection_rect);
+-          on_selection_change();
+-          parent-&gt;release_mouse();
+-          break;
+-
+-        default:
+-          break;
+-        }
+-      break;
+-
+-    case CL_MOUSE_RIGHT:
+-      {
+-        on_right_click(event.mouse_pos.x + parent-&gt;get_screen_rect().left,
+-                       event.mouse_pos.y + parent-&gt;get_screen_rect().top);
+-        /*
+-        PopupMenu* menu = new PopupMenu(CL_Point(event.mouse_pos.x + parent-&gt;get_screen_rect().left,
+-                                                 event.mouse_pos.y + parent-&gt;get_screen_rect().top), 
+-                                        GUIManager::current()-&gt;get_component());
+-
+-                                        on_popup_menu_display(menu-&gt;get_menu());*/
+-      }
+-      break;
+-    }
+-}
+-
+-void
+-ObjMapSelectToolImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  ObjectLayer objmap = ObjectLayer::current();
+-
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-  CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
+-      
+-  switch (event.id)
+-    {
+-    case CL_MOUSE_LEFT:
+-      switch(state)
+-        {
+-        default:
+-          control_point = objmap.find_control_point(pos);
+-
+-          if (!control_point.is_null())
+-            {
+-              state = DRAG;
+-              parent-&gt;capture_mouse();
+-              offset = pos - control_point.get_pos();
+-              drag_start = pos;
+-            }
+-          else
+-            {
+-              ObjMapObject obj = objmap.find_object(pos);
+-
+-              if (!obj.is_null())
+-                {
+-                  if (CL_Keyboard::get_keycode(CL_KEY_LSHIFT))
+-                    {
+-                      ObjMapSelectTool::Selection::iterator i
+-                        = std::find(selection.begin(), selection.end(), obj);
+-                      if (i == selection.end())
+-                        selection.push_back(obj);
+-                      else
+-                        selection.erase(i);
+-
+-                      on_selection_change();
+-                    }
+-                  else
+-                    {
+-                      state = DRAG;
+-                      parent-&gt;capture_mouse();
+-                      offset = pos - obj.get_pos();
+-                      drag_start = pos;
+-
+-                      if (std::find(selection.begin(), selection.end(), obj) == selection.end())
+-                        { // Clicked object is not in the selection, so we add it
+-                          selection.clear();
+-                          objmap.delete_control_points();
+-                          selection.push_back(obj);
+-                          on_selection_change();
+-                        }
+-
+-                      move_command = new ObjectMoveCommand(objmap);
+-                      for (ObjMapSelectTool::Selection::iterator i = selection.begin();
+-                           i != selection.end(); ++i)
+-                        {
+-                          move_command-&gt;add_obj(*i);
+-                        }
+-                    }
+-                }
+-              else
+-                {
+-                  state = SELECT;
+-                  selection_rect = CL_Rectf(pos.x, pos.y, pos.x, pos.y);
+-                  parent-&gt;capture_mouse();
+-                }
+-            }
+-          break;
+-        }
+-      break;
+-
+-    case CL_MOUSE_RIGHT:
+-      break;
+-    }
+-}
+-
+-void
+-ObjMapSelectToolImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-  CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
+-
+-  switch(state)
+-    {
+-    case DRAG:
+-      if (!control_point.is_null())
+-        {
+-          control_point.set_pos(pos - offset);
+-        }
+-      else
+-        {
+-          move_command-&gt;move_by(pos - drag_start);
+-          if (selection.size() == 1)
+-            selection.front().update_control_points();
+-        }
+-      /*
+-      for (ObjMapSelectTool::Selection::iterator i = selection.begin(); 
+-           i != selection.end(); ++i)
+-        {
+-          (*i).set_pos((*i).get_pos() + (pos - drag_start));
+-          // FIXME: Move this into ObjMapObject
+-          (*i).sig_move()(*i);
+-        }*/
+-      //drag_start = pos;
+-      break;
+-
+-    case SELECT:
+-      selection_rect.right  = pos.x;
+-      selection_rect.bottom = pos.y;
+-      break;
+-
+-    default:
+-      // FIXME: Add some kind of highlighting here if mouse is over an object
+-      break;
+-    }
+-}
+-
+-Tool
+-ObjMapSelectTool::to_tool()
+-{
+-  return Tool(impl); 
+-}
+-
+-void
+-ObjMapSelectToolImpl::on_selection_change()
+-{
+-  ObjectLayer objmap = ObjectLayer::current();
+-  objmap.delete_control_points();
+-
+-  if (selection.size() == 1)
+-    {
+-      selection.front().add_control_points();
+-    } 
+-}
+-
+-/* EOF */
+
+Deleted: trunk/lib/objmap_select_tool.hxx
+===================================================================
+--- trunk/lib/objmap_select_tool.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/objmap_select_tool.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,53 +0,0 @@
+-//  $Id: tilemap_object_tool.hxx,v 1.1 2003/09/23 22:10:40 grumbel Exp $
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_OBJMAP_SELECT_TOOL_HXX
+-#define HEADER_OBJMAP_SELECT_TOOL_HXX
+-
+-#include &quot;object_layer.hxx&quot;
+-#include &quot;object_brush.hxx&quot;
+-#include &quot;tool.hxx&quot;
+-
+-class CL_Menu;
+-class ObjMapSelectToolImpl;
+-
+-/** */
+-class ObjMapSelectTool
+-{
+-public:
+-  typedef std::vector&lt;ObjMapObject&gt; Selection; 
+-
+-  ObjMapSelectTool();
+-  ~ObjMapSelectTool();
+-
+-  void clear_selection();
+-  Selection get_selection() const;
+-  void set_selection(const Selection&amp; sel);
+-
+-  CL_Signal_v2&lt;int, int&gt;&amp; sig_on_right_click();
+-  CL_Signal_v1&lt;CL_Menu*&gt;&amp; sig_on_popup_menu_display();
+-
+-  Tool to_tool();
+-private:
+-  SharedPtr&lt;ObjMapSelectToolImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/lib/sketch_layer.cxx
+===================================================================
+--- trunk/lib/sketch_layer.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/sketch_layer.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -30,7 +30,6 @@
+ #include &lt;ClanLib/Display/display_window.h&gt;
+ #include &quot;flexlay.hxx&quot;
+ #include &quot;editor_map_component.hxx&quot;
+-#include &quot;workspace.hxx&quot;
+ #include &quot;layer_impl.hxx&quot;
+ #include &quot;sketch_layer.hxx&quot;
+ #include &quot;math.hxx&quot;
+
+Deleted: trunk/lib/sketch_stroke_tool.cxx
+===================================================================
+--- trunk/lib/sketch_stroke_tool.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/sketch_stroke_tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,166 +0,0 @@
+-//  $Id$
+-//
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#include &lt;iostream&gt;
+-#include &lt;assert.h&gt;
+-#include &lt;ClanLib/gl.h&gt;
+-#include &lt;ClanLib/Display/input_event.h&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/Display/mouse.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/input_context.h&gt;
+-#include &quot;editor_map_component.hxx&quot;
+-#include &quot;tool.hxx&quot;
+-#include &quot;bitmap_layer.hxx&quot;
+-#include &quot;sketch_stroke_tool.hxx&quot;
+-#include &quot;sprite_stroke_drawer.hxx&quot;
+-#include &quot;marker_stroke_drawer.hxx&quot;
+-#include &quot;stroke.hxx&quot;
+-#include &quot;stroke_drawer.hxx&quot;
+-#include &quot;drawer_properties.hxx&quot;
+-#include &quot;flexlay.hxx&quot;
+-
+-class SketchStrokeToolImpl : public ToolImpl
+-{
+-public:
+-  bool drawing;
+-  Stroke   stroke;
+-  StrokeDrawer   drawer;
+-  
+-  SketchStrokeToolImpl()
+-    : drawing(false)
+-  {
+-    drawer = SpriteStrokeDrawer().to_drawer();
+-    //drawer = MarkerStrokeDrawer().to_drawer();
+-  }
+-
+-  void draw() 
+-  {
+-    if (drawing)
+-      {
+-        // FIXME: This translation is a bit ugly, layer position should be handled somewhat different
+-        CL_Display::push_modelview();
+-        CL_Display::add_translate(BitmapLayer::current()-&gt;to_object().get_pos().x,
+-                                  BitmapLayer::current()-&gt;to_object().get_pos().y);
+-        stroke.draw(0);
+-        CL_Display::pop_modelview();
+-      }
+-    else
+-      {
+-        EditorMapComponent* parent = EditorMapComponent::current();
+-        CL_Pointf p = parent-&gt;screen2world(CL_Point(CL_Mouse::get_x() - parent-&gt;get_screen_x(), 
+-                                                    CL_Mouse::get_y() - parent-&gt;get_screen_y()));
+-        CL_Sprite s = DrawerProperties::current()-&gt;get_brush().get_sprite();
+-        s.set_color(DrawerProperties::current()-&gt;get_color());
+-        // FIXME: when using mouse 1.0, when tablet .5f
+-        s.set_scale(DrawerProperties::current()-&gt;get_size()*0.5f, DrawerProperties::current()-&gt;get_size()*0.5f);
+-        s.set_alpha(0.5);
+-        s.draw(p.x, p.y);
+-      }
+-  }
+-
+-  void on_mouse_up  (const CL_InputEvent&amp; event) 
+-  {
+-    if (event.id == CL_MOUSE_LEFT &amp;&amp; drawing)
+-      {
+-        drawing = false;
+-        EditorMapComponent* parent = EditorMapComponent::current();
+-        parent-&gt;release_mouse();
+-        
+-        add_dab(event);
+-
+-        BitmapLayer::current()-&gt;add_stroke(stroke);
+-      }    
+-  }
+-
+-  void on_mouse_down(const CL_InputEvent&amp; event) {
+-    if (event.id == CL_MOUSE_LEFT)
+-      {
+-        drawing = true;
+-        EditorMapComponent* parent = EditorMapComponent::current();
+-        parent-&gt;capture_mouse();
+-        stroke = Stroke();
+-        stroke.set_drawer(drawer.clone());
+-        add_dab(event);
+-      }
+-  }
+-
+-  void add_dab(const CL_InputEvent&amp; event)
+-  {
+-    EditorMapComponent* parent = EditorMapComponent::current();
+-    CL_Pointf p = parent-&gt;screen2world(event.mouse_pos);    
+-    
+-    // FIXME: This is ugly, events relative to the layer should be handled somewhat differently
+-    Dab dab(p.x - BitmapLayer::current()-&gt;to_object().get_pos().x,
+-            p.y - BitmapLayer::current()-&gt;to_object().get_pos().y);
+-
+-    // FIXME: Make tablet configurable
+-    if (CL_Display::get_current_window()-&gt;get_ic()-&gt;get_mouse_count() &gt;= 4)
+-      {
+-        CL_InputDevice tablet = CL_Display::get_current_window()-&gt;get_ic()-&gt;get_mouse(5);
+-
+-        if (0)
+-          {
+-            std::cout &lt;&lt; &quot;Mouse Count: &quot; &lt;&lt; CL_Display::get_current_window()-&gt;get_ic()-&gt;get_mouse_count() &lt;&lt; std::endl;
+-            std::cout &lt;&lt; tablet.get_name() &lt;&lt; &quot;: &quot;;
+-            for(int i = 0; i &lt; tablet.get_axis_count(); ++i)
+-              std::cout &lt;&lt; tablet.get_axis(i) &lt;&lt; &quot; &quot;;
+-            std::cout &lt;&lt; std::endl;
+-          }
+-
+-        dab.pressure = tablet.get_axis(2);
+-        dab.tilt.x   = tablet.get_axis(3);
+-        dab.tilt.y   = tablet.get_axis(4);
+-      }
+-
+-    //std::cout &lt;&lt; dab.pressure &lt;&lt; &quot; &quot; &lt;&lt; dab.tilt.x &lt;&lt; &quot; &quot; &lt;&lt; dab.tilt.y &lt;&lt; std::endl;
+-
+-    if (dab.pressure == 0) // most likly we are using the mouse
+-      dab.pressure = 1.0f;
+-
+-    stroke.add_dab(dab);
+-  }
+-
+-  void on_mouse_move(const CL_InputEvent&amp; event) 
+-  {
+-    if (drawing)
+-      {
+-        add_dab(event);
+-      }
+-  }
+-};
+-
+-SketchStrokeTool::SketchStrokeTool()
+-  : impl(new SketchStrokeToolImpl()) 
+-{
+-}
+-
+-Tool
+-SketchStrokeTool::to_tool()
+-{
+-  return Tool(impl);
+-}
+-
+-StrokeDrawer
+-SketchStrokeTool::get_drawer()
+-{
+-  return impl-&gt;drawer;
+-}
+-
+-/* EOF */
+
+Deleted: trunk/lib/sketch_stroke_tool.hxx
+===================================================================
+--- trunk/lib/sketch_stroke_tool.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/sketch_stroke_tool.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,44 +0,0 @@
+-//  $Id$
+-// 
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_SKETCH_STROKE_TOOL_HXX
+-#define HEADER_SKETCH_STROKE_TOOL_HXX
+-
+-#include &quot;tool_impl.hxx&quot;
+-#include &quot;stroke_drawer.hxx&quot;
+-
+-class SketchStrokeToolImpl;
+-
+-/** */
+-class SketchStrokeTool
+-{
+-private:
+-public:
+-  SketchStrokeTool();
+-
+-  StrokeDrawer get_drawer();
+-
+-  Tool to_tool();
+-private:
+-  SharedPtr&lt;SketchStrokeToolImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Modified: trunk/lib/tile_selector.cxx
+===================================================================
+--- trunk/lib/tile_selector.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/tile_selector.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -24,7 +24,7 @@
+ #include &quot;tileset.hxx&quot;
+ #include &quot;tile.hxx&quot;
+ #include &quot;tile_selector.hxx&quot;
+-#include &quot;tilemap_paint_tool.hxx&quot;
++#include &quot;tools/tilemap_paint_tool.hxx&quot;
+ 
+ TileSelector::TileSelector(const CL_Rect&amp; rect, CL_Component* parent)
+   : CL_Component(rect, parent),
+
+Deleted: trunk/lib/tilemap_paint_tool.cxx
+===================================================================
+--- trunk/lib/tilemap_paint_tool.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/tilemap_paint_tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,280 +0,0 @@
+-//  $Id: tilemap_paint_tool.cxx,v 1.2 2003/09/23 22:07:32 grumbel Exp $
+-//
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#include &lt;iostream&gt;
+-#include &lt;ClanLib/Display/mouse.h&gt;
+-#include &lt;ClanLib/Display/keyboard.h&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-
+-#include &quot;globals.hxx&quot;
+-#include &quot;tilemap_layer.hxx&quot;
+-#include &quot;tileset.hxx&quot;
+-#include &quot;editor_map.hxx&quot;
+-#include &quot;editor_map_component.hxx&quot;
+-#include &quot;tile.hxx&quot;
+-#include &quot;workspace.hxx&quot;
+-#include &quot;paint_command.hxx&quot;
+-#include &quot;editor_names.hxx&quot;
+-#include &quot;tile_selection.hxx&quot;
+-#include &quot;tool_impl.hxx&quot;
+-#include &quot;tilemap_paint_tool.hxx&quot;
+-
+-TileMapPaintTool TileMapPaintTool::current_;
+-
+-class TileMapPaintToolImpl : public ToolImpl
+-{
+-public:
+-  enum { PAINTING, SELECTING, NONE } mode;
+-
+-  TileSelection selection;
+-  TileBrush brush;
+-  CL_Point last_draw;
+-  CL_Point current_tile;
+-
+-  PaintCommand* command;
+-
+-  void draw();
+-
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-  void on_mouse_up  (const CL_InputEvent&amp; event);
+-};
+-
+-TileMapPaintTool::TileMapPaintTool()
+-  : impl(new TileMapPaintToolImpl())
+-{
+-  impl-&gt;last_draw = CL_Point(-1, -1);
+-
+-  current_  = *this;
+-  
+-  impl-&gt;brush = TileBrush(1, 1);
+-  impl-&gt;brush.at(0, 0) = 0;
+-  impl-&gt;brush.set_opaque();
+-  impl-&gt;current_tile = CL_Point(0,0);
+-
+-  impl-&gt;command = 0;
+-
+-  impl-&gt;mode = TileMapPaintToolImpl::NONE;
+-}
+-
+-TileMapPaintTool::~TileMapPaintTool()
+-{
+-}
+-
+-void
+-TileMapPaintToolImpl::draw()
+-{
+-  TilemapLayer tilemap = TilemapLayer::current();
+-
+-  if (tilemap.is_null())
+-    return;
+-
+-  switch(mode)
+-    {
+-    case TileMapPaintToolImpl::SELECTING:
+-      if (CL_Keyboard::get_keycode(CL_KEY_LSHIFT))
+-        selection.draw(CL_Color(255,  128, 128, 100));
+-      else 
+-        selection.draw();
+-      break;
+-      
+-    default:
+-      int tile_size = tilemap.get_tileset().get_tile_size();
+-
+-      // Draw the brush:
+-      for(int y = 0; y &lt; brush.get_height(); ++y)
+-        for(int x = 0; x &lt; brush.get_width(); ++x)
+-          {
+-            Tile* tile = tilemap.get_tileset().create(brush.at(x, y));
+-                
+-            if (tile)
+-              {
+-                CL_Sprite sprite = tile-&gt;get_sprite();
+-                sprite.set_alpha(0.5f);
+-                sprite.draw((current_tile.x + x) * tile_size, 
+-                            (current_tile.y + y) * tile_size);
+-
+-                CL_Display::fill_rect(CL_Rect(CL_Point((current_tile.x + x) * tile_size, 
+-                                                       (current_tile.y + y) * tile_size),
+-                                              CL_Size(tile_size, tile_size)),
+-                                      CL_Color(255, 255, 255, 100));
+-              }
+-            else if (brush.is_opaque())
+-              {
+-                CL_Display::fill_rect(CL_Rect(CL_Point((current_tile.x + x) * tile_size, 
+-                                                       (current_tile.y + y) * tile_size),
+-                                              CL_Size(tile_size, tile_size)),
+-                                      CL_Color(255, 255, 255, 100));
+-              }
+-            else
+-              {
+-                CL_Display::fill_rect(CL_Rect(CL_Point((current_tile.x + x) * tile_size, 
+-                                                       (current_tile.y + y) * tile_size),
+-                                              CL_Size(tile_size, tile_size)),
+-                                      CL_Color(255, 255, 255, 50));
+-              }
+-          }
+-      break;
+-    }
+-}
+-
+-const TileBrush&amp; 
+-TileMapPaintTool::get_brush() 
+-{
+-  return impl-&gt;brush; 
+-}
+-
+-void
+-TileMapPaintToolImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  TilemapLayer tilemap = TilemapLayer::current();
+-
+-  if (!tilemap.is_null())
+-    {
+-      EditorMapComponent* parent = EditorMapComponent::current();
+-      CL_Point pos = tilemap.world2tile(parent-&gt;screen2world(event.mouse_pos));
+-
+-      switch (mode)
+-        {
+-        case TileMapPaintToolImpl::NONE:
+-          switch (event.id)
+-            {
+-            case CL_MOUSE_LEFT:
+-              mode = TileMapPaintToolImpl::PAINTING;
+-              parent-&gt;capture_mouse();
+-              command = new PaintCommand(tilemap, brush);
+-              command-&gt;add_point(pos);
+-              last_draw = pos;
+-              break;
+-    
+-            case CL_MOUSE_RIGHT:
+-              mode = TileMapPaintToolImpl::SELECTING;
+-              parent-&gt;capture_mouse();
+-
+-              selection.start(tilemap, pos);
+-              break;
+-            }
+-          break;
+-
+-        default:
+-          break;
+-        }
+-    }
+-}
+- 
+-void
+-TileMapPaintToolImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  TilemapLayer tilemap = TilemapLayer::current();
+-
+-  if (!tilemap.is_null())
+-    {
+-      EditorMapComponent* parent = EditorMapComponent::current();
+-      current_tile = tilemap.world2tile(parent-&gt;screen2world(event.mouse_pos));
+-
+-      switch (mode)
+-        {
+-        case PAINTING:
+-          if (current_tile != last_draw)
+-            {
+-              command-&gt;add_point(current_tile);
+-              last_draw = current_tile;
+-            }
+-          break;
+-    
+-        case SELECTING:
+-          selection.update(current_tile);
+-          break;
+-      
+-        default:
+-          break;
+-        }
+-    }
+-}
+-
+-void
+-TileMapPaintToolImpl::on_mouse_up  (const CL_InputEvent&amp; event)
+-{
+-  TilemapLayer tilemap = TilemapLayer::current();
+-
+-  if (!tilemap.is_null())
+-    {
+-      EditorMapComponent::current()-&gt;get_workspace().get_map().modify();
+-
+-      EditorMapComponent* parent = EditorMapComponent::current();
+-      CL_Point pos = tilemap.world2tile(parent-&gt;screen2world(event.mouse_pos));
+-
+-      switch (event.id)
+-        {
+-        case CL_MOUSE_LEFT:
+-          if (mode == PAINTING)
+-            {
+-              parent-&gt;release_mouse();
+-              mode = NONE;
+-
+-              command-&gt;add_point(pos);
+-              Workspace::current().get_map().execute(command-&gt;to_command());
+-              command = 0;
+-
+-              tilemap.draw_tile(brush, pos);
+-              last_draw = CL_Point(-1, -1);
+-            }
+-          break;
+-    
+-        case CL_MOUSE_RIGHT:
+-          if (mode == SELECTING)
+-            {
+-              parent-&gt;release_mouse();
+-              mode = NONE;
+-
+-              selection.update(pos);
+-              brush = selection.get_brush(*tilemap.get_field());
+-
+-              if ((brush.get_width() &gt; 1 || brush.get_height() &gt; 1)
+-                  &amp;&amp; !CL_Keyboard::get_keycode(CL_KEY_LSHIFT))
+-                {
+-                  brush.set_transparent();
+-                  brush.auto_crop();
+-                }
+-              else
+-                {
+-                  brush.set_opaque();
+-                }
+-
+-              selection.clear();
+-            }
+-          break;
+-        }
+-    }
+-}
+-
+-void
+-TileMapPaintTool::set_brush(const TileBrush&amp; b)
+-{
+-  impl-&gt;brush = b;
+-}
+-
+-Tool
+-TileMapPaintTool::to_tool()
+-{ 
+-  return Tool(impl);
+-}
+-
+-/* EOF */
+
+Deleted: trunk/lib/tilemap_paint_tool.hxx
+===================================================================
+--- trunk/lib/tilemap_paint_tool.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/tilemap_paint_tool.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,50 +0,0 @@
+-//  $Id: tilemap_paint_tool.hxx,v 1.1 2003/09/23 19:10:05 grumbel Exp $
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_TILEMAP_PAINT_TOOL_HXX
+-#define HEADER_TILEMAP_PAINT_TOOL_HXX
+-
+-#include &quot;tool.hxx&quot;
+-#include &quot;tile_brush.hxx&quot;
+-#include &quot;tilemap_layer.hxx&quot;
+-
+-class TileMapPaintToolImpl;
+-
+-/** */
+-class TileMapPaintTool
+-{
+-private:
+-  static TileMapPaintTool current_; 
+-public:
+-  static TileMapPaintTool current() { return current_; } 
+-
+-  TileMapPaintTool();
+-  ~TileMapPaintTool();
+-  
+-  const TileBrush&amp; get_brush();
+-  void set_brush(const TileBrush&amp; b);
+-
+-  Tool to_tool();
+-private:
+-  SharedPtr&lt;TileMapPaintToolImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/lib/tilemap_select_tool.cxx
+===================================================================
+--- trunk/lib/tilemap_select_tool.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/tilemap_select_tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,133 +0,0 @@
+-//  $Id: tilemap_select_tool.cxx,v 1.1 2003/09/23 22:10:40 grumbel Exp $
+-//
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/Display/input_event.h&gt;
+-#include &quot;globals.hxx&quot;
+-#include &quot;tilemap_layer.hxx&quot;
+-#include &quot;tool_impl.hxx&quot;
+-#include &quot;editor_map.hxx&quot;
+-#include &quot;editor_map_component.hxx&quot;
+-#include &quot;tile_brush.hxx&quot;
+-#include &quot;editor_names.hxx&quot;
+-#include &quot;tilemap_select_tool.hxx&quot;
+-
+-class TileMapSelectToolImpl : public ToolImpl
+-{
+-public:
+-  TileSelection  selection;
+-  bool creating_selection;
+-
+-  void draw();
+-  
+-  void on_mouse_up  (const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-};
+-
+-TileMapSelectTool::TileMapSelectTool()
+-  : impl(new TileMapSelectToolImpl())
+-{
+-  impl-&gt;creating_selection = false;
+-}
+-
+-TileMapSelectTool::~TileMapSelectTool()
+-{
+-}
+-
+-void
+-TileMapSelectToolImpl::draw()
+-{
+-  if (selection.is_active())
+-    {
+-      selection.draw();
+-    }
+-}
+-
+-void
+-TileMapSelectToolImpl::on_mouse_up  (const CL_InputEvent&amp; event)
+-{
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-
+-  switch (event.id)
+-    {
+-    case CL_MOUSE_LEFT:
+-      creating_selection = false;
+-      parent-&gt;release_mouse();
+-
+-      selection.update(TilemapLayer::current().world2tile(parent-&gt;screen2world(event.mouse_pos)));
+-      break;
+-    }
+-}
+-
+-void
+-TileMapSelectToolImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-
+-  switch (event.id)
+-    {
+-    case CL_MOUSE_LEFT:
+-      {
+-        creating_selection = true;
+-        parent-&gt;capture_mouse();
+-        TilemapLayer tilemap = TilemapLayer::current();
+-        selection.start(tilemap, tilemap.world2tile(parent-&gt;screen2world(event.mouse_pos)));
+-      }
+-      break;
+-      
+-    case CL_MOUSE_RIGHT:
+-      if (!creating_selection)
+-        selection.clear();
+-      break;
+-    }
+-}
+-
+-void
+-TileMapSelectToolImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{ 
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-
+-  if (creating_selection)
+-    {
+-      selection.update(TilemapLayer::current().world2tile(parent-&gt;screen2world(event.mouse_pos)));
+-    }
+-}
+-
+-TileBrush
+-TileMapSelectTool::get_selection() const
+-{
+-  TilemapLayer tilemap = TilemapLayer::current();
+-  return impl-&gt;selection.get_brush(*tilemap.get_field());
+-}
+-
+-CL_Rect
+-TileMapSelectTool::get_selection_rect() const
+-{
+-  return impl-&gt;selection.get_rect();
+-}
+-
+-Tool
+-TileMapSelectTool::to_tool()
+-{
+-  return Tool(impl); 
+-}
+-
+-/* EOF */
+
+Deleted: trunk/lib/tilemap_select_tool.hxx
+===================================================================
+--- trunk/lib/tilemap_select_tool.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/tilemap_select_tool.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,49 +0,0 @@
+-//  $Id: tilemap_select_tool.hxx,v 1.1 2003/09/23 22:10:40 grumbel Exp $
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_TILEMAP_SELECT_TOOL_HXX
+-#define HEADER_TILEMAP_SELECT_TOOL_HXX
+-
+-#include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &lt;ClanLib/Core/Math/point.h&gt;
+-#include &quot;tool.hxx&quot;
+-#include &quot;tile_selection.hxx&quot;
+-
+-class TileMapSelectToolImpl;
+-
+-/** */
+-class TileMapSelectTool
+-{
+-public:
+-  TileMapSelectTool();
+-  ~TileMapSelectTool();
+-
+-  /** Convert the selection into a TileBrush */
+-  TileBrush get_selection() const;
+-
+-  CL_Rect get_selection_rect() const;
+-
+-  Tool to_tool();
+-private:
+-  SharedPtr&lt;TileMapSelectToolImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/lib/tool.cxx
+===================================================================
+--- trunk/lib/tool.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,64 +0,0 @@
+-//  $Id: tilemap_tool.cxx,v 1.1 2003/09/23 19:10:05 grumbel Exp $
+-//
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#include &quot;tool_impl.hxx&quot;
+-#include &quot;tool.hxx&quot;
+-
+-Tool::Tool()
+-{
+-}
+-
+-Tool::Tool(SharedPtr&lt;ToolImpl&gt; impl_)
+-  : impl(impl_)
+-{
+-}
+-
+-Tool::~Tool() 
+-{
+-}
+-
+-void
+-Tool::draw()
+-{
+-  if (impl.get())
+-    impl-&gt;draw();
+-}
+-
+-void
+-Tool::on_mouse_up  (const CL_InputEvent&amp; event)
+-{
+-  if (impl.get())
+-    impl-&gt;on_mouse_up(event);
+-}
+-
+-void
+-Tool::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  if (impl.get())
+-    impl-&gt;on_mouse_down(event);
+-}
+-
+-void
+-Tool::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  if (impl.get())
+-    impl-&gt;on_mouse_move(event);
+-}
+-
+-/* EOF */
+
+Deleted: trunk/lib/tool.hxx
+===================================================================
+--- trunk/lib/tool.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/tool.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,52 +0,0 @@
+-//  $Id: tilemap_tool.hxx,v 1.1 2003/09/23 19:10:05 grumbel Exp $
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_TILEMAP_TOOL_HXX
+-#define HEADER_TILEMAP_TOOL_HXX
+-
+-class EditorMapComponent;
+-class CL_InputEvent;
+-
+-#include &quot;shared_ptr.hxx&quot;
+-
+-class ToolImpl;
+-
+-/** */
+-class Tool
+-{
+-protected:
+-
+-public:
+-  Tool();
+-  Tool(SharedPtr&lt;ToolImpl&gt; impl_);
+-  ~Tool();
+-
+-  void draw();
+-
+-  void on_mouse_up  (const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-
+-private:
+-  SharedPtr&lt;ToolImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/lib/tool_impl.hxx
+===================================================================
+--- trunk/lib/tool_impl.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/tool_impl.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,43 +0,0 @@
+-//  $Id: tilemap_tool.hxx,v 1.1 2003/09/23 19:10:05 grumbel Exp $
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_TOOL_IMPL_HXX
+-#define HEADER_TOOL_IMPL_HXX
+-
+-class CL_InputEvent;
+-
+-/** */
+-class ToolImpl
+-{
+-protected:
+-
+-public:
+-  ToolImpl() {}
+-  virtual ~ToolImpl() {}
+-
+-  virtual void draw() {}
+-
+-  virtual void on_mouse_up  (const CL_InputEvent&amp; event) {}
+-  virtual void on_mouse_down(const CL_InputEvent&amp; event) {}
+-  virtual void on_mouse_move(const CL_InputEvent&amp; event) {}
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Copied: trunk/lib/tools/layer_move_tool.cxx (from rev 629, trunk/lib/layer_move_tool.cxx)
+
+Copied: trunk/lib/tools/layer_move_tool.hxx (from rev 629, trunk/lib/layer_move_tool.hxx)
+
+Copied: trunk/lib/tools/objmap_select_tool.cxx (from rev 629, trunk/lib/objmap_select_tool.cxx)
+
+Copied: trunk/lib/tools/objmap_select_tool.hxx (from rev 629, trunk/lib/objmap_select_tool.hxx)
+
+Copied: trunk/lib/tools/sketch_stroke_tool.cxx (from rev 629, trunk/lib/sketch_stroke_tool.cxx)
+
+Copied: trunk/lib/tools/sketch_stroke_tool.hxx (from rev 629, trunk/lib/sketch_stroke_tool.hxx)
+
+Copied: trunk/lib/tools/tilemap_paint_tool.cxx (from rev 629, trunk/lib/tilemap_paint_tool.cxx)
+
+Copied: trunk/lib/tools/tilemap_paint_tool.hxx (from rev 629, trunk/lib/tilemap_paint_tool.hxx)
+
+Copied: trunk/lib/tools/tilemap_select_tool.cxx (from rev 629, trunk/lib/tilemap_select_tool.cxx)
+
+Copied: trunk/lib/tools/tilemap_select_tool.hxx (from rev 629, trunk/lib/tilemap_select_tool.hxx)
+
+Copied: trunk/lib/tools/tool.cxx (from rev 629, trunk/lib/tool.cxx)
+
+Copied: trunk/lib/tools/tool.hxx (from rev 629, trunk/lib/tool.hxx)
+
+Copied: trunk/lib/tools/tool_impl.hxx (from rev 629, trunk/lib/tool_impl.hxx)
+
+Copied: trunk/lib/tools/workspace_move_tool.cxx (from rev 629, trunk/lib/workspace_move_tool.cxx)
+
+Copied: trunk/lib/tools/workspace_move_tool.hxx (from rev 629, trunk/lib/workspace_move_tool.hxx)
+
+Copied: trunk/lib/tools/zoom_tool.cxx (from rev 629, trunk/lib/zoom_tool.cxx)
+
+Copied: trunk/lib/tools/zoom_tool.hxx (from rev 629, trunk/lib/zoom_tool.hxx)
+
+Modified: trunk/lib/workspace.cxx
+===================================================================
+--- trunk/lib/workspace.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/workspace.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -18,34 +18,37 @@
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
+ #include &lt;iostream&gt;
++#include &lt;map&gt;
+ #include &lt;ClanLib/Display/display.h&gt;
+ #include &lt;ClanLib/Display/display_window.h&gt;
+ #include &lt;ClanLib/Display/keys.h&gt;
+ #include &quot;editor_map.hxx&quot;
+ #include &quot;editor_map_component.hxx&quot;
+ #include &quot;editor_names.hxx&quot;
+-#include &quot;tool.hxx&quot;
+-#include &quot;workspace_move_tool.hxx&quot;
++#include &quot;tools/tool.hxx&quot;
+ #include &quot;tileset.hxx&quot;
+ #include &quot;workspace.hxx&quot;
+ 
+-Workspace Workspace::current_;
++Workspace Workspace::current_(false);
+ 
+ class WorkspaceImpl
+ {
+ public:
+   EditorMap editor_map;
+ 
+-  Tool tool;
+-  Tool move_tool;
++  typedef std::map&lt;int, Tool&gt; Tools;
++  Tools tools;
+ };
+ 
+-Workspace::Workspace()
+-  : impl(new WorkspaceImpl())
++Workspace::Workspace(bool create)
++  : impl(0)
+ {
+-  current_ = *this;
+-  
+-  impl-&gt;move_tool = WorkspaceMoveTool().to_tool();
++  if (create)
++    {
++      impl = new WorkspaceImpl();
++      current_ = *this;
++      std::cout &lt;&lt; &quot;Workspace()&quot; &lt;&lt; std::endl;
++    }
+ }
+ 
+ void
+@@ -56,8 +59,10 @@
+   impl-&gt;editor_map.draw_gui(CL_Display::get_current_window()-&gt;get_gc());
+   impl-&gt;editor_map.draw(EditorMapComponent::current(), CL_Display::get_current_window()-&gt;get_gc());
+   
+-  if (1) // has_mouse_over()) FIXME: Seperate cursor and state here
+-    impl-&gt;tool.draw();
++  // FIXME: Only draw active tool?!
++  for(WorkspaceImpl::Tools::iterator it = impl-&gt;tools.begin();
++      it != impl-&gt;tools.end(); ++it)
++    it-&gt;second.draw();
+     
+   CL_Display::flush();
+ }
+@@ -65,44 +70,34 @@
+ void
+ Workspace::mouse_up(const CL_InputEvent&amp; event)
+ {
+-  switch (event.id)
+-    {
+-    case CL_MOUSE_LEFT:
+-    case CL_MOUSE_RIGHT:
+-      impl-&gt;tool.on_mouse_up(event);
+-      break;
+-
+-    case CL_MOUSE_MIDDLE:
+-      impl-&gt;move_tool.on_mouse_up(event);
+-      break;
+-    }
++  WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
++  if (it != impl-&gt;tools.end())
++    it-&gt;second.on_mouse_up(event);
+ }
+ 
+ void
+ Workspace::mouse_move(const CL_InputEvent&amp; event)
+ {
+-  impl-&gt;tool.on_mouse_move(event);
+-  impl-&gt;move_tool.on_mouse_move(event);
++  for(WorkspaceImpl::Tools::iterator it = impl-&gt;tools.begin();
++      it != impl-&gt;tools.end(); ++it)
++    {
++      it-&gt;second.on_mouse_move(event);
++    }
+ }
+ 
+ void
+ Workspace::mouse_down(const CL_InputEvent&amp; event)
+ {
++  WorkspaceImpl::Tools::iterator it = impl-&gt;tools.find(event.id);
++  if (it != impl-&gt;tools.end())
++    it-&gt;second.on_mouse_down(event);
++
+   switch (event.id)
+     {
+-    case CL_MOUSE_LEFT:
+-    case CL_MOUSE_RIGHT:
+-      impl-&gt;tool.on_mouse_down(event);
+-      break;
+-
+-    case CL_MOUSE_MIDDLE:
+-      impl-&gt;move_tool.on_mouse_down(event);
+-      break;
+-      
+     case CL_MOUSE_WHEEL_UP:
+       EditorMapComponent::current()-&gt;zoom_in(event.mouse_pos);
+       break;
+-
++      
+     case CL_MOUSE_WHEEL_DOWN:
+       EditorMapComponent::current()-&gt;zoom_out(event.mouse_pos);
+       break;
+@@ -122,9 +117,9 @@
+ }
+ 
+ void
+-Workspace::set_tool(const Tool&amp; tool)
++Workspace::set_tool(int button, const Tool&amp; tool)
+ {
+-  impl-&gt;tool = tool;
++  impl-&gt;tools[button] = tool;
+ }
+ 
+ /* EOF */
+
+Modified: trunk/lib/workspace.hxx
+===================================================================
+--- trunk/lib/workspace.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/workspace.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -33,11 +33,12 @@
+ {
+ private:
+   static Workspace current_;
++
+ public:
+   static void set_current(Workspace w) { current_ = w; }
+   static Workspace current() { return current_; }
+ 
+-  Workspace();
++  Workspace(bool create = false);
+ 
+   void draw();
+ 
+@@ -48,7 +49,7 @@
+   EditorMap get_map();
+   void set_map(const EditorMap&amp; m);
+ 
+-  void set_tool(const Tool&amp; tool);
++  void set_tool(int button, const Tool&amp; tool);
+ 
+   bool is_null() const { return !impl.get(); }
+ private:
+
+Deleted: trunk/lib/workspace_move_tool.cxx
+===================================================================
+--- trunk/lib/workspace_move_tool.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/workspace_move_tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,102 +0,0 @@
+-//  $Id$
+-//
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#include &lt;ClanLib/Core/Math/point.h&gt;
+-#include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &quot;tool_impl.hxx&quot;
+-#include &quot;editor_map_component.hxx&quot;
+-#include &quot;workspace.hxx&quot;
+-#include &quot;workspace_move_tool.hxx&quot;
+-
+-class WorkspaceMoveToolImpl : public ToolImpl
+-{
+-public:
+-  bool scrolling;
+-  CL_Point click_pos;
+-
+-  /** Position of the center */
+-  CL_Pointf old_trans_offset;
+-  
+-  virtual void draw() {}
+-
+-  void on_mouse_up  (const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-  void update(const CL_InputEvent&amp; event);
+-};
+-
+-void
+-WorkspaceMoveToolImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  scrolling = true;
+-  old_trans_offset = EditorMapComponent::current()-&gt;get_gc_state().get_pos();
+-  click_pos = event.mouse_pos;
+-  EditorMapComponent::current()-&gt;capture_mouse();
+-}
+-
+-void
+-WorkspaceMoveToolImpl::on_mouse_up(const CL_InputEvent&amp; event)
+-{
+-  scrolling = false;
+-  update(event);
+-  old_trans_offset = EditorMapComponent::current()-&gt;get_gc_state().get_pos();
+-  EditorMapComponent::current()-&gt;release_mouse();
+-}
+-
+-void
+-WorkspaceMoveToolImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  if (scrolling)
+-    {
+-      update(event);
+-    } 
+-}
+-
+-void
+-WorkspaceMoveToolImpl::update(const CL_InputEvent&amp; event)
+-{
+-  GraphicContextState&amp; gc_state = EditorMapComponent::current()-&gt;get_gc_state();
+-
+-  float sa = sin(-gc_state.get_rotation()/180.0f*M_PI);
+-  float ca = cos(-gc_state.get_rotation()/180.0f*M_PI);
+-
+-  float dx = ca * (click_pos.x - event.mouse_pos.x) - sa * (click_pos.y - event.mouse_pos.y);
+-  float dy = sa * (click_pos.x - event.mouse_pos.x) + ca * (click_pos.y - event.mouse_pos.y);
+-
+-  gc_state.set_pos(CL_Pointf(old_trans_offset.x
+-                             + dx / EditorMapComponent::current()-&gt;get_gc_state().get_zoom(),
+-                             old_trans_offset.y
+-                             + dy / EditorMapComponent::current()-&gt;get_gc_state().get_zoom()));
+-}
+-
+-WorkspaceMoveTool::WorkspaceMoveTool()
+-  : impl(new WorkspaceMoveToolImpl())
+-{
+-  impl-&gt;scrolling = false;
+-  impl-&gt;click_pos = CL_Point(0, 0);
+-  impl-&gt;old_trans_offset = CL_Pointf(0,0);
+-}
+-
+-Tool
+-WorkspaceMoveTool::to_tool()
+-{
+-  return Tool(impl);
+-}
+-
+-/* EOF */
+
+Deleted: trunk/lib/workspace_move_tool.hxx
+===================================================================
+--- trunk/lib/workspace_move_tool.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/workspace_move_tool.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,40 +0,0 @@
+-//  $Id$
+-// 
+-//  Pingus - A free Lemmings clone
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_WORKSPACE_MOVE_TOOL_HXX
+-#define HEADER_WORKSPACE_MOVE_TOOL_HXX
+-
+-#include &quot;tool.hxx&quot;
+-
+-class WorkspaceMoveToolImpl;
+-
+-/** */
+-class WorkspaceMoveTool
+-{
+-public:
+-  WorkspaceMoveTool();
+-
+-  Tool to_tool();
+-private:
+-  SharedPtr&lt;WorkspaceMoveToolImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Deleted: trunk/lib/zoom_tool.cxx
+===================================================================
+--- trunk/lib/zoom_tool.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/zoom_tool.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,165 +0,0 @@
+-//  $Id$
+-//
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-//
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#include &lt;ClanLib/Display/keys.h&gt;
+-#include &lt;ClanLib/Display/display.h&gt;
+-#include &quot;editor_map_component.hxx&quot;
+-#include &quot;tool_impl.hxx&quot;
+-#include &quot;zoom_tool.hxx&quot;
+-
+-class ZoomToolImpl : public ToolImpl
+-{
+-public:
+-  enum { CREATE_ZOOM_RECT, NONE } state;
+-
+-  CL_Rectf zoom_rect;
+-
+-  void draw();
+-  
+-  void on_mouse_up  (const CL_InputEvent&amp; event);
+-  void on_mouse_down(const CL_InputEvent&amp; event);
+-  void on_mouse_move(const CL_InputEvent&amp; event);
+-};
+-
+-ZoomTool::ZoomTool()
+-  : impl(new ZoomToolImpl())
+-{
+-  impl-&gt;state = ZoomToolImpl::NONE;
+-}
+-
+-ZoomTool::~ZoomTool()
+-{
+-}
+-
+-void
+-ZoomToolImpl::draw()
+-{
+-  switch (state)
+-    {
+-    case CREATE_ZOOM_RECT:
+-      {
+-        CL_Rectf tmp(zoom_rect);
+-        tmp.normalize();
+-        CL_Display::fill_rect(tmp, CL_Color(255, 255, 0, 50));
+-        CL_Display::draw_rect(tmp, CL_Color(255, 255, 0, 200));
+-      }
+-    case NONE:
+-      break;
+-    }
+-}
+-
+-void
+-ZoomToolImpl::on_mouse_up  (const CL_InputEvent&amp; event)
+-{
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-
+-  switch(event.id)
+-    {
+-    case CL_MOUSE_LEFT:
+-      switch (state)
+-        {
+-        case CREATE_ZOOM_RECT:
+-          {
+-            state = NONE;
+-            parent-&gt;release_mouse();
+-
+-            CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
+-            zoom_rect.right  = pos.x;
+-            zoom_rect.bottom = pos.y;
+-            zoom_rect.normalize();
+-            if (zoom_rect.get_width() &gt; 10 &amp;&amp; zoom_rect.get_height() &gt; 10)
+-              {
+-                parent-&gt;zoom_to(zoom_rect);
+-              }
+-          }
+-          break;
+-        default:
+-          break;
+-        }
+-      break;
+-    }
+-}
+-
+-void
+-ZoomToolImpl::on_mouse_down(const CL_InputEvent&amp; event)
+-{
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-
+-  switch(event.id)
+-    {
+-    case CL_MOUSE_LEFT:
+-      switch (state)
+-        {
+-        case NONE:
+-          {
+-            state = CREATE_ZOOM_RECT;
+-            parent-&gt;capture_mouse();
+-
+-            CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
+-            zoom_rect.left   = pos.x;
+-            zoom_rect.top    = pos.y;
+-            zoom_rect.right  = pos.x;
+-            zoom_rect.bottom = pos.y;
+-          }
+-          break;
+-        default:
+-          break;
+-        }
+-      break;
+-
+-    case CL_MOUSE_RIGHT:
+-      switch (state)
+-        {
+-        case NONE:
+-          parent-&gt;zoom_out(event.mouse_pos);
+-          parent-&gt;zoom_out(event.mouse_pos);
+-          break;
+-        default:
+-          break;
+-        }
+-      break;
+-    }
+-}
+-
+-void
+-ZoomToolImpl::on_mouse_move(const CL_InputEvent&amp; event)
+-{
+-  EditorMapComponent* parent = EditorMapComponent::current();
+-
+-  switch (state)
+-    {
+-    case CREATE_ZOOM_RECT:
+-      {
+-        CL_Pointf pos = parent-&gt;screen2world(event.mouse_pos);
+-        zoom_rect.right  = pos.x;
+-        zoom_rect.bottom = pos.y;  
+-      }
+-      break;
+-    default:
+-      break;
+-    }
+-}
+-
+-Tool
+-ZoomTool::to_tool()
+-{
+-  return Tool(impl); 
+-}  
+-
+-/* EOF */
+
+Deleted: trunk/lib/zoom_tool.hxx
+===================================================================
+--- trunk/lib/zoom_tool.hxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/lib/zoom_tool.hxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,43 +0,0 @@
+-//  $Id$
+-// 
+-//  Flexlay - A Generic 2D Game Editor
+-//  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-//
+-//  This program is free software; you can redistribute it and/or
+-//  modify it under the terms of the GNU General Public License
+-//  as published by the Free Software Foundation; either version 2
+-//  of the License, or (at your option) any later version.
+-//
+-//  This program is distributed in the hope that it will be useful,
+-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-//  GNU General Public License for more details.
+-// 
+-//  You should have received a copy of the GNU General Public License
+-//  along with this program; if not, write to the Free Software
+-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-#ifndef HEADER_ZOOM_TOOL_HXX
+-#define HEADER_ZOOM_TOOL_HXX
+-
+-#include &lt;ClanLib/Core/Math/rect.h&gt;
+-#include &lt;ClanLib/Display/input_event.h&gt;
+-#include &quot;tool.hxx&quot;
+-
+-class ZoomToolImpl;
+-
+-/** */
+-class ZoomTool
+-{
+-public:
+-  ZoomTool();
+-  ~ZoomTool();
+-
+-  Tool to_tool();
+-private:
+-  SharedPtr&lt;ZoomToolImpl&gt; impl;
+-};
+-
+-#endif
+-
+-/* EOF */
+
+Copied: trunk/ruby/SConscript (from rev 633, trunk/ruby/SConstruct)
+
+Deleted: trunk/ruby/SConstruct
+===================================================================
+--- trunk/ruby/SConstruct	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/ruby/SConstruct	2006-07-11 03:13:18 UTC (rev 635)
+@@ -1,80 +0,0 @@
+-## -*- mode: python -*-
+-##  $Id$
+-##
+-##  Flexlay - A Generic 2D Game Editor
+-##  Copyright (C) 2002 Ingo Ruhnke &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/flexlay-commit">grumbel at gmx.de</A>&gt;
+-##
+-##  This program is free software; you can redistribute it and/or
+-##  modify it under the terms of the GNU General Public License
+-##  as published by the Free Software Foundation; either version 2
+-##  of the License, or (at your option) any later version.
+-##
+-##  This program is distributed in the hope that it will be useful,
+-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-##  GNU General Public License for more details.
+-##
+-##  You should have received a copy of the GNU General Public License
+-##  along with this program; if not, write to the Free Software
+-##  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-
+-import os
+-import re
+-import glob
+-
+-Import('clanLib_env')
+-
+-opts = Options('custom.py')
+-opts.Add('CXX', 'The C++ compiler.', 'g++')
+-opts.Add('CXXFLAGS', 'The C++ compiler flags.', '-g -O2 -Wall -fPIC')
+-opts.Add('CPPPATH', 'additional header path', '')
+-opts.Add('LIBPATH', 'additional library path', '')
+-opts.Add('RUBYDIR', 'Ruby directory', os.popen('ruby -e &quot;require \'rbconfig\'; puts Config::CONFIG[\'archdir\']&quot;').read()[:-1])
+-
+-opts.Add('DESTDIR', 'destination directory which gets appended to PREFIX', '')
+-opts.Add('PREFIX',  'PREFIX, ie. /usr/local', '/usr/local')
+-
+-env = Environment(SHLIBPREFIX='',
+-                  ENV = os.environ,
+-                  options=opts)
+-Help(opts.GenerateHelpText(env))
+-
+-def gen_i_depends(path, filename):
+-    print os.getcwd()
+-    lst = []
+-    regex = re.compile(&quot;^%include +\&quot;(.*)\&quot;.*&quot;)
+-    f = file(filename)
+-    for i in f.readlines():
+-        i = i[:-1]
+-        if regex.match(i):
+-            lst.append(path + &quot;/&quot; + regex.sub(&quot;\\1&quot;, i))
+-    f.close()
+-    return lst            
+-
+-#Depends('../lib/flexlay_wrap.i', gen_i_depends(Dir(&quot;../lib&quot;).abspath, File(&quot;../lib/flexlay_wrap.i&quot;).abspath))
+-#env.Command('flexlay_ruby_wrap.cxx', '../lib/flexlay_wrap.i',
+-#            &quot;swig -c++ -ruby -o $TARGET $SOURCE&quot;)
+-
+-libflexlay_ruby_env = env.Copy()
+-flexlay_ruby_lib = libflexlay_ruby_env.SharedLibrary(
+-    target = 'flexlay_wrap.so',
+-    source = [
+-    env.CXXFile(target='flexlay_ruby_wrap.cxx', source='../lib/flexlay_wrap.i',
+-      SWIGFLAGS=&quot;-ruby -c++&quot;, CXXFILESUFFIX=&quot;.cxx&quot;),
+-    'ruby_functor.cxx',
+-    'ruby_meta_data.cxx',
+-    'ruby_sexpr_parser.cxx',
+-    'ruby_object.cxx',
+-    'ruby_converter.cxx'
+-    ],
+-    CPPPATH=[&quot;.&quot;,'$USER_CPPPATH','$RUBYDIR','../lib/'] + clanLib_env['CPPPATH'],
+-    LINKFLAGS = clanLib_env['LINKFLAGS'],
+-    LIBPATH=['../lib', '.'] + clanLib_env['LIBPATH'],
+-    LIBS=['flexlay'] + clanLib_env['LIBS'],
+-    CXXFLAGS=&quot;-Wno-uninitialized&quot;)
+-
+-# install_ruby = env.Alias('install_headers', Install(env['DESTDIR'] + env['PREFIX'] + '/include/flexlay', flexlay_headers))
+-# env.Alias('install', [install_ruby])
+-
+-# EOF #
+-
+
+Modified: trunk/ruby/ruby_meta_data.cxx
+===================================================================
+--- trunk/ruby/ruby_meta_data.cxx	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/ruby/ruby_meta_data.cxx	2006-07-11 03:13:18 UTC (rev 635)
+@@ -17,6 +17,7 @@
+ //  along with this program; if not, write to the Free Software
+ //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ 
++#include &lt;iostream&gt;
+ #include &lt;ClanLib/Signals/signal_v0.h&gt;
+ #include &quot;ruby_object.hxx&quot;
+ #include &quot;meta_data_impl.hxx&quot;
+
+Modified: trunk/supertux/WorldMap.rb
+===================================================================
+--- trunk/supertux/WorldMap.rb	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/supertux/WorldMap.rb	2006-07-11 03:13:18 UTC (rev 635)
+@@ -83,7 +83,8 @@
+   end
+   
+   def activate(workspace)
+-    @editormap = EditorMap.new()
++    # FIXME: All wrong and obsolote
++    @editormap = EditorMap.new(true)
+     @editormap.add_layer(@tilemap.tilemaplayer.to_layer())
+     @editormap.add_layer(@objects.to_layer())
+     @editormap.set_metadata(self)
+
+Modified: trunk/supertux/data.rb
+===================================================================
+--- trunk/supertux/data.rb	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/supertux/data.rb	2006-07-11 03:13:18 UTC (rev 635)
+@@ -41,8 +41,8 @@
+     proc{|data, sexpr| AmbientSound.new(data, sexpr)}],
+   [&quot;door&quot;, &quot;images/objects/door/door-0.png&quot;, :sprite,
+     proc{|data, sexpr| Door.new(&quot;door&quot;, data, sexpr)}],
+-  [&quot;hatch&quot;, &quot;images/objects/hatch/hatch-0.png&quot;, :sprite,
+-    proc{|data, sexpr| Door.new(&quot;hatch&quot;, data, sexpr)}],
++#  [&quot;hatch&quot;, &quot;images/objects/hatch/hatch-0.png&quot;, :sprite,
++#    proc{|data, sexpr| Door.new(&quot;hatch&quot;, data, sexpr)}],
+   [&quot;trampoline&quot;, &quot;images/objects/trampoline/trampoline1-0.png&quot;, :sprite,
+     proc{|data, sexpr| BadGuy.new(&quot;trampoline&quot;)}],
+ #  [&quot;bell&quot;, &quot;images/objects/bell/bell.sprite&quot;, :sprite,
+
+Modified: trunk/supertux/gui.rb
+===================================================================
+--- trunk/supertux/gui.rb	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/supertux/gui.rb	2006-07-11 03:13:18 UTC (rev 635)
+@@ -31,9 +31,12 @@
+                         minimap_rect.get_height() - 3))
+ 
+     @editor_map = EditorMapComponent.new(map_rect, @gui.get_component())
+-    @workspace  = Workspace.new()
+-    @editor_map.set_workspace(@workspace)
+-    @workspace.set_tool($tilemap_paint_tool.to_tool());
++    @workspace = @editor_map.get_workspace()
++
++    @workspace.set_tool(0, $tilemap_paint_tool.to_tool())
++    @workspace.set_tool(2, WorkspaceMoveTool.new().to_tool())
++    @workspace.set_tool(1, $tilemap_paint_tool.to_tool())
++
+     @minimap = Minimap.new(@editor_map, minimap_rect, @gui.get_component())
+ 
+     @selector_window = Panel.new(selector_rect, @gui.get_component())
+@@ -169,6 +172,7 @@
+ 
+   def create_menu()
+     @menu = CL_Menu.new(@gui.get_component())
++    @menu.add_item(&quot;File/New...&quot;, method(:gui_level_new))
+     @menu.add_item(&quot;File/Open...&quot;, method(:gui_level_load))
+     @menu.add_item(&quot;File/Save...&quot;, method(:gui_level_save))
+     # @menu.add_item(&quot;File/Save Commands...&quot;, menu_file_save_commands)
+@@ -192,7 +196,7 @@
+             rect.get_width(), rect.get_height(), true, @gui.get_component)
+     
+     # File Handling
+-    button_panel.add_icon(&quot;../data/images/icons24/stock_new.png&quot;)
++    button_panel.add_icon(&quot;../data/images/icons24/stock_new.png&quot;,  proc{ self.gui_level_new() })
+     button_panel.add_icon(&quot;../data/images/icons24/stock_open.png&quot;, proc{ self.gui_level_load() })
+     button_panel.add_small_icon(&quot;../data/images/icons24/downarrow.png&quot;, proc{ @recent_files_menu.run() })
+     button_panel.add_icon(&quot;../data/images/icons24/stock_save.png&quot;, proc{ self.gui_level_save() })
+@@ -205,8 +209,10 @@
+ 
+     # Undo Redo
+     button_panel.add_separator()
+-    @undo_icon = button_panel.add_icon(&quot;../data/images/icons24/stock_undo.png&quot;, proc{ @workspace.get_map().undo() })
+-    @redo_icon = button_panel.add_icon(&quot;../data/images/icons24/stock_redo.png&quot;, proc{ @workspace.get_map().redo() })
++    @undo_icon = button_panel.add_icon(&quot;../data/images/icons24/stock_undo.png&quot;, 
++                                       proc{ @workspace.get_map().undo() })
++    @redo_icon = button_panel.add_icon(&quot;../data/images/icons24/stock_redo.png&quot;, 
++                                       proc{ @workspace.get_map().redo() })
+ 
+     @undo_icon.disable()
+     @redo_icon.disable()
+@@ -283,7 +289,8 @@
+   end
+ 
+   def set_tilemap_paint_tool()
+-    @workspace.set_tool($tilemap_paint_tool.to_tool())
++    @workspace.set_tool(0, $tilemap_paint_tool.to_tool())
++    @workspace.set_tool(1, $tilemap_paint_tool.to_tool())
+     @paint.set_down()
+     @select.set_up()
+     @zoom.set_up()
+@@ -292,7 +299,7 @@
+   end
+ 
+   def set_tilemap_select_tool()
+-    @workspace.set_tool($tilemap_select_tool.to_tool())
++    @workspace.set_tool(0, $tilemap_select_tool.to_tool())
+     @paint.set_up()
+     @select.set_down()
+     @zoom.set_up()
+@@ -301,7 +308,7 @@
+   end
+ 
+   def set_zoom_tool()
+-    @workspace.set_tool($zoom_tool.to_tool())
++    @workspace.set_tool(0, $zoom_tool.to_tool())
+     @paint.set_up()
+     @select.set_up()
+     @zoom.set_down()
+@@ -310,7 +317,7 @@
+   end
+ 
+ #   def set_sketch_stroke_tool()
+-#     @workspace.set_tool($sketch_stroke_tool.to_tool())
++#     @workspace.set_tool(0, $sketch_stroke_tool.to_tool())
+ #     @paint.set_up()
+ #     @select.set_up()
+ #     @zoom.set_up()
+@@ -319,7 +326,7 @@
+ #   end
+ 
+   def set_objmap_select_tool()
+-    @workspace.set_tool($objmap_select_tool.to_tool())
++    @workspace.set_tool(0, $objmap_select_tool.to_tool())
+     @paint.set_up()
+     @select.set_up()
+     @zoom.set_up()
+@@ -546,7 +553,7 @@
+   def gui_switch_sector_menu()
+     mymenu = Menu.new(CL_Point.new(530, 54), @gui.get_component())
+     sector = @workspace.get_map().get_metadata()
+-    sector.parent.get_sectors().each do |i|
++    sector.parent.get_sectors().each { |i|
+       if sector.name == i then
+         current = &quot; [current]&quot;
+       else
+@@ -556,7 +563,8 @@
+                         print &quot;Switching to %s\n&quot; % i
+                         @workspace.get_map().get_metadata().parent.activate_sector(i, @workspace) 
+                       })
+-    end
++    }
++
+     mymenu.add_separator()
+     mymenu.add_item($mysprite, &quot;Create New Sector&quot;, proc {
+         gui_add_sector()
+@@ -628,6 +636,10 @@
+     @save_dialog.run(proc{|filename| supertux_save_level(filename) })
+   end   
+ 
++  def gui_level_new()
++    puts &quot;not implemented: gui_level_new()&quot;
++  end
++
+   def gui_level_load()
+     @load_dialog.run(proc{|filename| supertux_load_level(filename) })
+   end
+
+Modified: trunk/supertux/level.rb
+===================================================================
+--- trunk/supertux/level.rb	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/supertux/level.rb	2006-07-11 03:13:18 UTC (rev 635)
+@@ -182,6 +182,10 @@
+     end
+   end
+ 
++  def activate(workspace)
++    @current_sector.activate(workspace)
++  end
++
+   def add_sector(sector)
+     @sectors.push(sector)
+   end
+@@ -197,10 +201,6 @@
+   def get_sectors()
+     return @sectors.map {|sec| sec.name}
+   end
+-
+-  def activate(workspace)
+-    @current_sector.activate(workspace)
+-  end
+ end
+ 
+ # EOF #
+
+Modified: trunk/supertux/sector.rb
+===================================================================
+--- trunk/supertux/sector.rb	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/supertux/sector.rb	2006-07-11 03:13:18 UTC (rev 635)
+@@ -51,7 +51,7 @@
+     @objects	 = ObjectLayer.new()
+     # @sketch  = SketchLayer.new()
+ 
+-    @editormap = EditorMap.new()
++    @editormap = EditorMap.new(true)
+ #    @editormap.set_background_color(CL_Color.new(255, 255, 255))
+     @editormap.add_layer(@background.to_layer())
+     @editormap.add_layer(@interactive.to_layer())
+@@ -132,7 +132,7 @@
+       print &quot;Unknown particle system type '&quot;, partsys, &quot;'\n&quot;
+     end
+ 	    
+-    @editormap = EditorMap.new()
++    @editormap = EditorMap.new(true)
+     @editormap.add_layer(@background.to_layer())
+     @editormap.add_layer(@interactive.to_layer())
+     @editormap.add_layer(@objects.to_layer())
+@@ -210,7 +210,7 @@
+       @foreground = TilemapLayer.new($tileset, @width, @height)
+     end
+ 
+-    @editormap = EditorMap.new()
++    @editormap = EditorMap.new(true)
+     @editormap.add_layer(@background.to_layer()) if @background
+     @editormap.add_layer(@interactive.to_layer()) if @interactive
+     @editormap.add_layer(@foreground.to_layer()) if @foreground
+
+Modified: trunk/supertux/supertux.rb
+===================================================================
+--- trunk/supertux/supertux.rb	2006-07-05 15:37:25 UTC (rev 634)
++++ trunk/supertux/supertux.rb	2006-07-11 03:13:18 UTC (rev 635)
+@@ -150,7 +150,7 @@
+ $config.save($config_file)
+ 
+ # FIXME: Can't deinit flexlay, since we would crash then
+-# flexlay.deinit()
++at_exit{flexlay.deinit()}
+ # puts &quot;And now we crash&quot;
+ 
+ # EOF #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000130.html">[Flexlay-commit] r634 - trunk/clanlib/Core/IOData/Generic
+</A></li>
+	<LI>Next message: <A HREF="000133.html">[Flexlay-commit] r636 - in trunk: . clanlib lib lib/tools ruby supertux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#132">[ date ]</a>
+              <a href="thread.html#132">[ thread ]</a>
+              <a href="subject.html#132">[ subject ]</a>
+              <a href="author.html#132">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>

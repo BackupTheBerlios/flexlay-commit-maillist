@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [Flexlay-commit] r598 - in trunk: lib windstille
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/flexlay-commit/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r598%20-%20in%20trunk%3A%20lib%20windstille&In-Reply-To=%3C200508142347.j7ENlIVh010646%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000092.html">
+   <LINK REL="Next"  HREF="000094.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[Flexlay-commit] r598 - in trunk: lib windstille</H1>
+    <B>Ingo Ruhnke at BerliOS</B> 
+    <A HREF="mailto:flexlay-commit%40lists.berlios.de?Subject=Re%3A%20%5BFlexlay-commit%5D%20r598%20-%20in%20trunk%3A%20lib%20windstille&In-Reply-To=%3C200508142347.j7ENlIVh010646%40sheep.berlios.de%3E"
+       TITLE="[Flexlay-commit] r598 - in trunk: lib windstille">grumbel at berlios.de
+       </A><BR>
+    <I>Mon Aug 15 01:47:18 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000092.html">[Flexlay-commit] r597 - trunk/windstille
+</A></li>
+        <LI>Next message: <A HREF="000094.html">[Flexlay-commit] r599 - in trunk: lib netpanzer ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#93">[ date ]</a>
+              <a href="thread.html#93">[ thread ]</a>
+              <a href="subject.html#93">[ subject ]</a>
+              <a href="author.html#93">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: grumbel
+Date: 2005-08-15 01:46:57 +0200 (Mon, 15 Aug 2005)
+New Revision: 598
+
+Modified:
+   trunk/lib/editor_map_component.cxx
+   trunk/windstille/gui_specs.rb
+   trunk/windstille/layout_manager.rb
+Log:
+- fixed resize even more, added tab-layout component
+
+Modified: trunk/lib/editor_map_component.cxx
+===================================================================
+--- trunk/lib/editor_map_component.cxx	2005-08-14 23:21:56 UTC (rev 597)
++++ trunk/lib/editor_map_component.cxx	2005-08-14 23:46:57 UTC (rev 598)
+@@ -219,6 +219,8 @@
+   
+   scrollbar_h-&gt;set_position(2 + rect.left, rect.get_height() - 14 + rect.top);
+   scrollbar_h-&gt;set_size(rect.get_width() - 4 - 14, 12);
++
++  gc_state.set_size(rect.get_width(), rect.get_height());
+ }
+ 
+ CL_Signal_v2&lt;int, int&gt;&amp;
+
+Modified: trunk/windstille/gui_specs.rb
+===================================================================
+--- trunk/windstille/gui_specs.rb	2005-08-14 23:21:56 UTC (rev 597)
++++ trunk/windstille/gui_specs.rb	2005-08-14 23:46:57 UTC (rev 598)
+@@ -107,10 +107,12 @@
+           [:layout, :vbox],
+           [:size, 192],
+           [:components,
+-            [:tileselector,
+-              [:name, 'tileselector']],
+-            [:objectselector,
+-              [:name, 'objectselector']],
++            [:tab,
++              [:components,
++                [:tileselector,
++                  [:name, 'tileselector']],
++                [:objectselector,
++                  [:name, 'objectselector']]]],
+             [:minimap, 
+               [:name,    'minimap'],
+               [:size,    144],
+
+Modified: trunk/windstille/layout_manager.rb
+===================================================================
+--- trunk/windstille/layout_manager.rb	2005-08-14 23:21:56 UTC (rev 597)
++++ trunk/windstille/layout_manager.rb	2005-08-14 23:46:57 UTC (rev 598)
+@@ -102,6 +102,9 @@
+                                  :fill    =&gt; sexpr.get_value([:fill,    '_'],    true),
+                                  :padding =&gt; sexpr.get_value([:padding, '_'], 0))
+ 
++    when :tab
++      return TabComponent.new(rect, sexpr, parent)
++
+     else
+       return LayoutComponent.new(create_raw(type, rect, sexpr, parent), 
+                                  nil,
+@@ -175,6 +178,45 @@
+   end
+ end
+ 
++class TabComponent &lt; LayoutComponent
++  def initialize(rect, sexpr, parent)
++    super(nil, nil,
++          :name    =&gt; sexpr.get_value([:name,    '_'], nil),
++          :size    =&gt; sexpr.get_value([:size,    '_'], nil),
++          :expand  =&gt; sexpr.get_value([:expand,  '_'], true),
++          :fill    =&gt; sexpr.get_value([:fill,    '_'],    true),
++          :padding =&gt; sexpr.get_value([:padding, '_'], 0))
++    
++    @childs = []
++
++    sexpr.get(:components, SExpression.new()).each_pair() { |name, value|
++      @childs.push(LayoutComponent.create(name, CL_Rect.new(0, 0, 256, 256), value, parent))
++    }
++  end
++
++  def get(name)
++    @childs.each() { |i| 
++      if i.name == name then
++        return i
++      end
++    }
++    return nil
++  end
++  
++  def set_pos(x, y)
++    @childs.each() { |i| i.set_pos(x, y) }
++  end
++  
++  def set_size(width, height)
++    @childs.each() { |i| i.set_size(width, height) }
++  end
++
++  # Rearanges the layout to fit the current size
++  def layout()
++    @childs.each() { |i| i.layout() }
++  end
++end
++
+ class LayoutBox &lt; LayoutComponent
+   def initialize(type, rect, sexpr, parent)
+     super(nil, nil,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000092.html">[Flexlay-commit] r597 - trunk/windstille
+</A></li>
+	<LI>Next message: <A HREF="000094.html">[Flexlay-commit] r599 - in trunk: lib netpanzer ruby windstille
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#93">[ date ]</a>
+              <a href="thread.html#93">[ thread ]</a>
+              <a href="subject.html#93">[ subject ]</a>
+              <a href="author.html#93">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/flexlay-commit">More information about the Flexlay-commit
+mailing list</a><br>
+</body></html>
